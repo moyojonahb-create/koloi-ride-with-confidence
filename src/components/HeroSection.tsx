@@ -38,10 +38,10 @@ const HeroSection = () => {
         },
         (error) => {
           console.error('Error getting location:', error);
-          // Fallback to Harare center
-          const defaultCoords = { lng: 31.0492, lat: -17.8292 };
+          // Fallback to Gwanda center
+          const defaultCoords = { lng: 29.0147, lat: -20.9389 };
           setPickupCoords(defaultCoords);
-          setPickupLocation('Harare City Center');
+          setPickupLocation('Gwanda Town Center');
         }
       );
     }
