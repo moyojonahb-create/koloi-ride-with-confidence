@@ -354,6 +354,30 @@ export type Database = {
           },
         ]
       }
+      saved_items: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       system_events: {
         Row: {
           actor_id: string | null

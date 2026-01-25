@@ -7,6 +7,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import DriverApplication from "./pages/DriverApplication";
+import Auth from "./pages/Auth";
+import AppDashboard from "./pages/AppDashboard";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -29,6 +31,10 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/login" element={<Auth />} />
+            <Route path="/signup" element={<Auth />} />
+            <Route path="/app" element={<AppDashboard />} />
             <Route path="/drive" element={<DriverApplication />} />
             
             {/* Admin Routes */}
