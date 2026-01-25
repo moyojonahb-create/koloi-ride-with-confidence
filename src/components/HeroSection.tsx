@@ -14,7 +14,11 @@ interface RouteInfo {
   polyline?: string;
 }
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  onLoginClick?: () => void;
+}
+
+const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
   const { user } = useAuth();
   const [pickupType, setPickupType] = useState<'now' | 'later'>('now');
   const [pickupLocation, setPickupLocation] = useState('');
@@ -108,7 +112,10 @@ const HeroSection = () => {
 
       if (error) throw error;
 
-      toast.success('Ride requested! Looking for drivers...');
+      toast.success(
+        `Ride confirmed! ${selectedVehicle.name} • R${currentFare} • ${routeInfo.distance}km`,
+        { description: `From ${pickupLocation} to ${dropoffLocation}. A driver will be assigned shortly.`, duration: 6000 }
+      );
       
       // Reset form after successful request
       setPickupLocation('');
@@ -289,7 +296,10 @@ const HeroSection = () => {
               {/* Login prompt for non-authenticated users */}
               {!user && (
                 <p className="text-center text-muted-foreground text-sm mt-4">
-                  <button className="text-foreground underline underline-offset-2 hover:no-underline">
+                  <button 
+                    onClick={onLoginClick}
+                    className="text-foreground underline underline-offset-2 hover:no-underline"
+                  >
                     Log in
                   </button>{' '}
                   to request rides and view history
