@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer, Banknote } from 'lucide-react';
+import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RideMap from '@/components/RideMap';
 import LocationInput from '@/components/LocationInput';
+import VehicleTypeSelector, { VEHICLE_TYPES, calculateFareForVehicle, type VehicleType } from '@/components/VehicleTypeSelector';
 
 interface RouteInfo {
   distance: number;
   duration: number;
-  fare: number;
 }
 
 const HeroSection = () => {
@@ -18,6 +18,7 @@ const HeroSection = () => {
   const [showMap, setShowMap] = useState(true);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<VehicleType>(VEHICLE_TYPES[0]);
   
   // Map coordinates
   const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
@@ -61,9 +62,12 @@ const HeroSection = () => {
     setDropoffCoords({ lng: location.lng, lat: location.lat });
   };
 
-  const handleRouteCalculated = (info: RouteInfo | null) => {
+  const handleRouteCalculated = (info: { distance: number; duration: number } | null) => {
     setRouteInfo(info);
   };
+
+  // Calculate fare based on selected vehicle and distance
+  const currentFare = routeInfo ? calculateFareForVehicle(routeInfo.distance, selectedVehicle) : null;
 
   const handleUseMyLocation = () => {
     if (navigator.geolocation) {
@@ -173,33 +177,45 @@ const HeroSection = () => {
                 />
               </div>
 
-              {/* Fare Estimate Card */}
+              {/* Vehicle Type Selector - show when route is available */}
               {routeInfo && (
+                <div className="mt-4 animate-fade-in">
+                  <VehicleTypeSelector
+                    selectedType={selectedVehicle}
+                    onSelect={setSelectedVehicle}
+                    distanceKm={routeInfo.distance}
+                  />
+                </div>
+              )}
+
+              {/* Fare Estimate Card */}
+              {routeInfo && currentFare && (
                 <div className="mt-4 p-4 bg-accent/10 rounded-xl border border-accent/20 animate-fade-in">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium text-muted-foreground">Estimated Fare</span>
-                    <span className="text-2xl font-bold text-foreground">R{routeInfo.fare}</span>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Navigation2 className="w-4 h-4 text-accent" />
-                      <span>{routeInfo.distance} km</span>
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <span className="text-sm text-muted-foreground">{selectedVehicle.name}</span>
+                      <span className="text-2xl font-bold text-foreground ml-2">R{currentFare}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Timer className="w-4 h-4 text-accent" />
-                      <span>{routeInfo.duration} min</span>
+                    <div className="text-right text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Navigation2 className="w-4 h-4 text-accent" />
+                        <span>{routeInfo.distance} km</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Timer className="w-4 h-4 text-accent" />
+                        <span>{routeInfo.duration} min</span>
+                      </div>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                    <Banknote className="w-3 h-3" />
-                    Starting fare R50 + R4/km
+                  <p className="text-xs text-muted-foreground">
+                    Base R{selectedVehicle.baseFare} + R{selectedVehicle.pricePerKm}/km
                   </p>
                 </div>
               )}
 
               {/* Request Ride Button */}
               <Button className="koloi-btn-primary w-full mt-4" disabled={!routeInfo}>
-                {routeInfo ? `Request Ride - R${routeInfo.fare}` : 'Select pickup & dropoff'}
+                {currentFare ? `Request ${selectedVehicle.name} - R${currentFare}` : 'Select pickup & dropoff'}
               </Button>
 
               {/* Login Link */}
