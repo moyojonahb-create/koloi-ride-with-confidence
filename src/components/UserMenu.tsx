@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { User, LogOut, Heart, Clock, Settings } from 'lucide-react';
+import { User, LogOut, Heart, Clock, Settings, FileText } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,6 +56,12 @@ const UserMenu = ({ onFavoritesClick, onHistoryClick }: UserMenuProps) => {
           </div>
         </div>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link to="/app" className="flex items-center">
+            <FileText className="mr-2 h-4 w-4" />
+            <span>My Notes</span>
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={onFavoritesClick}>
           <Heart className="mr-2 h-4 w-4" />
           <span>Favorite locations</span>
