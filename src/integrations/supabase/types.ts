@@ -14,6 +14,101 @@ export type Database = {
   }
   public: {
     Tables: {
+      driver_documents: {
+        Row: {
+          created_at: string
+          document_type: string
+          driver_id: string
+          file_url: string
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_type: string
+          driver_id: string
+          file_url: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: string
+          driver_id?: string
+          file_url?: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_documents_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drivers: {
+        Row: {
+          created_at: string
+          id: string
+          is_online: boolean | null
+          plate_number: string | null
+          rating_avg: number | null
+          status: string
+          total_trips: number | null
+          updated_at: string
+          user_id: string
+          vehicle_make: string | null
+          vehicle_model: string | null
+          vehicle_type: string
+          vehicle_year: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_online?: boolean | null
+          plate_number?: string | null
+          rating_avg?: number | null
+          status?: string
+          total_trips?: number | null
+          updated_at?: string
+          user_id: string
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_type?: string
+          vehicle_year?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_online?: boolean | null
+          plate_number?: string | null
+          rating_avg?: number | null
+          status?: string
+          total_trips?: number | null
+          updated_at?: string
+          user_id?: string
+          vehicle_make?: string | null
+          vehicle_model?: string | null
+          vehicle_type?: string
+          vehicle_year?: number | null
+        }
+        Relationships: []
+      }
       favorite_locations: {
         Row: {
           address: string
@@ -89,6 +184,78 @@ export type Database = {
         }
         Relationships: []
       }
+      live_locations: {
+        Row: {
+          accuracy: number | null
+          heading: number | null
+          id: string
+          is_online: boolean | null
+          latitude: number
+          longitude: number
+          speed: number | null
+          updated_at: string
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          accuracy?: number | null
+          heading?: number | null
+          id?: string
+          is_online?: boolean | null
+          latitude: number
+          longitude: number
+          speed?: number | null
+          updated_at?: string
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          accuracy?: number | null
+          heading?: number | null
+          id?: string
+          is_online?: boolean | null
+          latitude?: number
+          longitude?: number
+          speed?: number | null
+          updated_at?: string
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          notification_type: string
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          notification_type: string
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          notification_type?: string
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -123,6 +290,7 @@ export type Database = {
         Row: {
           created_at: string
           distance_km: number
+          driver_id: string | null
           dropoff_address: string
           dropoff_lat: number
           dropoff_lon: number
@@ -141,6 +309,7 @@ export type Database = {
         Insert: {
           created_at?: string
           distance_km: number
+          driver_id?: string | null
           dropoff_address: string
           dropoff_lat: number
           dropoff_lon: number
@@ -159,6 +328,7 @@ export type Database = {
         Update: {
           created_at?: string
           distance_km?: number
+          driver_id?: string | null
           dropoff_address?: string
           dropoff_lat?: number
           dropoff_lon?: number
@@ -174,6 +344,100 @@ export type Database = {
           user_id?: string
           vehicle_type?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "rides_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string | null
+          event_type: string
+          id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type: string
+          id?: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
+          event_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      trip_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json | null
+          ride_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json | null
+          ride_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          ride_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_events_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
         Relationships: []
       }
     }
@@ -181,10 +445,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -311,6 +581,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const

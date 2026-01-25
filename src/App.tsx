@@ -7,6 +7,16 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
+// Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminDrivers from "./pages/admin/AdminDrivers";
+import AdminDriverDetail from "./pages/admin/AdminDriverDetail";
+import AdminDriversMap from "./pages/admin/AdminDriversMap";
+import AdminTrips from "./pages/admin/AdminTrips";
+import AdminLandmarks from "./pages/admin/AdminLandmarks";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminSettings from "./pages/admin/AdminSettings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -18,6 +28,17 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/drivers" element={<AdminDrivers />} />
+            <Route path="/admin/drivers/map" element={<AdminDriversMap />} />
+            <Route path="/admin/drivers/:driverId" element={<AdminDriverDetail />} />
+            <Route path="/admin/trips" element={<AdminTrips />} />
+            <Route path="/admin/landmarks" element={<AdminLandmarks />} />
+            <Route path="/admin/reports" element={<AdminReports />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+            
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
