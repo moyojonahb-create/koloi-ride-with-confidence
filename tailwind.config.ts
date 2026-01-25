@@ -59,8 +59,8 @@ export default {
         },
         // Koloi custom colors
         koloi: {
-          green: "hsl(var(--koloi-green))",
-          "green-light": "hsl(var(--koloi-green-light))",
+          orange: "hsl(var(--koloi-orange))",
+          "orange-light": "hsl(var(--koloi-orange-light))",
           black: "hsl(var(--koloi-black))",
           "gray-100": "hsl(var(--koloi-gray-100))",
           "gray-200": "hsl(var(--koloi-gray-200))",
