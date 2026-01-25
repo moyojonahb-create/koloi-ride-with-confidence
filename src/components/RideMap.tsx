@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { AlertCircle, ExternalLink, MapIcon } from 'lucide-react';
+import { AlertCircle, MapIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { decodeFlexiblePolyline, toGeoJSONLineString } from '@/lib/flexPolyline';
 
@@ -51,9 +51,8 @@ const generateNearbyDrivers = (centerLng: number, centerLat: number): MapLocatio
   return drivers;
 };
 
-// Store token in localStorage for persistence
-const getStoredToken = () => localStorage.getItem('mapbox_token') || '';
-const setStoredToken = (token: string) => localStorage.setItem('mapbox_token', token);
+// Get Mapbox token from environment variable
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '';
 
 const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCalculated, className = '' }: RideMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -61,27 +60,20 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [mapboxToken, setMapboxToken] = useState(getStoredToken());
-  const [tokenInput, setTokenInput] = useState(getStoredToken());
   
   // Default center: Gwanda, Zimbabwe (near Beit Bridge and Blanket Mine)
   const defaultCenter = { lng: 29.0147, lat: -20.9389 };
   const [center] = useState(defaultCenter);
   const [drivers, setDrivers] = useState<MapLocation[]>([]);
 
-  const handleTokenSubmit = () => {
-    if (tokenInput.startsWith('pk.')) {
-      setStoredToken(tokenInput);
-      setMapboxToken(tokenInput);
-      setMapError(null);
-    } else {
-      setMapError('Please enter a valid Mapbox public token (starts with pk.)');
-    }
-  };
-
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
+    if (!mapContainer.current || !MAPBOX_TOKEN) {
+      if (!MAPBOX_TOKEN) {
+        setMapError('Mapbox token not configured');
+      }
+      return;
+    }
     
     // Clean up existing map
     if (map.current) {
@@ -89,7 +81,7 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
       map.current = null;
     }
 
-    mapboxgl.accessToken = mapboxToken;
+    mapboxgl.accessToken = MAPBOX_TOKEN;
 
     try {
       map.current = new mapboxgl.Map({
@@ -113,8 +105,7 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
         console.error('Map error:', e);
         const errorStatus = (e.error as any)?.status;
         if (errorStatus === 401) {
-          setMapError('Invalid Mapbox token. Please enter a valid public token.');
-          setMapboxToken('');
+          setMapError('Invalid Mapbox token. Please check the configuration.');
         }
       });
 
@@ -135,7 +126,7 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
       map.current?.remove();
       map.current = null;
     };
-  }, [mapboxToken]);
+  }, [MAPBOX_TOKEN]);
 
   // Fetch route using HERE Maps via edge function
   const fetchHereRoute = async (pickup: { lng: number; lat: number }, dropoff: { lng: number; lat: number }) => {
@@ -184,12 +175,12 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
 
   // Fallback: Fetch route using Mapbox Directions API
   const fetchMapboxRoute = async (pickup: { lng: number; lat: number }, dropoff: { lng: number; lat: number }) => {
-    if (!map.current || !mapboxToken) return;
+    if (!map.current || !MAPBOX_TOKEN) return;
 
     try {
       console.log('Fetching route from Mapbox (fallback)...');
       const response = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?geometries=geojson&access_token=${mapboxToken}`
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
       );
       const data = await response.json();
 
@@ -327,52 +318,19 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
     }
   }, [pickupLocation, dropoffLocation, drivers, isLoaded]);
 
-  // Show token input if no token
-  if (!mapboxToken) {
+  // Show error if no token configured
+  if (!MAPBOX_TOKEN) {
     return (
       <div className={`relative ${className}`}>
         <div className="w-full h-full rounded-2xl overflow-hidden bg-koloi-gray-100 flex flex-col items-center justify-center p-8">
-          <div className="bg-card rounded-xl shadow-koloi-md p-6 max-w-md w-full">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
-                <AlertCircle className="w-5 h-5 text-accent" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Mapbox Token Required</h3>
-                <p className="text-sm text-muted-foreground">Enter your public access token</p>
-              </div>
+          <div className="bg-card rounded-xl shadow-koloi-md p-6 max-w-md w-full text-center">
+            <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MapIcon className="w-6 h-6 text-accent" />
             </div>
-            
-            <p className="text-sm text-muted-foreground mb-4">
-              Get a free token from{' '}
-              <a 
-                href="https://account.mapbox.com/access-tokens/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-accent hover:underline inline-flex items-center gap-1"
-              >
-                Mapbox <ExternalLink className="w-3 h-3" />
-              </a>
+            <h3 className="font-semibold text-foreground mb-2">Map Loading...</h3>
+            <p className="text-sm text-muted-foreground">
+              Please wait while the map initializes.
             </p>
-
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="pk.eyJ1Ijoi..."
-                value={tokenInput}
-                onChange={(e) => setTokenInput(e.target.value)}
-                className="koloi-input text-sm"
-              />
-              {mapError && (
-                <p className="text-destructive text-sm">{mapError}</p>
-              )}
-              <button 
-                onClick={handleTokenSubmit}
-                className="koloi-btn-primary w-full h-12"
-              >
-                Load Map
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -412,16 +370,8 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
       {mapError && (
         <div className="absolute inset-0 bg-koloi-gray-100 rounded-2xl flex items-center justify-center p-4">
           <div className="text-center">
+            <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
             <p className="text-destructive mb-2">{mapError}</p>
-            <button 
-              onClick={() => {
-                setMapboxToken('');
-                setTokenInput('');
-              }}
-              className="text-sm text-accent hover:underline"
-            >
-              Enter a new token
-            </button>
           </div>
         </div>
       )}
