@@ -15,27 +15,15 @@ interface MapLocation {
 interface RouteInfo {
   distance: number; // in km
   duration: number; // in minutes
-  fare: number; // in Rands
 }
 
 interface RideMapProps {
   pickupLocation?: { lng: number; lat: number } | null;
   dropoffLocation?: { lng: number; lat: number } | null;
   onLocationSelect?: (location: { lng: number; lat: number }, type: 'pickup' | 'dropoff') => void;
-  onRouteCalculated?: (routeInfo: RouteInfo) => void;
+  onRouteCalculated?: (routeInfo: RouteInfo | null) => void;
   className?: string;
 }
-
-// Fare calculation constants
-const BASE_FARE = 50; // Starting price in Rands
-const PRICE_PER_KM = 4; // Rands per km (calibrated: ~12km Gwanda to Spitzkop = 50 Rands total)
-const MIN_FARE = 50; // Minimum fare
-
-// Calculate fare based on distance
-const calculateFare = (distanceKm: number): number => {
-  const fare = BASE_FARE + (distanceKm * PRICE_PER_KM);
-  return Math.max(MIN_FARE, Math.round(fare / 5) * 5); // Round to nearest 5
-};
 
 // Simulated nearby drivers for demo
 const generateNearbyDrivers = (centerLng: number, centerLat: number): MapLocation[] => {
@@ -139,13 +127,11 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
       if (data && data.polyline) {
         const distanceKm = data.distance / 1000;
         const durationMin = Math.round(data.duration / 60);
-        const fare = calculateFare(distanceKm);
 
-        // Notify parent of route info
+        // Notify parent of route info (fare calculated by parent based on vehicle type)
         onRouteCalculated?.({
           distance: Math.round(distanceKm * 10) / 10,
           duration: durationMin,
-          fare: fare,
         });
 
         // Decode HERE flexible polyline and convert to GeoJSON
@@ -177,12 +163,10 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
         const route = data.routes[0];
         const distanceKm = route.distance / 1000;
         const durationMin = Math.round(route.duration / 60);
-        const fare = calculateFare(distanceKm);
 
         onRouteCalculated?.({
           distance: Math.round(distanceKm * 10) / 10,
           duration: durationMin,
-          fare: fare,
         });
 
         const routeGeoJSON: GeoJSON.Feature<GeoJSON.LineString> = {
