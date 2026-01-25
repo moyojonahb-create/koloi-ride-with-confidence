@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer, Banknote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RideMap from '@/components/RideMap';
@@ -17,10 +17,29 @@ const HeroSection = () => {
   const [showPickupDropdown, setShowPickupDropdown] = useState(false);
   const [showMap, setShowMap] = useState(true);
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   
   // Map coordinates
   const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
   const [dropoffCoords, setDropoffCoords] = useState<{ lng: number; lat: number } | null>(null);
+
+  // Get user location on mount for nearby landmarks
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        () => {
+          // Default to Gwanda center if geolocation fails
+          setUserLocation({ lat: -20.9389, lng: 29.0147 });
+        }
+      );
+    }
+  }, []);
 
   const handleMapLocationSelect = (location: { lng: number; lat: number }, type: 'pickup' | 'dropoff') => {
     if (type === 'pickup') {
@@ -140,6 +159,7 @@ const HeroSection = () => {
                   onUseMyLocation={handleUseMyLocation}
                   showMyLocation={true}
                   markerType="pickup"
+                  userLocation={userLocation}
                 />
 
                 {/* Dropoff Location */}
@@ -149,6 +169,7 @@ const HeroSection = () => {
                   onChange={setDropoffLocation}
                   onLocationSelect={handleDropoffSelect}
                   markerType="dropoff"
+                  userLocation={userLocation}
                 />
               </div>
 
