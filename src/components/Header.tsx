@@ -1,14 +1,19 @@
 import { useState } from 'react';
-import { Menu, X, Globe, ChevronDown } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import KoloiLogo from '@/components/KoloiLogo';
+import UserMenu from '@/components/UserMenu';
+import { useAuth } from '@/hooks/useAuth';
 
 interface HeaderProps {
   onLoginClick: () => void;
   onSignupClick: () => void;
+  onFavoritesClick: () => void;
+  onHistoryClick: () => void;
 }
 
-const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
+const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick }: HeaderProps) => {
+  const { user, loading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
@@ -49,18 +54,29 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
             <a href="#help" className="koloi-link-nav">
               Help
             </a>
-            <button 
-              onClick={onLoginClick}
-              className="koloi-link-nav"
-            >
-              Log in
-            </button>
-            <Button 
-              onClick={onSignupClick}
-              className="koloi-btn-primary h-10 px-4"
-            >
-              Sign up
-            </Button>
+            {!loading && (
+              user ? (
+                <UserMenu 
+                  onFavoritesClick={onFavoritesClick}
+                  onHistoryClick={onHistoryClick}
+                />
+              ) : (
+                <>
+                  <button 
+                    onClick={onLoginClick}
+                    className="koloi-link-nav"
+                  >
+                    Log in
+                  </button>
+                  <Button 
+                    onClick={onSignupClick}
+                    className="koloi-btn-primary h-10 px-4"
+                  >
+                    Sign up
+                  </Button>
+                </>
+              )
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -103,27 +119,44 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
                 English
               </button>
               <div className="border-t border-border my-2" />
-              <div className="flex flex-col gap-2 px-4">
-                <Button 
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    onLoginClick();
-                  }}
-                  variant="outline"
-                  className="w-full h-12"
-                >
-                  Log in
-                </Button>
-                <Button 
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    onSignupClick();
-                  }}
-                  className="koloi-btn-primary w-full"
-                >
-                  Sign up
-                </Button>
-              </div>
+              {!loading && (
+                user ? (
+                  <div className="px-4">
+                    <UserMenu 
+                      onFavoritesClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onFavoritesClick();
+                      }}
+                      onHistoryClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onHistoryClick();
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2 px-4">
+                    <Button 
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onLoginClick();
+                      }}
+                      variant="outline"
+                      className="w-full h-12"
+                    >
+                      Log in
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onSignupClick();
+                      }}
+                      className="koloi-btn-primary w-full"
+                    >
+                      Sign up
+                    </Button>
+                  </div>
+                )
+              )}
             </div>
           </div>
         )}

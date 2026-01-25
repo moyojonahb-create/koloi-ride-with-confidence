@@ -14,7 +14,126 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      favorite_locations: {
+        Row: {
+          address: string
+          created_at: string
+          icon: string | null
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rides: {
+        Row: {
+          created_at: string
+          distance_km: number
+          dropoff_address: string
+          dropoff_lat: number
+          dropoff_lon: number
+          duration_minutes: number
+          fare: number
+          id: string
+          pickup_address: string
+          pickup_lat: number
+          pickup_lon: number
+          route_polyline: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          distance_km: number
+          dropoff_address: string
+          dropoff_lat: number
+          dropoff_lon: number
+          duration_minutes: number
+          fare: number
+          id?: string
+          pickup_address: string
+          pickup_lat: number
+          pickup_lon: number
+          route_polyline?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          distance_km?: number
+          dropoff_address?: string
+          dropoff_lat?: number
+          dropoff_lon?: number
+          duration_minutes?: number
+          fare?: number
+          id?: string
+          pickup_address?: string
+          pickup_lat?: number
+          pickup_lon?: number
+          route_polyline?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
