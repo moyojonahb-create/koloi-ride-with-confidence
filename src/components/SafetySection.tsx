@@ -1,53 +1,53 @@
-import { Shield, Phone, MapPin, Users } from 'lucide-react';
+import { Shield, Share2, AlertTriangle } from 'lucide-react';
 
 const safetyFeatures = [
   {
     icon: Shield,
-    title: 'Safety features built in',
-    description: 'Share your trip status with loved ones and access emergency assistance.',
-  },
-  {
-    icon: Phone,
-    title: '24/7 support',
-    description: 'Our support team is available around the clock to help.',
-  },
-  {
-    icon: MapPin,
-    title: 'Real-time tracking',
-    description: 'Track your ride in real-time from request to drop-off.',
-  },
-  {
-    icon: Users,
     title: 'Verified drivers',
-    description: 'All drivers undergo thorough background checks.',
+    description: 'Get out employeee from directions to enoure the local pidway.',
+  },
+  {
+    icon: Share2,
+    title: 'Share trip link',
+    description: 'Reless can clase from line & reserves cnantle semeations to-completed.',
+  },
+  {
+    icon: AlertTriangle,
+    badge: 'SOS',
+    title: 'SOS button',
+    description: 'Ibsitte aeriadiy, Impo vien-colstenses, progred a celeipticentille heaspes.',
   },
 ];
 
 const SafetySection = () => {
   return (
-    <section className="bg-koloi-gray-100 py-16 lg:py-24">
+    <section className="bg-primary py-16 lg:py-24">
       <div className="koloi-container">
-        <div className="text-center mb-12 lg:mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Your safety drives us
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Whether you're riding or driving, we're committed to your safety. Every trip is tracked and our support team is always ready to help.
-          </p>
-        </div>
+        <h2 className="text-3xl lg:text-4xl font-display font-bold text-primary-foreground text-center mb-12 lg:mb-16 italic">
+          Safety after you...
+        </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {safetyFeatures.map((feature) => (
             <div
               key={feature.title}
-              className="bg-card rounded-xl p-6 shadow-koloi-sm hover:shadow-koloi-md transition-shadow"
+              className="bg-card rounded-2xl p-6 shadow-koloi-md"
             >
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                <feature.icon className="w-6 h-6 text-accent" />
+              {/* Icon */}
+              <div className="flex items-center gap-3 mb-4">
+                {feature.badge ? (
+                  <div className="px-3 py-1 bg-accent text-accent-foreground text-xs font-bold rounded">
+                    {feature.badge}
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <feature.icon className="w-5 h-5 text-primary" />
+                  </div>
+                )}
+                <h3 className="text-lg font-display font-semibold text-foreground">
+                  {feature.title}
+                </h3>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                {feature.title}
-              </h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {feature.description}
               </p>
