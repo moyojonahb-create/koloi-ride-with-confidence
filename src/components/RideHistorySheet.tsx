@@ -89,7 +89,7 @@ const RideHistorySheet = ({ isOpen, onClose }: RideHistorySheetProps) => {
                       {format(new Date(ride.created_at), 'MMM d, yyyy • h:mm a')}
                     </div>
                     <div className="font-semibold text-lg">
-                      ${Number(ride.fare).toFixed(2)}
+                      R{Number(ride.fare).toFixed(0)}
                     </div>
                   </div>
 

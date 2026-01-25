@@ -40,7 +40,7 @@ const Index = () => {
       />
       
       <main>
-        <HeroSection />
+        <HeroSection onLoginClick={handleLoginClick} />
         <SuggestionsSection />
         <DriveSection />
         <BusinessSection />
