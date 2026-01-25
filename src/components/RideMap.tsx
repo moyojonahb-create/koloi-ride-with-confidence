@@ -128,7 +128,7 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
         mapInitialized.current = false;
       }
     };
-  }, []);
+  }, [mapboxToken]);
 
   // Fetch route using HERE Maps via edge function
   const fetchHereRoute = async (pickup: { lng: number; lat: number }, dropoff: { lng: number; lat: number }) => {
