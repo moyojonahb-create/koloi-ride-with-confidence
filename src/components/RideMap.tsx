@@ -15,6 +15,7 @@ interface MapLocation {
 interface RouteInfo {
   distance: number; // in km
   duration: number; // in minutes
+  polyline?: string; // route polyline for storage
 }
 
 interface RideMapProps {
@@ -128,10 +129,11 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
         const distanceKm = data.distance / 1000;
         const durationMin = Math.round(data.duration / 60);
 
-        // Notify parent of route info (fare calculated by parent based on vehicle type)
+        // Notify parent of route info with polyline for storage
         onRouteCalculated?.({
           distance: Math.round(distanceKm * 10) / 10,
           duration: durationMin,
+          polyline: data.polyline,
         });
 
         // Decode HERE flexible polyline and convert to GeoJSON
@@ -167,6 +169,7 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
         onRouteCalculated?.({
           distance: Math.round(distanceKm * 10) / 10,
           duration: durationMin,
+          polyline: JSON.stringify(route.geometry.coordinates),
         });
 
         const routeGeoJSON: GeoJSON.Feature<GeoJSON.LineString> = {
