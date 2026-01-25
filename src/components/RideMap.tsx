@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { AlertCircle, ExternalLink } from 'lucide-react';
+import { AlertCircle, ExternalLink, MapIcon } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { decodeFlexiblePolyline, toGeoJSONLineString } from '@/lib/flexPolyline';
 
 interface MapLocation {
   lng: number;
@@ -135,11 +137,57 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
     };
   }, [mapboxToken]);
 
-  // Fetch and draw route between pickup and dropoff
-  const fetchRoute = async (pickup: { lng: number; lat: number }, dropoff: { lng: number; lat: number }) => {
+  // Fetch route using HERE Maps via edge function
+  const fetchHereRoute = async (pickup: { lng: number; lat: number }, dropoff: { lng: number; lat: number }) => {
+    if (!map.current) return;
+
+    try {
+      console.log('Fetching route from HERE Maps...');
+      const { data, error } = await supabase.functions.invoke('here-route', {
+        body: {
+          origin: { lat: pickup.lat, lng: pickup.lng },
+          destination: { lat: dropoff.lat, lng: dropoff.lng },
+        },
+      });
+
+      if (error) {
+        console.error('HERE route error:', error);
+        // Fallback to Mapbox if HERE fails
+        return fetchMapboxRoute(pickup, dropoff);
+      }
+
+      if (data && data.polyline) {
+        const distanceKm = data.distance / 1000;
+        const durationMin = Math.round(data.duration / 60);
+        const fare = calculateFare(distanceKm);
+
+        // Notify parent of route info
+        onRouteCalculated?.({
+          distance: Math.round(distanceKm * 10) / 10,
+          duration: durationMin,
+          fare: fare,
+        });
+
+        // Decode HERE flexible polyline and convert to GeoJSON
+        const coordinates = decodeFlexiblePolyline(data.polyline);
+        const routeGeoJSON = toGeoJSONLineString(coordinates);
+
+        updateRouteLayer(routeGeoJSON);
+        console.log('HERE Maps route displayed successfully');
+      }
+    } catch (error) {
+      console.error('Error fetching HERE route:', error);
+      // Fallback to Mapbox
+      fetchMapboxRoute(pickup, dropoff);
+    }
+  };
+
+  // Fallback: Fetch route using Mapbox Directions API
+  const fetchMapboxRoute = async (pickup: { lng: number; lat: number }, dropoff: { lng: number; lat: number }) => {
     if (!map.current || !mapboxToken) return;
 
     try {
+      console.log('Fetching route from Mapbox (fallback)...');
       const response = await fetch(
         `https://api.mapbox.com/directions/v5/mapbox/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?geometries=geojson&access_token=${mapboxToken}`
       );
@@ -151,60 +199,65 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
         const durationMin = Math.round(route.duration / 60);
         const fare = calculateFare(distanceKm);
 
-        // Notify parent of route info
         onRouteCalculated?.({
           distance: Math.round(distanceKm * 10) / 10,
           duration: durationMin,
           fare: fare,
         });
 
-        // Add or update route layer
-        const routeGeoJSON: GeoJSON.Feature<GeoJSON.Geometry> = {
+        const routeGeoJSON: GeoJSON.Feature<GeoJSON.LineString> = {
           type: 'Feature',
           properties: {},
           geometry: route.geometry,
         };
 
-        if (map.current.getSource('route')) {
-          (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData(routeGeoJSON);
-        } else {
-          map.current.addSource('route', {
-            type: 'geojson',
-            data: routeGeoJSON,
-          });
-
-          map.current.addLayer({
-            id: 'route-outline',
-            type: 'line',
-            source: 'route',
-            layout: {
-              'line-join': 'round',
-              'line-cap': 'round',
-            },
-            paint: {
-              'line-color': '#000000',
-              'line-width': 8,
-              'line-opacity': 0.3,
-            },
-          });
-
-          map.current.addLayer({
-            id: 'route',
-            type: 'line',
-            source: 'route',
-            layout: {
-              'line-join': 'round',
-              'line-cap': 'round',
-            },
-            paint: {
-              'line-color': '#F97316', // Orange accent color
-              'line-width': 5,
-            },
-          });
-        }
+        updateRouteLayer(routeGeoJSON);
       }
     } catch (error) {
-      console.error('Error fetching route:', error);
+      console.error('Error fetching Mapbox route:', error);
+    }
+  };
+
+  // Update route layer on map
+  const updateRouteLayer = (routeGeoJSON: GeoJSON.Feature<GeoJSON.LineString>) => {
+    if (!map.current) return;
+
+    if (map.current.getSource('route')) {
+      (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData(routeGeoJSON);
+    } else {
+      map.current.addSource('route', {
+        type: 'geojson',
+        data: routeGeoJSON,
+      });
+
+      map.current.addLayer({
+        id: 'route-outline',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint: {
+          'line-color': '#000000',
+          'line-width': 8,
+          'line-opacity': 0.3,
+        },
+      });
+
+      map.current.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint: {
+          'line-color': '#F97316', // Orange accent color
+          'line-width': 5,
+        },
+      });
     }
   };
 
@@ -254,8 +307,8 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
 
     // Fetch route and fit bounds when both locations are set
     if (pickupLocation && dropoffLocation) {
-      fetchRoute(pickupLocation, dropoffLocation);
-      
+      // Use HERE Maps for routing (with Mapbox fallback)
+      fetchHereRoute(pickupLocation, dropoffLocation);
       const bounds = new mapboxgl.LngLatBounds();
       bounds.extend([pickupLocation.lng, pickupLocation.lat]);
       bounds.extend([dropoffLocation.lng, dropoffLocation.lat]);
