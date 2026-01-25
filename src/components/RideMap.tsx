@@ -40,9 +40,6 @@ const generateNearbyDrivers = (centerLng: number, centerLat: number): MapLocatio
   return drivers;
 };
 
-// Get Mapbox token from environment variable
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '';
-
 const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCalculated, className = '' }: RideMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -50,20 +47,49 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
   const mapInitialized = useRef(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   
   // Default center: Gwanda, Zimbabwe
   const defaultCenter = useRef({ lng: 29.0147, lat: -20.9389 });
   const [drivers, setDrivers] = useState<MapLocation[]>([]);
 
-  // Initialize map once on mount only
+  // Fetch Mapbox token from edge function on mount
   useEffect(() => {
-    if (!mapContainer.current || !MAPBOX_TOKEN) return;
+    const fetchToken = async () => {
+      // First try environment variable
+      const envToken = import.meta.env.VITE_MAPBOX_TOKEN;
+      if (envToken) {
+        setMapboxToken(envToken);
+        return;
+      }
+
+      // Fallback to edge function
+      try {
+        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        if (error) throw error;
+        if (data?.token) {
+          setMapboxToken(data.token);
+        } else {
+          setMapError('Mapbox token not available');
+        }
+      } catch (err) {
+        console.error('Failed to fetch Mapbox token:', err);
+        setMapError('Failed to load map configuration');
+      }
+    };
+
+    fetchToken();
+  }, []);
+
+  // Initialize map once token is available
+  useEffect(() => {
+    if (!mapContainer.current || !mapboxToken) return;
     
     // Prevent re-initialization
     if (mapInitialized.current || map.current) return;
     
     mapInitialized.current = true;
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+    mapboxgl.accessToken = mapboxToken;
 
     try {
       map.current = new mapboxgl.Map({
@@ -150,12 +176,12 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
 
   // Fallback: Fetch route using Mapbox Directions API
   const fetchMapboxRoute = async (pickup: { lng: number; lat: number }, dropoff: { lng: number; lat: number }) => {
-    if (!map.current || !MAPBOX_TOKEN) return;
+    if (!map.current || !mapboxToken) return;
 
     try {
       console.log('Fetching route from Mapbox (fallback)...');
       const response = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?geometries=geojson&access_token=${mapboxToken}`
       );
       const data = await response.json();
 
@@ -292,8 +318,8 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
     }
   }, [pickupLocation, dropoffLocation, drivers, isLoaded]);
 
-  // Show error if no token configured
-  if (!MAPBOX_TOKEN) {
+  // Show error if no token configured or loading
+  if (!mapboxToken && !mapError) {
     return (
       <div className={`relative ${className}`}>
         <div className="w-full h-full rounded-2xl overflow-hidden bg-koloi-gray-100 flex flex-col items-center justify-center p-8">
