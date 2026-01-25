@@ -1,15 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { AlertCircle, MapIcon } from 'lucide-react';
+import { AlertCircle, MapIcon, Volume2, VolumeX } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { decodeFlexiblePolyline, toGeoJSONLineString } from '@/lib/flexPolyline';
+import { speak } from '@/lib/voiceNav';
+import { Button } from '@/components/ui/button';
 
 interface MapLocation {
   lng: number;
   lat: number;
   type: 'pickup' | 'dropoff' | 'driver';
   label?: string;
+  eta?: number; // ETA in minutes
+  distance?: number; // Distance in km
+  heading?: number; // Direction driver is facing (degrees)
 }
 
 interface RouteInfo {
@@ -26,18 +31,39 @@ interface RideMapProps {
   className?: string;
 }
 
-// Simulated nearby drivers for demo
+// Calculate distance between two points (Haversine formula)
+const calculateDistance = (lng1: number, lat1: number, lng2: number, lat2: number): number => {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+// Simulated nearby drivers for demo with ETA and distance
 const generateNearbyDrivers = (centerLng: number, centerLat: number): MapLocation[] => {
   const drivers: MapLocation[] = [];
   for (let i = 0; i < 5; i++) {
+    const driverLng = centerLng + (Math.random() - 0.5) * 0.03;
+    const driverLat = centerLat + (Math.random() - 0.5) * 0.03;
+    const distance = calculateDistance(centerLng, centerLat, driverLng, driverLat);
+    const eta = Math.ceil(distance * 3 + 1); // ~3 min per km + 1 min buffer
+    
     drivers.push({
-      lng: centerLng + (Math.random() - 0.5) * 0.03,
-      lat: centerLat + (Math.random() - 0.5) * 0.03,
+      lng: driverLng,
+      lat: driverLat,
       type: 'driver',
       label: `Driver ${i + 1}`,
+      eta,
+      distance: Math.round(distance * 10) / 10,
+      heading: Math.random() * 360,
     });
   }
-  return drivers;
+  // Sort by ETA
+  return drivers.sort((a, b) => (a.eta || 0) - (b.eta || 0));
 };
 
 const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCalculated, className = '' }: RideMapProps) => {
@@ -48,10 +74,19 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
   const [isLoaded, setIsLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const hasAnnouncedRoute = useRef(false);
   
   // Default center: Gwanda, Zimbabwe
   const defaultCenter = useRef({ lng: 29.0147, lat: -20.9389 });
   const [drivers, setDrivers] = useState<MapLocation[]>([]);
+
+  // Voice announcement helper
+  const announce = useCallback((text: string) => {
+    if (voiceEnabled) {
+      speak(text);
+    }
+  }, [voiceEnabled]);
 
   // Fetch Mapbox token from edge function on mount
   useEffect(() => {
@@ -273,6 +308,59 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
     }
   };
 
+  // Add driver distance lines to pickup
+  const updateDriverLines = useCallback(() => {
+    if (!map.current || !pickupLocation || drivers.length === 0) return;
+
+    // Create GeoJSON for driver-to-pickup lines
+    const driverLines: GeoJSON.Feature<GeoJSON.LineString>[] = drivers.map((driver, index) => ({
+      type: 'Feature',
+      properties: {
+        driverId: index,
+        eta: driver.eta,
+        distance: driver.distance,
+      },
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [driver.lng, driver.lat],
+          [pickupLocation.lng, pickupLocation.lat],
+        ],
+      },
+    }));
+
+    const geoJsonData: GeoJSON.FeatureCollection<GeoJSON.LineString> = {
+      type: 'FeatureCollection',
+      features: driverLines,
+    };
+
+    if (map.current.getSource('driver-lines')) {
+      (map.current.getSource('driver-lines') as mapboxgl.GeoJSONSource).setData(geoJsonData);
+    } else {
+      map.current.addSource('driver-lines', {
+        type: 'geojson',
+        data: geoJsonData,
+      });
+
+      // Dashed lines from drivers to pickup
+      map.current.addLayer({
+        id: 'driver-lines',
+        type: 'line',
+        source: 'driver-lines',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint: {
+          'line-color': '#10B981',
+          'line-width': 2,
+          'line-dasharray': [2, 4],
+          'line-opacity': 0.6,
+        },
+      });
+    }
+  }, [pickupLocation, drivers]);
+
   // Update markers when locations change
   useEffect(() => {
     if (!map.current || !isLoaded) return;
@@ -301,21 +389,29 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
       markersRef.current.push(marker);
     }
 
-    // Add driver markers
-    drivers.forEach((driver) => {
-      const driverEl = createMarkerElement('driver');
+    // Add driver markers with ETA labels
+    drivers.forEach((driver, index) => {
+      const driverEl = createMarkerElement('driver', driver.eta, driver.heading);
       const marker = new mapboxgl.Marker({ element: driverEl })
         .setLngLat([driver.lng, driver.lat])
         .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`
-          <div style="padding: 4px;">
+          <div style="padding: 8px;">
             <strong>${driver.label}</strong><br/>
-            <span style="color: #F97316;">● Available</span><br/>
-            <small>2 min away</small>
+            <span style="color: #10B981;">● Available</span><br/>
+            <div style="margin-top: 4px; font-size: 12px;">
+              <strong>${driver.eta} min</strong> away<br/>
+              <span style="color: #666;">${driver.distance} km</span>
+            </div>
           </div>
         `))
         .addTo(map.current!);
       markersRef.current.push(marker);
     });
+
+    // Update driver lines to pickup
+    if (pickupLocation && drivers.length > 0) {
+      updateDriverLines();
+    }
 
     // Fetch route and fit bounds when both locations are set
     if (pickupLocation && dropoffLocation) {
@@ -325,6 +421,11 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
       bounds.extend([pickupLocation.lng, pickupLocation.lat]);
       bounds.extend([dropoffLocation.lng, dropoffLocation.lat]);
       map.current.fitBounds(bounds, { padding: 80 });
+
+      // Voice announcement for route
+      if (!hasAnnouncedRoute.current) {
+        hasAnnouncedRoute.current = true;
+      }
     } else if (pickupLocation) {
       map.current.flyTo({ center: [pickupLocation.lng, pickupLocation.lat], zoom: 14 });
       // Clear route if only pickup is set
@@ -336,8 +437,22 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
         });
       }
       onRouteCalculated?.(null as any);
+      hasAnnouncedRoute.current = false;
+
+      // Announce pickup set
+      if (drivers.length > 0) {
+        const nearestDriver = drivers[0];
+        announce(`Pickup location set. Nearest driver is ${nearestDriver.eta} minutes away.`);
+      }
     }
-  }, [pickupLocation, dropoffLocation, drivers, isLoaded]);
+  }, [pickupLocation, dropoffLocation, drivers, isLoaded, updateDriverLines, announce]);
+
+  // Voice announcement when route is calculated
+  useEffect(() => {
+    if (pickupLocation && dropoffLocation && hasAnnouncedRoute.current) {
+      // This will be called after route info is available
+    }
+  }, [pickupLocation, dropoffLocation]);
 
   // Show error if no token configured or loading
   if (!mapboxToken && !mapError) {
@@ -362,11 +477,28 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
     <div className={`relative ${className}`}>
       <div ref={mapContainer} className="w-full h-full rounded-2xl overflow-hidden" />
       
+      {/* Voice toggle button */}
+      {isLoaded && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="absolute top-4 left-4 bg-card/95 backdrop-blur-sm shadow-koloi-md"
+          onClick={() => setVoiceEnabled(!voiceEnabled)}
+          title={voiceEnabled ? 'Disable voice navigation' : 'Enable voice navigation'}
+        >
+          {voiceEnabled ? (
+            <Volume2 className="h-4 w-4" />
+          ) : (
+            <VolumeX className="h-4 w-4 text-muted-foreground" />
+          )}
+        </Button>
+      )}
+
       {/* Map legend */}
       {isLoaded && (
         <div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-sm rounded-lg p-3 shadow-koloi-md text-sm">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-4 h-4 rounded-full bg-foreground border-2 border-white flex items-center justify-center">
+            <div className="w-4 h-4 rounded-full bg-foreground border-2 border-white flex items-center justify-center relative">
               <div className="w-1.5 h-1.5 rounded-full bg-white" />
             </div>
             <span>Pickup</span>
@@ -383,9 +515,17 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
             <div className="w-4 h-1 bg-accent rounded-full" />
             <span className="flex items-center gap-1">Route <span className="text-muted-foreground text-xs">→</span></span>
           </div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-4 border-t-2 border-dashed border-emerald-500" />
+            <span>Driver distance</span>
+          </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white" />
-            <span>Drivers nearby</span>
+            <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2">
+                <path d="M12 2L19 21L12 17L5 21L12 2Z"/>
+              </svg>
+            </div>
+            <span>Drivers <span className="text-muted-foreground text-xs">(ETA)</span></span>
           </div>
         </div>
       )}
@@ -411,29 +551,49 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
 };
 
 // Helper to create custom marker elements
-const createMarkerElement = (type: 'pickup' | 'dropoff' | 'driver'): HTMLDivElement => {
+const createMarkerElement = (type: 'pickup' | 'dropoff' | 'driver', eta?: number, heading?: number): HTMLDivElement => {
   const el = document.createElement('div');
   el.className = 'custom-marker';
   
   if (type === 'pickup') {
-    // Pickup: Circle with upward arrow inside
+    // Pickup: Circle with pulsing animation
     el.innerHTML = `
-      <div style="
-        width: 32px;
-        height: 32px;
-        background: #121212;
-        border: 3px solid white;
-        border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      ">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4"/>
-        </svg>
+      <div style="position: relative;">
+        <div style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 48px;
+          height: 48px;
+          background: rgba(18, 18, 18, 0.2);
+          border-radius: 50%;
+          animation: pulse 2s ease-in-out infinite;
+        "></div>
+        <div style="
+          position: relative;
+          width: 32px;
+          height: 32px;
+          background: #121212;
+          border: 3px solid white;
+          border-radius: 50%;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+        </div>
       </div>
+      <style>
+        @keyframes pulse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+          50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
+        }
+      </style>
     `;
   } else if (type === 'dropoff') {
     // Dropoff: Pin with arrow pointing down
@@ -463,24 +623,41 @@ const createMarkerElement = (type: 'pickup' | 'dropoff' | 'driver'): HTMLDivElem
       </div>
     `;
   } else {
+    // Driver: Car with ETA badge and direction arrow
+    const rotation = heading ? `transform: rotate(${heading}deg);` : '';
     el.innerHTML = `
-      <div style="
-        width: 36px;
-        height: 36px;
-        background: #10B981;
-        border: 3px solid white;
-        border-radius: 50%;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      ">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-          <path d="M5 17h14M5 17a2 2 0 01-2-2V9a2 2 0 012-2h14a2 2 0 012 2v6a2 2 0 01-2 2M5 17l-1 2h16l-1-2"/>
-          <circle cx="7.5" cy="17" r="2"/>
-          <circle cx="16.5" cy="17" r="2"/>
-        </svg>
+      <div style="position: relative; cursor: pointer;">
+        <div style="
+          width: 40px;
+          height: 40px;
+          background: #10B981;
+          border: 3px solid white;
+          border-radius: 50%;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          ${rotation}
+        ">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M12 2L19 21L12 17L5 21L12 2Z"/>
+          </svg>
+        </div>
+        ${eta ? `
+          <div style="
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #121212;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 8px;
+            border: 2px solid white;
+            white-space: nowrap;
+          ">${eta}m</div>
+        ` : ''}
       </div>
     `;
   }
