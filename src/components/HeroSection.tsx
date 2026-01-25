@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer } from 'lucide-react';
+import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RideMap from '@/components/RideMap';
 import LocationInput from '@/components/LocationInput';
 import VehicleTypeSelector, { VEHICLE_TYPES, calculateFareForVehicle, type VehicleType } from '@/components/VehicleTypeSelector';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface RouteInfo {
   distance: number;
   duration: number;
+  polyline?: string;
 }
 
 const HeroSection = () => {
+  const { user } = useAuth();
   const [pickupType, setPickupType] = useState<'now' | 'later'>('now');
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropoffLocation, setDropoffLocation] = useState('');
@@ -19,6 +24,7 @@ const HeroSection = () => {
   const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleType>(VEHICLE_TYPES[0]);
+  const [isRequesting, setIsRequesting] = useState(false);
   
   // Map coordinates
   const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
@@ -62,12 +68,61 @@ const HeroSection = () => {
     setDropoffCoords({ lng: location.lng, lat: location.lat });
   };
 
-  const handleRouteCalculated = (info: { distance: number; duration: number } | null) => {
+  const handleRouteCalculated = (info: { distance: number; duration: number; polyline?: string } | null) => {
     setRouteInfo(info);
   };
 
   // Calculate fare based on selected vehicle and distance
   const currentFare = routeInfo ? calculateFareForVehicle(routeInfo.distance, selectedVehicle) : null;
+
+  // Handle ride request
+  const handleRequestRide = async () => {
+    if (!user) {
+      toast.error('Please log in to request a ride');
+      return;
+    }
+
+    if (!pickupCoords || !dropoffCoords || !routeInfo || !currentFare) {
+      toast.error('Please select pickup and dropoff locations');
+      return;
+    }
+
+    setIsRequesting(true);
+
+    try {
+      const { error } = await supabase.from('rides').insert({
+        user_id: user.id,
+        pickup_address: pickupLocation,
+        pickup_lat: pickupCoords.lat,
+        pickup_lon: pickupCoords.lng,
+        dropoff_address: dropoffLocation,
+        dropoff_lat: dropoffCoords.lat,
+        dropoff_lon: dropoffCoords.lng,
+        distance_km: routeInfo.distance,
+        duration_minutes: routeInfo.duration,
+        fare: currentFare,
+        vehicle_type: selectedVehicle.id,
+        route_polyline: routeInfo.polyline || null,
+        status: 'requested',
+      });
+
+      if (error) throw error;
+
+      toast.success('Ride requested! Looking for drivers...');
+      
+      // Reset form after successful request
+      setPickupLocation('');
+      setDropoffLocation('');
+      setPickupCoords(null);
+      setDropoffCoords(null);
+      setRouteInfo(null);
+    } catch (error) {
+      console.error('Failed to request ride:', error);
+      toast.error('Failed to request ride. Please try again.');
+    } finally {
+      setIsRequesting(false);
+    }
+  };
 
   const handleUseMyLocation = () => {
     if (navigator.geolocation) {
@@ -214,17 +269,32 @@ const HeroSection = () => {
               )}
 
               {/* Request Ride Button */}
-              <Button className="koloi-btn-primary w-full mt-4" disabled={!routeInfo}>
-                {currentFare ? `Request ${selectedVehicle.name} - R${currentFare}` : 'Select pickup & dropoff'}
+              <Button 
+                className="koloi-btn-primary w-full mt-4" 
+                disabled={!routeInfo || isRequesting}
+                onClick={handleRequestRide}
+              >
+                {isRequesting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    Finding driver...
+                  </>
+                ) : currentFare ? (
+                  `Request ${selectedVehicle.name} - R${currentFare}`
+                ) : (
+                  'Select pickup & dropoff'
+                )}
               </Button>
 
-              {/* Login Link */}
-              <p className="text-center text-muted-foreground text-sm mt-4">
-                <button className="text-foreground underline underline-offset-2 hover:no-underline">
-                  Log in
-                </button>{' '}
-                to see your recent activity
-              </p>
+              {/* Login prompt for non-authenticated users */}
+              {!user && (
+                <p className="text-center text-muted-foreground text-sm mt-4">
+                  <button className="text-foreground underline underline-offset-2 hover:no-underline">
+                    Log in
+                  </button>{' '}
+                  to request rides and view history
+                </p>
+              )}
             </div>
           </div>
 
