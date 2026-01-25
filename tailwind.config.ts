@@ -57,28 +57,45 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Koloi custom colors
+        koloi: {
+          green: "hsl(var(--koloi-green))",
+          "green-light": "hsl(var(--koloi-green-light))",
+          black: "hsl(var(--koloi-black))",
+          "gray-100": "hsl(var(--koloi-gray-100))",
+          "gray-200": "hsl(var(--koloi-gray-200))",
+          "gray-300": "hsl(var(--koloi-gray-300))",
+          "gray-400": "hsl(var(--koloi-gray-400))",
+          "gray-500": "hsl(var(--koloi-gray-500))",
+          "gray-600": "hsl(var(--koloi-gray-600))",
+          "gray-700": "hsl(var(--koloi-gray-700))",
+          "gray-800": "hsl(var(--koloi-gray-800))",
+          "gray-900": "hsl(var(--koloi-gray-900))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+      },
+      boxShadow: {
+        'koloi-sm': 'var(--shadow-sm)',
+        'koloi-md': 'var(--shadow-md)',
+        'koloi-lg': 'var(--shadow-lg)',
+        'koloi-xl': 'var(--shadow-xl)',
+        'koloi-card': 'var(--shadow-card)',
+      },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {
