@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, MapPin, Trash2, Plus, Loader2, Home, Briefcase } from 'lucide-react';
+import { Star, MapPin, Trash2, Plus, Loader2, Home, Briefcase, AlertCircle } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,28 @@ const iconMap: Record<string, React.ElementType> = {
   star: Star,
 };
 
+const geocodeAddress = async (address: string): Promise<{ latitude: number; longitude: number; formattedAddress: string } | null> => {
+  try {
+    const { data, error } = await supabase.functions.invoke('here-geocode', {
+      body: { address }
+    });
+
+    if (error) {
+      console.error('Geocoding error:', error);
+      return null;
+    }
+
+    return {
+      latitude: data.latitude,
+      longitude: data.longitude,
+      formattedAddress: data.formattedAddress
+    };
+  } catch (err) {
+    console.error('Failed to geocode address:', err);
+    return null;
+  }
+};
+
 const FavoritesSheet = ({ isOpen, onClose, onSelectLocation }: FavoritesSheetProps) => {
   const { user } = useAuth();
   const [favorites, setFavorites] = useState<FavoriteLocation[]>([]);
@@ -37,6 +59,7 @@ const FavoritesSheet = ({ isOpen, onClose, onSelectLocation }: FavoritesSheetPro
   const [newName, setNewName] = useState('');
   const [newAddress, setNewAddress] = useState('');
   const [saving, setSaving] = useState(false);
+  const [geocodeError, setGeocodeError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -79,18 +102,27 @@ const FavoritesSheet = ({ isOpen, onClose, onSelectLocation }: FavoritesSheetPro
     if (!user) return;
 
     setSaving(true);
+    setGeocodeError(null);
 
-    // For now, we'll use placeholder coordinates
-    // In a real app, you'd geocode the address
+    // Geocode the address using HERE API
+    const geocoded = await geocodeAddress(newAddress);
+    
+    if (!geocoded) {
+      setGeocodeError('Could not find this address. Please try a more specific address.');
+      setSaving(false);
+      return;
+    }
+
     const { data, error } = await supabase
       .from('favorite_locations')
       .insert({
         user_id: user.id,
         name: newName,
-        address: newAddress,
-        latitude: -17.8252,
-        longitude: 31.0335,
-        icon: 'star'
+        address: geocoded.formattedAddress,
+        latitude: geocoded.latitude,
+        longitude: geocoded.longitude,
+        icon: newName.toLowerCase().includes('home') ? 'home' : 
+              newName.toLowerCase().includes('work') || newName.toLowerCase().includes('office') ? 'work' : 'star'
       })
       .select()
       .single();
@@ -151,25 +183,37 @@ const FavoritesSheet = ({ isOpen, onClose, onSelectLocation }: FavoritesSheetPro
                 <Label htmlFor="address">Address</Label>
                 <Input
                   id="address"
-                  placeholder="Enter address"
+                  placeholder="Enter full address"
                   value={newAddress}
-                  onChange={(e) => setNewAddress(e.target.value)}
+                  onChange={(e) => {
+                    setNewAddress(e.target.value);
+                    setGeocodeError(null);
+                  }}
                   className="mt-1"
                   required
                 />
+                {geocodeError && (
+                  <div className="flex items-center gap-2 mt-2 text-sm text-destructive">
+                    <AlertCircle className="w-4 h-4" />
+                    {geocodeError}
+                  </div>
+                )}
               </div>
               <div className="flex gap-2">
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={() => setShowAddForm(false)}
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setGeocodeError(null);
+                  }}
                   className="flex-1"
                 >
                   Cancel
                 </Button>
                 <Button type="submit" className="flex-1" disabled={saving}>
                   {saving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  Save
+                  {saving ? 'Finding location...' : 'Save'}
                 </Button>
               </div>
             </form>
