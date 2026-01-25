@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { MapPin, Calendar, ChevronDown, Navigation, Clock, Map } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, ChevronDown, Clock, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RideMap from '@/components/RideMap';
-import heroImage from '@/assets/hero-illustration.jpg';
+import LocationInput from '@/components/LocationInput';
 
 const HeroSection = () => {
   const [pickupType, setPickupType] = useState<'now' | 'later'>('now');
@@ -15,7 +15,7 @@ const HeroSection = () => {
   const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
   const [dropoffCoords, setDropoffCoords] = useState<{ lng: number; lat: number } | null>(null);
 
-  const handleLocationSelect = (location: { lng: number; lat: number }, type: 'pickup' | 'dropoff') => {
+  const handleMapLocationSelect = (location: { lng: number; lat: number }, type: 'pickup' | 'dropoff') => {
     if (type === 'pickup') {
       setPickupCoords(location);
       setPickupLocation(`${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
@@ -23,6 +23,16 @@ const HeroSection = () => {
       setDropoffCoords(location);
       setDropoffLocation(`${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
     }
+  };
+
+  const handlePickupSelect = (location: { name: string; lng: number; lat: number }) => {
+    setPickupLocation(location.name);
+    setPickupCoords({ lng: location.lng, lat: location.lat });
+  };
+
+  const handleDropoffSelect = (location: { name: string; lng: number; lat: number }) => {
+    setDropoffLocation(location.name);
+    setDropoffCoords({ lng: location.lng, lat: location.lat });
   };
 
   const handleUseMyLocation = () => {
@@ -34,7 +44,7 @@ const HeroSection = () => {
             lat: position.coords.latitude,
           };
           setPickupCoords(coords);
-          setPickupLocation('Current Location');
+          setPickupLocation('My Current Location');
         },
         (error) => {
           console.error('Error getting location:', error);
@@ -111,35 +121,24 @@ const HeroSection = () => {
               {/* Location Inputs */}
               <div className="space-y-3">
                 {/* Pickup Location */}
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-foreground rounded-full" />
-                  <input
-                    type="text"
-                    placeholder="Pickup location"
-                    value={pickupLocation}
-                    onChange={(e) => setPickupLocation(e.target.value)}
-                    className="koloi-input pl-10 pr-10"
-                  />
-                  <button 
-                    onClick={handleUseMyLocation}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-koloi-gray-200 rounded-lg transition-colors"
-                    title="Use my location"
-                  >
-                    <Navigation className="w-5 h-5 text-muted-foreground" />
-                  </button>
-                </div>
+                <LocationInput
+                  placeholder="Where are you?"
+                  value={pickupLocation}
+                  onChange={setPickupLocation}
+                  onLocationSelect={handlePickupSelect}
+                  onUseMyLocation={handleUseMyLocation}
+                  showMyLocation={true}
+                  markerType="pickup"
+                />
 
                 {/* Dropoff Location */}
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Dropoff location"
-                    value={dropoffLocation}
-                    onChange={(e) => setDropoffLocation(e.target.value)}
-                    className="koloi-input pl-10"
-                  />
-                </div>
+                <LocationInput
+                  placeholder="Where to?"
+                  value={dropoffLocation}
+                  onChange={setDropoffLocation}
+                  onLocationSelect={handleDropoffSelect}
+                  markerType="dropoff"
+                />
               </div>
 
               {/* Map tip */}
@@ -168,7 +167,7 @@ const HeroSection = () => {
             <RideMap
               pickupLocation={pickupCoords}
               dropoffLocation={dropoffCoords}
-              onLocationSelect={handleLocationSelect}
+              onLocationSelect={handleMapLocationSelect}
               className="h-[400px] lg:h-[500px] shadow-koloi-xl"
             />
           </div>
