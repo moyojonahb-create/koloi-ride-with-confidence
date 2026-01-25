@@ -44,8 +44,8 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, className 
   const [mapboxToken, setMapboxToken] = useState(getStoredToken());
   const [tokenInput, setTokenInput] = useState(getStoredToken());
   
-  // Default center: Harare, Zimbabwe
-  const defaultCenter = { lng: 31.0492, lat: -17.8292 };
+  // Default center: Gwanda, Zimbabwe (near Beit Bridge and Blanket Mine)
+  const defaultCenter = { lng: 29.0147, lat: -20.9389 };
   const [center] = useState(defaultCenter);
   const [drivers, setDrivers] = useState<MapLocation[]>([]);
 
