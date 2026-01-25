@@ -2,119 +2,118 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Koloi Design System - Navy & Amber accent palette */
+/* Koloi Design System - Uber-inspired minimalist e-hailing platform */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
-    /* Core brand colors - Navy & Amber theme */
+    /* Core brand colors */
     --background: 0 0% 100%;
-    --foreground: 222 47% 20%;
+    --foreground: 0 0% 7%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 20%;
+    --card-foreground: 0 0% 7%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 20%;
+    --popover-foreground: 0 0% 7%;
 
-    /* Primary - Navy blue */
-    --primary: 222 47% 20%;
+    /* Primary - Black for Koloi brand */
+    --primary: 0 0% 7%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - Light gray surfaces */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 20%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 7%;
 
     /* Muted elements */
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Accent - Amber/Gold for CTAs */
-    --accent: 40 76% 55%;
-    --accent-foreground: 222 47% 20%;
+    /* Accent - Green for CTAs and highlights */
+    --accent: 160 84% 39%;
+    --accent-foreground: 0 0% 100%;
 
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders and inputs */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 222 47% 20%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 7%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     /* Sidebar */
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 222 47% 30%;
-    --sidebar-primary: 222 47% 20%;
+    --sidebar-foreground: 0 0% 25%;
+    --sidebar-primary: 0 0% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 220 14% 95%;
-    --sidebar-accent-foreground: 222 47% 20%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 40 76% 55%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 91%;
+    --sidebar-ring: 160 84% 39%;
 
     /* Custom Koloi tokens */
-    --koloi-navy: 222 47% 20%;
-    --koloi-navy-light: 222 47% 30%;
-    --koloi-amber: 40 76% 55%;
-    --koloi-amber-light: 40 76% 95%;
-    --koloi-gray-100: 220 14% 98%;
-    --koloi-gray-200: 220 14% 96%;
-    --koloi-gray-300: 220 13% 91%;
-    --koloi-gray-400: 220 9% 75%;
-    --koloi-gray-500: 220 9% 55%;
-    --koloi-gray-600: 220 9% 46%;
-    --koloi-gray-700: 222 47% 30%;
-    --koloi-gray-800: 222 47% 20%;
-    --koloi-gray-900: 222 47% 11%;
+    --koloi-green: 160 84% 39%;
+    --koloi-green-light: 160 84% 95%;
+    --koloi-black: 0 0% 7%;
+    --koloi-gray-100: 0 0% 98%;
+    --koloi-gray-200: 0 0% 96%;
+    --koloi-gray-300: 0 0% 90%;
+    --koloi-gray-400: 0 0% 75%;
+    --koloi-gray-500: 0 0% 55%;
+    --koloi-gray-600: 0 0% 45%;
+    --koloi-gray-700: 0 0% 30%;
+    --koloi-gray-800: 0 0% 20%;
+    --koloi-gray-900: 0 0% 10%;
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(222 47% 20% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(222 47% 20% / 0.1), 0 2px 4px -2px hsl(222 47% 20% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(222 47% 20% / 0.1), 0 4px 6px -4px hsl(222 47% 20% / 0.1);
-    --shadow-xl: 0 20px 25px -5px hsl(222 47% 20% / 0.1), 0 8px 10px -6px hsl(222 47% 20% / 0.1);
-    --shadow-card: 0 4px 24px -4px hsl(222 47% 20% / 0.12);
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.1);
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.12);
   }
 
   .dark {
-    --background: 222 47% 11%;
+    --background: 0 0% 7%;
     --foreground: 0 0% 98%;
 
-    --card: 222 47% 15%;
+    --card: 0 0% 12%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 15%;
+    --popover: 0 0% 12%;
     --popover-foreground: 0 0% 98%;
 
     --primary: 0 0% 98%;
-    --primary-foreground: 222 47% 20%;
+    --primary-foreground: 0 0% 7%;
 
-    --secondary: 222 47% 18%;
+    --secondary: 0 0% 18%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 222 47% 18%;
-    --muted-foreground: 220 9% 65%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 40 76% 55%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 160 84% 39%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 222 47% 18%;
-    --input: 222 47% 18%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
     --ring: 0 0% 85%;
 
-    --sidebar-background: 222 47% 11%;
+    --sidebar-background: 0 0% 10%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 40 76% 55%;
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 222 47% 16%;
+    --sidebar-primary: 160 76% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 16%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 222 47% 16%;
-    --sidebar-ring: 40 76% 55%;
+    --sidebar-border: 0 0% 16%;
+    --sidebar-ring: 160 84% 39%;
   }
 }
 
@@ -131,10 +130,6 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
-
-  h1, h2, h3 {
-    font-family: 'Playfair Display', serif;
-  }
 }
 
 @layer components {
@@ -148,33 +143,27 @@
   }
 
   .koloi-input {
-    @apply w-full h-12 px-4 bg-koloi-gray-100 border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-accent focus:border-accent focus:bg-background transition-all duration-200;
+    @apply w-full h-14 px-4 bg-koloi-gray-100 border-0 rounded-lg text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:bg-background transition-all duration-200;
   }
 
   .koloi-btn-primary {
-    @apply h-12 px-8 bg-accent text-accent-foreground font-semibold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200;
+    @apply h-14 px-8 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-koloi-gray-800 active:scale-[0.98] transition-all duration-200;
   }
 
   .koloi-btn-secondary {
-    @apply h-12 px-6 bg-transparent text-primary font-medium rounded-lg border-2 border-primary hover:bg-primary hover:text-primary-foreground active:scale-[0.98] transition-all duration-200;
+    @apply h-12 px-6 bg-secondary text-secondary-foreground font-medium rounded-lg hover:bg-koloi-gray-300 active:scale-[0.98] transition-all duration-200;
   }
 
   .koloi-btn-accent {
-    @apply h-12 px-8 bg-accent text-accent-foreground font-semibold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200;
+    @apply h-14 px-8 bg-accent text-accent-foreground font-semibold rounded-lg hover:opacity-90 active:scale-[0.98] transition-all duration-200;
   }
 
   .koloi-link {
-    @apply text-foreground font-medium hover:text-accent transition-colors duration-200;
+    @apply text-foreground font-medium hover:text-muted-foreground transition-colors duration-200;
   }
 
   .koloi-link-nav {
-    @apply text-sm font-medium text-foreground hover:text-accent px-4 py-2 rounded-full transition-all duration-200;
-  }
-
-  /* Feature arrow bullet */
-  .koloi-arrow-bullet::before {
-    content: '→';
-    @apply text-accent mr-2 font-bold;
+    @apply text-sm font-medium text-foreground hover:bg-koloi-gray-100 px-4 py-2 rounded-full transition-all duration-200;
   }
 }
 
@@ -193,10 +182,6 @@
 
   .animate-slide-down {
     animation: slideDown 0.3s ease-out;
-  }
-
-  .font-display {
-    font-family: 'Playfair Display', serif;
   }
 
   @keyframes fadeIn {

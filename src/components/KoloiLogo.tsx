@@ -1,3 +1,5 @@
+import koloiLogoImage from '@/assets/koloi-logo-generated.png';
+
 interface KoloiLogoProps {
   className?: string;
   variant?: 'default' | 'inverted';
@@ -12,25 +14,32 @@ const KoloiLogo = ({
   size = 'md' 
 }: KoloiLogoProps) => {
   const textColor = variant === 'inverted' ? 'text-primary-foreground' : 'text-foreground';
-  const accentColor = 'text-accent';
   
   const sizeClasses = {
+    sm: 'h-8',
+    md: 'h-10',
+    lg: 'h-12'
+  };
+
+  const textSizes = {
     sm: 'text-xl',
     md: 'text-2xl',
     lg: 'text-3xl'
   };
   
   return (
-    <div className={`flex items-center gap-1 ${className}`}>
-      {/* Logo Text with Amber underline on 'o' */}
+    <div className={`flex items-center gap-2 ${className}`}>
+      {/* Logo Image */}
+      <img 
+        src={koloiLogoImage} 
+        alt="Koloi" 
+        className={`${sizeClasses[size]} w-auto ${variant === 'inverted' ? 'brightness-0 invert' : ''}`}
+      />
+      
+      {/* Logo Text */}
       <div className="flex flex-col">
-        <span className={`${sizeClasses[size]} font-display font-bold tracking-tight ${textColor}`}>
-          Kol
-          <span className="relative">
-            o
-            <span className={`absolute -bottom-0.5 left-0 right-0 h-1 bg-accent rounded-full`}></span>
-          </span>
-          i
+        <span className={`${textSizes[size]} font-bold tracking-tight ${textColor}`}>
+          Koloi
         </span>
         {showTagline && (
           <span className={`text-xs ${variant === 'inverted' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>

@@ -57,7 +57,7 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
             </button>
             <Button 
               onClick={onSignupClick}
-              className="koloi-btn-primary h-10 px-6"
+              className="koloi-btn-primary h-10 px-4"
             >
               Sign up
             </Button>
@@ -79,7 +79,7 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border animate-slide-down bg-background">
+          <div className="lg:hidden py-4 border-t border-border animate-slide-down">
             <div className="flex flex-col gap-2">
               {navItems.map((item) => (
                 <a
