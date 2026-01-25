@@ -18,7 +18,33 @@ const SUGGESTED_LOCATIONS: Location[] = [
   { id: 'gwanda-bus', name: 'Gwanda Bus Terminal', address: 'Bus Station, Gwanda', lng: 29.0120, lat: -20.9410, icon: 'pin' },
   { id: 'gwanda-market', name: 'Gwanda Market', address: 'Market Square, Gwanda', lng: 29.0155, lat: -20.9375, icon: 'building' },
   { id: 'gwanda-police', name: 'Gwanda Police Station', address: 'Main Road, Gwanda', lng: 29.0140, lat: -20.9395, icon: 'building' },
+  
+  // Gwanda Schools
   { id: 'gwanda-high', name: 'Gwanda High School', address: 'School Road, Gwanda', lng: 29.0200, lat: -20.9320, icon: 'building' },
+  { id: 'manama-high', name: 'Manama High School', address: 'Manama Mission, Gwanda', lng: 28.9500, lat: -21.0500, icon: 'building' },
+  { id: 'embakwe-high', name: 'Embakwe High School', address: 'Embakwe, Gwanda District', lng: 28.7800, lat: -20.8200, icon: 'building' },
+  { id: 'mtshabezi-high', name: 'Mtshabezi High School', address: 'Mtshabezi Mission, Gwanda', lng: 28.9200, lat: -20.7500, icon: 'building' },
+  { id: 'gwanda-primary', name: 'Gwanda Primary School', address: 'Town Center, Gwanda', lng: 29.0160, lat: -20.9360, icon: 'building' },
+  { id: 'jahunda-secondary', name: 'Jahunda Secondary School', address: 'Jahunda, Gwanda District', lng: 29.1500, lat: -21.0000, icon: 'building' },
+  { id: 'sizeze-primary', name: 'Sizeze Primary School', address: 'Sizeze Village, Gwanda', lng: 29.0800, lat: -20.9800, icon: 'building' },
+  
+  // Gwanda Shopping Centers
+  { id: 'ok-gwanda', name: 'OK Supermarket Gwanda', address: 'Main Street, Gwanda', lng: 29.0145, lat: -20.9380, icon: 'building' },
+  { id: 'tm-gwanda', name: 'TM Pick n Pay Gwanda', address: 'Shopping Center, Gwanda', lng: 29.0150, lat: -20.9385, icon: 'building' },
+  { id: 'spar-gwanda', name: 'Spar Gwanda', address: 'Town Center, Gwanda', lng: 29.0142, lat: -20.9392, icon: 'building' },
+  { id: 'gwanda-mall', name: 'Gwanda Shopping Complex', address: 'Main Road, Gwanda', lng: 29.0148, lat: -20.9378, icon: 'building' },
+  
+  // Gwanda Villages
+  { id: 'spitzkop', name: 'Spitzkop', address: 'Spitzkop Area, Gwanda', lng: 29.0000, lat: -20.8500, icon: 'pin' },
+  { id: 'guyu', name: 'Guyu', address: 'Guyu Village, Gwanda District', lng: 29.2000, lat: -21.1000, icon: 'pin' },
+  { id: 'makwe', name: 'Makwe', address: 'Makwe Area, Gwanda', lng: 28.9000, lat: -20.9500, icon: 'pin' },
+  { id: 'mawaza', name: 'Mawaza', address: 'Mawaza Village, Gwanda', lng: 29.0500, lat: -21.0200, icon: 'pin' },
+  { id: 'ntalale', name: 'Ntalale', address: 'Ntalale Village, Gwanda', lng: 29.1200, lat: -20.8800, icon: 'pin' },
+  { id: 'sengezane', name: 'Sengezane', address: 'Sengezane Village, Gwanda', lng: 28.8500, lat: -21.0000, icon: 'pin' },
+  { id: 'silozwi', name: 'Silozwi', address: 'Silozwi Area, Gwanda', lng: 29.1800, lat: -21.0500, icon: 'pin' },
+  { id: 'nhwali', name: 'Nhwali', address: 'Nhwali Village, Gwanda', lng: 28.9800, lat: -20.8000, icon: 'pin' },
+  { id: 'dibilishaba', name: 'Dibilishaba', address: 'Dibilishaba Village, Gwanda', lng: 29.0300, lat: -20.9600, icon: 'pin' },
+  { id: 'buvuma', name: 'Buvuma', address: 'Buvuma Area, Gwanda', lng: 29.0900, lat: -21.0800, icon: 'pin' },
   
   // Beit Bridge
   { id: 'beitbridge-border', name: 'Beit Bridge Border Post', address: 'Border Crossing, Beit Bridge', lng: 29.9833, lat: -22.2167, icon: 'landmark' },
@@ -26,16 +52,32 @@ const SUGGESTED_LOCATIONS: Location[] = [
   { id: 'beitbridge-bus', name: 'Beit Bridge Bus Terminal', address: 'Terminal Road, Beit Bridge', lng: 29.9850, lat: -22.2120, icon: 'pin' },
   { id: 'beitbridge-market', name: 'Dulivhadzimu Market', address: 'Market Area, Beit Bridge', lng: 29.9880, lat: -22.2080, icon: 'building' },
   { id: 'beitbridge-hospital', name: 'Beit Bridge District Hospital', address: 'Hospital Road, Beit Bridge', lng: 29.9920, lat: -22.2050, icon: 'building' },
+  { id: 'beitbridge-spar', name: 'Spar Beit Bridge', address: 'Main Road, Beit Bridge', lng: 29.9890, lat: -22.2090, icon: 'building' },
+  { id: 'beitbridge-ok', name: 'OK Supermarket Beit Bridge', address: 'Town Center, Beit Bridge', lng: 29.9895, lat: -22.2095, icon: 'building' },
+  
+  // Beit Bridge Villages
+  { id: 'lutumba', name: 'Lutumba', address: 'Lutumba Village, Beit Bridge', lng: 29.8500, lat: -22.1500, icon: 'pin' },
+  { id: 'makakavhule', name: 'Makakavhule', address: 'Makakavhule Village, Beit Bridge', lng: 30.0500, lat: -22.1800, icon: 'pin' },
+  { id: 'chaswingo', name: 'Chaswingo', address: 'Chaswingo Area, Beit Bridge', lng: 29.9200, lat: -22.1000, icon: 'pin' },
+  { id: 'tshitaudze', name: 'Tshitaudze', address: 'Tshitaudze Village, Beit Bridge', lng: 30.1000, lat: -22.2000, icon: 'pin' },
   
   // Blanket Mine Area
   { id: 'blanket-mine', name: 'Blanket Mine', address: 'Blanket Mine, Gwanda District', lng: 29.0650, lat: -20.9100, icon: 'landmark' },
   { id: 'blanket-gate', name: 'Blanket Mine Main Gate', address: 'Mine Entrance, Gwanda District', lng: 29.0620, lat: -20.9120, icon: 'pin' },
   { id: 'blanket-housing', name: 'Blanket Mine Housing', address: 'Staff Quarters, Blanket Mine', lng: 29.0680, lat: -20.9080, icon: 'building' },
+  { id: 'blanket-clinic', name: 'Blanket Mine Clinic', address: 'Medical Center, Blanket Mine', lng: 29.0660, lat: -20.9090, icon: 'building' },
   
-  // Other areas
+  // Other Towns
   { id: 'west-nicholson', name: 'West Nicholson', address: 'West Nicholson Town', lng: 29.3667, lat: -21.0500, icon: 'landmark' },
-  { id: 'colleen-bawn', name: 'Colleen Bawn', address: 'Colleen Bawn, Gwanda District', lng: 28.8500, lat: -20.8833, icon: 'pin' },
+  { id: 'west-nicholson-bus', name: 'West Nicholson Bus Stop', address: 'Main Road, West Nicholson', lng: 29.3650, lat: -21.0480, icon: 'pin' },
+  { id: 'colleen-bawn', name: 'Colleen Bawn', address: 'Colleen Bawn, Gwanda District', lng: 28.8500, lat: -20.8833, icon: 'landmark' },
   { id: 'filabusi', name: 'Filabusi', address: 'Filabusi Town', lng: 29.2833, lat: -20.5333, icon: 'landmark' },
+  { id: 'filabusi-bus', name: 'Filabusi Bus Terminal', address: 'Bus Station, Filabusi', lng: 29.2850, lat: -20.5350, icon: 'pin' },
+  
+  // Growth Points & Business Centers
+  { id: 'maphisa', name: 'Maphisa Growth Point', address: 'Maphisa, Matobo District', lng: 28.7500, lat: -20.6500, icon: 'landmark' },
+  { id: 'kezi', name: 'Kezi Business Center', address: 'Kezi, Matobo District', lng: 28.4500, lat: -20.9000, icon: 'building' },
+  { id: 'shangani', name: 'Shangani Growth Point', address: 'Shangani, Insiza District', lng: 29.3500, lat: -20.1500, icon: 'landmark' },
 ];
 
 interface LocationInputProps {
