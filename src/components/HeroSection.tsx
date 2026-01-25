@@ -1,8 +1,14 @@
 import { useState } from 'react';
-import { Calendar, ChevronDown, Clock, Map } from 'lucide-react';
+import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer, Banknote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RideMap from '@/components/RideMap';
 import LocationInput from '@/components/LocationInput';
+
+interface RouteInfo {
+  distance: number;
+  duration: number;
+  fare: number;
+}
 
 const HeroSection = () => {
   const [pickupType, setPickupType] = useState<'now' | 'later'>('now');
@@ -10,6 +16,7 @@ const HeroSection = () => {
   const [dropoffLocation, setDropoffLocation] = useState('');
   const [showPickupDropdown, setShowPickupDropdown] = useState(false);
   const [showMap, setShowMap] = useState(true);
+  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   
   // Map coordinates
   const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
@@ -33,6 +40,10 @@ const HeroSection = () => {
   const handleDropoffSelect = (location: { name: string; lng: number; lat: number }) => {
     setDropoffLocation(location.name);
     setDropoffCoords({ lng: location.lng, lat: location.lat });
+  };
+
+  const handleRouteCalculated = (info: RouteInfo | null) => {
+    setRouteInfo(info);
   };
 
   const handleUseMyLocation = () => {
@@ -141,15 +152,33 @@ const HeroSection = () => {
                 />
               </div>
 
-              {/* Map tip */}
-              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
-                <Map className="w-3 h-3" />
-                Click on the map to set locations
-              </p>
+              {/* Fare Estimate Card */}
+              {routeInfo && (
+                <div className="mt-4 p-4 bg-accent/10 rounded-xl border border-accent/20 animate-fade-in">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-medium text-muted-foreground">Estimated Fare</span>
+                    <span className="text-2xl font-bold text-foreground">R{routeInfo.fare}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Navigation2 className="w-4 h-4 text-accent" />
+                      <span>{routeInfo.distance} km</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Timer className="w-4 h-4 text-accent" />
+                      <span>{routeInfo.duration} min</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                    <Banknote className="w-3 h-3" />
+                    Starting fare R50 + R4/km
+                  </p>
+                </div>
+              )}
 
-              {/* See Prices Button */}
-              <Button className="koloi-btn-primary w-full mt-4">
-                See prices
+              {/* Request Ride Button */}
+              <Button className="koloi-btn-primary w-full mt-4" disabled={!routeInfo}>
+                {routeInfo ? `Request Ride - R${routeInfo.fare}` : 'Select pickup & dropoff'}
               </Button>
 
               {/* Login Link */}
@@ -168,6 +197,7 @@ const HeroSection = () => {
               pickupLocation={pickupCoords}
               dropoffLocation={dropoffCoords}
               onLocationSelect={handleMapLocationSelect}
+              onRouteCalculated={handleRouteCalculated}
               className="h-[400px] lg:h-[500px] shadow-koloi-xl"
             />
           </div>

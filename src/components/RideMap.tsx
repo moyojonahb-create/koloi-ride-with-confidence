@@ -10,12 +10,30 @@ interface MapLocation {
   label?: string;
 }
 
+interface RouteInfo {
+  distance: number; // in km
+  duration: number; // in minutes
+  fare: number; // in Rands
+}
+
 interface RideMapProps {
   pickupLocation?: { lng: number; lat: number } | null;
   dropoffLocation?: { lng: number; lat: number } | null;
   onLocationSelect?: (location: { lng: number; lat: number }, type: 'pickup' | 'dropoff') => void;
+  onRouteCalculated?: (routeInfo: RouteInfo) => void;
   className?: string;
 }
+
+// Fare calculation constants
+const BASE_FARE = 50; // Starting price in Rands
+const PRICE_PER_KM = 4; // Rands per km (calibrated: ~12km Gwanda to Spitzkop = 50 Rands total)
+const MIN_FARE = 50; // Minimum fare
+
+// Calculate fare based on distance
+const calculateFare = (distanceKm: number): number => {
+  const fare = BASE_FARE + (distanceKm * PRICE_PER_KM);
+  return Math.max(MIN_FARE, Math.round(fare / 5) * 5); // Round to nearest 5
+};
 
 // Simulated nearby drivers for demo
 const generateNearbyDrivers = (centerLng: number, centerLat: number): MapLocation[] => {
@@ -35,7 +53,7 @@ const generateNearbyDrivers = (centerLng: number, centerLat: number): MapLocatio
 const getStoredToken = () => localStorage.getItem('mapbox_token') || '';
 const setStoredToken = (token: string) => localStorage.setItem('mapbox_token', token);
 
-const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, className = '' }: RideMapProps) => {
+const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCalculated, className = '' }: RideMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -117,6 +135,79 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, className 
     };
   }, [mapboxToken]);
 
+  // Fetch and draw route between pickup and dropoff
+  const fetchRoute = async (pickup: { lng: number; lat: number }, dropoff: { lng: number; lat: number }) => {
+    if (!map.current || !mapboxToken) return;
+
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?geometries=geojson&access_token=${mapboxToken}`
+      );
+      const data = await response.json();
+
+      if (data.routes && data.routes.length > 0) {
+        const route = data.routes[0];
+        const distanceKm = route.distance / 1000;
+        const durationMin = Math.round(route.duration / 60);
+        const fare = calculateFare(distanceKm);
+
+        // Notify parent of route info
+        onRouteCalculated?.({
+          distance: Math.round(distanceKm * 10) / 10,
+          duration: durationMin,
+          fare: fare,
+        });
+
+        // Add or update route layer
+        const routeGeoJSON: GeoJSON.Feature<GeoJSON.Geometry> = {
+          type: 'Feature',
+          properties: {},
+          geometry: route.geometry,
+        };
+
+        if (map.current.getSource('route')) {
+          (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData(routeGeoJSON);
+        } else {
+          map.current.addSource('route', {
+            type: 'geojson',
+            data: routeGeoJSON,
+          });
+
+          map.current.addLayer({
+            id: 'route-outline',
+            type: 'line',
+            source: 'route',
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round',
+            },
+            paint: {
+              'line-color': '#000000',
+              'line-width': 8,
+              'line-opacity': 0.3,
+            },
+          });
+
+          map.current.addLayer({
+            id: 'route',
+            type: 'line',
+            source: 'route',
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round',
+            },
+            paint: {
+              'line-color': '#F97316', // Orange accent color
+              'line-width': 5,
+            },
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching route:', error);
+    }
+  };
+
   // Update markers when locations change
   useEffect(() => {
     if (!map.current || !isLoaded) return;
@@ -153,7 +244,7 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, className 
         .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`
           <div style="padding: 4px;">
             <strong>${driver.label}</strong><br/>
-            <span style="color: #10B981;">● Available</span><br/>
+            <span style="color: #F97316;">● Available</span><br/>
             <small>2 min away</small>
           </div>
         `))
@@ -161,14 +252,25 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, className 
       markersRef.current.push(marker);
     });
 
-    // Fit bounds to show all markers
+    // Fetch route and fit bounds when both locations are set
     if (pickupLocation && dropoffLocation) {
+      fetchRoute(pickupLocation, dropoffLocation);
+      
       const bounds = new mapboxgl.LngLatBounds();
       bounds.extend([pickupLocation.lng, pickupLocation.lat]);
       bounds.extend([dropoffLocation.lng, dropoffLocation.lat]);
       map.current.fitBounds(bounds, { padding: 80 });
     } else if (pickupLocation) {
       map.current.flyTo({ center: [pickupLocation.lng, pickupLocation.lat], zoom: 14 });
+      // Clear route if only pickup is set
+      if (map.current.getSource('route')) {
+        (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData({
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'LineString', coordinates: [] },
+        });
+      }
+      onRouteCalculated?.(null as any);
     }
   }, [pickupLocation, dropoffLocation, drivers, isLoaded]);
 
