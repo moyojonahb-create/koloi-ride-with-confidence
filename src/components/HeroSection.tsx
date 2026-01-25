@@ -1,188 +1,130 @@
-import { useState, useEffect } from 'react';
-import { MapPin, Calendar, ChevronDown, Navigation, Clock, Map } from 'lucide-react';
+import { useState } from 'react';
+import { MapPin, ChevronDown, Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import RideMap from '@/components/RideMap';
-import heroImage from '@/assets/hero-illustration.jpg';
+import KoloiLogo from '@/components/KoloiLogo';
 
 const HeroSection = () => {
-  const [pickupType, setPickupType] = useState<'now' | 'later'>('now');
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropoffLocation, setDropoffLocation] = useState('');
-  const [showPickupDropdown, setShowPickupDropdown] = useState(false);
-  const [showMap, setShowMap] = useState(true);
-  
-  // Map coordinates
-  const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
-  const [dropoffCoords, setDropoffCoords] = useState<{ lng: number; lat: number } | null>(null);
-
-  const handleLocationSelect = (location: { lng: number; lat: number }, type: 'pickup' | 'dropoff') => {
-    if (type === 'pickup') {
-      setPickupCoords(location);
-      setPickupLocation(`${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
-    } else {
-      setDropoffCoords(location);
-      setDropoffLocation(`${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
-    }
-  };
-
-  const handleUseMyLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords = {
-            lng: position.coords.longitude,
-            lat: position.coords.latitude,
-          };
-          setPickupCoords(coords);
-          setPickupLocation('Current Location');
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          // Fallback to Harare center
-          const defaultCoords = { lng: 31.0492, lat: -17.8292 };
-          setPickupCoords(defaultCoords);
-          setPickupLocation('Harare City Center');
-        }
-      );
-    }
-  };
+  const [fareOffer, setFareOffer] = useState('50');
+  const [vehicleType, setVehicleType] = useState('Car');
 
   return (
-    <section className="relative bg-background">
-      <div className="koloi-container py-8 lg:py-16">
-        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12">
-          {/* Left Side - Ride Request Card */}
-          <div className="w-full lg:w-[420px] shrink-0 z-10">
-            <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 lg:mb-8 leading-tight">
-              Get picked. Get moving.
+    <section className="relative bg-background py-12 lg:py-20">
+      <div className="koloi-container">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:gap-16">
+          {/* Left Side - Hero Content */}
+          <div className="w-full lg:w-1/2 mb-12 lg:mb-0">
+            <h1 className="text-4xl lg:text-5xl xl:text-6xl font-display font-bold text-foreground mb-6 leading-tight italic">
+              Get picked.<br />Get moving.
             </h1>
 
-            <div className="bg-card rounded-xl shadow-koloi-card p-6 animate-slide-up">
-              {/* Pickup Type Selector */}
-              <div className="relative mb-4">
-                <button
-                  onClick={() => setShowPickupDropdown(!showPickupDropdown)}
-                  className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full hover:bg-koloi-gray-300 transition-colors"
-                >
-                  {pickupType === 'now' ? (
-                    <>
-                      <Clock className="w-4 h-4" />
-                      <span className="font-medium">Pickup now</span>
-                    </>
-                  ) : (
-                    <>
-                      <Calendar className="w-4 h-4" />
-                      <span className="font-medium">Schedule for later</span>
-                    </>
-                  )}
-                  <ChevronDown className="w-4 h-4" />
-                </button>
+            <p className="text-muted-foreground text-lg mb-8 max-w-md">
+              Koloi is a local ride app built for quick, fair, and reliable rides in town.
+            </p>
 
-                {showPickupDropdown && (
-                  <div className="absolute top-full left-0 mt-2 bg-card rounded-lg shadow-koloi-lg border border-border overflow-hidden z-20 animate-fade-in">
-                    <button
-                      onClick={() => {
-                        setPickupType('now');
-                        setShowPickupDropdown(false);
-                      }}
-                      className={`w-full px-4 py-3 text-left hover:bg-secondary transition-colors flex items-center gap-3 ${
-                        pickupType === 'now' ? 'bg-secondary' : ''
-                      }`}
-                    >
-                      <Clock className="w-5 h-5" />
-                      <span>Pickup now</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPickupType('later');
-                        setShowPickupDropdown(false);
-                      }}
-                      className={`w-full px-4 py-3 text-left hover:bg-secondary transition-colors flex items-center gap-3 ${
-                        pickupType === 'later' ? 'bg-secondary' : ''
-                      }`}
-                    >
-                      <Calendar className="w-5 h-5" />
-                      <span>Schedule for later</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Location Inputs */}
-              <div className="space-y-3">
-                {/* Pickup Location */}
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-foreground rounded-full" />
-                  <input
-                    type="text"
-                    placeholder="Pickup location"
-                    value={pickupLocation}
-                    onChange={(e) => setPickupLocation(e.target.value)}
-                    className="koloi-input pl-10 pr-10"
-                  />
-                  <button 
-                    onClick={handleUseMyLocation}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-koloi-gray-200 rounded-lg transition-colors"
-                    title="Use my location"
-                  >
-                    <Navigation className="w-5 h-5 text-muted-foreground" />
-                  </button>
-                </div>
-
-                {/* Dropoff Location */}
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Dropoff location"
-                    value={dropoffLocation}
-                    onChange={(e) => setDropoffLocation(e.target.value)}
-                    className="koloi-input pl-10"
-                  />
-                </div>
-              </div>
-
-              {/* Map tip */}
-              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
-                <Map className="w-3 h-3" />
-                Click on the map to set locations
-              </p>
-
-              {/* See Prices Button */}
-              <Button className="koloi-btn-primary w-full mt-4">
-                See prices
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <Button className="koloi-btn-primary">
+                Request a Ride
               </Button>
+              <Button className="koloi-btn-secondary">
+                Drive with Koloi
+              </Button>
+            </div>
 
-              {/* Login Link */}
-              <p className="text-center text-muted-foreground text-sm mt-4">
-                <button className="text-foreground underline underline-offset-2 hover:no-underline">
-                  Log in
-                </button>{' '}
-                to see your recent activity
-              </p>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <span className="text-accent">🤝</span> Trusted locally
+              </span>
+              <span>✦</span>
+              <span>Fast • Fair • Local</span>
             </div>
           </div>
 
-          {/* Right Side - Interactive Map */}
-          <div className="flex-1 mt-8 lg:mt-0">
-            <RideMap
-              pickupLocation={pickupCoords}
-              dropoffLocation={dropoffCoords}
-              onLocationSelect={handleLocationSelect}
-              className="h-[400px] lg:h-[500px] shadow-koloi-xl"
-            />
+          {/* Right Side - Phone Mockup */}
+          <div className="w-full lg:w-1/2 flex justify-center lg:justify-end">
+            <div className="relative">
+              {/* Phone Frame */}
+              <div className="w-[300px] sm:w-[320px] bg-primary rounded-[40px] p-3 shadow-koloi-xl">
+                {/* Phone Notch */}
+                <div className="absolute top-6 left-1/2 -translate-x-1/2 w-20 h-6 bg-primary rounded-full z-10"></div>
+                
+                {/* Phone Screen */}
+                <div className="bg-background rounded-[32px] p-6 min-h-[500px]">
+                  {/* App Logo */}
+                  <div className="flex justify-center mb-6 pt-4">
+                    <KoloiLogo size="md" />
+                  </div>
+
+                  {/* Booking Card */}
+                  <div className="space-y-4">
+                    <h2 className="text-lg font-display font-semibold text-foreground text-center">
+                      Where are you go?
+                    </h2>
+
+                    {/* Pickup Input */}
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="text"
+                        placeholder="Enter pickup location"
+                        value={pickupLocation}
+                        onChange={(e) => setPickupLocation(e.target.value)}
+                        className="koloi-input pl-10 h-11 text-sm"
+                      />
+                    </div>
+
+                    {/* Dropoff Input */}
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
+                        <div className="w-2 h-2 bg-foreground"></div>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Where to?"
+                        value={dropoffLocation}
+                        onChange={(e) => setDropoffLocation(e.target.value)}
+                        className="koloi-input pl-10 h-11 text-sm"
+                      />
+                    </div>
+
+                    {/* Fare and Vehicle Row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Fare Offer */}
+                      <div className="border border-border rounded-lg p-3">
+                        <div className="text-xs text-muted-foreground mb-1">OFFER FARE (R)</div>
+                        <input
+                          type="text"
+                          value={`R ${fareOffer}`}
+                          onChange={(e) => setFareOffer(e.target.value.replace(/[^0-9]/g, ''))}
+                          className="w-full text-foreground font-semibold bg-transparent focus:outline-none"
+                        />
+                      </div>
+
+                      {/* Vehicle Type */}
+                      <div className="border border-border rounded-lg p-3">
+                        <div className="text-xs text-muted-foreground mb-1">VEHICLE</div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-foreground font-semibold">{vehicleType}</span>
+                          <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Find Drivers Button */}
+                    <Button className="koloi-btn-primary w-full">
+                      FIND DRIVERS
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Decorative Elements */}
+              <div className="absolute -z-10 top-10 -right-10 w-32 h-32 bg-accent/20 rounded-full blur-3xl"></div>
+              <div className="absolute -z-10 bottom-10 -left-10 w-24 h-24 bg-accent/10 rounded-full blur-2xl"></div>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Mobile Map Toggle */}
-      <div className="lg:hidden fixed bottom-4 right-4 z-30">
-        <Button 
-          onClick={() => setShowMap(!showMap)}
-          className="w-14 h-14 rounded-full shadow-koloi-xl koloi-btn-primary"
-        >
-          <Map className="w-6 h-6" />
-        </Button>
       </div>
     </section>
   );

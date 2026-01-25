@@ -57,11 +57,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Koloi custom colors
+        // Koloi custom colors - Navy & Amber
         koloi: {
-          green: "hsl(var(--koloi-green))",
-          "green-light": "hsl(var(--koloi-green-light))",
-          black: "hsl(var(--koloi-black))",
+          navy: "hsl(var(--koloi-navy))",
+          "navy-light": "hsl(var(--koloi-navy-light))",
+          amber: "hsl(var(--koloi-amber))",
+          "amber-light": "hsl(var(--koloi-amber-light))",
           "gray-100": "hsl(var(--koloi-gray-100))",
           "gray-200": "hsl(var(--koloi-gray-200))",
           "gray-300": "hsl(var(--koloi-gray-300))",
@@ -80,6 +81,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        display: ['Playfair Display', 'serif'],
       },
       boxShadow: {
         'koloi-sm': 'var(--shadow-sm)',

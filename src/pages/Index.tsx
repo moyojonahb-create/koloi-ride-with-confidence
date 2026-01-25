@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
-import SuggestionsSection from '@/components/SuggestionsSection';
-import DriveSection from '@/components/DriveSection';
-import BusinessSection from '@/components/BusinessSection';
+import HowItWorksSection from '@/components/HowItWorksSection';
 import SafetySection from '@/components/SafetySection';
+import TestimonialsSection from '@/components/TestimonialsSection';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
 
@@ -35,10 +34,9 @@ const Index = () => {
       
       <main>
         <HeroSection />
-        <SuggestionsSection />
-        <DriveSection />
-        <BusinessSection />
+        <HowItWorksSection />
         <SafetySection />
+        <TestimonialsSection />
       </main>
 
       <Footer />
