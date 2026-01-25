@@ -249,6 +249,27 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
           'line-width': 5,
         },
       });
+
+      // Add directional arrows along the route
+      map.current.addLayer({
+        id: 'route-arrows',
+        type: 'symbol',
+        source: 'route',
+        layout: {
+          'symbol-placement': 'line',
+          'symbol-spacing': 100,
+          'icon-image': 'triangle-11',
+          'icon-size': 1.2,
+          'icon-rotate': 90,
+          'icon-rotation-alignment': 'map',
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+        },
+        paint: {
+          'icon-color': '#FFFFFF',
+          'icon-opacity': 0.9,
+        },
+      });
     }
   };
 
@@ -345,15 +366,25 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
       {isLoaded && (
         <div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-sm rounded-lg p-3 shadow-koloi-md text-sm">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-3 h-3 rounded-full bg-foreground" />
+            <div className="w-4 h-4 rounded-full bg-foreground border-2 border-white flex items-center justify-center">
+              <div className="w-1.5 h-1.5 rounded-full bg-white" />
+            </div>
             <span>Pickup</span>
           </div>
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-3 h-3 bg-foreground" />
-            <span>Dropoff</span>
+            <div className="w-4 h-4 bg-accent rounded-sm rotate-45 flex items-center justify-center">
+              <svg className="-rotate-45" width="10" height="10" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2">
+                <path d="M12 5v14M19 12l-7 7-7-7"/>
+              </svg>
+            </div>
+            <span>Destination</span>
+          </div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-4 h-1 bg-accent rounded-full" />
+            <span className="flex items-center gap-1">Route <span className="text-muted-foreground text-xs">→</span></span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-accent" />
+            <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white" />
             <span>Drivers nearby</span>
           </div>
         </div>
@@ -385,27 +416,51 @@ const createMarkerElement = (type: 'pickup' | 'dropoff' | 'driver'): HTMLDivElem
   el.className = 'custom-marker';
   
   if (type === 'pickup') {
+    // Pickup: Circle with upward arrow inside
     el.innerHTML = `
       <div style="
-        width: 24px;
-        height: 24px;
+        width: 32px;
+        height: 32px;
         background: #121212;
         border: 3px solid white;
         border-radius: 50%;
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         cursor: pointer;
-      "></div>
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+        </svg>
+      </div>
     `;
   } else if (type === 'dropoff') {
+    // Dropoff: Pin with arrow pointing down
     el.innerHTML = `
       <div style="
-        width: 24px;
-        height: 24px;
-        background: #121212;
-        border: 3px solid white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         cursor: pointer;
-      "></div>
+      ">
+        <div style="
+          width: 32px;
+          height: 32px;
+          background: #F97316;
+          border: 3px solid white;
+          border-radius: 6px 6px 6px 0;
+          transform: rotate(-45deg);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2" style="transform: rotate(45deg);">
+            <path d="M12 5v14M19 12l-7 7-7-7"/>
+          </svg>
+        </div>
+      </div>
     `;
   } else {
     el.innerHTML = `
