@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, DollarSign, Clock, Shield } from 'lucide-react';
 
@@ -50,9 +51,11 @@ const DriveSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 h-14 px-8 font-semibold">
-                Sign up to drive
-                <ArrowRight className="w-5 h-5 ml-2" />
+              <Button asChild className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 h-14 px-8 font-semibold">
+                <Link to="/drive">
+                  Sign up to drive
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Link>
               </Button>
               <Button 
                 variant="outline" 

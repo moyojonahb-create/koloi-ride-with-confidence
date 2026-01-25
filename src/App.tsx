@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import DriverApplication from "./pages/DriverApplication";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -28,6 +29,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/drive" element={<DriverApplication />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />

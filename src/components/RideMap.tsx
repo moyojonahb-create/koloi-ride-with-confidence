@@ -55,9 +55,12 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
   const defaultCenter = useRef({ lng: 29.0147, lat: -20.9389 });
   const [drivers, setDrivers] = useState<MapLocation[]>([]);
 
-  // Initialize map once
+  // Initialize map once on mount only
   useEffect(() => {
-    if (!mapContainer.current || !MAPBOX_TOKEN || mapInitialized.current) return;
+    if (!mapContainer.current || !MAPBOX_TOKEN) return;
+    
+    // Prevent re-initialization
+    if (mapInitialized.current || map.current) return;
     
     mapInitialized.current = true;
     mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -69,7 +72,7 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
         center: [defaultCenter.current.lng, defaultCenter.current.lat],
         zoom: 13,
         attributionControl: false,
-        fadeDuration: 0, // Disable fade for faster load
+        fadeDuration: 0,
       });
 
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -86,17 +89,12 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
         }
       });
 
-      map.current.on('click', (e) => {
-        if (onLocationSelect) {
-          const type = !pickupLocation ? 'pickup' : 'dropoff';
-          onLocationSelect({ lng: e.lngLat.lng, lat: e.lngLat.lat }, type);
-        }
-      });
     } catch (error) {
       console.error('Failed to initialize map:', error);
       setMapError('Failed to load map');
     }
 
+    // Cleanup only on unmount
     return () => {
       if (map.current) {
         map.current.remove();
