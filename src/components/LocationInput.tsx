@@ -36,6 +36,8 @@ const SUGGESTED_LOCATIONS: Location[] = [
   
   // Gwanda Villages
   { id: 'spitzkop', name: 'Spitzkop', address: 'Spitzkop Area, Gwanda', lng: 29.0000, lat: -20.8500, icon: 'pin' },
+  { id: 'spitzkop-north', name: 'Spitzkop North (Red Cross)', address: 'Red Cross, Spitzkop North', lng: 28.9900, lat: -20.8300, icon: 'landmark' },
+  { id: 'spitzkop-south', name: 'Spitzkop South', address: 'Spitzkop South Area', lng: 29.0050, lat: -20.8700, icon: 'pin' },
   { id: 'guyu', name: 'Guyu', address: 'Guyu Village, Gwanda District', lng: 29.2000, lat: -21.1000, icon: 'pin' },
   { id: 'makwe', name: 'Makwe', address: 'Makwe Area, Gwanda', lng: 28.9000, lat: -20.9500, icon: 'pin' },
   { id: 'mawaza', name: 'Mawaza', address: 'Mawaza Village, Gwanda', lng: 29.0500, lat: -21.0200, icon: 'pin' },
