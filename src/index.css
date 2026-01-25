@@ -30,8 +30,8 @@
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    /* Accent - Green for CTAs and highlights */
-    --accent: 160 84% 39%;
+    /* Accent - Orange for CTAs and highlights */
+    --accent: 24 95% 53%;
     --accent-foreground: 0 0% 100%;
 
     /* Destructive */
@@ -53,11 +53,11 @@
     --sidebar-accent: 0 0% 95%;
     --sidebar-accent-foreground: 0 0% 10%;
     --sidebar-border: 0 0% 91%;
-    --sidebar-ring: 160 84% 39%;
+    --sidebar-ring: 24 95% 53%;
 
     /* Custom Koloi tokens */
-    --koloi-green: 160 84% 39%;
-    --koloi-green-light: 160 84% 95%;
+    --koloi-orange: 24 95% 53%;
+    --koloi-orange-light: 24 95% 95%;
     --koloi-black: 0 0% 7%;
     --koloi-gray-100: 0 0% 98%;
     --koloi-gray-200: 0 0% 96%;
@@ -96,7 +96,7 @@
     --muted: 0 0% 18%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 160 84% 39%;
+    --accent: 24 95% 53%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
@@ -108,12 +108,12 @@
 
     --sidebar-background: 0 0% 10%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 160 76% 48%;
+    --sidebar-primary: 24 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 16%;
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 16%;
-    --sidebar-ring: 160 84% 39%;
+    --sidebar-ring: 24 95% 53%;
   }
 }
 
