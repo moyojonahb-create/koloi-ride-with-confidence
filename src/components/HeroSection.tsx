@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { MapPin, Calendar, ChevronDown, Navigation, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MapPin, Calendar, ChevronDown, Navigation, Clock, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import RideMap from '@/components/RideMap';
 import heroImage from '@/assets/hero-illustration.jpg';
 
 const HeroSection = () => {
@@ -8,13 +9,50 @@ const HeroSection = () => {
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropoffLocation, setDropoffLocation] = useState('');
   const [showPickupDropdown, setShowPickupDropdown] = useState(false);
+  const [showMap, setShowMap] = useState(true);
+  
+  // Map coordinates
+  const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
+  const [dropoffCoords, setDropoffCoords] = useState<{ lng: number; lat: number } | null>(null);
+
+  const handleLocationSelect = (location: { lng: number; lat: number }, type: 'pickup' | 'dropoff') => {
+    if (type === 'pickup') {
+      setPickupCoords(location);
+      setPickupLocation(`${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
+    } else {
+      setDropoffCoords(location);
+      setDropoffLocation(`${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
+    }
+  };
+
+  const handleUseMyLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords = {
+            lng: position.coords.longitude,
+            lat: position.coords.latitude,
+          };
+          setPickupCoords(coords);
+          setPickupLocation('Current Location');
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          // Fallback to Harare center
+          const defaultCoords = { lng: 31.0492, lat: -17.8292 };
+          setPickupCoords(defaultCoords);
+          setPickupLocation('Harare City Center');
+        }
+      );
+    }
+  };
 
   return (
     <section className="relative bg-background">
       <div className="koloi-container py-8 lg:py-16">
-        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-16">
+        <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12">
           {/* Left Side - Ride Request Card */}
-          <div className="w-full lg:w-[480px] shrink-0 z-10">
+          <div className="w-full lg:w-[420px] shrink-0 z-10">
             <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 lg:mb-8 leading-tight">
               Get picked. Get moving.
             </h1>
@@ -82,7 +120,11 @@ const HeroSection = () => {
                     onChange={(e) => setPickupLocation(e.target.value)}
                     className="koloi-input pl-10 pr-10"
                   />
-                  <button className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-koloi-gray-200 rounded-lg transition-colors">
+                  <button 
+                    onClick={handleUseMyLocation}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-koloi-gray-200 rounded-lg transition-colors"
+                    title="Use my location"
+                  >
                     <Navigation className="w-5 h-5 text-muted-foreground" />
                   </button>
                 </div>
@@ -100,6 +142,12 @@ const HeroSection = () => {
                 </div>
               </div>
 
+              {/* Map tip */}
+              <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
+                <Map className="w-3 h-3" />
+                Click on the map to set locations
+              </p>
+
               {/* See Prices Button */}
               <Button className="koloi-btn-primary w-full mt-4">
                 See prices
@@ -115,29 +163,26 @@ const HeroSection = () => {
             </div>
           </div>
 
-          {/* Right Side - Hero Image */}
-          <div className="hidden lg:block flex-1 relative mt-8 lg:mt-0">
-            <div className="relative rounded-2xl overflow-hidden shadow-koloi-xl">
-              <img
-                src={heroImage}
-                alt="Koloi ride service"
-                className="w-full h-[500px] object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 to-transparent" />
-            </div>
+          {/* Right Side - Interactive Map */}
+          <div className="flex-1 mt-8 lg:mt-0">
+            <RideMap
+              pickupLocation={pickupCoords}
+              dropoffLocation={dropoffCoords}
+              onLocationSelect={handleLocationSelect}
+              className="h-[400px] lg:h-[500px] shadow-koloi-xl"
+            />
           </div>
         </div>
       </div>
 
-      {/* Mobile Hero Image */}
-      <div className="lg:hidden mt-8 px-4">
-        <div className="rounded-2xl overflow-hidden shadow-koloi-lg">
-          <img
-            src={heroImage}
-            alt="Koloi ride service"
-            className="w-full h-64 object-cover"
-          />
-        </div>
+      {/* Mobile Map Toggle */}
+      <div className="lg:hidden fixed bottom-4 right-4 z-30">
+        <Button 
+          onClick={() => setShowMap(!showMap)}
+          className="w-14 h-14 rounded-full shadow-koloi-xl koloi-btn-primary"
+        >
+          <Map className="w-6 h-6" />
+        </Button>
       </div>
     </section>
   );
