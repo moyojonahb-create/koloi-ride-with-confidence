@@ -58,75 +58,64 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const mapInitialized = useRef(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   
-  // Default center: Gwanda, Zimbabwe (near Beit Bridge and Blanket Mine)
-  const defaultCenter = { lng: 29.0147, lat: -20.9389 };
-  const [center] = useState(defaultCenter);
+  // Default center: Gwanda, Zimbabwe
+  const defaultCenter = useRef({ lng: 29.0147, lat: -20.9389 });
   const [drivers, setDrivers] = useState<MapLocation[]>([]);
 
-  // Initialize map
+  // Initialize map once
   useEffect(() => {
-    if (!mapContainer.current || !MAPBOX_TOKEN) {
-      if (!MAPBOX_TOKEN) {
-        setMapError('Mapbox token not configured');
-      }
-      return;
-    }
+    if (!mapContainer.current || !MAPBOX_TOKEN || mapInitialized.current) return;
     
-    // Clean up existing map
-    if (map.current) {
-      map.current.remove();
-      map.current = null;
-    }
-
+    mapInitialized.current = true;
     mapboxgl.accessToken = MAPBOX_TOKEN;
 
     try {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        center: [center.lng, center.lat],
+        center: [defaultCenter.current.lng, defaultCenter.current.lat],
         zoom: 13,
         attributionControl: false,
+        fadeDuration: 0, // Disable fade for faster load
       });
 
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
       
       map.current.on('load', () => {
         setIsLoaded(true);
-        setMapError(null);
-        // Generate simulated nearby drivers
-        setDrivers(generateNearbyDrivers(center.lng, center.lat));
+        setDrivers(generateNearbyDrivers(defaultCenter.current.lng, defaultCenter.current.lat));
       });
 
       map.current.on('error', (e) => {
         console.error('Map error:', e);
-        const errorStatus = (e.error as any)?.status;
-        if (errorStatus === 401) {
-          setMapError('Invalid Mapbox token. Please check the configuration.');
+        if ((e.error as any)?.status === 401) {
+          setMapError('Invalid Mapbox token');
         }
       });
 
-      // Handle map clicks for location selection
       map.current.on('click', (e) => {
         if (onLocationSelect) {
-          // Toggle between pickup and dropoff based on what's already set
           const type = !pickupLocation ? 'pickup' : 'dropoff';
           onLocationSelect({ lng: e.lngLat.lng, lat: e.lngLat.lat }, type);
         }
       });
     } catch (error) {
       console.error('Failed to initialize map:', error);
-      setMapError('Failed to load map. Please check your Mapbox token.');
+      setMapError('Failed to load map');
     }
 
     return () => {
-      map.current?.remove();
-      map.current = null;
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+        mapInitialized.current = false;
+      }
     };
-  }, [MAPBOX_TOKEN]);
+  }, []);
 
   // Fetch route using HERE Maps via edge function
   const fetchHereRoute = async (pickup: { lng: number; lat: number }, dropoff: { lng: number; lat: number }) => {
