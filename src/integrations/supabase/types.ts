@@ -256,6 +256,54 @@ export type Database = {
         }
         Relationships: []
       }
+      pricing_settings: {
+        Row: {
+          base_fare: number
+          fixed_town_fare: number
+          gwanda_cbd_lat: number
+          gwanda_cbd_lng: number
+          id: string
+          max_town_fare: number
+          min_fare: number
+          night_multiplier: number
+          peak_multiplier: number
+          per_km_rate: number
+          town_radius_km: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          base_fare?: number
+          fixed_town_fare?: number
+          gwanda_cbd_lat?: number
+          gwanda_cbd_lng?: number
+          id?: string
+          max_town_fare?: number
+          min_fare?: number
+          night_multiplier?: number
+          peak_multiplier?: number
+          per_km_rate?: number
+          town_radius_km?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          base_fare?: number
+          fixed_town_fare?: number
+          gwanda_cbd_lat?: number
+          gwanda_cbd_lng?: number
+          id?: string
+          max_town_fare?: number
+          min_fare?: number
+          night_multiplier?: number
+          peak_multiplier?: number
+          per_km_rate?: number
+          town_radius_km?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
