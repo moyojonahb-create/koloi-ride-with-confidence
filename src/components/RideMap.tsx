@@ -195,73 +195,86 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
   // Add town boundary circle when pricing settings load
   useEffect(() => {
     if (!map.current || !isLoaded || !pricingSettings) return;
-
-    const radiusKm = pricingSettings.town_radius_km;
-    const centerLat = pricingSettings.gwanda_cbd_lat;
-    const centerLng = pricingSettings.gwanda_cbd_lng;
-
-    const circleGeoJSON = generateCirclePolygon(centerLng, centerLat, radiusKm);
-
-    if (map.current.getSource('town-boundary')) {
-      (map.current.getSource('town-boundary') as mapboxgl.GeoJSONSource).setData(circleGeoJSON);
-    } else {
-      map.current.addSource('town-boundary', {
-        type: 'geojson',
-        data: circleGeoJSON,
-      });
-
-      // Add fill layer (subtle background)
-      map.current.addLayer({
-        id: 'town-boundary-fill',
-        type: 'fill',
-        source: 'town-boundary',
-        paint: {
-          'fill-color': '#F97316',
-          'fill-opacity': 0.05,
-        },
-      }, 'route-outline'); // Insert below route layers if they exist
-
-      // Add outline layer (dashed border)
-      map.current.addLayer({
-        id: 'town-boundary-line',
-        type: 'line',
-        source: 'town-boundary',
-        paint: {
-          'line-color': '#F97316',
-          'line-width': 2,
-          'line-dasharray': [4, 4],
-          'line-opacity': 0.6,
-        },
-      }, 'route-outline');
-
-      // Add label at the edge of the circle
-      const labelCoords: [number, number] = [centerLng, centerLat + radiusKm / 111];
+    
+    // Ensure style is fully loaded before adding layers
+    const addBoundaryLayers = () => {
+      if (!map.current) return;
       
-      map.current.addSource('town-boundary-label', {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: { label: `${radiusKm}km Town Zone` },
-          geometry: { type: 'Point', coordinates: labelCoords },
-        },
-      });
+      const radiusKm = pricingSettings.town_radius_km;
+      const centerLat = pricingSettings.gwanda_cbd_lat;
+      const centerLng = pricingSettings.gwanda_cbd_lng;
 
-      map.current.addLayer({
-        id: 'town-boundary-label',
-        type: 'symbol',
-        source: 'town-boundary-label',
-        layout: {
-          'text-field': ['get', 'label'],
-          'text-size': 12,
-          'text-anchor': 'bottom',
-          'text-offset': [0, -0.5],
-        },
-        paint: {
-          'text-color': '#F97316',
-          'text-halo-color': '#ffffff',
-          'text-halo-width': 2,
-        },
-      });
+      const circleGeoJSON = generateCirclePolygon(centerLng, centerLat, radiusKm);
+
+      if (map.current.getSource('town-boundary')) {
+        (map.current.getSource('town-boundary') as mapboxgl.GeoJSONSource).setData(circleGeoJSON);
+      } else {
+        map.current.addSource('town-boundary', {
+          type: 'geojson',
+          data: circleGeoJSON,
+        });
+
+        // Add fill layer (subtle background)
+        map.current.addLayer({
+          id: 'town-boundary-fill',
+          type: 'fill',
+          source: 'town-boundary',
+          paint: {
+            'fill-color': '#F97316',
+            'fill-opacity': 0.08,
+          },
+        });
+
+        // Add outline layer (dashed border)
+        map.current.addLayer({
+          id: 'town-boundary-line',
+          type: 'line',
+          source: 'town-boundary',
+          paint: {
+            'line-color': '#F97316',
+            'line-width': 2.5,
+            'line-dasharray': [4, 4],
+            'line-opacity': 0.7,
+          },
+        });
+
+        // Add label at the edge of the circle (north side)
+        const labelCoords: [number, number] = [centerLng, centerLat + radiusKm / 111];
+        
+        map.current.addSource('town-boundary-label', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: { label: `${radiusKm}km Town Zone` },
+            geometry: { type: 'Point', coordinates: labelCoords },
+          },
+        });
+
+        map.current.addLayer({
+          id: 'town-boundary-label',
+          type: 'symbol',
+          source: 'town-boundary-label',
+          layout: {
+            'text-field': ['get', 'label'],
+            'text-size': 12,
+            'text-anchor': 'bottom',
+            'text-offset': [0, -0.5],
+            'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+          },
+          paint: {
+            'text-color': '#F97316',
+            'text-halo-color': '#ffffff',
+            'text-halo-width': 2,
+          },
+        });
+      }
+    };
+
+    // Check if style is loaded, otherwise wait for it
+    if (map.current.isStyleLoaded()) {
+      addBoundaryLayers();
+    } else {
+      map.current.once('styledata', addBoundaryLayers);
     }
   }, [isLoaded, pricingSettings]);
 
