@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, FileText, CheckCircle, XCircle, Clock, Loader2, Trash2 } from 'lucide-react';
+import { Upload, FileText, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -63,16 +63,11 @@ const DocumentUpload = ({ driverId }: DocumentUploadProps) => {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('driver-documents')
-        .getPublicUrl(filePath);
-
-      // Create document record
+      // Store only the file path (not public URL) - we'll generate signed URLs on-demand
       const { error: dbError } = await supabase.from('driver_documents').insert({
         driver_id: driverId,
         document_type: documentType,
-        file_url: publicUrl,
+        file_url: filePath, // Store path, not public URL
         status: 'pending',
       });
 
