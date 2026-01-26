@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminGuard from '@/components/admin/AdminGuard';
+import { validateLandmarkForm } from '@/lib/landmarkValidation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -163,21 +164,17 @@ const AdminLandmarks = () => {
   };
 
   const handleSave = async () => {
-    if (!form.name || !form.latitude || !form.longitude) {
-      toast.error('Please fill in required fields');
+    // Validate form with comprehensive validation
+    const validation = validateLandmarkForm(form);
+    
+    if (validation.success === false) {
+      toast.error(validation.error);
       return;
     }
 
     setSaving(true);
     try {
-      const landmarkData = {
-        name: form.name,
-        category: form.category,
-        latitude: parseFloat(form.latitude),
-        longitude: parseFloat(form.longitude),
-        description: form.description || null,
-        keywords: form.keywords ? form.keywords.split(',').map(k => k.trim()) : [],
-      };
+      const landmarkData = validation.data;
 
       if (editingId) {
         const { error } = await supabase
