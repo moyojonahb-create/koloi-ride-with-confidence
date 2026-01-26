@@ -6,6 +6,32 @@ import { supabase } from '@/integrations/supabase/client';
 import { decodeFlexiblePolyline, toGeoJSONLineString } from '@/lib/flexPolyline';
 import { speak } from '@/lib/voiceNav';
 import { Button } from '@/components/ui/button';
+import { usePricingSettings } from '@/hooks/usePricingSettings';
+
+// Generate a circle polygon for the town boundary
+const generateCirclePolygon = (
+  centerLng: number,
+  centerLat: number,
+  radiusKm: number,
+  points: number = 64
+): GeoJSON.Feature<GeoJSON.Polygon> => {
+  const coords: [number, number][] = [];
+  for (let i = 0; i <= points; i++) {
+    const angle = (i / points) * 2 * Math.PI;
+    // Convert km to degrees (approximate: 1 degree ≈ 111 km at equator)
+    const latOffset = (radiusKm / 111) * Math.cos(angle);
+    const lngOffset = (radiusKm / (111 * Math.cos(centerLat * Math.PI / 180))) * Math.sin(angle);
+    coords.push([centerLng + lngOffset, centerLat + latOffset]);
+  }
+  return {
+    type: 'Feature',
+    properties: {},
+    geometry: {
+      type: 'Polygon',
+      coordinates: [coords],
+    },
+  };
+};
 
 interface MapLocation {
   lng: number;
@@ -67,6 +93,7 @@ const generateNearbyDrivers = (centerLng: number, centerLat: number): MapLocatio
 };
 
 const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCalculated, className = '' }: RideMapProps) => {
+  const { data: pricingSettings } = usePricingSettings();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -164,6 +191,79 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
       }
     };
   }, [mapboxToken]);
+
+  // Add town boundary circle when pricing settings load
+  useEffect(() => {
+    if (!map.current || !isLoaded || !pricingSettings) return;
+
+    const radiusKm = pricingSettings.town_radius_km;
+    const centerLat = pricingSettings.gwanda_cbd_lat;
+    const centerLng = pricingSettings.gwanda_cbd_lng;
+
+    const circleGeoJSON = generateCirclePolygon(centerLng, centerLat, radiusKm);
+
+    if (map.current.getSource('town-boundary')) {
+      (map.current.getSource('town-boundary') as mapboxgl.GeoJSONSource).setData(circleGeoJSON);
+    } else {
+      map.current.addSource('town-boundary', {
+        type: 'geojson',
+        data: circleGeoJSON,
+      });
+
+      // Add fill layer (subtle background)
+      map.current.addLayer({
+        id: 'town-boundary-fill',
+        type: 'fill',
+        source: 'town-boundary',
+        paint: {
+          'fill-color': '#F97316',
+          'fill-opacity': 0.05,
+        },
+      }, 'route-outline'); // Insert below route layers if they exist
+
+      // Add outline layer (dashed border)
+      map.current.addLayer({
+        id: 'town-boundary-line',
+        type: 'line',
+        source: 'town-boundary',
+        paint: {
+          'line-color': '#F97316',
+          'line-width': 2,
+          'line-dasharray': [4, 4],
+          'line-opacity': 0.6,
+        },
+      }, 'route-outline');
+
+      // Add label at the edge of the circle
+      const labelCoords: [number, number] = [centerLng, centerLat + radiusKm / 111];
+      
+      map.current.addSource('town-boundary-label', {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: { label: `${radiusKm}km Town Zone` },
+          geometry: { type: 'Point', coordinates: labelCoords },
+        },
+      });
+
+      map.current.addLayer({
+        id: 'town-boundary-label',
+        type: 'symbol',
+        source: 'town-boundary-label',
+        layout: {
+          'text-field': ['get', 'label'],
+          'text-size': 12,
+          'text-anchor': 'bottom',
+          'text-offset': [0, -0.5],
+        },
+        paint: {
+          'text-color': '#F97316',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 2,
+        },
+      });
+    }
+  }, [isLoaded, pricingSettings]);
 
   // Fetch route using HERE Maps via edge function
   const fetchHereRoute = async (pickup: { lng: number; lat: number }, dropoff: { lng: number; lat: number }) => {
@@ -514,6 +614,10 @@ const RideMap = ({ pickupLocation, dropoffLocation, onLocationSelect, onRouteCal
           <div className="flex items-center gap-2 mb-2">
             <div className="w-4 h-1 bg-accent rounded-full" />
             <span className="flex items-center gap-1">Route <span className="text-muted-foreground text-xs">→</span></span>
+          </div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-4 h-4 rounded-full border-2 border-dashed border-accent bg-accent/10" />
+            <span>Town zone <span className="text-muted-foreground text-xs">({pricingSettings?.town_radius_km || 5}km)</span></span>
           </div>
           <div className="flex items-center gap-2 mb-2">
             <div className="w-4 border-t-2 border-dashed border-emerald-500" />
