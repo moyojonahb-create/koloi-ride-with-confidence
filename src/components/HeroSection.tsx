@@ -7,7 +7,8 @@ import VehicleTypeSelector, { VEHICLE_TYPES, type VehicleType } from '@/componen
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { calculateKoloiFare, PRICING_INFO, type FareResult } from '@/lib/pricing';
+import { calculateKoloiFare, setPricingConfig, PRICING_INFO, type FareResult } from '@/lib/pricing';
+import { usePricingSettings } from '@/hooks/usePricingSettings';
 
 interface RouteInfo {
   distance: number;
@@ -21,6 +22,7 @@ interface HeroSectionProps {
 
 const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
   const { user } = useAuth();
+  const { data: pricingSettings } = usePricingSettings();
   const [pickupType, setPickupType] = useState<'now' | 'later'>('now');
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropoffLocation, setDropoffLocation] = useState('');
@@ -34,6 +36,23 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
   // Map coordinates
   const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
   const [dropoffCoords, setDropoffCoords] = useState<{ lng: number; lat: number } | null>(null);
+
+  // Update pricing config when settings load from DB
+  useEffect(() => {
+    if (pricingSettings) {
+      setPricingConfig({
+        baseFare: pricingSettings.base_fare,
+        perKmRate: pricingSettings.per_km_rate,
+        minFare: pricingSettings.min_fare,
+        maxTownFare: pricingSettings.max_town_fare,
+        fixedTownFare: pricingSettings.fixed_town_fare,
+        townRadiusKm: pricingSettings.town_radius_km,
+        peakMultiplier: pricingSettings.peak_multiplier,
+        nightMultiplier: pricingSettings.night_multiplier,
+        gwandaCbd: { lat: pricingSettings.gwanda_cbd_lat, lng: pricingSettings.gwanda_cbd_lng },
+      });
+    }
+  }, [pricingSettings]);
 
   // Get user location on mount for nearby landmarks
   useEffect(() => {

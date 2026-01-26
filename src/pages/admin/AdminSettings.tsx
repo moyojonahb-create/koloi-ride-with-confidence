@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Save, Bell, Shield, Loader2, DollarSign } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminGuard from '@/components/admin/AdminGuard';
@@ -7,31 +7,49 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-import { PRICING_INFO } from '@/lib/pricing';
+import { usePricingSettings, useUpdatePricingSettings } from '@/hooks/usePricingSettings';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const AdminSettings = () => {
-  const [saving, setSaving] = useState(false);
+  const { data: pricingSettings, isLoading: pricingLoading } = usePricingSettings();
+  const updatePricing = useUpdatePricingSettings();
+  
   const [settings, setSettings] = useState({
     emailNotifications: true,
     pushNotifications: true,
     autoApproveDrivers: false,
     requireAllDocuments: true,
-    baseFare: PRICING_INFO.baseFare,
-    perKmRate: PRICING_INFO.perKmRate,
-    minFare: PRICING_INFO.minFare,
-    maxTownFare: PRICING_INFO.maxTownFare,
-    fixedTownFare: PRICING_INFO.fixedTownFare,
-    peakMultiplier: PRICING_INFO.peakMultiplier,
-    nightMultiplier: PRICING_INFO.nightMultiplier,
   });
 
+  const [pricing, setPricing] = useState({
+    base_fare: 20,
+    per_km_rate: 10,
+    min_fare: 25,
+    max_town_fare: 50,
+    fixed_town_fare: 50,
+    town_radius_km: 5,
+    peak_multiplier: 1.2,
+    night_multiplier: 1.3,
+  });
+
+  // Sync pricing state with fetched data
+  useEffect(() => {
+    if (pricingSettings) {
+      setPricing({
+        base_fare: pricingSettings.base_fare,
+        per_km_rate: pricingSettings.per_km_rate,
+        min_fare: pricingSettings.min_fare,
+        max_town_fare: pricingSettings.max_town_fare,
+        fixed_town_fare: pricingSettings.fixed_town_fare,
+        town_radius_km: pricingSettings.town_radius_km,
+        peak_multiplier: pricingSettings.peak_multiplier,
+        night_multiplier: pricingSettings.night_multiplier,
+      });
+    }
+  }, [pricingSettings]);
+
   const handleSave = async () => {
-    setSaving(true);
-    // Simulate save
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setSaving(false);
-    toast.success('Settings saved successfully');
+    await updatePricing.mutateAsync(pricing);
   };
 
   return (
@@ -130,91 +148,127 @@ const AdminSettings = () => {
             </div>
             <Separator />
             
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <Label>Base Fare</Label>
-                <Input
-                  type="number"
-                  value={settings.baseFare}
-                  onChange={(e) => 
-                    setSettings({ ...settings, baseFare: Number(e.target.value) })
-                  }
-                />
+            {pricingLoading ? (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i}>
+                    <Skeleton className="h-4 w-20 mb-2" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ))}
               </div>
-              <div>
-                <Label>Per KM Rate</Label>
-                <Input
-                  type="number"
-                  value={settings.perKmRate}
-                  onChange={(e) => 
-                    setSettings({ ...settings, perKmRate: Number(e.target.value) })
-                  }
-                />
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Base Fare</Label>
+                  <Input
+                    type="number"
+                    value={pricing.base_fare}
+                    onChange={(e) => 
+                      setPricing({ ...pricing, base_fare: Number(e.target.value) })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Per KM Rate</Label>
+                  <Input
+                    type="number"
+                    value={pricing.per_km_rate}
+                    onChange={(e) => 
+                      setPricing({ ...pricing, per_km_rate: Number(e.target.value) })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Minimum Fare</Label>
+                  <Input
+                    type="number"
+                    value={pricing.min_fare}
+                    onChange={(e) => 
+                      setPricing({ ...pricing, min_fare: Number(e.target.value) })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Max Town Fare</Label>
+                  <Input
+                    type="number"
+                    value={pricing.max_town_fare}
+                    onChange={(e) => 
+                      setPricing({ ...pricing, max_town_fare: Number(e.target.value) })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Fixed Fare (outside {pricing.town_radius_km}km)</Label>
+                  <Input
+                    type="number"
+                    value={pricing.fixed_town_fare}
+                    onChange={(e) => 
+                      setPricing({ ...pricing, fixed_town_fare: Number(e.target.value) })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Town Radius (km)</Label>
+                  <Input
+                    type="number"
+                    value={pricing.town_radius_km}
+                    onChange={(e) => 
+                      setPricing({ ...pricing, town_radius_km: Number(e.target.value) })
+                    }
+                  />
+                </div>
               </div>
-              <div>
-                <Label>Minimum Fare</Label>
-                <Input
-                  type="number"
-                  value={settings.minFare}
-                  onChange={(e) => 
-                    setSettings({ ...settings, minFare: Number(e.target.value) })
-                  }
-                />
-              </div>
-              <div>
-                <Label>Max Town Fare</Label>
-                <Input
-                  type="number"
-                  value={settings.maxTownFare}
-                  onChange={(e) => 
-                    setSettings({ ...settings, maxTownFare: Number(e.target.value) })
-                  }
-                />
-              </div>
-              <div>
-                <Label>Fixed Town Fare (outside {PRICING_INFO.townRadiusKm}km)</Label>
-                <Input
-                  type="number"
-                  value={settings.fixedTownFare}
-                  onChange={(e) => 
-                    setSettings({ ...settings, fixedTownFare: Number(e.target.value) })
-                  }
-                />
-              </div>
-            </div>
+            )}
 
             <Separator />
             <p className="text-sm font-medium text-muted-foreground">Time Multipliers</p>
             
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <Label>Peak Hours (06:30-09:00, 16:00-18:30)</Label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  value={settings.peakMultiplier}
-                  onChange={(e) => 
-                    setSettings({ ...settings, peakMultiplier: Number(e.target.value) })
-                  }
-                />
+            {pricingLoading ? (
+              <div className="grid sm:grid-cols-2 gap-4">
+                {[...Array(2)].map((_, i) => (
+                  <div key={i}>
+                    <Skeleton className="h-4 w-32 mb-2" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ))}
               </div>
-              <div>
-                <Label>Night Hours (19:00-05:59)</Label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  value={settings.nightMultiplier}
-                  onChange={(e) => 
-                    setSettings({ ...settings, nightMultiplier: Number(e.target.value) })
-                  }
-                />
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Peak Hours (06:30-09:00, 16:00-18:30)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={pricing.peak_multiplier}
+                    onChange={(e) => 
+                      setPricing({ ...pricing, peak_multiplier: Number(e.target.value) })
+                    }
+                  />
+                </div>
+                <div>
+                  <Label>Night Hours (19:00-05:59)</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={pricing.night_multiplier}
+                    onChange={(e) => 
+                      setPricing({ ...pricing, night_multiplier: Number(e.target.value) })
+                    }
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Save Button */}
-          <Button onClick={handleSave} disabled={saving} className="w-full sm:w-auto">
-            {saving ? (
+          <Button 
+            onClick={handleSave} 
+            disabled={updatePricing.isPending || pricingLoading} 
+            className="w-full sm:w-auto"
+          >
+            {updatePricing.isPending ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
               <Save className="w-4 h-4 mr-2" />
