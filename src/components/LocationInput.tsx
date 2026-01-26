@@ -91,9 +91,13 @@ const LocationInput = ({
   return (
     <div className="relative">
       {/* Marker indicator */}
-      <div className={`absolute left-4 top-1/2 -translate-y-1/2 w-2.5 h-2.5 ${
-        markerType === 'pickup' ? 'bg-foreground rounded-full' : 'bg-foreground'
-      }`} />
+      <div className="absolute left-4 top-1/2 -translate-y-1/2">
+        {markerType === 'pickup' ? (
+          <MapPin className="w-5 h-5 text-muted-foreground" />
+        ) : (
+          <Navigation className="w-5 h-5 text-primary" />
+        )}
+      </div>
       
       <input
         ref={inputRef}
@@ -102,7 +106,7 @@ const LocationInput = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setIsFocused(true)}
-        className="koloi-input pl-10 pr-12"
+        className="koloi-input pl-12 pr-12"
       />
       
       {/* My Location button for pickup */}

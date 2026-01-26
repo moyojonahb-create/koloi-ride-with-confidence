@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer, Loader2 } from 'lucide-react';
+import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer, Loader2, Star, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RideMap from '@/components/RideMap';
 import LocationInput from '@/components/LocationInput';
@@ -159,9 +159,22 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12">
           {/* Left Side - Ride Request Card */}
           <div className="w-full lg:w-[420px] shrink-0 z-10">
-            <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 lg:mb-8 leading-tight">
-              Get picked. Get moving.
+            {/* Trust Badge */}
+            <div className="flex justify-center lg:justify-start mb-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                <Star className="w-4 h-4 fill-current" />
+                Trusted by 50,000+ riders
+              </div>
+            </div>
+
+            <h1 className="text-4xl lg:text-5xl font-bold mb-6 lg:mb-8 leading-tight text-center lg:text-left">
+              <span className="text-foreground">Get picked.</span>{' '}
+              <span className="text-primary">Get moving.</span>
             </h1>
+            
+            <p className="text-muted-foreground text-center lg:text-left mb-6">
+              Get where you need to go with safe, reliable rides at your fingertips. Book in seconds, ride in minutes.
+            </p>
 
             <div className="bg-card rounded-xl shadow-koloi-card p-6 animate-slide-up">
               {/* Pickup Type Selector */}
@@ -218,7 +231,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
               <div className="space-y-3">
                 {/* Pickup Location */}
                 <LocationInput
-                  placeholder="Where are you?"
+                  placeholder="Enter pickup location"
                   value={pickupLocation}
                   onChange={setPickupLocation}
                   onLocationSelect={handlePickupSelect}
@@ -286,10 +299,13 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                     Finding driver...
                   </>
-                ) : currentFare ? (
+                ) : routeInfo && currentFare ? (
                   `Request ${selectedVehicle.name} - R${currentFare}`
                 ) : (
-                  'Select pickup & dropoff'
+                  <>
+                    Find a ride
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </>
                 )}
               </Button>
 
