@@ -1,66 +1,78 @@
-import { Car, Sparkles, Crown } from 'lucide-react';
+import { Car } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { calculateKoloiFare, PRICING_INFO, type Location } from '@/lib/pricing';
+import { Clock, Moon, Sun } from 'lucide-react';
 
 export interface VehicleType {
-  id: 'economy' | 'comfort' | 'premium';
+  id: 'standard';
   name: string;
   description: string;
-  baseFare: number;
-  pricePerKm: number;
   icon: React.ElementType;
   eta: string;
 }
 
 export const VEHICLE_TYPES: VehicleType[] = [
   {
-    id: 'economy',
-    name: 'Economy',
-    description: 'Affordable everyday rides',
-    baseFare: 50,
-    pricePerKm: 4,
+    id: 'standard',
+    name: 'Koloi',
+    description: 'Affordable town rides',
     icon: Car,
     eta: '3 min',
   },
-  {
-    id: 'comfort',
-    name: 'Comfort',
-    description: 'Newer cars, top-rated drivers',
-    baseFare: 70,
-    pricePerKm: 6,
-    icon: Sparkles,
-    eta: '5 min',
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    description: 'Luxury vehicles, priority pickup',
-    baseFare: 100,
-    pricePerKm: 8,
-    icon: Crown,
-    eta: '7 min',
-  },
 ];
 
-export const calculateFareForVehicle = (distanceKm: number, vehicleType: VehicleType): number => {
-  const fare = vehicleType.baseFare + (distanceKm * vehicleType.pricePerKm);
-  return Math.max(vehicleType.baseFare, Math.round(fare / 5) * 5);
+// Legacy function for backward compatibility - now uses Koloi pricing
+export const calculateFareForVehicle = (
+  distanceKm: number,
+  _vehicleType: VehicleType,
+  pickup?: Location,
+  dropoff?: Location
+): number => {
+  // If we have actual coordinates, use proper pricing
+  if (pickup && dropoff) {
+    return calculateKoloiFare(pickup, dropoff).priceR;
+  }
+  // Fallback: estimate using distance only (within town)
+  let price = PRICING_INFO.baseFare + distanceKm * PRICING_INFO.perKmRate;
+  price = Math.max(PRICING_INFO.minFare, Math.min(price, PRICING_INFO.maxTownFare));
+  return Math.round(price);
 };
 
 interface VehicleTypeSelectorProps {
   selectedType: VehicleType;
   onSelect: (type: VehicleType) => void;
   distanceKm?: number;
+  pickup?: Location;
+  dropoff?: Location;
 }
 
-const VehicleTypeSelector = ({ selectedType, onSelect, distanceKm }: VehicleTypeSelectorProps) => {
+const VehicleTypeSelector = ({ 
+  selectedType, 
+  onSelect, 
+  distanceKm, 
+  pickup, 
+  dropoff 
+}: VehicleTypeSelectorProps) => {
+  // Calculate fare with full pricing logic
+  const fareResult = pickup && dropoff 
+    ? calculateKoloiFare(pickup, dropoff) 
+    : null;
+
+  const getMultiplierIcon = () => {
+    if (!fareResult) return null;
+    if (fareResult.multiplier === 1.3) return <Moon className="w-3 h-3" />;
+    if (fareResult.multiplier === 1.2) return <Clock className="w-3 h-3" />;
+    return <Sun className="w-3 h-3" />;
+  };
+
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium text-muted-foreground">Choose your ride</p>
+      <p className="text-sm font-medium text-muted-foreground">Your ride</p>
       <div className="space-y-2">
         {VEHICLE_TYPES.map((vehicle) => {
           const Icon = vehicle.icon;
           const isSelected = selectedType.id === vehicle.id;
-          const fare = distanceKm ? calculateFareForVehicle(distanceKm, vehicle) : null;
+          const fare = fareResult?.priceR ?? (distanceKm ? calculateFareForVehicle(distanceKm, vehicle) : null);
           
           return (
             <button
@@ -86,18 +98,35 @@ const VehicleTypeSelector = ({ selectedType, onSelect, distanceKm }: VehicleType
                   <span className="text-xs text-muted-foreground">{vehicle.eta}</span>
                 </div>
                 <p className="text-sm text-muted-foreground truncate">{vehicle.description}</p>
+                {fareResult && (
+                  <div className="flex items-center gap-1 mt-1">
+                    {getMultiplierIcon()}
+                    <span className={cn(
+                      "text-xs",
+                      fareResult.multiplier > 1 ? "text-amber-600" : "text-muted-foreground"
+                    )}>
+                      {fareResult.reason}
+                      {fareResult.multiplier > 1 && ` (${fareResult.multiplier}x)`}
+                    </span>
+                  </div>
+                )}
               </div>
               
               <div className="text-right shrink-0">
                 {fare ? (
                   <span className="font-bold text-foreground">R{fare}</span>
                 ) : (
-                  <span className="text-sm text-muted-foreground">R{vehicle.baseFare}+</span>
+                  <span className="text-sm text-muted-foreground">R{PRICING_INFO.minFare}+</span>
                 )}
               </div>
             </button>
           );
         })}
+      </div>
+      
+      {/* Pricing info */}
+      <div className="text-xs text-muted-foreground text-center pt-2 border-t border-border">
+        Base R{PRICING_INFO.baseFare} + R{PRICING_INFO.perKmRate}/km • Max R{PRICING_INFO.maxTownFare} in town
       </div>
     </div>
   );

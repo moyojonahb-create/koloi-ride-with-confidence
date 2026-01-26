@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Save, Bell, Shield, Loader2 } from 'lucide-react';
+import { Save, Bell, Shield, Loader2, DollarSign } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
+import { PRICING_INFO } from '@/lib/pricing';
 
 const AdminSettings = () => {
   const [saving, setSaving] = useState(false);
@@ -16,12 +17,13 @@ const AdminSettings = () => {
     pushNotifications: true,
     autoApproveDrivers: false,
     requireAllDocuments: true,
-    baseFareEconomy: 50,
-    baseFareComfort: 70,
-    baseFarePremium: 100,
-    perKmEconomy: 4,
-    perKmComfort: 6,
-    perKmPremium: 8,
+    baseFare: PRICING_INFO.baseFare,
+    perKmRate: PRICING_INFO.perKmRate,
+    minFare: PRICING_INFO.minFare,
+    maxTownFare: PRICING_INFO.maxTownFare,
+    fixedTownFare: PRICING_INFO.fixedTownFare,
+    peakMultiplier: PRICING_INFO.peakMultiplier,
+    nightMultiplier: PRICING_INFO.nightMultiplier,
   });
 
   const handleSave = async () => {
@@ -122,67 +124,88 @@ const AdminSettings = () => {
 
           {/* Pricing */}
           <div className="bg-card rounded-xl border border-border p-6 space-y-4">
-            <h2 className="font-semibold">Pricing (Rands)</h2>
+            <div className="flex items-center gap-3">
+              <DollarSign className="w-5 h-5 text-muted-foreground" />
+              <h2 className="font-semibold">Koloi Pricing (Rands)</h2>
+            </div>
             <Separator />
             
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label>Economy Base Fare</Label>
+                <Label>Base Fare</Label>
                 <Input
                   type="number"
-                  value={settings.baseFareEconomy}
+                  value={settings.baseFare}
                   onChange={(e) => 
-                    setSettings({ ...settings, baseFareEconomy: Number(e.target.value) })
+                    setSettings({ ...settings, baseFare: Number(e.target.value) })
                   }
                 />
               </div>
               <div>
-                <Label>Economy Per KM</Label>
+                <Label>Per KM Rate</Label>
                 <Input
                   type="number"
-                  value={settings.perKmEconomy}
+                  value={settings.perKmRate}
                   onChange={(e) => 
-                    setSettings({ ...settings, perKmEconomy: Number(e.target.value) })
+                    setSettings({ ...settings, perKmRate: Number(e.target.value) })
                   }
                 />
               </div>
               <div>
-                <Label>Comfort Base Fare</Label>
+                <Label>Minimum Fare</Label>
                 <Input
                   type="number"
-                  value={settings.baseFareComfort}
+                  value={settings.minFare}
                   onChange={(e) => 
-                    setSettings({ ...settings, baseFareComfort: Number(e.target.value) })
+                    setSettings({ ...settings, minFare: Number(e.target.value) })
                   }
                 />
               </div>
               <div>
-                <Label>Comfort Per KM</Label>
+                <Label>Max Town Fare</Label>
                 <Input
                   type="number"
-                  value={settings.perKmComfort}
+                  value={settings.maxTownFare}
                   onChange={(e) => 
-                    setSettings({ ...settings, perKmComfort: Number(e.target.value) })
+                    setSettings({ ...settings, maxTownFare: Number(e.target.value) })
                   }
                 />
               </div>
               <div>
-                <Label>Premium Base Fare</Label>
+                <Label>Fixed Town Fare (outside {PRICING_INFO.townRadiusKm}km)</Label>
                 <Input
                   type="number"
-                  value={settings.baseFarePremium}
+                  value={settings.fixedTownFare}
                   onChange={(e) => 
-                    setSettings({ ...settings, baseFarePremium: Number(e.target.value) })
+                    setSettings({ ...settings, fixedTownFare: Number(e.target.value) })
+                  }
+                />
+              </div>
+            </div>
+
+            <Separator />
+            <p className="text-sm font-medium text-muted-foreground">Time Multipliers</p>
+            
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <Label>Peak Hours (06:30-09:00, 16:00-18:30)</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  value={settings.peakMultiplier}
+                  onChange={(e) => 
+                    setSettings({ ...settings, peakMultiplier: Number(e.target.value) })
                   }
                 />
               </div>
               <div>
-                <Label>Premium Per KM</Label>
+                <Label>Night Hours (19:00-05:59)</Label>
                 <Input
                   type="number"
-                  value={settings.perKmPremium}
+                  step="0.1"
+                  value={settings.nightMultiplier}
                   onChange={(e) => 
-                    setSettings({ ...settings, perKmPremium: Number(e.target.value) })
+                    setSettings({ ...settings, nightMultiplier: Number(e.target.value) })
                   }
                 />
               </div>

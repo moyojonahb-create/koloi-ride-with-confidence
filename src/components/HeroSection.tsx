@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer, Loader2, Star, ArrowRight } from 'lucide-react';
+import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer, Loader2, Star, ArrowRight, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import RideMap from '@/components/RideMap';
 import LocationInput from '@/components/LocationInput';
-import VehicleTypeSelector, { VEHICLE_TYPES, calculateFareForVehicle, type VehicleType } from '@/components/VehicleTypeSelector';
+import VehicleTypeSelector, { VEHICLE_TYPES, type VehicleType } from '@/components/VehicleTypeSelector';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { calculateKoloiFare, PRICING_INFO, type FareResult } from '@/lib/pricing';
 
 interface RouteInfo {
   distance: number;
@@ -76,8 +77,14 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     setRouteInfo(info);
   };
 
-  // Calculate fare based on selected vehicle and distance
-  const currentFare = routeInfo ? calculateFareForVehicle(routeInfo.distance, selectedVehicle) : null;
+  // Calculate fare using Koloi pricing system
+  const fareResult: FareResult | null = pickupCoords && dropoffCoords 
+    ? calculateKoloiFare(
+        { lat: pickupCoords.lat, lng: pickupCoords.lng },
+        { lat: dropoffCoords.lat, lng: dropoffCoords.lng }
+      )
+    : null;
+  const currentFare = fareResult?.priceR ?? null;
 
   // Handle ride request
   const handleRequestRide = async () => {
@@ -253,23 +260,30 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
               </div>
 
               {/* Vehicle Type Selector - show when route is available */}
-              {routeInfo && (
+              {routeInfo && pickupCoords && dropoffCoords && (
                 <div className="mt-4 animate-fade-in">
                   <VehicleTypeSelector
                     selectedType={selectedVehicle}
                     onSelect={setSelectedVehicle}
                     distanceKm={routeInfo.distance}
+                    pickup={{ lat: pickupCoords.lat, lng: pickupCoords.lng }}
+                    dropoff={{ lat: dropoffCoords.lat, lng: dropoffCoords.lng }}
                   />
                 </div>
               )}
 
               {/* Fare Estimate Card */}
-              {routeInfo && currentFare && (
+              {routeInfo && currentFare && fareResult && (
                 <div className="mt-4 p-4 bg-accent/10 rounded-xl border border-accent/20 animate-fade-in">
                   <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <span className="text-sm text-muted-foreground">{selectedVehicle.name}</span>
-                      <span className="text-2xl font-bold text-foreground ml-2">R{currentFare}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold text-foreground">R{currentFare}</span>
+                      {fareResult.multiplier > 1 && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
+                          {fareResult.multiplier === 1.3 ? <Moon className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
+                          {fareResult.multiplier}x
+                        </span>
+                      )}
                     </div>
                     <div className="text-right text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
@@ -283,7 +297,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Base R{selectedVehicle.baseFare} + R{selectedVehicle.pricePerKm}/km
+                    {fareResult.reason} • {fareResult.isOutsideTown ? 'Fixed fare' : `R${PRICING_INFO.baseFare} + R${PRICING_INFO.perKmRate}/km`}
                   </p>
                 </div>
               )}
@@ -291,7 +305,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
               {/* Request Ride Button */}
               <Button 
                 className="koloi-btn-primary w-full mt-4" 
-                disabled={!routeInfo || isRequesting}
+                disabled={!routeInfo || !currentFare || isRequesting}
                 onClick={handleRequestRide}
               >
                 {isRequesting ? (
@@ -300,7 +314,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                     Finding driver...
                   </>
                 ) : routeInfo && currentFare ? (
-                  `Request ${selectedVehicle.name} - R${currentFare}`
+                  `Request Koloi - R${currentFare}`
                 ) : (
                   <>
                     Find a ride
