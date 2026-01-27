@@ -71,9 +71,28 @@ const driverIcon = L.divIcon({
 // Gwanda, Zimbabwe default center
 const GWANDA_CENTER: Coordinates = { lat: -20.9389, lng: 29.0147 };
 
+// Available tile layers - OSM updates are reflected here
+const TILE_LAYERS = {
+  // Standard OSM - updated frequently, shows all roads including paths
+  osm: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  },
+  // OSM France - good detail, updates quickly
+  osmFrance: {
+    url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> France',
+  },
+  // Humanitarian style - shows paths and tracks well
+  humanitarian: {
+    url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles: HOT',
+  },
+};
+
 export default function OSMMap({
   center = GWANDA_CENTER,
-  zoom = 14,
+  zoom = 15, // Higher zoom to show more road detail
   pickup,
   dropoff,
   routeGeometry,
@@ -101,13 +120,29 @@ export default function OSMMap({
       attributionControl: true,
     });
 
-    // Add OpenStreetMap tiles
-    const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19,
-    }).addTo(map);
+    // Create base layers - OSM Humanitarian shows paths/tracks well
+    const baseLayers = {
+      'Street Map': L.tileLayer(TILE_LAYERS.osm.url, {
+        attribution: TILE_LAYERS.osm.attribution,
+        maxZoom: 19,
+      }),
+      'Humanitarian': L.tileLayer(TILE_LAYERS.humanitarian.url, {
+        attribution: TILE_LAYERS.humanitarian.attribution,
+        maxZoom: 19,
+      }),
+      'OSM France': L.tileLayer(TILE_LAYERS.osmFrance.url, {
+        attribution: TILE_LAYERS.osmFrance.attribution,
+        maxZoom: 19,
+      }),
+    };
 
-    tileLayer.on('load', () => {
+    // Add default layer (Humanitarian shows roads/paths better)
+    baseLayers['Humanitarian'].addTo(map);
+
+    // Add layer control
+    L.control.layers(baseLayers, {}, { position: 'topright' }).addTo(map);
+
+    baseLayers['Humanitarian'].on('load', () => {
       setIsLoading(false);
     });
 
