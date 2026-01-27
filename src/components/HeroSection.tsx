@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, ChevronDown, Clock, Navigation2, Timer, Loader2, Star, ArrowRight, Moon } from 'lucide-react';
+import { Calendar, ChevronDown, Clock, Navigation2, Timer, Loader2, Star, ArrowRight, Moon, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LocationInput from '@/components/LocationInput';
 import LocationPanel from '@/components/LocationPanel';
@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { calculateKoloiFare, setPricingConfig, PRICING_INFO, type FareResult } from '@/lib/pricing';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
+import { useOSRMRoute } from '@/hooks/useOSRMRoute';
 
 interface HeroSectionProps {
   onLoginClick?: () => void;
@@ -29,6 +30,12 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
   // Location coordinates
   const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
   const [dropoffCoords, setDropoffCoords] = useState<{ lng: number; lat: number } | null>(null);
+
+  // OSRM Route calculation
+  const { route: osrmRoute, loading: routeLoading, error: routeError } = useOSRMRoute(
+    pickupCoords ? { lat: pickupCoords.lat, lng: pickupCoords.lng } : null,
+    dropoffCoords ? { lat: dropoffCoords.lat, lng: dropoffCoords.lng } : null
+  );
 
   // Update pricing config when settings load from DB
   useEffect(() => {
@@ -86,32 +93,12 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     setDropoffCoords({ lng: location.lng, lat: location.lat });
   };
 
-  // Calculate distance using Haversine formula (no external API needed)
-  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
-
-  // Route info computed locally
-  const routeInfo = pickupCoords && dropoffCoords ? {
-    distance: Math.round(calculateDistance(
-      pickupCoords.lat,
-      pickupCoords.lng,
-      dropoffCoords.lat,
-      dropoffCoords.lng
-    ) * 10) / 10,
-    duration: Math.round(calculateDistance(
-      pickupCoords.lat,
-      pickupCoords.lng,
-      dropoffCoords.lat,
-      dropoffCoords.lng
-    ) * 3), // ~3 min per km estimate
+  // Route info from OSRM (or fallback)
+  const routeInfo = osrmRoute ? {
+    distance: osrmRoute.distanceKm,
+    duration: osrmRoute.durationMinutes,
+    geometry: osrmRoute.geometry,
+    isEstimate: osrmRoute.isEstimate,
   } : null;
 
   // Calculate fare using Koloi pricing system
@@ -306,8 +293,16 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                 </div>
               )}
 
+              {/* Route Loading State */}
+              {routeLoading && pickupCoords && dropoffCoords && (
+                <div className="mt-4 p-4 bg-secondary rounded-xl animate-fade-in flex items-center gap-3">
+                  <Loader2 className="w-5 h-5 animate-spin text-accent" />
+                  <span className="text-sm text-muted-foreground">Calculating route via OSRM...</span>
+                </div>
+              )}
+
               {/* Fare Estimate Card */}
-              {routeInfo && currentFare && fareResult && (
+              {routeInfo && currentFare && fareResult && !routeLoading && (
                 <div className="mt-4 p-4 bg-accent/10 rounded-xl border border-accent/20 animate-fade-in">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -323,6 +318,9 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                       <div className="flex items-center gap-1">
                         <Navigation2 className="w-4 h-4 text-accent" />
                         <span>{routeInfo.distance} km</span>
+                        {routeInfo.isEstimate && (
+                          <span className="text-xs text-amber-600">(est.)</span>
+                        )}
                       </div>
                       <div className="flex items-center gap-1">
                         <Timer className="w-4 h-4 text-accent" />
@@ -332,7 +330,16 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {fareResult.reason} • {fareResult.isOutsideTown ? 'Fixed fare' : `R${PRICING_INFO.baseFare} + R${PRICING_INFO.perKmRate}/km`}
+                    {routeInfo.isEstimate && ' • Estimated route'}
                   </p>
+                </div>
+              )}
+
+              {/* Route Error */}
+              {routeError && pickupCoords && dropoffCoords && (
+                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 text-sm text-amber-700">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>Using estimated distance. OSRM routing unavailable.</span>
                 </div>
               )}
 
@@ -372,7 +379,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
             </div>
           </div>
 
-          {/* Right Side - Location Panel (GPS + Landmarks) */}
+          {/* Right Side - Location Panel (GPS + Landmarks + OSM Map) */}
           <div className="flex-1 mt-8 lg:mt-0">
             <ErrorBoundary>
               <LocationPanel
@@ -380,7 +387,8 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                 dropoffLocation={dropoffCoords ? { name: dropoffLocation, lat: dropoffCoords.lat, lng: dropoffCoords.lng } : null}
                 onPickupSelect={handlePanelPickupSelect}
                 onDropoffSelect={handlePanelDropoffSelect}
-                className="h-[400px] lg:h-[500px] shadow-koloi-xl"
+                routeGeometry={routeInfo?.geometry}
+                className="h-[500px] lg:h-[600px] shadow-koloi-xl"
               />
             </ErrorBoundary>
           </div>
