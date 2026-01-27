@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Navigation, MapPin, Crosshair, AlertCircle, Check, ArrowRight, Search, Loader2 } from 'lucide-react';
+import { Navigation, MapPin, Crosshair, AlertCircle, Check, Search, Loader2, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLandmarks, formatDistance, type Landmark } from '@/hooks/useLandmarks';
 import { cn } from '@/lib/utils';
 import OSMMap from '@/components/OSMMap';
+import { LandmarkChips } from '@/components/LandmarkChips';
+import ArrivalIndicator from '@/components/ArrivalIndicator';
 
 interface SelectedLocation {
   name: string;
@@ -19,6 +21,12 @@ interface LocationPanelProps {
   onDropoffSelect: (location: SelectedLocation) => void;
   routeGeometry?: string | null;
   driverLocation?: { lat: number; lng: number } | null;
+  arrivalState?: {
+    isArrived: boolean;
+    distanceToPickup: number | null;
+    distanceToDropoff: number | null;
+    arrivalType: 'pickup' | 'dropoff' | null;
+  };
   className?: string;
 }
 
@@ -36,6 +44,7 @@ const LocationPanel = ({
   onDropoffSelect,
   routeGeometry,
   driverLocation,
+  arrivalState,
   className = '',
 }: LocationPanelProps) => {
   const [gpsState, setGpsState] = useState<GPSState>({
@@ -46,9 +55,8 @@ const LocationPanel = ({
   });
   const [activeSelector, setActiveSelector] = useState<'pickup' | 'dropoff' | null>('pickup');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showLandmarks, setShowLandmarks] = useState(true);
 
-  const { landmarks, loading: landmarksLoading, getNearbyLandmarks, findNearestLandmark } = useLandmarks({
+  const { landmarks, loading: landmarksLoading, getNearbyLandmarks, findNearestLandmark, allLandmarks } = useLandmarks({
     userLocation: gpsState.coords,
     searchQuery,
     limit: 20,
@@ -56,8 +64,8 @@ const LocationPanel = ({
 
   // Get nearby landmarks sorted by distance
   const nearbyLandmarks = gpsState.coords 
-    ? getNearbyLandmarks(20) 
-    : landmarks.slice(0, 12);
+    ? getNearbyLandmarks(20).slice(0, 8)
+    : allLandmarks.slice(0, 8);
 
   // Filtered landmarks based on search
   const filteredLandmarks = searchQuery.trim() 
@@ -103,6 +111,7 @@ const LocationPanel = ({
             lat: coords.lat,
             lng: coords.lng,
           });
+          setActiveSelector('dropoff');
         }
       },
       (error) => {
@@ -110,12 +119,12 @@ const LocationPanel = ({
         let status: GPSState['status'] = 'unavailable';
         
         if (error.code === error.PERMISSION_DENIED) {
-          errorMessage = 'Location access denied. Please select a landmark manually.';
+          errorMessage = 'Location access denied. Please select a landmark.';
           status = 'denied';
         } else if (error.code === error.POSITION_UNAVAILABLE) {
           errorMessage = 'Location unavailable. Please select a landmark.';
         } else if (error.code === error.TIMEOUT) {
-          errorMessage = 'Location request timed out. Try again or select a landmark.';
+          errorMessage = 'Location timed out. Select a landmark below.';
         }
 
         setGpsState({
@@ -217,6 +226,17 @@ const LocationPanel = ({
         )}
       </div>
 
+      {/* Arrival Indicator */}
+      {arrivalState && (
+        <ArrivalIndicator
+          isArrived={arrivalState.isArrived}
+          arrivalType={arrivalState.arrivalType}
+          distanceToPickup={arrivalState.distanceToPickup}
+          distanceToDropoff={arrivalState.distanceToDropoff}
+          className="mx-4 mt-4"
+        />
+      )}
+
       {/* GPS Status */}
       {gpsState.status !== 'idle' && (
         <div className="px-4 py-2 border-b border-border bg-secondary/30">
@@ -224,7 +244,7 @@ const LocationPanel = ({
             <div className="flex items-center gap-2 text-sm">
               <Check className="w-4 h-4 text-emerald-500" />
               <span className="text-muted-foreground">
-                GPS: {gpsState.coords.lat.toFixed(5)}, {gpsState.coords.lng.toFixed(5)}
+                GPS active
               </span>
               {gpsState.accuracy && (
                 <span className="text-xs text-muted-foreground">(±{gpsState.accuracy}m)</span>
@@ -249,7 +269,7 @@ const LocationPanel = ({
           className={cn(
             "w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left",
             activeSelector === 'pickup'
-              ? "border-accent bg-accent/5"
+              ? "border-emerald-500 bg-emerald-500/5"
               : "border-border hover:bg-secondary/50"
           )}
         >
@@ -257,9 +277,9 @@ const LocationPanel = ({
             "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
             pickupLocation ? "bg-emerald-100" : "bg-secondary"
           )}>
-            <MapPin className={cn(
-              "w-5 h-5",
-              pickupLocation ? "text-emerald-600" : "text-muted-foreground"
+            <div className={cn(
+              "w-3 h-3 rounded-full",
+              pickupLocation ? "bg-emerald-500" : "bg-muted-foreground"
             )} />
           </div>
           <div className="min-w-0 flex-1">
@@ -272,9 +292,18 @@ const LocationPanel = ({
             </p>
           </div>
           {activeSelector === 'pickup' && (
-            <span className="text-xs text-accent font-medium shrink-0">Selecting</span>
+            <span className="text-xs text-emerald-600 font-medium shrink-0">Selecting</span>
           )}
         </button>
+
+        {/* Route line connector */}
+        <div className="flex items-center justify-center">
+          <div className="flex flex-col items-center gap-0.5">
+            <div className="w-0.5 h-2 bg-border" />
+            <ArrowDown className="w-4 h-4 text-muted-foreground" />
+            <div className="w-0.5 h-2 bg-border" />
+          </div>
+        </div>
 
         {/* Dropoff */}
         <button
@@ -282,7 +311,7 @@ const LocationPanel = ({
           className={cn(
             "w-full flex items-center gap-3 p-3 rounded-lg border transition-colors text-left",
             activeSelector === 'dropoff'
-              ? "border-accent bg-accent/5"
+              ? "border-blue-500 bg-blue-500/5"
               : "border-border hover:bg-secondary/50"
           )}
         >
@@ -290,13 +319,13 @@ const LocationPanel = ({
             "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
             dropoffLocation ? "bg-blue-100" : "bg-secondary"
           )}>
-            <Navigation className={cn(
-              "w-5 h-5",
-              dropoffLocation ? "text-blue-600" : "text-muted-foreground"
+            <div className={cn(
+              "w-3 h-3 rounded-full",
+              dropoffLocation ? "bg-blue-500" : "bg-muted-foreground"
             )} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide">Dropoff</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-wide">Destination</p>
             <p className={cn(
               "font-medium truncate",
               dropoffLocation ? "text-foreground" : "text-muted-foreground"
@@ -305,10 +334,25 @@ const LocationPanel = ({
             </p>
           </div>
           {activeSelector === 'dropoff' && (
-            <span className="text-xs text-accent font-medium shrink-0">Selecting</span>
+            <span className="text-xs text-blue-600 font-medium shrink-0">Selecting</span>
           )}
         </button>
       </div>
+
+      {/* Quick Landmark Chips */}
+      {activeSelector && !searchQuery.trim() && (
+        <div className="px-4 pt-3">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+            {gpsState.coords ? 'Nearby' : 'Popular'}
+          </p>
+          <LandmarkChips
+            landmarks={nearbyLandmarks}
+            onSelect={handleLandmarkSelect}
+            loading={landmarksLoading}
+            maxChips={6}
+          />
+        </div>
+      )}
 
       {/* Landmarks Section */}
       <div className="flex-1 overflow-hidden flex flex-col">
@@ -317,7 +361,7 @@ const LocationPanel = ({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search landmarks..."
+              placeholder={`Search ${activeSelector === 'pickup' ? 'pickup' : 'destination'}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -325,74 +369,77 @@ const LocationPanel = ({
           </div>
         </div>
 
-        {/* Toggle landmarks visibility on mobile */}
-        <button
-          onClick={() => setShowLandmarks(!showLandmarks)}
-          className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground flex items-center justify-between lg:hidden"
-        >
-          <span>{activeSelector === 'pickup' ? 'Select Pickup' : 'Select Destination'}</span>
-          <ArrowRight className={cn("w-4 h-4 transition-transform", showLandmarks && "rotate-90")} />
-        </button>
-
-        {/* Landmarks Grid */}
-        {(showLandmarks || window.innerWidth >= 1024) && (
-          <div className="px-4 pb-4 flex-1 overflow-auto">
-            {landmarksLoading ? (
-              <div className="grid grid-cols-2 gap-2">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-16 bg-secondary animate-pulse rounded-lg" />
-                ))}
-              </div>
-            ) : filteredLandmarks.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">
-                  {searchQuery ? 'No landmarks found' : 'No landmarks available'}
-                </p>
-                {searchQuery && (
+        {/* Landmarks List */}
+        <div className="px-4 pb-4 flex-1 overflow-auto">
+          {searchQuery.trim() && (
+            <>
+              {landmarksLoading ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="h-16 bg-secondary animate-pulse rounded-lg" />
+                  ))}
+                </div>
+              ) : filteredLandmarks.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No landmarks found for "{searchQuery}"</p>
                   <p className="text-xs mt-1">Try tapping on the map instead</p>
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto">
-                {filteredLandmarks.map((landmark) => {
-                  const isSelected = 
-                    (activeSelector === 'pickup' && pickupLocation?.name === landmark.name) ||
-                    (activeSelector === 'dropoff' && dropoffLocation?.name === landmark.name);
+                  
+                  {/* Nearest landmark suggestion */}
+                  {gpsState.coords && (() => {
+                    const nearest = findNearestLandmark(gpsState.coords.lat, gpsState.coords.lng);
+                    if (!nearest) return null;
+                    return (
+                      <button
+                        onClick={() => handleLandmarkSelect(nearest)}
+                        className="mt-3 px-4 py-2 bg-accent/10 hover:bg-accent/20 rounded-lg text-accent text-sm transition-colors"
+                      >
+                        Use nearest: {nearest.name}
+                      </button>
+                    );
+                  })()}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto">
+                  {filteredLandmarks.map((landmark) => {
+                    const isSelected = 
+                      (activeSelector === 'pickup' && pickupLocation?.name === landmark.name) ||
+                      (activeSelector === 'dropoff' && dropoffLocation?.name === landmark.name);
 
-                  return (
-                    <button
-                      key={landmark.id}
-                      onClick={() => handleLandmarkSelect(landmark)}
-                      disabled={!activeSelector}
-                      className={cn(
-                        "p-3 rounded-lg border text-left transition-all",
-                        isSelected
-                          ? "border-accent bg-accent/10"
-                          : "border-border hover:border-accent/50 hover:bg-secondary/50",
-                        !activeSelector && "opacity-50 cursor-not-allowed"
-                      )}
-                    >
-                      <p className="font-medium text-sm text-foreground truncate">
-                        {landmark.name}
-                      </p>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs text-muted-foreground capitalize">
-                          {landmark.category}
-                        </span>
-                        {landmark.distance !== undefined && (
-                          <span className="text-xs text-accent font-medium">
-                            {formatDistance(landmark.distance)}
-                          </span>
+                    return (
+                      <button
+                        key={landmark.id}
+                        onClick={() => handleLandmarkSelect(landmark)}
+                        disabled={!activeSelector}
+                        className={cn(
+                          "p-3 rounded-lg border text-left transition-all",
+                          isSelected
+                            ? "border-accent bg-accent/10"
+                            : "border-border hover:border-accent/50 hover:bg-secondary/50",
+                          !activeSelector && "opacity-50 cursor-not-allowed"
                         )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
+                      >
+                        <p className="font-medium text-sm text-foreground truncate">
+                          {landmark.name}
+                        </p>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-xs text-muted-foreground capitalize">
+                            {landmark.category}
+                          </span>
+                          {landmark.distance !== undefined && (
+                            <span className="text-xs text-accent font-medium">
+                              {formatDistance(landmark.distance)}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
