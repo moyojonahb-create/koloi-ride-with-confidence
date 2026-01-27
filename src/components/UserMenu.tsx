@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { User, LogOut, Heart, Clock, Settings, FileText } from 'lucide-react';
+import { User, LogOut, Heart, Clock, Settings, FileText, Shield } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import {
@@ -19,6 +20,7 @@ interface UserMenuProps {
 
 const UserMenu = ({ onFavoritesClick, onHistoryClick }: UserMenuProps) => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useUserRole();
   const [open, setOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -56,6 +58,20 @@ const UserMenu = ({ onFavoritesClick, onHistoryClick }: UserMenuProps) => {
           </div>
         </div>
         <DropdownMenuSeparator />
+        
+        {/* Admin Dashboard Link - only visible to admins */}
+        {isAdmin && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link to="/admin" className="flex items-center text-primary font-medium">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Admin Dashboard</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        
         <DropdownMenuItem asChild>
           <Link to="/app" className="flex items-center">
             <FileText className="mr-2 h-4 w-4" />
