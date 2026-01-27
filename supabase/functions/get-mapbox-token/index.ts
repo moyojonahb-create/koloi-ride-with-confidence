@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,39 +11,15 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
-        }
-      );
-    }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
-        }
-      );
-    }
+    // Note: This endpoint is intentionally public because:
+    // 1. Mapbox tokens are designed to be public (pk. prefix)
+    // 2. Security is enforced via domain restrictions in Mapbox dashboard
+    // 3. The homepage map needs to be visible to unauthenticated users
 
     const mapboxToken = Deno.env.get("VITE_MAPBOX_TOKEN");
     
     if (!mapboxToken) {
+      console.error("VITE_MAPBOX_TOKEN not configured");
       return new Response(
         JSON.stringify({ error: "Mapbox token not configured" }),
         { 
@@ -62,6 +37,7 @@ serve(async (req) => {
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Error in get-mapbox-token:", message);
     return new Response(
       JSON.stringify({ error: message }),
       { 
