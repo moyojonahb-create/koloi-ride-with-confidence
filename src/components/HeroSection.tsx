@@ -1,20 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Calendar, ChevronDown, Clock, Map, Navigation2, Timer, Loader2, Star, ArrowRight, Moon, Sun } from 'lucide-react';
+import { Calendar, ChevronDown, Clock, Navigation2, Timer, Loader2, Star, ArrowRight, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import RideMap from '@/components/RideMap';
 import LocationInput from '@/components/LocationInput';
+import LocationPanel from '@/components/LocationPanel';
 import VehicleTypeSelector, { VEHICLE_TYPES, type VehicleType } from '@/components/VehicleTypeSelector';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { calculateKoloiFare, setPricingConfig, PRICING_INFO, type FareResult } from '@/lib/pricing';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
-
-interface RouteInfo {
-  distance: number;
-  duration: number;
-  polyline?: string;
-}
 
 interface HeroSectionProps {
   onLoginClick?: () => void;
@@ -27,13 +22,11 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
   const [pickupLocation, setPickupLocation] = useState('');
   const [dropoffLocation, setDropoffLocation] = useState('');
   const [showPickupDropdown, setShowPickupDropdown] = useState(false);
-  const [showMap, setShowMap] = useState(true);
-  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleType>(VEHICLE_TYPES[0]);
   const [isRequesting, setIsRequesting] = useState(false);
   
-  // Map coordinates
+  // Location coordinates
   const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
   const [dropoffCoords, setDropoffCoords] = useState<{ lng: number; lat: number } | null>(null);
 
@@ -72,16 +65,6 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     }
   }, []);
 
-  const handleMapLocationSelect = (location: { lng: number; lat: number }, type: 'pickup' | 'dropoff') => {
-    if (type === 'pickup') {
-      setPickupCoords(location);
-      setPickupLocation(`${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
-    } else {
-      setDropoffCoords(location);
-      setDropoffLocation(`${location.lat.toFixed(4)}, ${location.lng.toFixed(4)}`);
-    }
-  };
-
   const handlePickupSelect = (location: { name: string; lng: number; lat: number }) => {
     setPickupLocation(location.name);
     setPickupCoords({ lng: location.lng, lat: location.lat });
@@ -92,9 +75,44 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     setDropoffCoords({ lng: location.lng, lat: location.lat });
   };
 
-  const handleRouteCalculated = (info: { distance: number; duration: number; polyline?: string } | null) => {
-    setRouteInfo(info);
+  // Handle location panel selections
+  const handlePanelPickupSelect = (location: { name: string; lat: number; lng: number }) => {
+    setPickupLocation(location.name);
+    setPickupCoords({ lng: location.lng, lat: location.lat });
   };
+
+  const handlePanelDropoffSelect = (location: { name: string; lat: number; lng: number }) => {
+    setDropoffLocation(location.name);
+    setDropoffCoords({ lng: location.lng, lat: location.lat });
+  };
+
+  // Calculate distance using Haversine formula (no external API needed)
+  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // Route info computed locally
+  const routeInfo = pickupCoords && dropoffCoords ? {
+    distance: Math.round(calculateDistance(
+      pickupCoords.lat,
+      pickupCoords.lng,
+      dropoffCoords.lat,
+      dropoffCoords.lng
+    ) * 10) / 10,
+    duration: Math.round(calculateDistance(
+      pickupCoords.lat,
+      pickupCoords.lng,
+      dropoffCoords.lat,
+      dropoffCoords.lng
+    ) * 3), // ~3 min per km estimate
+  } : null;
 
   // Calculate fare using Koloi pricing system
   const fareResult: FareResult | null = pickupCoords && dropoffCoords 
@@ -132,7 +150,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
         duration_minutes: routeInfo.duration,
         fare: currentFare,
         vehicle_type: selectedVehicle.id,
-        route_polyline: routeInfo.polyline || null,
+        route_polyline: null, // No polyline without map API
         status: 'requested',
       });
 
@@ -148,7 +166,6 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
       setDropoffLocation('');
       setPickupCoords(null);
       setDropoffCoords(null);
-      setRouteInfo(null);
     } catch (error) {
       console.error('Failed to request ride:', error);
       toast.error('Failed to request ride. Please try again.');
@@ -167,13 +184,11 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
           };
           setPickupCoords(coords);
           setPickupLocation('My Current Location');
+          setUserLocation({ lat: coords.lat, lng: coords.lng });
         },
         (error) => {
           console.error('Error getting location:', error);
-          // Fallback to Gwanda center
-          const defaultCoords = { lng: 29.0147, lat: -20.9389 };
-          setPickupCoords(defaultCoords);
-          setPickupLocation('Gwanda Town Center');
+          toast.error('Could not get your location. Please select a landmark.');
         }
       );
     }
@@ -278,7 +293,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                 />
               </div>
 
-              {/* Vehicle Type Selector - show when route is available */}
+              {/* Vehicle Type Selector - show when both locations are selected */}
               {routeInfo && pickupCoords && dropoffCoords && (
                 <div className="mt-4 animate-fade-in">
                   <VehicleTypeSelector
@@ -311,7 +326,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                       </div>
                       <div className="flex items-center gap-1">
                         <Timer className="w-4 h-4 text-accent" />
-                        <span>{routeInfo.duration} min</span>
+                        <span>~{routeInfo.duration} min</span>
                       </div>
                     </div>
                   </div>
@@ -357,27 +372,19 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
             </div>
           </div>
 
-          {/* Right Side - Interactive Map */}
+          {/* Right Side - Location Panel (GPS + Landmarks) */}
           <div className="flex-1 mt-8 lg:mt-0">
-            <RideMap
-              pickupLocation={pickupCoords}
-              dropoffLocation={dropoffCoords}
-              onLocationSelect={handleMapLocationSelect}
-              onRouteCalculated={handleRouteCalculated}
-              className="h-[400px] lg:h-[500px] shadow-koloi-xl"
-            />
+            <ErrorBoundary>
+              <LocationPanel
+                pickupLocation={pickupCoords ? { name: pickupLocation, lat: pickupCoords.lat, lng: pickupCoords.lng } : null}
+                dropoffLocation={dropoffCoords ? { name: dropoffLocation, lat: dropoffCoords.lat, lng: dropoffCoords.lng } : null}
+                onPickupSelect={handlePanelPickupSelect}
+                onDropoffSelect={handlePanelDropoffSelect}
+                className="h-[400px] lg:h-[500px] shadow-koloi-xl"
+              />
+            </ErrorBoundary>
           </div>
         </div>
-      </div>
-
-      {/* Mobile Map Toggle */}
-      <div className="lg:hidden fixed bottom-4 right-4 z-30">
-        <Button 
-          onClick={() => setShowMap(!showMap)}
-          className="w-14 h-14 rounded-full shadow-koloi-xl koloi-btn-primary"
-        >
-          <Map className="w-6 h-6" />
-        </Button>
       </div>
     </section>
   );

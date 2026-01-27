@@ -1,8 +1,6 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, MapIcon, List, AlertCircle } from 'lucide-react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import { ArrowLeft, MapPin, Users, AlertCircle } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminGuard from '@/components/admin/AdminGuard';
 import { Button } from '@/components/ui/button';
@@ -30,20 +28,10 @@ interface DriverLocation {
   };
 }
 
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '';
-
 const AdminDriversMap = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [locations, setLocations] = useState<DriverLocation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [mapError, setMapError] = useState<string | null>(null);
   const [selectedDriver, setSelectedDriver] = useState<DriverLocation | null>(null);
-  const [showList, setShowList] = useState(false);
-
-  // Default center: Gwanda, Zimbabwe
-  const defaultCenter = { lng: 29.0147, lat: -20.9389 };
 
   const fetchLocations = async () => {
     try {
@@ -104,93 +92,6 @@ const AdminDriversMap = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!mapContainer.current || !MAPBOX_TOKEN) return;
-
-    mapboxgl.accessToken = MAPBOX_TOKEN;
-
-    try {
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
-        center: [defaultCenter.lng, defaultCenter.lat],
-        zoom: 12,
-        attributionControl: false,
-      });
-
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-      map.current.on('error', (e) => {
-        console.error('Map error:', e);
-        setMapError('Failed to load map');
-      });
-    } catch (error) {
-      console.error('Failed to initialize map:', error);
-      setMapError('Failed to load map');
-    }
-
-    return () => {
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
-      }
-    };
-  }, []);
-
-  // Update markers when locations change
-  useEffect(() => {
-    if (!map.current) return;
-
-    // Clear existing markers
-    markersRef.current.forEach(marker => marker.remove());
-    markersRef.current = [];
-
-    // Add driver markers
-    locations.forEach((loc) => {
-      const status = loc.driver?.status || 'pending';
-      const isOnline = loc.is_online;
-      
-      let color = '#9CA3AF'; // Gray for offline
-      if (isOnline) {
-        if (status === 'approved') color = '#10B981'; // Green
-        else if (status === 'pending') color = '#F59E0B'; // Amber
-        else if (status === 'suspended' || status === 'banned') color = '#EF4444'; // Red
-      }
-
-      const el = document.createElement('div');
-      el.innerHTML = `
-        <div style="
-          width: 32px;
-          height: 32px;
-          background: ${color};
-          border: 3px solid white;
-          border-radius: 50%;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        ">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-            <path d="M5 17h14M5 17a2 2 0 01-2-2V9a2 2 0 012-2h14a2 2 0 012 2v6a2 2 0 01-2 2M5 17l-1 2h16l-1-2"/>
-            <circle cx="7.5" cy="17" r="2"/>
-            <circle cx="16.5" cy="17" r="2"/>
-          </svg>
-        </div>
-      `;
-
-      el.addEventListener('click', () => {
-        setSelectedDriver(loc);
-      });
-
-      const marker = new mapboxgl.Marker({ element: el })
-        .setLngLat([loc.longitude, loc.latitude])
-        .addTo(map.current!);
-
-      markersRef.current.push(marker);
-    });
-  }, [locations]);
-
   const getStatusColor = (status: string, isOnline: boolean) => {
     if (!isOnline) return 'bg-gray-100 text-gray-700';
     switch (status) {
@@ -202,63 +103,13 @@ const AdminDriversMap = () => {
     }
   };
 
-  if (!MAPBOX_TOKEN) {
-    return (
-      <AdminGuard>
-        <AdminLayout>
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" asChild>
-                <Link to="/admin/drivers">
-                  <ArrowLeft className="w-5 h-5" />
-                </Link>
-              </Button>
-              <h1 className="text-2xl font-bold">Live Driver Map</h1>
-            </div>
-            
-            <div className="bg-card rounded-xl border border-border p-12 text-center">
-              <MapIcon className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="font-medium text-foreground mb-2">Map Unavailable</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Mapbox token not configured. Showing driver list instead.
-              </p>
-              
-              {loading ? (
-                <div className="space-y-4">
-                  {[...Array(3)].map((_, i) => (
-                    <Skeleton key={i} className="h-16" />
-                  ))}
-                </div>
-              ) : locations.length === 0 ? (
-                <p className="text-muted-foreground">No driver locations available</p>
-              ) : (
-                <div className="space-y-3 text-left max-w-md mx-auto">
-                  {locations.map((loc) => (
-                    <div key={loc.id} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
-                      <div>
-                        <p className="font-medium">{loc.profile?.full_name || 'Unknown'}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {loc.driver?.vehicle_type} • {loc.driver?.plate_number || 'No plate'}
-                        </p>
-                      </div>
-                      <Badge className={getStatusColor(loc.driver?.status || 'pending', loc.is_online)}>
-                        {loc.is_online ? loc.driver?.status : 'offline'}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </AdminLayout>
-      </AdminGuard>
-    );
-  }
+  const onlineCount = locations.filter(l => l.is_online).length;
+  const approvedOnline = locations.filter(l => l.is_online && l.driver?.status === 'approved').length;
 
   return (
     <AdminGuard>
       <AdminLayout>
-        <div className="space-y-4 h-[calc(100vh-8rem)]">
+        <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -268,158 +119,166 @@ const AdminDriversMap = () => {
                 </Link>
               </Button>
               <div>
-                <h1 className="text-2xl font-bold">Live Driver Map</h1>
+                <h1 className="text-2xl font-bold">Driver Locations</h1>
                 <p className="text-sm text-muted-foreground">
-                  {locations.length} drivers with location data
+                  {locations.length} drivers with location data • {onlineCount} online
                 </p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowList(!showList)}
-            >
-              <List className="w-4 h-4 mr-2" />
-              {showList ? 'Hide List' : 'Show List'}
-            </Button>
           </div>
 
-          {/* Map Container */}
-          <div className="flex gap-4 h-full">
-            <div className={cn(
-              "relative rounded-xl overflow-hidden border border-border flex-1",
-              mapError && "bg-secondary"
-            )}>
-              {mapError ? (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
-                    <p className="text-destructive">{mapError}</p>
-                  </div>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <Users className="w-5 h-5 text-blue-600" />
                 </div>
-              ) : (
-                <div ref={mapContainer} className="w-full h-full" />
-              )}
-
-              {/* Legend */}
-              <div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-sm rounded-lg p-3 shadow-md text-sm">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span>Online (Approved)</span>
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-3 h-3 rounded-full bg-amber-500" />
-                  <span>Online (Pending)</span>
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500" />
-                  <span>Suspended</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-gray-400" />
-                  <span>Offline</span>
+                <div>
+                  <p className="text-2xl font-bold">{locations.length}</p>
+                  <p className="text-xs text-muted-foreground">Total Tracked</p>
                 </div>
               </div>
             </div>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{onlineCount}</p>
+                  <p className="text-xs text-muted-foreground">Online Now</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{approvedOnline}</p>
+                  <p className="text-xs text-muted-foreground">Active (Approved)</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-gray-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{locations.length - onlineCount}</p>
+                  <p className="text-xs text-muted-foreground">Offline</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-            {/* Side Panel */}
-            {(showList || selectedDriver) && (
-              <div className="w-80 bg-card rounded-xl border border-border p-4 overflow-y-auto">
-                {selectedDriver ? (
-                  <div className="space-y-4">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => setSelectedDriver(null)}
-                    >
-                      ← Back to list
-                    </Button>
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-3">
-                        <MapIcon className="w-8 h-8 text-muted-foreground" />
+          {/* Driver List */}
+          <div className="bg-card rounded-xl border border-border">
+            <div className="p-4 border-b border-border">
+              <h2 className="font-semibold">All Driver Locations</h2>
+            </div>
+
+            {loading ? (
+              <div className="p-4 space-y-3">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-20" />
+                ))}
+              </div>
+            ) : locations.length === 0 ? (
+              <div className="p-12 text-center">
+                <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-medium text-foreground mb-2">No Location Data</h3>
+                <p className="text-sm text-muted-foreground">
+                  No drivers have shared their location yet.
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {locations.map((loc) => (
+                  <div
+                    key={loc.id}
+                    className={cn(
+                      "p-4 hover:bg-secondary/50 transition-colors cursor-pointer",
+                      selectedDriver?.id === loc.id && "bg-secondary"
+                    )}
+                    onClick={() => setSelectedDriver(selectedDriver?.id === loc.id ? null : loc)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center",
+                          loc.is_online ? "bg-emerald-100" : "bg-gray-100"
+                        )}>
+                          <MapPin className={cn(
+                            "w-5 h-5",
+                            loc.is_online ? "text-emerald-600" : "text-gray-400"
+                          )} />
+                        </div>
+                        <div>
+                          <p className="font-medium">
+                            {loc.profile?.full_name || 'Unknown Driver'}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {loc.driver?.vehicle_type} • {loc.driver?.plate_number || 'No plate'}
+                          </p>
+                        </div>
                       </div>
-                      <h3 className="font-semibold text-lg">
-                        {selectedDriver.profile?.full_name || 'Unknown Driver'}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedDriver.profile?.phone || 'No phone'}
-                      </p>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Status</span>
-                        <Badge className={getStatusColor(selectedDriver.driver?.status || 'pending', selectedDriver.is_online)}>
-                          {selectedDriver.is_online ? selectedDriver.driver?.status : 'offline'}
+                      <div className="flex items-center gap-3">
+                        <Badge className={getStatusColor(loc.driver?.status || 'pending', loc.is_online)}>
+                          {loc.is_online ? loc.driver?.status || 'unknown' : 'offline'}
                         </Badge>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Vehicle</span>
-                        <span className="capitalize">{selectedDriver.driver?.vehicle_type}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Plate</span>
-                        <span>{selectedDriver.driver?.plate_number || 'N/A'}</span>
-                      </div>
                     </div>
-                    {selectedDriver.driver?.id && (
-                      <Button asChild className="w-full">
-                        <Link to={`/admin/drivers/${selectedDriver.driver.id}`}>
-                          View Full Profile
-                        </Link>
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <h3 className="font-semibold">All Drivers</h3>
-                    {loading ? (
-                      [...Array(3)].map((_, i) => (
-                        <Skeleton key={i} className="h-16" />
-                      ))
-                    ) : locations.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        No driver locations
-                      </p>
-                    ) : (
-                      locations.map((loc) => (
-                        <button
-                          key={loc.id}
-                          onClick={() => {
-                            setSelectedDriver(loc);
-                            if (map.current) {
-                              map.current.flyTo({
-                                center: [loc.longitude, loc.latitude],
-                                zoom: 15,
-                              });
-                            }
-                          }}
-                          className="w-full flex items-center justify-between p-3 bg-secondary/50 hover:bg-secondary rounded-lg text-left transition-colors"
-                        >
+
+                    {/* Expanded Details */}
+                    {selectedDriver?.id === loc.id && (
+                      <div className="mt-4 pt-4 border-t border-border">
+                        <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
-                            <p className="font-medium text-sm">
-                              {loc.profile?.full_name || 'Unknown'}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {loc.driver?.vehicle_type} • {loc.driver?.plate_number || 'No plate'}
-                            </p>
+                            <p className="text-muted-foreground">Coordinates</p>
+                            <p className="font-mono">{loc.latitude.toFixed(5)}, {loc.longitude.toFixed(5)}</p>
                           </div>
-                          <div className={cn(
-                            "w-3 h-3 rounded-full",
-                            loc.is_online 
-                              ? loc.driver?.status === 'approved' 
-                                ? 'bg-emerald-500' 
-                                : loc.driver?.status === 'pending'
-                                  ? 'bg-amber-500'
-                                  : 'bg-red-500'
-                              : 'bg-gray-400'
-                          )} />
-                        </button>
-                      ))
+                          <div>
+                            <p className="text-muted-foreground">Phone</p>
+                            <p>{loc.profile?.phone || 'N/A'}</p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Last Update</p>
+                            <p>{new Date(loc.updated_at).toLocaleString()}</p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Status</p>
+                            <p className="capitalize">{loc.driver?.status || 'Unknown'}</p>
+                          </div>
+                        </div>
+                        {loc.driver?.id && (
+                          <Button asChild className="mt-4" size="sm">
+                            <Link to={`/admin/drivers/${loc.driver.id}`}>
+                              View Full Profile
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
+                ))}
               </div>
             )}
+          </div>
+
+          {/* Info Notice */}
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-amber-800">Map View Disabled</p>
+              <p className="text-sm text-amber-700 mt-1">
+                The interactive map has been disabled. Driver locations are displayed as a list with coordinates.
+                You can still view driver details and manage their status.
+              </p>
+            </div>
           </div>
         </div>
       </AdminLayout>
