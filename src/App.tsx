@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import DriverApplication from "./pages/DriverApplication";
 import Auth from "./pages/Auth";
 import AppDashboard from "./pages/AppDashboard";
+import PilotTest from "./pages/PilotTest";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/signup" element={<Auth />} />
               <Route path="/app" element={<AppDashboard />} />
               <Route path="/drive" element={<DriverApplication />} />
+              <Route path="/pilot-test" element={<PilotTest />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
