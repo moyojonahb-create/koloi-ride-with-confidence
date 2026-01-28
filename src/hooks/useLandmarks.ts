@@ -82,20 +82,65 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10 }: Use
     fetchLandmarks();
   }, []);
 
+  // Fuzzy match score - returns higher score for better matches
+  const getFuzzyScore = (text: string, query: string): number => {
+    if (!text || !query) return 0;
+    
+    const textLower = text.toLowerCase();
+    const queryLower = query.toLowerCase();
+    
+    // Exact match
+    if (textLower === queryLower) return 100;
+    
+    // Starts with query
+    if (textLower.startsWith(queryLower)) return 80;
+    
+    // Contains query as a word
+    const words = textLower.split(/\s+/);
+    if (words.some(w => w.startsWith(queryLower))) return 70;
+    
+    // Contains query anywhere
+    if (textLower.includes(queryLower)) return 50;
+    
+    // Check each query word separately
+    const queryWords = queryLower.split(/\s+/).filter(w => w.length > 1);
+    const matchedWords = queryWords.filter(qw => 
+      textLower.includes(qw) || words.some(w => w.startsWith(qw))
+    );
+    if (matchedWords.length > 0) {
+      return 30 + (matchedWords.length / queryWords.length) * 20;
+    }
+    
+    return 0;
+  };
+
   // Filter and sort landmarks based on search query and user location
   const filteredLandmarks = useMemo(() => {
     let results = [...landmarks];
 
-    // Filter by search query
+    // Filter by search query with fuzzy matching
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      results = results.filter(landmark => {
-        const nameMatch = landmark.name.toLowerCase().includes(query);
-        const categoryMatch = landmark.category.toLowerCase().includes(query);
-        const descriptionMatch = landmark.description?.toLowerCase().includes(query);
-        const keywordsMatch = landmark.keywords?.some(kw => kw.toLowerCase().includes(query));
-        return nameMatch || categoryMatch || descriptionMatch || keywordsMatch;
+      
+      // Score each landmark
+      const scoredResults = results.map(landmark => {
+        const nameScore = getFuzzyScore(landmark.name, query);
+        const categoryScore = getFuzzyScore(landmark.category, query) * 0.5;
+        const descriptionScore = getFuzzyScore(landmark.description || '', query) * 0.3;
+        const keywordsScore = Math.max(
+          0,
+          ...(landmark.keywords || []).map(kw => getFuzzyScore(kw, query) * 0.8)
+        );
+        
+        const totalScore = Math.max(nameScore, categoryScore, descriptionScore, keywordsScore);
+        
+        return { ...landmark, matchScore: totalScore };
       });
+      
+      // Filter those with any match and sort by score
+      results = scoredResults
+        .filter(r => r.matchScore > 0)
+        .sort((a, b) => b.matchScore - a.matchScore);
     }
 
     // Calculate distances if user location is available
@@ -110,8 +155,10 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10 }: Use
         )
       }));
 
-      // Sort by distance
-      results.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+      // If no search query, sort by distance only
+      if (!searchQuery.trim()) {
+        results.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+      }
     }
 
     return results.slice(0, limit);

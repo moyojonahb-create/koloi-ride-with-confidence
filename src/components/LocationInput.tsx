@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MapPin, Navigation, Clock, Loader2, Crosshair, ChevronDown } from 'lucide-react';
 import { useLandmarks, formatDistance, getCategoryIcon, type Landmark as LandmarkType } from '@/hooks/useLandmarks';
 import { LandmarkChips } from './LandmarkChips';
@@ -260,61 +260,66 @@ const LocationInput = ({
   );
 };
 
-// Separate component for landmark buttons
+// Separate component for landmark buttons - using forwardRef to fix ref warning
 interface LandmarkButtonProps {
   landmark: LandmarkType;
   onClick: () => void;
   highlight?: boolean;
 }
 
-function LandmarkButton({ landmark, onClick, highlight = false }: LandmarkButtonProps) {
-  const iconType = getCategoryIcon(landmark.category);
-  
-  const iconColors: Record<string, string> = {
-    landmark: 'text-accent',
-    hospital: 'text-red-500',
-    school: 'text-blue-500',
-    fuel: 'text-amber-500',
-    market: 'text-green-500',
-    bank: 'text-emerald-500',
-    building: 'text-muted-foreground',
-    pin: 'text-muted-foreground',
-  };
+const LandmarkButton = React.forwardRef<HTMLButtonElement, LandmarkButtonProps>(
+  ({ landmark, onClick, highlight = false }, ref) => {
+    const iconType = getCategoryIcon(landmark.category);
+    
+    const iconColors: Record<string, string> = {
+      landmark: 'text-accent',
+      hospital: 'text-red-500',
+      school: 'text-blue-500',
+      fuel: 'text-amber-500',
+      market: 'text-green-500',
+      bank: 'text-emerald-500',
+      building: 'text-muted-foreground',
+      pin: 'text-muted-foreground',
+    };
 
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "w-full px-4 py-3 text-left transition-colors flex items-center gap-3",
-        highlight ? "bg-accent/5 hover:bg-accent/10" : "hover:bg-secondary"
-      )}
-    >
-      <div className={cn(
-        "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
-        highlight ? "bg-accent/20" : "bg-secondary"
-      )}>
-        <MapPin className={cn("w-4 h-4", iconColors[iconType])} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="font-medium text-foreground text-sm truncate">{landmark.name}</p>
-          <span className="text-xs px-1.5 py-0.5 bg-secondary rounded text-muted-foreground shrink-0 capitalize">
-            {landmark.category}
-          </span>
+    return (
+      <button
+        ref={ref}
+        onClick={onClick}
+        className={cn(
+          "w-full px-4 py-3 text-left transition-colors flex items-center gap-3",
+          highlight ? "bg-accent/5 hover:bg-accent/10" : "hover:bg-secondary"
+        )}
+      >
+        <div className={cn(
+          "w-9 h-9 rounded-full flex items-center justify-center shrink-0",
+          highlight ? "bg-accent/20" : "bg-secondary"
+        )}>
+          <MapPin className={cn("w-4 h-4", iconColors[iconType])} />
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-          {landmark.description && (
-            <span className="truncate">{landmark.description}</span>
-          )}
-          {landmark.distance !== undefined && (
-            <span className="shrink-0 text-accent font-medium">
-              {formatDistance(landmark.distance)}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="font-medium text-foreground text-sm truncate">{landmark.name}</p>
+            <span className="text-xs px-1.5 py-0.5 bg-secondary rounded text-muted-foreground shrink-0 capitalize">
+              {landmark.category}
             </span>
-          )}
+          </div>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+            {landmark.description && (
+              <span className="truncate">{landmark.description}</span>
+            )}
+            {landmark.distance !== undefined && (
+              <span className="shrink-0 text-accent font-medium">
+                {formatDistance(landmark.distance)}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-    </button>
-  );
-}
+      </button>
+    );
+  }
+);
+
+LandmarkButton.displayName = 'LandmarkButton';
 
 export default LocationInput;
