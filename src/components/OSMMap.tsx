@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Crosshair, Layers, MapPin } from 'lucide-react';
+import { useGwandaLandmarks, getCategoryColor, GWANDA_BOUNDS, type MapLandmark } from '@/hooks/useGwandaLandmarks';
 
 // Fix default marker icons for Leaflet in React
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -32,6 +35,8 @@ interface OSMMapProps {
   onMapClick?: (coords: Coordinates) => void;
   className?: string;
   height?: string;
+  showLandmarks?: boolean;
+  showRecenterButton?: boolean;
 }
 
 // Custom marker icons
@@ -68,8 +73,23 @@ const driverIcon = L.divIcon({
   iconAnchor: [20, 20],
 });
 
+// Create landmark icon with category color
+const createLandmarkIcon = (color: string, size: 'small' | 'medium' = 'small') => {
+  const sizeClasses = size === 'small' ? 'w-5 h-5' : 'w-6 h-6';
+  return L.divIcon({
+    html: `<div class="${sizeClasses} rounded-full border-2 border-white shadow-md flex items-center justify-center" style="background-color: ${color};">
+      <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+        <circle cx="10" cy="10" r="6"/>
+      </svg>
+    </div>`,
+    className: 'landmark-marker',
+    iconSize: size === 'small' ? [20, 20] : [24, 24],
+    iconAnchor: size === 'small' ? [10, 10] : [12, 12],
+  });
+};
+
 // Gwanda, Zimbabwe default center
-const GWANDA_CENTER: Coordinates = { lat: -20.9389, lng: 29.0147 };
+const GWANDA_CENTER: Coordinates = { lat: -20.9355, lng: 29.0147 };
 
 // Available tile layers - OSM updates are reflected here
 const TILE_LAYERS = {
@@ -90,9 +110,15 @@ const TILE_LAYERS = {
   },
 };
 
+// Gwanda service area bounds for map fitting
+const gwandaBounds: L.LatLngBoundsExpression = [
+  [GWANDA_BOUNDS.south, GWANDA_BOUNDS.west], // Southwest
+  [GWANDA_BOUNDS.north, GWANDA_BOUNDS.east], // Northeast
+];
+
 export default function OSMMap({
   center = GWANDA_CENTER,
-  zoom = 15, // Higher zoom to show more road detail
+  zoom = 14,
   pickup,
   dropoff,
   routeGeometry,
@@ -100,6 +126,8 @@ export default function OSMMap({
   onMapClick,
   className = '',
   height = '400px',
+  showLandmarks = true,
+  showRecenterButton = true,
 }: OSMMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -107,7 +135,32 @@ export default function OSMMap({
   const dropoffMarkerRef = useRef<L.Marker | null>(null);
   const driverMarkerRef = useRef<L.Marker | null>(null);
   const routeLayerRef = useRef<L.Polyline | null>(null);
+  const landmarkLayerRef = useRef<L.LayerGroup | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [landmarksVisible, setLandmarksVisible] = useState(true);
+
+  const { landmarks, loading: landmarksLoading } = useGwandaLandmarks();
+
+  // Recenter map to Gwanda service area
+  const handleRecenter = useCallback(() => {
+    if (!mapInstanceRef.current) return;
+    mapInstanceRef.current.fitBounds(gwandaBounds, { 
+      padding: [20, 20],
+      maxZoom: 15,
+    });
+  }, []);
+
+  // Toggle landmarks visibility
+  const handleToggleLandmarks = useCallback(() => {
+    if (!mapInstanceRef.current || !landmarkLayerRef.current) return;
+    
+    if (landmarksVisible) {
+      mapInstanceRef.current.removeLayer(landmarkLayerRef.current);
+    } else {
+      landmarkLayerRef.current.addTo(mapInstanceRef.current);
+    }
+    setLandmarksVisible(!landmarksVisible);
+  }, [landmarksVisible]);
 
   // Initialize map
   useEffect(() => {
@@ -118,6 +171,11 @@ export default function OSMMap({
       zoom,
       zoomControl: true,
       attributionControl: true,
+      maxBounds: [
+        [GWANDA_BOUNDS.south - 0.1, GWANDA_BOUNDS.west - 0.1],
+        [GWANDA_BOUNDS.north + 0.1, GWANDA_BOUNDS.east + 0.1],
+      ],
+      maxBoundsViscosity: 0.8,
     });
 
     // Create base layers - OSM Humanitarian shows paths/tracks well
@@ -142,8 +200,17 @@ export default function OSMMap({
     // Add layer control
     L.control.layers(baseLayers, {}, { position: 'topright' }).addTo(map);
 
+    // Create landmark layer group
+    landmarkLayerRef.current = L.layerGroup().addTo(map);
+
     baseLayers['Humanitarian'].on('load', () => {
       setIsLoading(false);
+    });
+
+    // Fit to Gwanda service area on initial load
+    map.fitBounds(gwandaBounds, { 
+      padding: [20, 20],
+      maxZoom: 15,
     });
 
     // Handle map clicks
@@ -161,14 +228,48 @@ export default function OSMMap({
     return () => {
       map.remove();
       mapInstanceRef.current = null;
+      landmarkLayerRef.current = null;
     };
   }, []);
 
-  // Update center when it changes
+  // Add landmark markers to map
   useEffect(() => {
-    if (!mapInstanceRef.current) return;
-    mapInstanceRef.current.setView([center.lat, center.lng], zoom);
-  }, [center.lat, center.lng, zoom]);
+    const map = mapInstanceRef.current;
+    const landmarkLayer = landmarkLayerRef.current;
+    if (!map || !landmarkLayer || !showLandmarks || landmarksLoading) return;
+
+    // Clear existing landmarks
+    landmarkLayer.clearLayers();
+
+    // Add landmark markers
+    landmarks.forEach((landmark: MapLandmark) => {
+      const color = getCategoryColor(landmark.category);
+      const icon = createLandmarkIcon(color);
+      
+      const marker = L.marker([landmark.latitude, landmark.longitude], { 
+        icon,
+        title: landmark.name,
+      });
+
+      marker.bindPopup(`
+        <div class="p-2">
+          <p class="font-semibold text-sm">${landmark.name}</p>
+          <p class="text-xs text-gray-600 capitalize">${landmark.category}</p>
+          ${landmark.description ? `<p class="text-xs mt-1">${landmark.description}</p>` : ''}
+        </div>
+      `, { 
+        closeButton: false,
+        className: 'landmark-popup',
+      });
+
+      marker.addTo(landmarkLayer);
+    });
+
+    // Update visibility based on state
+    if (!landmarksVisible) {
+      map.removeLayer(landmarkLayer);
+    }
+  }, [landmarks, landmarksLoading, showLandmarks, landmarksVisible]);
 
   // Update pickup marker
   useEffect(() => {
@@ -248,7 +349,7 @@ export default function OSMMap({
     }
   }, [routeGeometry]);
 
-  // Fit bounds to show all markers
+  // Fit bounds to show pickup/dropoff when both are set
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -275,6 +376,45 @@ export default function OSMMap({
         ref={mapRef} 
         className="w-full h-full"
       />
+
+      {/* Map Controls */}
+      <div className="absolute bottom-3 left-3 flex flex-col gap-2 z-[1000]">
+        {/* Recenter Button */}
+        {showRecenterButton && (
+          <Button
+            onClick={handleRecenter}
+            variant="secondary"
+            size="sm"
+            className="shadow-lg"
+            title="Recenter to Gwanda"
+          >
+            <Crosshair className="w-4 h-4 mr-1.5" />
+            Gwanda
+          </Button>
+        )}
+
+        {/* Toggle Landmarks Button */}
+        {showLandmarks && (
+          <Button
+            onClick={handleToggleLandmarks}
+            variant={landmarksVisible ? "secondary" : "outline"}
+            size="sm"
+            className="shadow-lg"
+            title={landmarksVisible ? "Hide landmarks" : "Show landmarks"}
+          >
+            <MapPin className="w-4 h-4 mr-1.5" />
+            {landmarksVisible ? 'Hide' : 'Show'} Pins
+          </Button>
+        )}
+      </div>
+
+      {/* Landmark count badge */}
+      {showLandmarks && landmarksVisible && !landmarksLoading && (
+        <div className="absolute top-3 left-3 z-[1000] bg-background/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 text-xs font-medium shadow-md">
+          <MapPin className="w-3 h-3 inline-block mr-1 text-accent" />
+          {landmarks.length} landmarks
+        </div>
+      )}
     </div>
   );
 }
