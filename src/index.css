@@ -217,3 +217,43 @@
     }
   }
 }
+
+/* Leaflet landmark markers */
+.landmark-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.landmark-popup .leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.landmark-popup .leaflet-popup-content {
+  margin: 0;
+}
+
+.landmark-popup .leaflet-popup-tip {
+  background: white;
+}
+
+/* Custom Leaflet map controls */
+.leaflet-control-layers {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+}
+
+.leaflet-control-zoom a {
+  border-radius: 6px !important;
+}
+
+/* Animate landmark pins on load */
+@keyframes landmarkBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.landmark-marker div {
+  animation: landmarkBounce 0.5s ease-out;
+}
