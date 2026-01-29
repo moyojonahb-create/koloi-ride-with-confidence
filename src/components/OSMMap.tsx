@@ -93,15 +93,15 @@ const GWANDA_CENTER: Coordinates = { lat: -20.9355, lng: 29.0147 };
 
 // Available tile layers - OSM updates are reflected here
 const TILE_LAYERS = {
+  // Transport style - emphasizes roads and public transport
+  transport: {
+    url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=6170aad10dfd42a38d4d8c709a536f38',
+    attribution: '&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  },
   // Standard OSM - updated frequently, shows all roads including paths
   osm: {
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  },
-  // OSM France - good detail, updates quickly
-  osmFrance: {
-    url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> France',
   },
   // Humanitarian style - shows paths and tracks well
   humanitarian: {
@@ -178,8 +178,12 @@ export default function OSMMap({
       maxBoundsViscosity: 0.8,
     });
 
-    // Create base layers - OSM Humanitarian shows paths/tracks well
+    // Create base layers - Transport style for ride-hailing context
     const baseLayers = {
+      'Transport': L.tileLayer(TILE_LAYERS.transport.url, {
+        attribution: TILE_LAYERS.transport.attribution,
+        maxZoom: 19,
+      }),
       'Street Map': L.tileLayer(TILE_LAYERS.osm.url, {
         attribution: TILE_LAYERS.osm.attribution,
         maxZoom: 19,
@@ -188,14 +192,10 @@ export default function OSMMap({
         attribution: TILE_LAYERS.humanitarian.attribution,
         maxZoom: 19,
       }),
-      'OSM France': L.tileLayer(TILE_LAYERS.osmFrance.url, {
-        attribution: TILE_LAYERS.osmFrance.attribution,
-        maxZoom: 19,
-      }),
     };
 
-    // Add default layer (Humanitarian shows roads/paths better)
-    baseLayers['Humanitarian'].addTo(map);
+    // Add default layer (Transport style for ride-hailing)
+    baseLayers['Transport'].addTo(map);
 
     // Add layer control
     L.control.layers(baseLayers, {}, { position: 'topright' }).addTo(map);
@@ -203,7 +203,7 @@ export default function OSMMap({
     // Create landmark layer group
     landmarkLayerRef.current = L.layerGroup().addTo(map);
 
-    baseLayers['Humanitarian'].on('load', () => {
+    baseLayers['Transport'].on('load', () => {
       setIsLoading(false);
     });
 
