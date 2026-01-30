@@ -24,12 +24,12 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-background border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-sm border-b border-primary-foreground/10">
       <div className="koloi-container">
         <nav className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <a href="/" className="shrink-0">
-            <KoloiLogo />
+            <KoloiLogo variant="light" />
           </a>
 
           {/* Desktop Navigation */}
@@ -38,7 +38,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
               <a
                 key={item.label}
                 href={item.href}
-                className="koloi-link-nav"
+                className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2 rounded-full transition-all duration-200"
               >
                 {item.label}
               </a>
@@ -47,11 +47,11 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
 
           {/* Desktop Right Side */}
           <div className="hidden lg:flex items-center gap-2">
-            <button className="koloi-link-nav flex items-center gap-1">
+            <button className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2 rounded-full transition-all duration-200 flex items-center gap-1">
               <Globe className="w-4 h-4" />
               <span>EN</span>
             </button>
-            <a href="#help" className="koloi-link-nav">
+            <a href="#help" className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2 rounded-full transition-all duration-200">
               Help
             </a>
             {!loading && (
@@ -59,18 +59,19 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                 <UserMenu 
                   onFavoritesClick={onFavoritesClick}
                   onHistoryClick={onHistoryClick}
+                  variant="light"
                 />
               ) : (
                 <>
                   <button 
                     onClick={onLoginClick}
-                    className="koloi-link-nav"
+                    className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2 rounded-full transition-all duration-200"
                   >
                     Log in
                   </button>
                   <Button 
                     onClick={onSignupClick}
-                    className="koloi-btn-primary h-10 px-4"
+                    className="h-10 px-6 bg-accent text-accent-foreground font-semibold rounded-full hover:brightness-110"
                   >
                     Sign up
                   </Button>
@@ -82,7 +83,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 hover:bg-secondary rounded-lg transition-colors"
+            className="lg:hidden p-2 hover:bg-primary-foreground/10 text-primary-foreground rounded-lg transition-colors"
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
@@ -95,30 +96,30 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-border animate-slide-down">
+          <div className="lg:hidden py-4 border-t border-primary-foreground/10 animate-slide-down">
             <div className="flex flex-col gap-2">
               {navItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
-                  className="px-4 py-3 text-foreground font-medium hover:bg-secondary rounded-lg transition-colors"
+                  className="px-4 py-3 text-primary-foreground font-medium hover:bg-primary-foreground/10 rounded-lg transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
                 </a>
               ))}
-              <div className="border-t border-border my-2" />
+              <div className="border-t border-primary-foreground/10 my-2" />
               <a
                 href="#help"
-                className="px-4 py-3 text-foreground font-medium hover:bg-secondary rounded-lg transition-colors"
+                className="px-4 py-3 text-primary-foreground font-medium hover:bg-primary-foreground/10 rounded-lg transition-colors"
               >
                 Help
               </a>
-              <button className="px-4 py-3 text-foreground font-medium hover:bg-secondary rounded-lg transition-colors text-left flex items-center gap-2">
+              <button className="px-4 py-3 text-primary-foreground font-medium hover:bg-primary-foreground/10 rounded-lg transition-colors text-left flex items-center gap-2">
                 <Globe className="w-4 h-4" />
                 English
               </button>
-              <div className="border-t border-border my-2" />
+              <div className="border-t border-primary-foreground/10 my-2" />
               {!loading && (
                 user ? (
                   <div className="px-4">
@@ -131,6 +132,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                         setIsMobileMenuOpen(false);
                         onHistoryClick();
                       }}
+                      variant="light"
                     />
                   </div>
                 ) : (
@@ -141,7 +143,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                         onLoginClick();
                       }}
                       variant="outline"
-                      className="w-full h-12"
+                      className="w-full h-12 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
                     >
                       Log in
                     </Button>
@@ -150,7 +152,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                         setIsMobileMenuOpen(false);
                         onSignupClick();
                       }}
-                      className="koloi-btn-primary w-full"
+                      className="w-full h-12 bg-accent text-accent-foreground font-semibold hover:brightness-110"
                     >
                       Sign up
                     </Button>

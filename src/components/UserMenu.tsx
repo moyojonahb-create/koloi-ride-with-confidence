@@ -16,9 +16,10 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 interface UserMenuProps {
   onFavoritesClick: () => void;
   onHistoryClick: () => void;
+  variant?: 'default' | 'light';
 }
 
-const UserMenu = ({ onFavoritesClick, onHistoryClick }: UserMenuProps) => {
+const UserMenu = ({ onFavoritesClick, onHistoryClick, variant = 'default' }: UserMenuProps) => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useUserRole();
   const [open, setOpen] = useState(false);
@@ -38,9 +39,12 @@ const UserMenu = ({ onFavoritesClick, onHistoryClick }: UserMenuProps) => {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+        <Button 
+          variant="ghost" 
+          className={`relative h-10 w-10 rounded-full ${variant === 'light' ? 'hover:bg-primary-foreground/10' : ''}`}
+        >
           <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-primary text-primary-foreground">
+            <AvatarFallback className={variant === 'light' ? 'bg-accent text-accent-foreground' : 'bg-primary text-primary-foreground'}>
               {userInitials}
             </AvatarFallback>
           </Avatar>

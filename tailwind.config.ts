@@ -57,12 +57,14 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Koloi custom colors
+        // Koloi custom colors - Production palette
         koloi: {
-          gold: "hsl(var(--koloi-gold))",
-          "gold-light": "hsl(var(--koloi-gold-light))",
           blue: "hsl(var(--koloi-blue))",
+          "blue-dark": "hsl(var(--koloi-blue-dark))",
           "blue-light": "hsl(var(--koloi-blue-light))",
+          yellow: "hsl(var(--koloi-yellow))",
+          "yellow-light": "hsl(var(--koloi-yellow-light))",
+          white: "hsl(var(--koloi-white))",
           dark: "hsl(var(--koloi-dark))",
           "gray-100": "hsl(var(--koloi-gray-100))",
           "gray-200": "hsl(var(--koloi-gray-200))",
@@ -89,6 +91,7 @@ export default {
         'koloi-lg': 'var(--shadow-lg)',
         'koloi-xl': 'var(--shadow-xl)',
         'koloi-card': 'var(--shadow-card)',
+        'koloi-phone': 'var(--shadow-phone)',
       },
       keyframes: {
         "accordion-down": {
