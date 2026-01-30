@@ -37,7 +37,8 @@ const SplashScreen = ({ onComplete, duration = 2000 }: SplashScreenProps) => {
       <img 
         src={splashLogo} 
         alt="Koloi" 
-        className="w-48 h-auto sm:w-64 md:w-72 animate-fade-in"
+        className="w-48 h-auto sm:w-64 md:w-72 animate-fade-in animate-pulse"
+        style={{ animationDuration: '2s' }}
       />
     </div>
   );
