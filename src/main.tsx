@@ -2,9 +2,19 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-// Register tile caching service worker for offline map support
+// Register PWA service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    // Register main PWA service worker
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('[Koloi] PWA SW registered:', registration.scope);
+      })
+      .catch((error) => {
+        console.log('[Koloi] PWA SW registration failed:', error);
+      });
+
+    // Also register tile caching service worker
     navigator.serviceWorker.register('/sw-tiles.js')
       .then((registration) => {
         console.log('[Koloi] Tile cache SW registered:', registration.scope);
