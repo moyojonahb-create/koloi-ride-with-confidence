@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Header from '@/components/Header';
-import HeroSection from '@/components/HeroSection';
+import LandingHero from '@/components/LandingHero';
 import SuggestionsSection from '@/components/SuggestionsSection';
 import DriveSection from '@/components/DriveSection';
 import BusinessSection from '@/components/BusinessSection';
@@ -30,6 +30,11 @@ const Index = () => {
     setAuthMode(authMode === 'login' ? 'signup' : 'login');
   };
 
+  const handleGetStarted = () => {
+    setAuthMode('signup');
+    setAuthModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header 
@@ -40,7 +45,7 @@ const Index = () => {
       />
       
       <main>
-        <HeroSection onLoginClick={handleLoginClick} />
+        <LandingHero onGetStarted={handleGetStarted} />
         <SuggestionsSection />
         <DriveSection />
         <BusinessSection />

@@ -2,7 +2,7 @@ import koloiLogoImage from '@/assets/koloi-logo-generated.png';
 
 interface KoloiLogoProps {
   className?: string;
-  variant?: 'default' | 'inverted';
+  variant?: 'default' | 'inverted' | 'light';
   showTagline?: boolean;
   size?: 'sm' | 'md' | 'lg';
 }
@@ -13,7 +13,8 @@ const KoloiLogo = ({
   showTagline = false,
   size = 'md' 
 }: KoloiLogoProps) => {
-  const textColor = variant === 'inverted' ? 'text-primary-foreground' : 'text-foreground';
+  const isLight = variant === 'inverted' || variant === 'light';
+  const textColor = isLight ? 'text-primary-foreground' : 'text-foreground';
   
   const sizeClasses = {
     sm: 'h-8',
@@ -33,7 +34,7 @@ const KoloiLogo = ({
       <img 
         src={koloiLogoImage} 
         alt="Koloi" 
-        className={`${sizeClasses[size]} w-auto ${variant === 'inverted' ? 'brightness-0 invert' : ''}`}
+        className={`${sizeClasses[size]} w-auto ${isLight ? 'brightness-0 invert' : ''}`}
       />
       
       {/* Logo Text */}
@@ -42,7 +43,7 @@ const KoloiLogo = ({
           Koloi
         </span>
         {showTagline && (
-          <span className={`text-xs ${variant === 'inverted' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+          <span className={`text-xs ${isLight ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
             Get picked. Get moving.
           </span>
         )}

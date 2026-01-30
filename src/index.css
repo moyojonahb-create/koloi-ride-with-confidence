@@ -8,113 +8,116 @@
 
 @layer base {
   :root {
-    /* Core brand colors */
+    /* Core brand colors - Deep Blue & Yellow system */
     --background: 0 0% 100%;
-    --foreground: 220 20% 20%;
+    --foreground: 215 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 20%;
+    --card-foreground: 215 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 20%;
+    --popover-foreground: 215 25% 15%;
 
-    /* Primary - Golden Yellow for Koloi brand CTAs */
-    --primary: 45 100% 51%;
-    --primary-foreground: 220 20% 15%;
+    /* Primary - Deep Blue for Koloi brand */
+    --primary: 215 80% 25%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Light gray surfaces */
-    --secondary: 220 15% 96%;
-    --secondary-foreground: 220 20% 20%;
+    /* Secondary - Light surfaces */
+    --secondary: 215 20% 96%;
+    --secondary-foreground: 215 25% 15%;
 
     /* Muted elements */
-    --muted: 220 15% 96%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 215 20% 96%;
+    --muted-foreground: 215 15% 50%;
 
-    /* Accent - Golden Yellow for highlights */
+    /* Accent - Yellow/Gold for highlights */
     --accent: 45 100% 51%;
-    --accent-foreground: 220 20% 15%;
+    --accent-foreground: 215 25% 15%;
 
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders and inputs */
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
-    --ring: 45 100% 51%;
+    --border: 215 20% 90%;
+    --input: 215 20% 90%;
+    --ring: 215 80% 25%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     /* Sidebar */
-    --sidebar-background: 220 15% 98%;
-    --sidebar-foreground: 220 15% 25%;
-    --sidebar-primary: 220 20% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 220 15% 95%;
-    --sidebar-accent-foreground: 220 20% 10%;
-    --sidebar-border: 220 15% 91%;
+    --sidebar-background: 215 80% 25%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 45 100% 51%;
+    --sidebar-primary-foreground: 215 25% 15%;
+    --sidebar-accent: 215 70% 35%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 215 70% 30%;
     --sidebar-ring: 45 100% 51%;
 
-    /* Custom Koloi tokens */
-    --koloi-gold: 45 100% 51%;
-    --koloi-gold-light: 45 100% 95%;
-    --koloi-blue: 220 80% 55%;
-    --koloi-blue-light: 220 80% 95%;
-    --koloi-dark: 220 20% 15%;
-    --koloi-gray-100: 220 15% 98%;
-    --koloi-gray-200: 220 15% 96%;
-    --koloi-gray-300: 220 15% 90%;
-    --koloi-gray-400: 220 10% 75%;
-    --koloi-gray-500: 220 10% 55%;
-    --koloi-gray-600: 220 10% 45%;
-    --koloi-gray-700: 220 15% 30%;
-    --koloi-gray-800: 220 20% 20%;
-    --koloi-gray-900: 220 20% 10%;
+    /* Custom Koloi tokens - Production Blue/Yellow palette */
+    --koloi-blue: 215 80% 25%;
+    --koloi-blue-dark: 215 85% 18%;
+    --koloi-blue-light: 215 60% 45%;
+    --koloi-yellow: 45 100% 51%;
+    --koloi-yellow-light: 45 100% 70%;
+    --koloi-white: 0 0% 100%;
+    --koloi-dark: 215 25% 10%;
+    --koloi-gray-100: 215 20% 98%;
+    --koloi-gray-200: 215 20% 96%;
+    --koloi-gray-300: 215 20% 90%;
+    --koloi-gray-400: 215 15% 75%;
+    --koloi-gray-500: 215 15% 55%;
+    --koloi-gray-600: 215 15% 45%;
+    --koloi-gray-700: 215 20% 30%;
+    --koloi-gray-800: 215 25% 20%;
+    --koloi-gray-900: 215 25% 10%;
 
     /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(220 20% 0% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(220 20% 0% / 0.1), 0 2px 4px -2px hsl(220 20% 0% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(220 20% 0% / 0.1), 0 4px 6px -4px hsl(220 20% 0% / 0.1);
-    --shadow-xl: 0 20px 25px -5px hsl(220 20% 0% / 0.1), 0 8px 10px -6px hsl(220 20% 0% / 0.1);
-    --shadow-card: 0 4px 24px -4px hsl(220 20% 0% / 0.12);
+    --shadow-sm: 0 1px 2px 0 hsl(215 25% 0% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(215 25% 0% / 0.1), 0 2px 4px -2px hsl(215 25% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(215 25% 0% / 0.1), 0 4px 6px -4px hsl(215 25% 0% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(215 25% 0% / 0.1), 0 8px 10px -6px hsl(215 25% 0% / 0.1);
+    --shadow-card: 0 4px 24px -4px hsl(215 25% 0% / 0.15);
+    --shadow-phone: 0 25px 50px -12px hsl(215 25% 0% / 0.4);
   }
 
   .dark {
-    --background: 220 25% 8%;
-    --foreground: 220 10% 98%;
+    --background: 215 85% 12%;
+    --foreground: 0 0% 98%;
 
-    --card: 220 25% 12%;
-    --card-foreground: 220 10% 98%;
+    --card: 215 80% 18%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 25% 12%;
-    --popover-foreground: 220 10% 98%;
+    --popover: 215 80% 18%;
+    --popover-foreground: 0 0% 98%;
 
     --primary: 45 100% 51%;
-    --primary-foreground: 220 20% 10%;
+    --primary-foreground: 215 25% 10%;
 
-    --secondary: 220 20% 18%;
-    --secondary-foreground: 220 10% 98%;
+    --secondary: 215 70% 22%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 20% 18%;
-    --muted-foreground: 220 10% 65%;
+    --muted: 215 70% 22%;
+    --muted-foreground: 215 20% 70%;
 
     --accent: 45 100% 51%;
-    --accent-foreground: 220 20% 10%;
+    --accent-foreground: 215 25% 10%;
 
     --destructive: 0 62% 30%;
-    --destructive-foreground: 220 10% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 220 20% 18%;
-    --input: 220 20% 18%;
+    --border: 215 70% 25%;
+    --input: 215 70% 25%;
     --ring: 45 100% 51%;
 
-    --sidebar-background: 220 25% 10%;
-    --sidebar-foreground: 220 10% 95%;
+    --sidebar-background: 215 85% 10%;
+    --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 45 100% 51%;
-    --sidebar-primary-foreground: 220 20% 10%;
-    --sidebar-accent: 220 25% 16%;
-    --sidebar-accent-foreground: 220 10% 95%;
-    --sidebar-border: 220 25% 16%;
+    --sidebar-primary-foreground: 215 25% 10%;
+    --sidebar-accent: 215 80% 18%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 215 80% 18%;
     --sidebar-ring: 45 100% 51%;
   }
 }
