@@ -47,7 +47,7 @@ const PhoneMockup = () => {
                 </div>
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-accent rotate-45 -z-10" />
               </div>
-              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-koloi-gray-700 whitespace-nowrap bg-white/80 px-1.5 py-0.5 rounded">
+              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-koloi-gray-700 whitespace-nowrap bg-koloi-white/80 px-1.5 py-0.5 rounded">
                 Pickup
               </span>
             </div>
@@ -60,14 +60,14 @@ const PhoneMockup = () => {
                 </div>
                 <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rotate-45 -z-10" />
               </div>
-              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-koloi-gray-700 whitespace-nowrap bg-white/80 px-1.5 py-0.5 rounded">
+              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-medium text-koloi-gray-700 whitespace-nowrap bg-koloi-white/80 px-1.5 py-0.5 rounded">
                 Drop-off
               </span>
             </div>
 
             {/* Car indicator on route */}
             <div className="absolute left-[130px] top-[160px]">
-              <div className="w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center rotate-45">
+              <div className="w-8 h-8 bg-koloi-white rounded-full shadow-lg flex items-center justify-center rotate-45">
                 <svg className="w-5 h-5 text-koloi-gray-800" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
                 </svg>
@@ -76,7 +76,7 @@ const PhoneMockup = () => {
           </div>
 
           {/* Bottom Ride Card */}
-          <div className="bg-white p-4 rounded-t-2xl -mt-4 relative z-10">
+          <div className="bg-koloi-white p-4 rounded-t-2xl -mt-4 relative z-10">
             {/* Handle */}
             <div className="w-10 h-1 bg-koloi-gray-300 rounded-full mx-auto mb-3" />
             
