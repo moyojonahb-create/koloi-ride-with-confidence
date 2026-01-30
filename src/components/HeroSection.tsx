@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, ChevronDown, Clock, Navigation2, Timer, Loader2, Star, ArrowRight, Moon, AlertCircle } from 'lucide-react';
+import { Calendar, ChevronDown, Clock, Navigation2, Timer, Loader2, Star, ArrowRight, Moon, AlertCircle, Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LocationInput from '@/components/LocationInput';
 import LocationPanel from '@/components/LocationPanel';
@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { calculateKoloiFare, setPricingConfig, PRICING_INFO, type FareResult } from '@/lib/pricing';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
-import { useOSRMRoute } from '@/hooks/useOSRMRoute';
+import { useGoogleRoute } from '@/hooks/useGoogleRoute';
 
 interface HeroSectionProps {
   onLoginClick?: () => void;
@@ -31,8 +31,8 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
   const [pickupCoords, setPickupCoords] = useState<{ lng: number; lat: number } | null>(null);
   const [dropoffCoords, setDropoffCoords] = useState<{ lng: number; lat: number } | null>(null);
 
-  // OSRM Route calculation
-  const { route: osrmRoute, loading: routeLoading, error: routeError } = useOSRMRoute(
+  // Google Routes calculation (traffic-aware)
+  const { route: googleRoute, loading: routeLoading, error: routeError } = useGoogleRoute(
     pickupCoords ? { lat: pickupCoords.lat, lng: pickupCoords.lng } : null,
     dropoffCoords ? { lat: dropoffCoords.lat, lng: dropoffCoords.lng } : null
   );
@@ -93,12 +93,14 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     setDropoffCoords({ lng: location.lng, lat: location.lat });
   };
 
-  // Route info from OSRM (or fallback)
-  const routeInfo = osrmRoute ? {
-    distance: osrmRoute.distanceKm,
-    duration: osrmRoute.durationMinutes,
-    geometry: osrmRoute.geometry,
-    isEstimate: osrmRoute.isEstimate,
+  // Route info from Google Routes (or fallback)
+  const routeInfo = googleRoute ? {
+    distance: googleRoute.distanceKm,
+    duration: googleRoute.durationMinutes,
+    durationInTraffic: googleRoute.durationInTrafficMinutes,
+    geometry: googleRoute.geometry,
+    isEstimate: googleRoute.isEstimate,
+    isTrafficAware: googleRoute.isTrafficAware,
   } : null;
 
   // Calculate fare using Koloi pricing system
@@ -297,7 +299,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
               {routeLoading && pickupCoords && dropoffCoords && (
                 <div className="mt-4 p-4 bg-secondary rounded-xl animate-fade-in flex items-center gap-3">
                   <Loader2 className="w-5 h-5 animate-spin text-accent" />
-                  <span className="text-sm text-muted-foreground">Calculating route via OSRM...</span>
+                  <span className="text-sm text-muted-foreground">Calculating route with traffic...</span>
                 </div>
               )}
 
@@ -324,22 +326,26 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                       </div>
                       <div className="flex items-center gap-1">
                         <Timer className="w-4 h-4 text-accent" />
-                        <span>~{routeInfo.duration} min</span>
+                        <span>~{routeInfo.durationInTraffic ?? routeInfo.duration} min</span>
+                        {routeInfo.isTrafficAware && (
+                          <span className="w-3 h-3 rounded-full bg-green-500" aria-label="Traffic-aware ETA" />
+                        )}
                       </div>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {fareResult.reason} • {fareResult.isOutsideTown ? 'Fixed fare' : `R${PRICING_INFO.baseFare} + R${PRICING_INFO.perKmRate}/km`}
+                    {routeInfo.isTrafficAware && ' • Live traffic'}
                     {routeInfo.isEstimate && ' • Estimated route'}
                   </p>
                 </div>
               )}
 
               {/* Route Error */}
-              {routeError && pickupCoords && dropoffCoords && (
+              {routeError && pickupCoords && dropoffCoords && !routeInfo?.isTrafficAware && (
                 <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2 text-sm text-amber-700">
                   <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>Using estimated distance. OSRM routing unavailable.</span>
+                  <span>Using estimated distance. Google routing unavailable.</span>
                 </div>
               )}
 

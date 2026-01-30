@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.admin-api]
 verify_jwt = false
+
+[functions.google-routes]
+verify_jwt = false
