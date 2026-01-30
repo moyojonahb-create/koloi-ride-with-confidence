@@ -308,11 +308,7 @@ const LandmarkButton = React.forwardRef<HTMLButtonElement, LandmarkButtonProps>(
             {landmark.description && (
               <span className="truncate">{landmark.description}</span>
             )}
-            {landmark.distance !== undefined && (
-              <span className="shrink-0 text-accent font-medium">
-                {formatDistance(landmark.distance)}
-              </span>
-            )}
+            {/* Distance hidden for riders - only shown to drivers */}
           </div>
         </div>
       </button>
