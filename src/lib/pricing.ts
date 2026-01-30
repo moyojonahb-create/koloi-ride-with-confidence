@@ -95,11 +95,21 @@ export interface FareResult {
   reason: string;
   multiplier: number;
   isOutsideTown: boolean;
+  routedDistanceKm?: number; // The actual routed distance used for pricing
 }
 
+/**
+ * Calculate fare using the routed distance from Google Routes API.
+ * @param pickup - Pickup location coordinates
+ * @param dropoff - Dropoff location coordinates  
+ * @param routedDistanceKm - The road-based distance from Google Routes API (authoritative source)
+ * @param now - Current time for peak/night pricing
+ * @param config - Optional pricing config override
+ */
 export function calculateKoloiFare(
   pickup: Location,
   dropoff: Location,
+  routedDistanceKm?: number,
   now: Date = new Date(),
   config?: PricingConfig
 ): FareResult {
@@ -115,11 +125,12 @@ export function calculateKoloiFare(
       reason: "Fixed town fare",
       multiplier: 1.0,
       isOutsideTown: true,
+      routedDistanceKm,
     };
   }
 
-  // Around town pricing
-  const dist = distanceKm(pickup, dropoff);
+  // Use routed distance if available, otherwise fall back to Haversine
+  const dist = routedDistanceKm ?? distanceKm(pickup, dropoff);
   let price = cfg.baseFare + dist * cfg.perKmRate;
 
   // Apply time multiplier for around-town only
@@ -141,6 +152,7 @@ export function calculateKoloiFare(
     reason,
     multiplier: mult,
     isOutsideTown: false,
+    routedDistanceKm: dist,
   };
 }
 

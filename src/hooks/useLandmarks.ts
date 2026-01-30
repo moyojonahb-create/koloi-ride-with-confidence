@@ -25,12 +25,13 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 };
 
-// Format distance for display
+// Format distance for display - always show as approximate since this is straight-line distance
+// NOT to be used for pricing - only for UI display in search results
 export const formatDistance = (distanceKm: number): string => {
   if (distanceKm < 1) {
-    return `${Math.round(distanceKm * 1000)}m`;
+    return `~${Math.round(distanceKm * 1000)}m`;
   }
-  return `${distanceKm.toFixed(1)}km`;
+  return `~${distanceKm.toFixed(1)}km`;
 };
 
 // Category icons mapping

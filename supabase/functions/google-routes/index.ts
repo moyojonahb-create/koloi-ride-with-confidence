@@ -16,6 +16,7 @@ interface GoogleRouteResponse {
   durationInTrafficMinutes: number;
   polyline: string | null;
   isTrafficAware: boolean;
+  routeCount?: number;
 }
 
 serve(async (req: Request) => {
@@ -45,7 +46,7 @@ serve(async (req: Request) => {
 
     console.log(`Computing route: ${pickup.lat},${pickup.lng} → ${dropoff.lat},${dropoff.lng}`);
 
-    // Call Google Routes API (v2)
+    // Call Google Routes API (v2) - request alternative routes to select longest
     const routesApiUrl = 'https://routes.googleapis.com/directions/v2:computeRoutes';
     
     const routeBody = {
@@ -67,7 +68,7 @@ serve(async (req: Request) => {
       },
       travelMode: 'DRIVE',
       routingPreference: 'TRAFFIC_AWARE',
-      computeAlternativeRoutes: false,
+      computeAlternativeRoutes: true, // Request multiple routes
       languageCode: 'en-US',
       units: 'METRIC',
     };
@@ -106,18 +107,36 @@ serve(async (req: Request) => {
       );
     }
 
-    const route = data.routes[0];
+    // Select the route with the LONGEST distance for fare calculation
+    // This avoids underpricing due to shortcuts or footpaths
+    const routes = data.routes;
+    console.log(`Received ${routes.length} route(s) from Google`);
+    
+    let selectedRoute = routes[0];
+    let maxDistance = selectedRoute.distanceMeters || 0;
+    
+    for (const route of routes) {
+      const distance = route.distanceMeters || 0;
+      console.log(`Route option: ${distance}m`);
+      if (distance > maxDistance) {
+        maxDistance = distance;
+        selectedRoute = route;
+      }
+    }
+    
+    console.log(`Selected route with distance: ${maxDistance}m (longest of ${routes.length})`);
     
     // Parse duration strings (format: "123s")
-    const durationSeconds = parseInt(String(route.duration).replace('s', ''), 10) || 0;
-    const staticDurationSeconds = parseInt(String(route.staticDuration).replace('s', ''), 10) || durationSeconds;
+    const durationSeconds = parseInt(String(selectedRoute.duration).replace('s', ''), 10) || 0;
+    const staticDurationSeconds = parseInt(String(selectedRoute.staticDuration).replace('s', ''), 10) || durationSeconds;
     
     const result: GoogleRouteResponse = {
-      distanceKm: Math.round((route.distanceMeters / 1000) * 10) / 10,
+      distanceKm: Math.round((maxDistance / 1000) * 10) / 10,
       durationMinutes: Math.round(staticDurationSeconds / 60),
       durationInTrafficMinutes: Math.round(durationSeconds / 60),
-      polyline: route.polyline?.encodedPolyline || null,
+      polyline: selectedRoute.polyline?.encodedPolyline || null,
       isTrafficAware: true,
+      routeCount: routes.length, // Include how many routes were considered
     };
 
     console.log('Route result:', result);

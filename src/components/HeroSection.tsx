@@ -103,11 +103,13 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     isTrafficAware: googleRoute.isTrafficAware,
   } : null;
 
-  // Calculate fare using Koloi pricing system
+  // Calculate fare using Koloi pricing system with ROUTED distance as authoritative source
+  // This ensures pricing is consistent and not affected by search/autocomplete distances
   const fareResult: FareResult | null = pickupCoords && dropoffCoords 
     ? calculateKoloiFare(
         { lat: pickupCoords.lat, lng: pickupCoords.lng },
-        { lat: dropoffCoords.lat, lng: dropoffCoords.lng }
+        { lat: dropoffCoords.lat, lng: dropoffCoords.lng },
+        routeInfo?.distance // Pass routed distance from Google Routes API
       )
     : null;
   const currentFare = fareResult?.priceR ?? null;
@@ -291,6 +293,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                     distanceKm={routeInfo.distance}
                     pickup={{ lat: pickupCoords.lat, lng: pickupCoords.lng }}
                     dropoff={{ lat: dropoffCoords.lat, lng: dropoffCoords.lng }}
+                    routedDistanceKm={routeInfo.distance} // Authoritative distance from Google Routes
                   />
                 </div>
               )}

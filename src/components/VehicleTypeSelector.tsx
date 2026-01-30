@@ -44,6 +44,7 @@ interface VehicleTypeSelectorProps {
   distanceKm?: number;
   pickup?: Location;
   dropoff?: Location;
+  routedDistanceKm?: number; // Authoritative distance from Google Routes API
 }
 
 const VehicleTypeSelector = ({ 
@@ -51,11 +52,12 @@ const VehicleTypeSelector = ({
   onSelect, 
   distanceKm, 
   pickup, 
-  dropoff 
+  dropoff,
+  routedDistanceKm,
 }: VehicleTypeSelectorProps) => {
-  // Calculate fare with full pricing logic
+  // Calculate fare with routed distance as authoritative source
   const fareResult = pickup && dropoff 
-    ? calculateKoloiFare(pickup, dropoff) 
+    ? calculateKoloiFare(pickup, dropoff, routedDistanceKm) 
     : null;
 
   const getMultiplierIcon = () => {
