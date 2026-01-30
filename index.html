@@ -2,11 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Koloi - Get picked. Get moving.</title>
     <meta name="description" content="Koloi is Zimbabwe's premier e-hailing service. Request a ride, hop in, and go. Drive when you want, earn what you need." />
     <meta name="author" content="Koloi Technologies" />
 
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1e3a5f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Koloi" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Koloi" />
+    <meta name="msapplication-TileColor" content="#1e3a5f" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192x192.png" />
+
+    <!-- Open Graph / Social -->
     <meta property="og:title" content="Koloi - Get picked. Get moving." />
     <meta property="og:description" content="Zimbabwe's premier e-hailing service. Request a ride, hop in, and go." />
     <meta property="og:type" content="website" />
@@ -18,6 +39,18 @@
 
     <!-- Leaflet CSS for OpenStreetMap -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- Safe area insets for notch devices -->
+    <style>
+      :root {
+        --sat: env(safe-area-inset-top);
+        --sar: env(safe-area-inset-right);
+        --sab: env(safe-area-inset-bottom);
+        --sal: env(safe-area-inset-left);
+      }
+      .safe-area-top { padding-top: env(safe-area-inset-top); }
+      .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
   </head>
 
   <body>

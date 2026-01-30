@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import PhoneMockup from '@/components/PhoneMockup';
 import koloiLogo from '@/assets/koloi-logo-official.png';
@@ -8,6 +9,7 @@ interface LandingHeroProps {
 }
 
 const LandingHero = ({ onGetStarted }: LandingHeroProps) => {
+  const navigate = useNavigate();
   return (
     <section className="min-h-screen bg-primary flex flex-col pt-16 lg:pt-20">
       {/* Main Content */}
@@ -43,17 +45,18 @@ const LandingHero = ({ onGetStarted }: LandingHeroProps) => {
         {/* CTA Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-none sm:w-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <Button 
-            onClick={onGetStarted}
+            onClick={() => navigate('/ride')}
             className="h-14 px-8 bg-accent text-accent-foreground font-bold text-lg rounded-xl hover:brightness-110 active:scale-[0.98] transition-all shadow-lg"
           >
-            Get Started
+            Request a Ride
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
           <Button 
+            onClick={onGetStarted}
             variant="outline"
             className="h-14 px-8 bg-transparent border-2 border-primary-foreground/30 text-primary-foreground font-semibold text-lg rounded-xl hover:bg-primary-foreground/10 active:scale-[0.98] transition-all"
           >
-            Learn More
+            Sign Up
           </Button>
         </div>
       </div>

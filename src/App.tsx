@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
+import Ride from "./pages/Ride";
 import NotFound from "./pages/NotFound";
 import DriverApplication from "./pages/DriverApplication";
 import Auth from "./pages/Auth";
@@ -34,9 +35,11 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/ride" element={<Ride />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/login" element={<Auth />} />
               <Route path="/signup" element={<Auth />} />
+              <Route path="/dashboard" element={<AppDashboard />} />
               <Route path="/app" element={<AppDashboard />} />
               <Route path="/drive" element={<DriverApplication />} />
               <Route path="/pilot-test" element={<PilotTest />} />
