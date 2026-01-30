@@ -126,7 +126,7 @@ export default function OSMMap({
   onMapClick,
   className = '',
   height = '400px',
-  showLandmarks = true,
+  showLandmarks = false,
   showRecenterButton = true,
 }: OSMMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -393,28 +393,7 @@ export default function OSMMap({
           </Button>
         )}
 
-        {/* Toggle Landmarks Button */}
-        {showLandmarks && (
-          <Button
-            onClick={handleToggleLandmarks}
-            variant={landmarksVisible ? "secondary" : "outline"}
-            size="sm"
-            className="shadow-lg"
-            title={landmarksVisible ? "Hide landmarks" : "Show landmarks"}
-          >
-            <MapPin className="w-4 h-4 mr-1.5" />
-            {landmarksVisible ? 'Hide' : 'Show'} Pins
-          </Button>
-        )}
       </div>
-
-      {/* Landmark count badge */}
-      {showLandmarks && landmarksVisible && !landmarksLoading && (
-        <div className="absolute top-3 left-3 z-[1000] bg-background/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 text-xs font-medium shadow-md">
-          <MapPin className="w-3 h-3 inline-block mr-1 text-accent" />
-          {landmarks.length} landmarks
-        </div>
-      )}
     </div>
   );
 }
