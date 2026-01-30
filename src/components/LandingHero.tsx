@@ -9,7 +9,7 @@ interface LandingHeroProps {
 
 const LandingHero = ({ onGetStarted }: LandingHeroProps) => {
   return (
-    <section className="min-h-screen bg-primary flex flex-col">
+    <section className="min-h-screen bg-primary flex flex-col pt-16 lg:pt-20">
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 sm:py-16">
         {/* Logo - Large and Prominent */}
