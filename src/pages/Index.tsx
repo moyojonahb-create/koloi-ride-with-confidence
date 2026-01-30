@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Header from '@/components/Header';
 import LandingHero from '@/components/LandingHero';
+import SplashScreen from '@/components/SplashScreen';
 import SuggestionsSection from '@/components/SuggestionsSection';
 import DriveSection from '@/components/DriveSection';
 import BusinessSection from '@/components/BusinessSection';
@@ -11,6 +12,7 @@ import FavoritesSheet from '@/components/FavoritesSheet';
 import RideHistorySheet from '@/components/RideHistorySheet';
 
 const Index = () => {
+  const [showSplash, setShowSplash] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [favoritesOpen, setFavoritesOpen] = useState(false);
@@ -36,7 +38,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      {showSplash && (
+        <SplashScreen onComplete={() => setShowSplash(false)} duration={2500} />
+      )}
+      <div className="min-h-screen bg-background">
       <Header 
         onLoginClick={handleLoginClick} 
         onSignupClick={handleSignupClick}
@@ -71,6 +77,7 @@ const Index = () => {
         onClose={() => setHistoryOpen(false)}
       />
     </div>
+    </>
   );
 };
 
