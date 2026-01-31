@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { GripHorizontal } from 'lucide-react';
 
 export type SheetState = 'collapsed' | 'half' | 'full';
 
@@ -13,9 +12,9 @@ interface RideBottomSheetProps {
 }
 
 const SNAP_POINTS = {
-  collapsed: 120, // Just show handle + quick action
-  half: 0.5, // 50% of screen
-  full: 0.9, // 90% of screen
+  collapsed: 100, // Minimal peek
+  half: 0.45, // 45% of screen
+  full: 0.88, // 88% of screen
 };
 
 export default function RideBottomSheet({
@@ -140,8 +139,8 @@ export default function RideBottomSheet({
     <div
       ref={sheetRef}
       className={cn(
-        'fixed bottom-0 left-0 right-0 bg-background rounded-t-3xl shadow-2xl z-50',
-        'transition-[height] border-t border-border',
+        'fixed bottom-0 left-0 right-0 bg-background rounded-t-[2rem] shadow-koloi-xl z-40',
+        'transition-[height] border-t border-border/50',
         isDragging ? 'duration-0' : 'duration-300 ease-out',
         className
       )}
@@ -149,23 +148,22 @@ export default function RideBottomSheet({
     >
       {/* Drag Handle */}
       <div
-        className="flex flex-col items-center py-3 cursor-grab active:cursor-grabbing touch-none select-none"
+        className="flex flex-col items-center pt-3 pb-2 cursor-grab active:cursor-grabbing touch-none select-none"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
         onClick={handleHandleClick}
       >
-        <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
-        <GripHorizontal className="w-5 h-5 text-muted-foreground/50 mt-1" />
+        <div className="w-14 h-1.5 bg-koloi-gray-300 rounded-full" />
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
         {state === 'collapsed' && collapsedContent ? (
-          <div className="px-4 pb-4">{collapsedContent}</div>
+          <div className="px-5 pb-4">{collapsedContent}</div>
         ) : (
-          <div className="h-full overflow-y-auto px-4 pb-8">
+          <div className="h-full overflow-y-auto px-5 pb-8">
             {children}
           </div>
         )}
