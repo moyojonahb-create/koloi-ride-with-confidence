@@ -187,29 +187,11 @@ export default function RideView() {
       if (!result.ok) throw new Error(result.error);
       const data = result.ride;
 
-      
-
       setCurrentRideId(data.id);
       toast({ title: 'Ride requested!', description: 'Looking for nearby drivers...' });
       
-      // Simulate offers for demo
-      setTimeout(() => {
-        setRideStatus('offers_received');
-        setOffers([{
-          offerId: 'offer-1',
-          driverId: 'driver-1',
-          name: 'John M.',
-          phone: '+263 77 123 4567',
-          vehicleType: 'Car',
-          plateNumber: 'ABC 1234',
-          languages: ['English', 'Ndebele'],
-          distanceKm: 1.2,
-          etaMinutes: 4,
-          offeredFareR: fareEstimate.fareR,
-          createdAt: new Date().toISOString(),
-        }]);
-        setOffersOpen(true);
-      }, 3000);
+      // Navigate to ride detail page to see offers in realtime
+      navigate(`/ride/${data.id}`);
 
     } catch (error: any) {
       toast({ title: 'Failed to request ride', description: error.message, variant: 'destructive' });

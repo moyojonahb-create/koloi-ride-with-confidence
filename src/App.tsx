@@ -7,6 +7,8 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Ride from "./pages/Ride";
+import RiderRideDetail from "./pages/RiderRideDetail";
+import DriverDashboard from "./pages/DriverDashboard";
 import NotFound from "./pages/NotFound";
 import DriverApplication from "./pages/DriverApplication";
 import Auth from "./pages/Auth";
@@ -36,6 +38,8 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/ride" element={<Ride />} />
+              <Route path="/ride/:rideId" element={<RiderRideDetail />} />
+              <Route path="/driver" element={<DriverDashboard />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/login" element={<Auth />} />
               <Route path="/signup" element={<Auth />} />
