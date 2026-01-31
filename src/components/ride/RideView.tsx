@@ -94,7 +94,7 @@ export default function RideView() {
 
   const fareEstimate = calculateFare();
 
-  // Handle GPS location
+  // Handle GPS location - ALWAYS set name to "My location"
   const handleUseMyLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setGpsState({ status: 'unavailable', coords: null, error: 'Geolocation not supported' });
@@ -108,12 +108,8 @@ export default function RideView() {
         const coords = { lat: position.coords.latitude, lng: position.coords.longitude };
         setGpsState({ status: 'success', coords, error: null });
 
-        const nearest = findNearestLandmark(coords.lat, coords.lng);
-        const name = nearest && nearest.distance && nearest.distance < 0.3
-          ? `Near ${nearest.name}`
-          : 'My Location';
-
-        setPickupLocation({ name, lat: coords.lat, lng: coords.lng });
+        // IMPORTANT: Always use "My location" - never "Near [place]"
+        setPickupLocation({ name: 'My location', lat: coords.lat, lng: coords.lng });
         setActiveField(null);
       },
       (error) => {
@@ -125,7 +121,7 @@ export default function RideView() {
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
-  }, [findNearestLandmark]);
+  }, []);
 
   // Handle landmark selection
   const handleLandmarkSelect = (landmark: Landmark) => {
@@ -281,21 +277,27 @@ export default function RideView() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col px-4 pb-4">
-        {/* Map Frame */}
-        <div className="bg-koloi-gray-200 rounded-3xl overflow-hidden shadow-koloi-lg flex-1 min-h-[200px] max-h-[45vh] relative">
+      <main className="flex-1 flex flex-col px-4 pb-4 gap-4">
+        {/* Map Frame - Explicit heights for mobile/desktop */}
+        <div 
+          className="bg-koloi-gray-200 rounded-3xl overflow-hidden shadow-koloi-lg relative"
+          style={{ 
+            height: 'clamp(260px, 45vh, 420px)',
+            minHeight: '260px',
+          }}
+        >
           <OSMMap
             pickup={pickupLocation}
             dropoff={dropoffLocation}
             routeGeometry={routeData?.geometry}
-            height="100%"
             className="w-full h-full"
+            height="100%"
             showRecenterButton
           />
           
-          {/* Loading overlay */}
+          {/* Route loading overlay */}
           {routeLoading && pickupLocation && dropoffLocation && (
-            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center">
+            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-20">
               <div className="flex items-center gap-2 bg-background px-4 py-2 rounded-full shadow-koloi-sm">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="text-sm font-medium">Calculating route...</span>
@@ -304,10 +306,10 @@ export default function RideView() {
           )}
         </div>
 
-        {/* Ride Card - inDrive Style */}
-        <div className="bg-koloi-gray-100 rounded-t-[2rem] shadow-koloi-xl -mt-8 relative z-10 pt-3 pb-6 px-5 flex flex-col">
+        {/* Ride Card - Clean inDrive Style */}
+        <div className="bg-background rounded-3xl shadow-koloi-xl pt-4 pb-6 px-5 flex flex-col">
           {/* Handle Bar */}
-          <div className="w-10 h-1 bg-koloi-gray-400 rounded-full mx-auto mb-4" />
+          <div className="w-10 h-1 bg-koloi-gray-300 rounded-full mx-auto mb-4" />
 
           {/* Location Inputs - Minimal inDrive style */}
           <div className="bg-background rounded-2xl shadow-koloi-sm overflow-hidden mb-4">

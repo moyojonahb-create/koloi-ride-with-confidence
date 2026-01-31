@@ -4,8 +4,8 @@ import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Crosshair, Layers, MapPin } from 'lucide-react';
-import { useGwandaLandmarks, getCategoryColor, GWANDA_BOUNDS, type MapLandmark } from '@/hooks/useGwandaLandmarks';
+import { Crosshair, RefreshCw, AlertTriangle } from 'lucide-react';
+import { GWANDA_BOUNDS } from '@/hooks/useGwandaLandmarks';
 
 // Fix default marker icons for Leaflet in React
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -35,85 +35,81 @@ interface OSMMapProps {
   onMapClick?: (coords: Coordinates) => void;
   className?: string;
   height?: string;
-  showLandmarks?: boolean;
   showRecenterButton?: boolean;
 }
 
-// Custom marker icons
+// Custom marker icons - Yellow Pickup with Black Pin, Blue Dropoff with Arrow
 const pickupIcon = L.divIcon({
-  html: `<div class="w-8 h-8 rounded-full bg-emerald-500 border-4 border-white shadow-lg flex items-center justify-center">
-    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-      <circle cx="10" cy="10" r="4"/>
-    </svg>
-  </div>`,
+  html: `
+    <div class="flex flex-col items-center">
+      <div class="w-10 h-10 rounded-full bg-amber-400 border-4 border-white shadow-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </svg>
+      </div>
+      <span class="mt-1 px-2 py-0.5 bg-amber-400 text-black text-xs font-bold rounded shadow">Pickup</span>
+    </div>
+  `,
   className: 'custom-marker',
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
+  iconSize: [50, 60],
+  iconAnchor: [25, 50],
 });
 
 const dropoffIcon = L.divIcon({
-  html: `<div class="w-8 h-8 rounded-full bg-blue-500 border-4 border-white shadow-lg flex items-center justify-center">
-    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M10 2a6 6 0 00-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 00-6-6zm0 8a2 2 0 110-4 2 2 0 010 4z"/>
-    </svg>
-  </div>`,
+  html: `
+    <div class="flex flex-col items-center">
+      <div class="w-10 h-10 rounded-full bg-blue-600 border-4 border-white shadow-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 4l-8 8h5v8h6v-8h5z"/>
+        </svg>
+      </div>
+      <span class="mt-1 px-2 py-0.5 bg-blue-600 text-white text-xs font-bold rounded shadow">Drop-off</span>
+    </div>
+  `,
   className: 'custom-marker',
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
+  iconSize: [50, 60],
+  iconAnchor: [25, 50],
 });
 
 const driverIcon = L.divIcon({
-  html: `<div class="w-10 h-10 rounded-full bg-amber-500 border-4 border-white shadow-lg flex items-center justify-center animate-pulse">
-    <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0h2.1a2.5 2.5 0 014.9 0H17a1 1 0 001-1V5a1 1 0 00-1-1H3z"/>
-    </svg>
-  </div>`,
-  className: 'custom-marker',
+  html: `
+    <div class="w-10 h-10 rounded-full bg-primary border-4 border-white shadow-lg flex items-center justify-center animate-pulse">
+      <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+      </svg>
+    </div>
+  `,
+  className: 'custom-marker driver-marker',
   iconSize: [40, 40],
   iconAnchor: [20, 20],
 });
 
-// Create landmark icon with category color
-const createLandmarkIcon = (color: string, size: 'small' | 'medium' = 'small') => {
-  const sizeClasses = size === 'small' ? 'w-5 h-5' : 'w-6 h-6';
-  return L.divIcon({
-    html: `<div class="${sizeClasses} rounded-full border-2 border-white shadow-md flex items-center justify-center" style="background-color: ${color};">
-      <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-        <circle cx="10" cy="10" r="6"/>
-      </svg>
-    </div>`,
-    className: 'landmark-marker',
-    iconSize: size === 'small' ? [20, 20] : [24, 24],
-    iconAnchor: size === 'small' ? [10, 10] : [12, 12],
-  });
-};
-
 // Gwanda, Zimbabwe default center
 const GWANDA_CENTER: Coordinates = { lat: -20.9355, lng: 29.0147 };
 
-// Available tile layers - OSM updates are reflected here
+// Available tile layers - Humanitarian as default since Gwanda OSM is updated
 const TILE_LAYERS = {
-  // Transport style - emphasizes roads and public transport
-  transport: {
-    url: 'https://tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=6170aad10dfd42a38d4d8c709a536f38',
-    attribution: '&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  humanitarian: {
+    name: 'Humanitarian',
+    url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles: HOT',
   },
-  // Standard OSM - updated frequently, shows all roads including paths
   osm: {
+    name: 'Standard',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   },
-  // Humanitarian style - shows paths and tracks well
-  humanitarian: {
-    url: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles: HOT',
+  france: {
+    name: 'OSM France',
+    url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles: OSM France',
   },
 };
 
 // Gwanda service area bounds for map fitting
 const gwandaBounds: L.LatLngBoundsExpression = [
-  [GWANDA_BOUNDS.south, GWANDA_BOUNDS.west], // Southwest
-  [GWANDA_BOUNDS.north, GWANDA_BOUNDS.east], // Northeast
+  [GWANDA_BOUNDS.south, GWANDA_BOUNDS.west],
+  [GWANDA_BOUNDS.north, GWANDA_BOUNDS.east],
 ];
 
 export default function OSMMap({
@@ -126,20 +122,17 @@ export default function OSMMap({
   onMapClick,
   className = '',
   height = '400px',
-  showLandmarks = false,
   showRecenterButton = true,
 }: OSMMapProps) {
-  const mapRef = useRef<HTMLDivElement>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const pickupMarkerRef = useRef<L.Marker | null>(null);
   const dropoffMarkerRef = useRef<L.Marker | null>(null);
   const driverMarkerRef = useRef<L.Marker | null>(null);
   const routeLayerRef = useRef<L.Polyline | null>(null);
-  const landmarkLayerRef = useRef<L.LayerGroup | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [landmarksVisible, setLandmarksVisible] = useState(true);
-
-  const { landmarks, loading: landmarksLoading } = useGwandaLandmarks();
+  
+  const [mapState, setMapState] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [isMounted, setIsMounted] = useState(false);
 
   // Recenter map to Gwanda service area
   const handleRecenter = useCallback(() => {
@@ -150,126 +143,132 @@ export default function OSMMap({
     });
   }, []);
 
-  // Toggle landmarks visibility
-  const handleToggleLandmarks = useCallback(() => {
-    if (!mapInstanceRef.current || !landmarkLayerRef.current) return;
-    
-    if (landmarksVisible) {
-      mapInstanceRef.current.removeLayer(landmarkLayerRef.current);
-    } else {
-      landmarkLayerRef.current.addTo(mapInstanceRef.current);
-    }
-    setLandmarksVisible(!landmarksVisible);
-  }, [landmarksVisible]);
-
-  // Initialize map
-  useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
-
-    const map = L.map(mapRef.current, {
-      center: [center.lat, center.lng],
-      zoom,
-      zoomControl: true,
-      attributionControl: true,
-      maxBounds: [
-        [GWANDA_BOUNDS.south - 0.1, GWANDA_BOUNDS.west - 0.1],
-        [GWANDA_BOUNDS.north + 0.1, GWANDA_BOUNDS.east + 0.1],
-      ],
-      maxBoundsViscosity: 0.8,
-    });
-
-    // Create base layers - Transport style for ride-hailing context
-    const baseLayers = {
-      'Transport': L.tileLayer(TILE_LAYERS.transport.url, {
-        attribution: TILE_LAYERS.transport.attribution,
-        maxZoom: 19,
-      }),
-      'Street Map': L.tileLayer(TILE_LAYERS.osm.url, {
-        attribution: TILE_LAYERS.osm.attribution,
-        maxZoom: 19,
-      }),
-      'Humanitarian': L.tileLayer(TILE_LAYERS.humanitarian.url, {
-        attribution: TILE_LAYERS.humanitarian.attribution,
-        maxZoom: 19,
-      }),
-    };
-
-    // Add default layer (Transport style for ride-hailing)
-    baseLayers['Transport'].addTo(map);
-
-    // Add layer control
-    L.control.layers(baseLayers, {}, { position: 'topright' }).addTo(map);
-
-    // Create landmark layer group
-    landmarkLayerRef.current = L.layerGroup().addTo(map);
-
-    baseLayers['Transport'].on('load', () => {
-      setIsLoading(false);
-    });
-
-    // Fit to Gwanda service area on initial load
-    map.fitBounds(gwandaBounds, { 
-      padding: [20, 20],
-      maxZoom: 15,
-    });
-
-    // Handle map clicks
-    if (onMapClick) {
-      map.on('click', (e) => {
-        onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng });
-      });
-    }
-
-    mapInstanceRef.current = map;
-
-    // Set loading false after a timeout as fallback
-    setTimeout(() => setIsLoading(false), 2000);
-
-    return () => {
-      map.remove();
+  // Retry loading map
+  const handleRetry = useCallback(() => {
+    setMapState('loading');
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
       mapInstanceRef.current = null;
-      landmarkLayerRef.current = null;
-    };
+    }
+    setIsMounted(false);
+    setTimeout(() => setIsMounted(true), 100);
   }, []);
 
-  // Add landmark markers to map
+  // Track mount state
   useEffect(() => {
-    const map = mapInstanceRef.current;
-    const landmarkLayer = landmarkLayerRef.current;
-    if (!map || !landmarkLayer || !showLandmarks || landmarksLoading) return;
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
-    // Clear existing landmarks
-    landmarkLayer.clearLayers();
+  // Initialize map ONLY after container is mounted and has dimensions
+  useEffect(() => {
+    const container = mapContainerRef.current;
+    if (!container || !isMounted) return;
+    
+    // Guard against double initialization
+    if (mapInstanceRef.current) return;
 
-    // Add landmark markers
-    landmarks.forEach((landmark: MapLandmark) => {
-      const color = getCategoryColor(landmark.category);
-      const icon = createLandmarkIcon(color);
-      
-      const marker = L.marker([landmark.latitude, landmark.longitude], { 
-        icon,
-        title: landmark.name,
-      });
-
-      marker.bindPopup(`
-        <div class="p-2">
-          <p class="font-semibold text-sm">${landmark.name}</p>
-          <p class="text-xs text-gray-600 capitalize">${landmark.category}</p>
-          ${landmark.description ? `<p class="text-xs mt-1">${landmark.description}</p>` : ''}
-        </div>
-      `, { 
-        closeButton: false,
-        className: 'landmark-popup',
-      });
-
-      marker.addTo(landmarkLayer);
-    });
-
-    // Update visibility based on state
-    if (!landmarksVisible) {
-      map.removeLayer(landmarkLayer);
+    // Ensure container has dimensions
+    const rect = container.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      console.warn('[OSMMap] Container has no dimensions, retrying...');
+      const timer = setTimeout(() => {
+        container.dispatchEvent(new Event('resize'));
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [landmarks, landmarksLoading, showLandmarks, landmarksVisible]);
+
+    console.log('[OSMMap] Initializing map with dimensions:', rect.width, rect.height);
+
+    try {
+      const map = L.map(container, {
+        center: [center.lat, center.lng],
+        zoom,
+        zoomControl: true,
+        attributionControl: true,
+        maxBounds: [
+          [GWANDA_BOUNDS.south - 0.1, GWANDA_BOUNDS.west - 0.1],
+          [GWANDA_BOUNDS.north + 0.1, GWANDA_BOUNDS.east + 0.1],
+        ],
+        maxBoundsViscosity: 0.8,
+      });
+
+      // Create base layers - Humanitarian as default
+      const baseLayers = {
+        [TILE_LAYERS.humanitarian.name]: L.tileLayer(TILE_LAYERS.humanitarian.url, {
+          attribution: TILE_LAYERS.humanitarian.attribution,
+          maxZoom: 19,
+        }),
+        [TILE_LAYERS.osm.name]: L.tileLayer(TILE_LAYERS.osm.url, {
+          attribution: TILE_LAYERS.osm.attribution,
+          maxZoom: 19,
+        }),
+        [TILE_LAYERS.france.name]: L.tileLayer(TILE_LAYERS.france.url, {
+          attribution: TILE_LAYERS.france.attribution,
+          maxZoom: 19,
+        }),
+      };
+
+      // Add default layer (Humanitarian)
+      const defaultLayer = baseLayers[TILE_LAYERS.humanitarian.name];
+      defaultLayer.addTo(map);
+
+      // Track tile loading
+      let tilesLoaded = false;
+      defaultLayer.on('load', () => {
+        console.log('[OSMMap] Tiles loaded successfully');
+        tilesLoaded = true;
+        setMapState('ready');
+      });
+
+      defaultLayer.on('tileerror', (e) => {
+        console.error('[OSMMap] Tile load error:', e);
+        if (!tilesLoaded) {
+          setMapState('error');
+        }
+      });
+
+      // Add layer control
+      L.control.layers(baseLayers, {}, { position: 'topright' }).addTo(map);
+
+      // Fit to Gwanda service area on initial load
+      map.fitBounds(gwandaBounds, { 
+        padding: [20, 20],
+        maxZoom: 15,
+      });
+
+      // Handle map clicks
+      if (onMapClick) {
+        map.on('click', (e) => {
+          onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng });
+        });
+      }
+
+      mapInstanceRef.current = map;
+
+      // Fallback: set ready after timeout if tiles haven't loaded
+      const timeoutId = setTimeout(() => {
+        if (mapState === 'loading') {
+          console.warn('[OSMMap] Tile load timeout, setting ready anyway');
+          setMapState('ready');
+        }
+      }, 5000);
+
+      return () => {
+        clearTimeout(timeoutId);
+      };
+    } catch (error) {
+      console.error('[OSMMap] Map initialization error:', error);
+      setMapState('error');
+    }
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [isMounted, center.lat, center.lng, zoom, onMapClick]);
 
   // Update pickup marker
   useEffect(() => {
@@ -283,8 +282,7 @@ export default function OSMMap({
 
     if (pickup) {
       pickupMarkerRef.current = L.marker([pickup.lat, pickup.lng], { icon: pickupIcon })
-        .addTo(map)
-        .bindPopup('Pickup location');
+        .addTo(map);
     }
   }, [pickup?.lat, pickup?.lng]);
 
@@ -300,8 +298,7 @@ export default function OSMMap({
 
     if (dropoff) {
       dropoffMarkerRef.current = L.marker([dropoff.lat, dropoff.lng], { icon: dropoffIcon })
-        .addTo(map)
-        .bindPopup('Dropoff location');
+        .addTo(map);
     }
   }, [dropoff?.lat, dropoff?.lng]);
 
@@ -317,12 +314,11 @@ export default function OSMMap({
 
     if (driverLocation) {
       driverMarkerRef.current = L.marker([driverLocation.lat, driverLocation.lng], { icon: driverIcon })
-        .addTo(map)
-        .bindPopup('Driver location');
+        .addTo(map);
     }
   }, [driverLocation?.lat, driverLocation?.lng]);
 
-  // Update route polyline
+  // Update route polyline - blue line
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -334,17 +330,18 @@ export default function OSMMap({
 
     if (routeGeometry) {
       try {
-        // Decode polyline (OSRM returns encoded polyline)
         const decoded = decodePolyline(routeGeometry);
         if (decoded.length > 0) {
           routeLayerRef.current = L.polyline(decoded, {
-            color: '#3b82f6',
+            color: '#2563eb', // Blue
             weight: 5,
-            opacity: 0.8,
+            opacity: 0.9,
+            lineCap: 'round',
+            lineJoin: 'round',
           }).addTo(map);
         }
       } catch (e) {
-        console.error('Failed to decode route geometry:', e);
+        console.error('[OSMMap] Failed to decode route geometry:', e);
       }
     }
   }, [routeGeometry]);
@@ -361,39 +358,67 @@ export default function OSMMap({
     if (driverLocation) bounds.push([driverLocation.lat, driverLocation.lng]);
 
     if (bounds.length >= 2) {
-      map.fitBounds(bounds, { padding: [50, 50] });
+      map.fitBounds(bounds, { padding: [60, 60] });
     } else if (bounds.length === 1) {
       map.setView(bounds[0], 15);
     }
   }, [pickup?.lat, pickup?.lng, dropoff?.lat, dropoff?.lng, driverLocation?.lat, driverLocation?.lng]);
 
   return (
-    <div className={cn('relative rounded-xl overflow-hidden', className)} style={{ height }}>
-      {isLoading && (
-        <Skeleton className="absolute inset-0 z-10" />
+    <div 
+      className={cn('relative rounded-xl overflow-hidden bg-koloi-gray-200', className)} 
+      style={{ height, minHeight: '260px' }}
+    >
+      {/* Loading State */}
+      {mapState === 'loading' && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-koloi-gray-200">
+          <Skeleton className="absolute inset-0" />
+          <div className="relative z-10 flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm font-medium text-muted-foreground">Map loading...</p>
+          </div>
+        </div>
       )}
+
+      {/* Error State */}
+      {mapState === 'error' && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-koloi-gray-200 gap-4">
+          <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+            <AlertTriangle className="w-8 h-8 text-destructive" />
+          </div>
+          <div className="text-center">
+            <p className="font-semibold text-foreground">Map failed to load</p>
+            <p className="text-sm text-muted-foreground mt-1">Check your connection</p>
+          </div>
+          <Button onClick={handleRetry} variant="outline" size="sm" className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {/* Map Container - MUST have explicit dimensions */}
       <div 
-        ref={mapRef} 
-        className="w-full h-full"
+        ref={mapContainerRef} 
+        className="absolute inset-0 w-full h-full"
+        style={{ zIndex: 1 }}
       />
 
       {/* Map Controls */}
-      <div className="absolute bottom-3 left-3 flex flex-col gap-2 z-[1000]">
-        {/* Recenter Button */}
-        {showRecenterButton && (
+      {mapState === 'ready' && showRecenterButton && (
+        <div className="absolute bottom-3 left-3 z-[1000]">
           <Button
             onClick={handleRecenter}
             variant="secondary"
             size="sm"
-            className="shadow-lg"
+            className="shadow-lg bg-background/95 backdrop-blur-sm"
             title="Recenter to Gwanda"
           >
             <Crosshair className="w-4 h-4 mr-1.5" />
             Gwanda
           </Button>
-        )}
-
-      </div>
+        </div>
+      )}
     </div>
   );
 }

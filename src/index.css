@@ -256,12 +256,28 @@
   }
 }
 
-/* Leaflet landmark markers */
-.landmark-marker {
+/* Leaflet custom markers */
+.custom-marker {
   background: transparent !important;
   border: none !important;
 }
 
+.custom-marker > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.driver-marker > div {
+  animation: driverPulse 2s ease-in-out infinite;
+}
+
+@keyframes driverPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.9; }
+}
+
+/* Leaflet popup styles */
 .landmark-popup .leaflet-popup-content-wrapper {
   padding: 0;
   border-radius: 8px;
@@ -286,12 +302,10 @@
   border-radius: 6px !important;
 }
 
-/* Animate landmark pins on load */
-@keyframes landmarkBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-
-.landmark-marker div {
-  animation: landmarkBounce 0.5s ease-out;
+/* Leaflet container must have dimensions */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  background: hsl(var(--koloi-gray-200));
 }
