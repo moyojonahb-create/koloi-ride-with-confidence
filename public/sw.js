@@ -1,4 +1,5 @@
-const CACHE_NAME = 'koloi-v1';
+// Bump cache name to force clients to pick up fresh assets after updates
+const CACHE_NAME = 'koloi-v2';
 const STATIC_ASSETS = [
   '/',
   '/ride',
@@ -40,6 +41,17 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api')) return;
+
+  // IMPORTANT: Don't cache dev/ESM module assets (can cause stale bundles and missing env vars)
+  // Vite serves these paths in preview builds.
+  if (
+    url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/node_modules/') ||
+    url.pathname.startsWith('/@vite/') ||
+    url.pathname.startsWith('/@react-refresh')
+  ) {
+    return;
+  }
 
   event.respondWith(
     fetch(event.request)
