@@ -8,6 +8,7 @@ import {
   fetchDriversByIds,
   acceptOffer,
   declineOffer,
+  clampTo5,
   type Offer,
   type DriverProfile,
 } from "@/lib/offerHelpers";
@@ -16,7 +17,8 @@ import OffersModal from "@/components/OffersModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft, MapPin, Navigation, Users, Eye } from "lucide-react";
+import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone } from "lucide-react";
+import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds";
 
 type Ride = {
   id: string;
@@ -43,6 +45,9 @@ export default function RiderRideDetail() {
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [updatingFare, setUpdatingFare] = useState(false);
+  const [showCommunication, setShowCommunication] = useState(false);
+  const [lastOfferCount, setLastOfferCount] = useState(0);
 
   const refreshRide = useCallback(async () => {
     if (!rideId) return;
@@ -58,7 +63,19 @@ export default function RiderRideDetail() {
       return;
     }
 
+    const wasAccepted = ride?.status !== "accepted" && data.status === "accepted";
     setRide(data as Ride);
+
+    // Play sound when ride is accepted
+    if (wasAccepted) {
+      playAcceptedSound();
+      if (Notification.permission === "granted") {
+        new Notification("🎉 Driver Accepted!", {
+          body: "Your ride has been confirmed. You can now contact your driver.",
+          icon: "/icons/icon-192x192.png"
+        });
+      }
+    }
 
     // If ride is accepted, fetch driver info
     if (data.driver_id && data.status === "accepted") {
@@ -77,13 +94,25 @@ export default function RiderRideDetail() {
         }
       }
     }
-  }, [rideId]);
+  }, [rideId, ride?.status]);
 
   const refreshOffers = useCallback(async () => {
     if (!rideId) return;
     
     try {
       const list = await fetchPendingOffers(rideId);
+      
+      // Play sound when new offers come in
+      if (list.length > lastOfferCount && lastOfferCount > 0) {
+        playNewRequestSound();
+        if (Notification.permission === "granted") {
+          new Notification("New Driver Offer!", {
+            body: "A driver has made an offer on your ride request.",
+            icon: "/icons/icon-192x192.png"
+          });
+        }
+      }
+      setLastOfferCount(list.length);
       setOffers(list);
 
       const ids = [...new Set(list.map((o) => o.driver_id))];
@@ -92,13 +121,20 @@ export default function RiderRideDetail() {
     } catch (e: any) {
       console.error("Failed to fetch offers:", e);
     }
-  }, [rideId]);
+  }, [rideId, lastOfferCount]);
 
   // Realtime subscriptions
   useRideRealtime(rideId ?? null, {
     onRideChange: refreshRide,
     onOfferChange: refreshOffers,
   });
+
+  // Request notification permission
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -112,6 +148,31 @@ export default function RiderRideDetail() {
     }
   }, [authLoading, user, rideId, nav, refreshRide, refreshOffers]);
 
+  // Update fare - rider can adjust price
+  const updateFare = async (newFare: number) => {
+    if (!rideId || !ride || ride.status !== "pending") return;
+    
+    const clampedFare = clampTo5(newFare);
+    if (clampedFare === ride.fare) return;
+    
+    setUpdatingFare(true);
+    try {
+      const { error } = await supabase
+        .from("rides")
+        .update({ fare: clampedFare })
+        .eq("id", rideId);
+
+      if (error) throw error;
+      
+      setRide({ ...ride, fare: clampedFare });
+      toast.success(`Fare updated to R${clampedFare}`);
+    } catch (e: any) {
+      toast.error("Failed to update fare", { description: e.message });
+    } finally {
+      setUpdatingFare(false);
+    }
+  };
+
   const handleAcceptOffer = async (offerId: string) => {
     const offer = offers.find((o) => o.id === offerId);
     if (!offer || !rideId) return;
@@ -120,6 +181,7 @@ export default function RiderRideDetail() {
       setError(null);
       await acceptOffer(rideId, offer);
       setModalOpen(false);
+      playAcceptedSound();
       toast.success("Driver accepted!", { 
         description: "You can now contact your driver" 
       });
@@ -207,6 +269,7 @@ export default function RiderRideDetail() {
   }
 
   const isAccepted = ride.status === "accepted";
+  const isPending = ride.status === "pending";
 
   return (
     <div className="min-h-screen bg-background">
@@ -217,7 +280,17 @@ export default function RiderRideDetail() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="font-black text-lg">Your Ride</h1>
-          <div className="w-10" />
+          {isAccepted && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setShowCommunication(!showCommunication)}
+              className="relative"
+            >
+              <MessageCircle className="h-5 w-5" />
+            </Button>
+          )}
+          {!isAccepted && <div className="w-10" />}
         </div>
       </div>
 
@@ -240,7 +313,32 @@ export default function RiderRideDetail() {
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
               <div>
                 <p className="text-sm text-muted-foreground">Your offer</p>
-                <p className="font-black text-xl">R{ride.fare}</p>
+                {/* Price adjustment for pending rides */}
+                {isPending ? (
+                  <div className="flex items-center gap-2 mt-1">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => updateFare(ride.fare - 5)}
+                      disabled={updatingFare || ride.fare <= 10}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="font-black text-xl min-w-[60px] text-center">R{ride.fare}</span>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => updateFare(ride.fare + 5)}
+                      disabled={updatingFare}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="font-black text-xl">R{ride.fare}</p>
+                )}
               </div>
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Status</p>
@@ -284,15 +382,41 @@ export default function RiderRideDetail() {
                   <p className="text-sm text-muted-foreground">
                     {driverProfile.vehicle_make} {driverProfile.vehicle_model} • {driverProfile.plate_number}
                   </p>
+                  {driverPhone && (
+                    <div className="flex gap-2 mt-3">
+                      <a
+                        href={`tel:${driverPhone}`}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold"
+                      >
+                        <Phone className="h-4 w-4" />
+                        Call Driver
+                      </a>
+                      <Button
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => setShowCommunication(!showCommunication)}
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Message
+                      </Button>
+                    </div>
+                  )}
+                  {driverPhone && (
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      📞 {driverPhone}
+                    </p>
+                  )}
                 </div>
               )}
               
-              <RideCommunication
-                rideId={ride.id}
-                currentUserId={user.id}
-                otherUserPhone={driverPhone}
-                riderId={ride.user_id}
-              />
+              {showCommunication && (
+                <RideCommunication
+                  rideId={ride.id}
+                  currentUserId={user.id}
+                  otherUserPhone={driverPhone}
+                  riderId={ride.user_id}
+                />
+              )}
             </CardContent>
           </Card>
         )}

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Eye, EyeOff, Mail, Phone, ArrowLeft, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Phone, ArrowLeft, Loader2, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -19,6 +20,7 @@ type Step = 'select' | 'credentials' | 'otp';
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 const phoneSchema = z.string().min(9, 'Please enter a valid phone number');
+const nameSchema = z.string().min(2, 'Name must be at least 2 characters');
 
 const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
   const { signUp, signIn, signInWithPhone, verifyOtp } = useAuth();
@@ -81,15 +83,43 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
     return true;
   };
 
+  const validateName = () => {
+    const result = nameSchema.safeParse(fullName);
+    if (!result.success) {
+      setErrors(prev => ({ ...prev, fullName: result.error.errors[0].message }));
+      return false;
+    }
+    setErrors(prev => ({ ...prev, fullName: '' }));
+    return true;
+  };
+
+  // Update profile with phone after signup
+  const updateProfilePhone = async (userId: string, phoneNumber: string) => {
+    try {
+      await supabase
+        .from('profiles')
+        .update({ phone: phoneNumber })
+        .eq('user_id', userId);
+    } catch (e) {
+      console.warn('Could not update phone:', e);
+    }
+  };
+
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateEmail() || !validatePassword()) return;
+    const isValidEmail = validateEmail();
+    const isValidPassword = validatePassword();
+    const isValidName = mode === 'signup' ? validateName() : true;
+    const isValidPhone = mode === 'signup' ? validatePhone() : true;
+    
+    if (!isValidEmail || !isValidPassword || !isValidName || !isValidPhone) return;
     
     setLoading(true);
     
     try {
       if (mode === 'signup') {
+        const fullPhone = `${countryCode}${phone}`;
         const { error } = await signUp(email, password, fullName);
         if (error) {
           if (error.message.includes('already registered')) {
@@ -99,6 +129,13 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
           }
           return;
         }
+        
+        // Get the newly created user and update their phone
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData?.user) {
+          await updateProfilePhone(userData.user.id, fullPhone);
+        }
+        
         toast.success('Account created successfully!');
         onSuccess();
       } else {
@@ -238,38 +275,80 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
 
         <div className="space-y-4">
           {mode === 'signup' && (
-            <div>
-              <Label htmlFor="fullName">Full name</Label>
-              <Input
-                id="fullName"
-                type="text"
-                placeholder="Enter your name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="mt-1.5"
-              />
-            </div>
+            <>
+              <div>
+                <Label htmlFor="fullName">Full name *</Label>
+                <div className="relative mt-1.5">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    onBlur={validateName}
+                    className="pl-10"
+                    required
+                  />
+                </div>
+                {errors.fullName && (
+                  <p className="text-destructive text-sm mt-1">{errors.fullName}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="signupPhone">Phone number *</Label>
+                <div className="flex gap-2 mt-1.5">
+                  <select 
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="koloi-input w-24"
+                  >
+                    <option value="+263">+263</option>
+                    <option value="+27">+27</option>
+                    <option value="+254">+254</option>
+                    <option value="+234">+234</option>
+                  </select>
+                  <Input
+                    id="signupPhone"
+                    type="tel"
+                    placeholder="Phone number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                    onBlur={validatePhone}
+                    className="flex-1"
+                    required
+                  />
+                </div>
+                {errors.phone && (
+                  <p className="text-destructive text-sm mt-1">{errors.phone}</p>
+                )}
+              </div>
+            </>
           )}
 
           <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onBlur={validateEmail}
-              className="mt-1.5"
-              required
-            />
+            <Label htmlFor="email">Email *</Label>
+            <div className="relative mt-1.5">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={validateEmail}
+                className="pl-10"
+                required
+              />
+            </div>
             {errors.email && (
               <p className="text-destructive text-sm mt-1">{errors.email}</p>
             )}
           </div>
 
           <div>
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Password *</Label>
             <div className="relative mt-1.5">
               <Input
                 id="password"

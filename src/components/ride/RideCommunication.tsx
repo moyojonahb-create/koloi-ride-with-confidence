@@ -4,7 +4,8 @@ import { CallButton } from "./CallButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRideRealtime } from "@/hooks/useRideRealtime";
-import { Send } from "lucide-react";
+import { Send, Phone, MessageCircle } from "lucide-react";
+import { playMessageSound } from "@/lib/notificationSounds";
 
 type Message = {
   id: string;
@@ -30,6 +31,7 @@ export function RideCommunication({
   const [messages, setMessages] = useState<Message[]>([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [lastMessageCount, setLastMessageCount] = useState(0);
 
   const loadMessages = useCallback(async () => {
     const { data, error } = await supabase
@@ -39,9 +41,17 @@ export function RideCommunication({
       .order("created_at", { ascending: true });
 
     if (!error && data) {
+      // Play sound for new messages (not from current user)
+      if (data.length > lastMessageCount && lastMessageCount > 0) {
+        const lastMsg = data[data.length - 1];
+        if (lastMsg.sender_id !== currentUserId) {
+          playMessageSound();
+        }
+      }
+      setLastMessageCount(data.length);
       setMessages(data as Message[]);
     }
-  }, [rideId]);
+  }, [rideId, currentUserId, lastMessageCount]);
 
   // Subscribe to realtime message updates
   useRideRealtime(rideId, {
@@ -81,12 +91,19 @@ export function RideCommunication({
 
   return (
     <div className="space-y-4">
-      <h3 className="font-bold text-lg text-foreground">Communication</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
+          <MessageCircle className="h-5 w-5" />
+          Communication
+        </h3>
+      </div>
 
-      {/* Call Button */}
+      {/* Call Button with Phone Display */}
       {otherUserPhone && (
-        <div className="flex gap-2">
-          <CallButton phone={otherUserPhone} label="📞 Call" />
+        <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
+          <Phone className="h-4 w-4 text-muted-foreground" />
+          <span className="flex-1 text-sm font-medium">{otherUserPhone}</span>
+          <CallButton phone={otherUserPhone} label="Call Now" className="text-sm py-2 px-4" />
         </div>
       )}
 
