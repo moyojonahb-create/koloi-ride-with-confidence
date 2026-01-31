@@ -1,35 +1,38 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, DollarSign, Clock, Shield, TrendingUp } from 'lucide-react';
-
-const benefits = [
-  {
-    icon: DollarSign,
-    title: 'Earn on your schedule',
-    description: 'Drive when you want—evenings, weekends, or full-time.',
-  },
-  {
-    icon: Clock,
-    title: 'Set your own hours',
-    description: 'You decide when and how long you drive.',
-  },
-  {
-    icon: Shield,
-    title: 'Get support every step',
-    description: '24/7 support for drivers on the road.',
-  },
-];
-
-const stats = [
-  { value: '10K+', label: 'Active drivers', icon: '🚗' },
-  { value: '50K+', label: 'Trips completed', icon: '✓' },
-  { value: '4.9', label: 'Average rating', icon: '⭐' },
-  { value: '24/7', label: 'Driver support', icon: '📞' },
-];
-
+import { ArrowRight, DollarSign, Clock, Shield, TrendingUp, Lightbulb } from 'lucide-react';
+const benefits = [{
+  icon: DollarSign,
+  title: 'Earn on your schedule',
+  description: 'Drive when you want—evenings, weekends, or full-time.'
+}, {
+  icon: Clock,
+  title: 'Set your own hours',
+  description: 'You decide when and how long you drive.'
+}, {
+  icon: Shield,
+  title: 'Get support every step',
+  description: '24/7 support for drivers on the road.'
+}];
+const stats = [{
+  value: '10K+',
+  label: 'Active drivers',
+  icon: '🚗'
+}, {
+  value: '50K+',
+  label: 'Trips completed',
+  icon: '✓'
+}, {
+  value: '4.9',
+  label: 'Average rating',
+  icon: '⭐'
+}, {
+  value: '24/7',
+  label: 'Driver support',
+  icon: '📞'
+}];
 const DriveSection = () => {
-  return (
-    <section id="drive" className="bg-primary text-primary-foreground py-20 lg:py-28">
+  return <section id="drive" className="bg-primary text-primary-foreground py-20 lg:py-28">
       <div className="koloi-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Content */}
@@ -46,8 +49,7 @@ const DriveSection = () => {
             </p>
 
             <div className="space-y-5 mb-10">
-              {benefits.map((benefit) => (
-                <div key={benefit.title} className="flex gap-4 items-start">
+              {benefits.map(benefit => <div key={benefit.title} className="flex gap-4 items-start">
                   <div className="koloi-icon-box bg-primary-foreground/10 text-primary-foreground shrink-0">
                     <benefit.icon className="w-5 h-5" />
                   </div>
@@ -57,8 +59,7 @@ const DriveSection = () => {
                       {benefit.description}
                     </p>
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -68,11 +69,7 @@ const DriveSection = () => {
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
-              >
+              <Button variant="outline" size="lg" className="border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent">
                 Learn more
               </Button>
             </div>
@@ -80,18 +77,14 @@ const DriveSection = () => {
 
           {/* Right Stats Grid */}
           <div className="grid grid-cols-2 gap-5">
-            {stats.map((stat) => (
-              <div key={stat.label} className="koloi-stat-card">
+            {stats.map(stat => <div key={stat.label} className="koloi-stat-card">
                 <div className="text-2xl mb-2">{stat.icon}</div>
                 <div className="text-4xl lg:text-5xl font-bold mb-2">{stat.value}</div>
                 <div className="text-primary-foreground/70 text-sm">{stat.label}</div>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default DriveSection;

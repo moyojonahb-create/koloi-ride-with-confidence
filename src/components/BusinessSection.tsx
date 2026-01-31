@@ -1,27 +1,20 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Building2, Receipt, Users2, TrendingDown } from 'lucide-react';
-
-const features = [
-  {
-    icon: Building2,
-    title: 'Central billing',
-    description: 'Manage all employee rides from one dashboard with detailed reporting.',
-  },
-  {
-    icon: Receipt,
-    title: 'Expense tracking',
-    description: 'Automatic receipt generation and expense categorization.',
-  },
-  {
-    icon: Users2,
-    title: 'Team management',
-    description: 'Add employees, set policies, and control spending limits.',
-  },
-];
-
+const features = [{
+  icon: Building2,
+  title: 'Central billing',
+  description: 'Manage all employee rides from one dashboard with detailed reporting.'
+}, {
+  icon: Receipt,
+  title: 'Expense tracking',
+  description: 'Automatic receipt generation and expense categorization.'
+}, {
+  icon: Users2,
+  title: 'Team management',
+  description: 'Add employees, set policies, and control spending limits.'
+}];
 const BusinessSection = () => {
-  return (
-    <section id="business" className="bg-background py-20 lg:py-28">
+  return <section id="business" className="bg-background py-20 lg:py-28">
       <div className="koloi-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Content */}
@@ -38,8 +31,7 @@ const BusinessSection = () => {
             </p>
 
             <div className="space-y-5 mb-10">
-              {features.map((feature) => (
-                <div key={feature.title} className="flex gap-4 items-start">
+              {features.map(feature => <div key={feature.title} className="flex gap-4 items-start">
                   <div className="koloi-icon-box bg-secondary text-foreground shrink-0">
                     <feature.icon className="w-5 h-5" />
                   </div>
@@ -49,8 +41,7 @@ const BusinessSection = () => {
                       {feature.description}
                     </p>
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
 
             <Button variant="accent" size="lg">
@@ -70,7 +61,8 @@ const BusinessSection = () => {
                   12% vs last month
                 </span>
               </div>
-              <div className="text-4xl font-bold text-foreground mb-1">$4,280<span className="text-xl text-muted-foreground">.00</span></div>
+              <div className="text-4xl font-bold text-foreground mb-1">
+              <span className="text-xl text-muted-foreground">.00</span></div>
               <div className="text-sm text-muted-foreground">Total spending</div>
             </div>
 
@@ -88,8 +80,6 @@ const BusinessSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default BusinessSection;

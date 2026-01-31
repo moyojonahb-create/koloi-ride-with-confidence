@@ -3,24 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import PhoneMockup from '@/components/PhoneMockup';
 import koloiLogo from '@/assets/koloi-logo-official.png';
-
 interface LandingHeroProps {
   onGetStarted?: () => void;
 }
-
-const LandingHero = ({ onGetStarted }: LandingHeroProps) => {
+const LandingHero = ({
+  onGetStarted
+}: LandingHeroProps) => {
   const navigate = useNavigate();
-  return (
-    <section className="min-h-screen bg-primary flex flex-col pt-16 lg:pt-20 overflow-hidden">
+  return <section className="min-h-screen bg-primary flex flex-col pt-16 lg:pt-20 overflow-hidden">
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 sm:py-16">
         {/* Logo - Large and Prominent */}
         <div className="mb-8 sm:mb-10 animate-fade-in">
-          <img 
-            src={koloiLogo} 
-            alt="Koloi - Get picked. Get moving." 
-            className="w-56 sm:w-72 md:w-80 h-auto drop-shadow-lg"
-          />
+          
         </div>
 
         {/* Tagline with Yellow Accent */}
@@ -38,29 +33,23 @@ const LandingHero = ({ onGetStarted }: LandingHeroProps) => {
         </div>
 
         {/* Phone Mockup with glow effect */}
-        <div className="relative mb-8 sm:mb-12 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+        <div className="relative mb-8 sm:mb-12 animate-slide-up" style={{
+        animationDelay: '0.1s'
+      }}>
           {/* Subtle glow behind phone */}
           <div className="absolute inset-0 bg-accent/20 blur-3xl rounded-full scale-75 -z-10" />
           <PhoneMockup />
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-none sm:w-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <Button 
-            onClick={() => navigate('/ride')}
-            variant="accent"
-            size="lg"
-            className="shadow-koloi-glow"
-          >
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-none sm:w-auto animate-slide-up" style={{
+        animationDelay: '0.2s'
+      }}>
+          <Button onClick={() => navigate('/ride')} variant="accent" size="lg" className="shadow-koloi-glow">
             Request a Ride
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
-          <Button 
-            onClick={onGetStarted}
-            variant="outline"
-            size="lg"
-            className="bg-transparent border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
-          >
+          <Button onClick={onGetStarted} variant="outline" size="lg" className="bg-transparent border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
             Sign Up Free
           </Button>
         </div>
@@ -71,19 +60,17 @@ const LandingHero = ({ onGetStarted }: LandingHeroProps) => {
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
           <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
             <Star className="w-4 h-4 text-accent fill-accent" />
-            <span className="text-primary-foreground/90 text-sm font-medium">50,000+ rides</span>
+            <span className="text-primary-foreground/90 text-sm font-medium">Let join and+ rides</span>
           </div>
           <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
             <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <span className="text-primary-foreground/90 text-sm font-medium">Gwanda & surrounds</span>
+            <span className="text-primary-foreground/90 text-sm font-medium">Gwanda & Surrounds</span>
           </div>
           <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
             <span className="text-primary-foreground/90 text-sm font-medium">24/7 support</span>
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default LandingHero;
