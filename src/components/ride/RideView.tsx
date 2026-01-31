@@ -5,6 +5,7 @@ import { useOSRMRoute } from '@/hooks/useOSRMRoute';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
 import { useLandmarks } from '@/hooks/useLandmarks';
 import { supabase } from '@/lib/supabaseClient';
+import { requestRide } from '@/lib/requestRide';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Loader2, MapPin, Navigation, Crosshair, ArrowRight, Menu, User, X, Search } from 'lucide-react';
@@ -170,22 +171,23 @@ export default function RideView() {
     setRideStatus('searching');
 
     try {
-      const { data, error } = await supabase.from('rides').insert({
-        user_id: user.id,
+      const result = await requestRide({
         pickup_address: pickupLocation.name,
         pickup_lat: pickupLocation.lat,
-        pickup_lon: pickupLocation.lng,
+        pickup_lng: pickupLocation.lng,
         dropoff_address: dropoffLocation.name,
         dropoff_lat: dropoffLocation.lat,
-        dropoff_lon: dropoffLocation.lng,
+        dropoff_lng: dropoffLocation.lng,
         distance_km: fareEstimate.distanceKm,
         duration_minutes: fareEstimate.durationMinutes,
         fare: fareEstimate.fareR,
         route_polyline: routeData?.geometry || null,
-        status: 'pending',
-      }).select().single();
+      });
 
-      if (error) throw error;
+      if (!result.ok) throw new Error(result.error);
+      const data = result.ride;
+
+      
 
       setCurrentRideId(data.id);
       toast({ title: 'Ride requested!', description: 'Looking for nearby drivers...' });
