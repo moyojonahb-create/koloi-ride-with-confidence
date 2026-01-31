@@ -220,7 +220,7 @@ export default function RiderRideDetail() {
     }
   };
 
-  // Convert offers to modal format
+  // Convert offers to modal format with full driver details
   const modalViewing = offers.map((o) => {
     const d = driversById[o.driver_id];
     return {
@@ -238,10 +238,21 @@ export default function RiderRideDetail() {
   const modalOffers = offers.map((o) => {
     const d = driversById[o.driver_id];
     return {
-      ...modalViewing.find((v) => v.driverId === o.driver_id)!,
+      driverId: o.driver_id,
+      name: d?.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model}` : "Driver",
+      phone: "+263", // Placeholder until accepted
+      vehicleType: (d?.vehicle_type as "Car" | "Taxi" | "Motorbike") || "Car",
+      plateNumber: d?.plate_number || "—",
+      languages: ["English"],
+      distanceKm: 0,
+      etaMinutes: o.eta_minutes || 10,
+      // Extended driver info
       offerId: o.id,
       offeredFareR: o.price,
       createdAt: o.created_at || new Date().toISOString(),
+      driverName: d?.vehicle_make ? `${d.vehicle_make} Driver` : "Driver",
+      vehicleMake: d?.vehicle_make || undefined,
+      vehicleModel: d?.vehicle_model || undefined,
     };
   });
 
@@ -361,12 +372,12 @@ export default function RiderRideDetail() {
               </div>
               
               <Button 
-                className="w-full mt-4" 
+                className="w-full mt-4 bg-primary hover:bg-primary/90" 
                 onClick={() => setModalOpen(true)}
                 disabled={offers.length === 0}
               >
                 <Eye className="h-4 w-4 mr-2" />
-                View Offers
+                View Offers ({offers.length})
               </Button>
             </CardContent>
           </Card>
