@@ -16,6 +16,7 @@ import RideInputs from './RideInputs';
 import FareEstimate from './FareEstimate';
 import OffersModal, { type DriverViewing, type DriverOffer } from '@/components/OffersModal';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
+import InstallPromptBanner from '@/components/InstallPromptBanner';
 
 interface SelectedLocation {
   name: string;
@@ -247,6 +248,9 @@ export default function RideView() {
 
   return (
     <div className="fixed inset-0 flex flex-col bg-background">
+      {/* Install Prompt Banner */}
+      <InstallPromptBanner />
+      
       {/* Top Bar */}
       <div className="absolute top-0 left-0 right-0 z-40 safe-area-top">
         <div className="flex items-center justify-between p-4">
