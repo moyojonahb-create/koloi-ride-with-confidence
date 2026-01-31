@@ -304,66 +304,65 @@ export default function RideView() {
           )}
         </div>
 
-        {/* Ride Card */}
-        <div className="bg-background rounded-3xl shadow-koloi-xl -mt-6 relative z-10 p-5 space-y-4">
-          {/* Handle */}
-          <div className="w-12 h-1.5 bg-koloi-gray-300 rounded-full mx-auto" />
+        {/* Ride Card - inDrive Style */}
+        <div className="bg-background rounded-t-[2rem] shadow-koloi-xl -mt-8 relative z-10 pt-3 pb-6 px-5 flex flex-col">
+          {/* Handle Bar */}
+          <div className="w-10 h-1 bg-koloi-gray-300 rounded-full mx-auto mb-5" />
 
-          {/* Location Inputs */}
-          <div className="bg-koloi-gray-100 rounded-2xl overflow-hidden">
+          {/* Location Inputs - Clean inDrive style */}
+          <div className="space-y-0">
             {/* Pickup Row */}
             <button
               onClick={() => setActiveField(activeField === 'pickup' ? null : 'pickup')}
               className={cn(
-                'w-full flex items-center gap-3 p-4 text-left transition-colors',
-                activeField === 'pickup' ? 'bg-koloi-gray-200' : 'hover:bg-koloi-gray-200/50'
+                'w-full flex items-center gap-4 py-4 text-left transition-all border-b border-koloi-gray-200',
+                activeField === 'pickup' && 'bg-koloi-gray-100/50 -mx-5 px-5 border-transparent'
               )}
             >
-              <div className={cn(
-                'w-4 h-4 rounded-full shrink-0',
-                pickupLocation ? 'bg-accent shadow-sm' : 'bg-koloi-gray-400'
-              )} />
+              <div className="relative flex flex-col items-center">
+                <div className={cn(
+                  'w-3 h-3 rounded-full ring-4 ring-accent/20',
+                  pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400'
+                )} />
+                <div className="w-0.5 h-8 bg-koloi-gray-300 mt-1" />
+              </div>
               <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-0.5">From</p>
                 <p className={cn(
-                  'font-medium truncate',
+                  'text-base font-semibold truncate',
                   pickupLocation ? 'text-foreground' : 'text-muted-foreground'
                 )}>
-                  {pickupLocation?.name || 'From where?'}
+                  {pickupLocation?.name || 'Where from?'}
                 </p>
               </div>
               {pickupLocation && (
                 <button
-                  onClick={(e) => { e.stopPropagation(); setPickupLocation(null); }}
-                  className="p-1 hover:bg-koloi-gray-300 rounded-full"
+                  onClick={(e) => { e.stopPropagation(); setPickupLocation(null); setActiveField('pickup'); }}
+                  className="p-2 hover:bg-koloi-gray-200 rounded-full transition-colors"
                 >
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               )}
             </button>
 
-            {/* Divider */}
-            <div className="flex items-center px-4">
-              <div className="w-4 flex justify-center">
-                <div className="w-0.5 h-3 bg-koloi-gray-300" />
-              </div>
-              <div className="flex-1 h-px bg-koloi-gray-300 ml-3" />
-            </div>
-
             {/* Dropoff Row */}
             <button
               onClick={() => setActiveField(activeField === 'dropoff' ? null : 'dropoff')}
               className={cn(
-                'w-full flex items-center gap-3 p-4 text-left transition-colors',
-                activeField === 'dropoff' ? 'bg-koloi-gray-200' : 'hover:bg-koloi-gray-200/50'
+                'w-full flex items-center gap-4 py-4 text-left transition-all',
+                activeField === 'dropoff' && 'bg-koloi-gray-100/50 -mx-5 px-5'
               )}
             >
-              <div className={cn(
-                'w-4 h-4 rounded-full shrink-0',
-                dropoffLocation ? 'bg-primary shadow-sm' : 'bg-koloi-gray-400'
-              )} />
+              <div className="relative flex flex-col items-center">
+                <div className={cn(
+                  'w-3 h-3 rounded-full ring-4 ring-primary/20',
+                  dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400'
+                )} />
+              </div>
               <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-0.5">To</p>
                 <p className={cn(
-                  'font-medium truncate',
+                  'text-base font-semibold truncate',
                   dropoffLocation ? 'text-foreground' : 'text-muted-foreground'
                 )}>
                   {dropoffLocation?.name || 'Where to?'}
@@ -371,8 +370,8 @@ export default function RideView() {
               </div>
               {dropoffLocation && (
                 <button
-                  onClick={(e) => { e.stopPropagation(); setDropoffLocation(null); }}
-                  className="p-1 hover:bg-koloi-gray-300 rounded-full"
+                  onClick={(e) => { e.stopPropagation(); setDropoffLocation(null); setActiveField('dropoff'); }}
+                  className="p-2 hover:bg-koloi-gray-200 rounded-full transition-colors"
                 >
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
@@ -382,22 +381,23 @@ export default function RideView() {
 
           {/* Expanded Selection Panel */}
           {activeField && (
-            <div className="space-y-4 animate-fade-in">
+            <div className="space-y-4 pt-4 animate-fade-in">
               {/* My Location Button (only for pickup) */}
               {activeField === 'pickup' && (
-                <Button
+                <button
                   onClick={handleUseMyLocation}
-                  variant="outline"
-                  className="w-full justify-start gap-3 h-12 rounded-2xl border-dashed"
                   disabled={gpsState.status === 'loading'}
+                  className="w-full flex items-center gap-4 p-4 rounded-2xl bg-accent/10 hover:bg-accent/15 transition-colors text-left"
                 >
-                  {gpsState.status === 'loading' ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-accent" />
-                  ) : (
-                    <Crosshair className="w-5 h-5 text-accent" />
-                  )}
-                  <span className="font-medium">Use my current location</span>
-                </Button>
+                  <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                    {gpsState.status === 'loading' ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-accent" />
+                    ) : (
+                      <Crosshair className="w-5 h-5 text-accent" />
+                    )}
+                  </div>
+                  <span className="font-semibold text-foreground">Use my current location</span>
+                </button>
               )}
 
               {gpsState.error && (
@@ -406,8 +406,8 @@ export default function RideView() {
 
               {/* Quick Picks */}
               <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  Quick picks
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                  Popular destinations
                 </p>
                 <QuickPickChips
                   onSelect={handleQuickPickSelect}
@@ -422,29 +422,31 @@ export default function RideView() {
                   placeholder={`Search ${activeField === 'pickup' ? 'pickup' : 'destination'}...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-12 bg-koloi-gray-100 border-0 rounded-2xl"
+                  className="pl-12 h-14 bg-koloi-gray-100 border-0 rounded-2xl text-base"
                 />
               </div>
 
               {/* Search Results */}
               {searchQuery.trim() && (
-                <div className="space-y-1.5 max-h-[150px] overflow-y-auto">
+                <div className="space-y-2 max-h-[180px] overflow-y-auto">
                   {landmarksLoading ? (
-                    <div className="flex items-center justify-center py-4">
+                    <div className="flex items-center justify-center py-6">
                       <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                     </div>
                   ) : landmarks.length === 0 ? (
-                    <p className="text-center py-4 text-muted-foreground text-sm">No results</p>
+                    <p className="text-center py-6 text-muted-foreground text-sm">No results found</p>
                   ) : (
                     landmarks.map((landmark) => (
                       <button
                         key={landmark.id}
                         onClick={() => handleLandmarkSelect(landmark)}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl bg-koloi-gray-100 hover:bg-koloi-gray-200 transition-colors text-left"
+                        className="w-full flex items-center gap-4 p-4 rounded-2xl bg-koloi-gray-100 hover:bg-koloi-gray-200 transition-colors text-left"
                       >
-                        <MapPin className="w-5 h-5 text-muted-foreground shrink-0" />
+                        <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shadow-koloi-sm">
+                          <MapPin className="w-5 h-5 text-muted-foreground" />
+                        </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-sm truncate">{landmark.name}</p>
+                          <p className="font-semibold text-sm truncate">{landmark.name}</p>
                           <p className="text-xs text-muted-foreground capitalize">{landmark.category}</p>
                         </div>
                       </button>
@@ -455,45 +457,53 @@ export default function RideView() {
             </div>
           )}
 
-          {/* Fare Display */}
-          {fareEstimate && !activeField && (
-            <div className="flex items-center justify-between py-2">
-              <div>
-                <p className="text-2xl font-bold text-foreground">R{fareEstimate.fareR.toFixed(0)}</p>
-                <p className="text-sm text-muted-foreground">
-                  {fareEstimate.distanceKm.toFixed(1)} km • {fareEstimate.durationMinutes} min
-                </p>
-              </div>
+          {/* Fare & Request Section */}
+          {!activeField && (
+            <div className="pt-5 space-y-4">
+              {fareEstimate && (
+                <div className="flex items-center justify-between p-4 bg-koloi-gray-100 rounded-2xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Navigation className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Estimated fare</p>
+                      <p className="text-2xl font-bold text-foreground">R{fareEstimate.fareR.toFixed(0)}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-foreground">{fareEstimate.distanceKm.toFixed(1)} km</p>
+                    <p className="text-xs text-muted-foreground">{fareEstimate.durationMinutes} min</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Request Ride Button */}
+              <Button
+                onClick={handleRequestRide}
+                disabled={!canRequestRide}
+                className={cn(
+                  'w-full h-14 text-base font-bold rounded-2xl transition-all',
+                  canRequestRide 
+                    ? 'bg-accent text-accent-foreground hover:brightness-105 shadow-koloi-glow' 
+                    : 'bg-koloi-gray-200 text-muted-foreground'
+                )}
+              >
+                {isRequesting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    Finding drivers...
+                  </>
+                ) : !user ? (
+                  'Sign in to request'
+                ) : canRequestRide ? (
+                  'Request Ride'
+                ) : (
+                  'Select pickup & destination'
+                )}
+              </Button>
             </div>
           )}
-
-          {/* Request Ride Button */}
-          <Button
-            onClick={handleRequestRide}
-            disabled={!canRequestRide}
-            variant="accent"
-            size="xl"
-            className={cn(
-              'w-full font-bold',
-              canRequestRide ? 'shadow-koloi-glow' : ''
-            )}
-          >
-            {isRequesting ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                Finding drivers...
-              </>
-            ) : !user ? (
-              'Sign in to request ride'
-            ) : canRequestRide ? (
-              <>
-                Request Ride
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </>
-            ) : (
-              'Select pickup & destination'
-            )}
-          </Button>
         </div>
       </main>
 
