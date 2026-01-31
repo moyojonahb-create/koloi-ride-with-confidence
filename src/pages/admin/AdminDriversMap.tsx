@@ -6,7 +6,7 @@ import AdminGuard from '@/components/admin/AdminGuard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import { cn } from '@/lib/utils';
 
 interface DriverLocation {

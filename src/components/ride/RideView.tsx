@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useOSRMRoute } from '@/hooks/useOSRMRoute';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
 import { useLandmarks } from '@/hooks/useLandmarks';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Loader2, Menu, User } from 'lucide-react';

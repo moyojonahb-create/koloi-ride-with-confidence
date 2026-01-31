@@ -6,7 +6,7 @@ import LocationPanel from '@/components/LocationPanel';
 import VehicleTypeSelector, { VEHICLE_TYPES, type VehicleType } from '@/components/VehicleTypeSelector';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
 import { calculateKoloiFare, setPricingConfig, PRICING_INFO, type FareResult } from '@/lib/pricing';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
