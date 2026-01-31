@@ -14,8 +14,8 @@ const GWANDA_QUICK_PICKS: QuickPick[] = [
   { id: 'rank', name: 'Gwanda Rank', lat: -20.9380, lng: 29.0120, icon: 'rank' },
   { id: 'cbd', name: 'CBD', lat: -20.9355, lng: 29.0147, icon: 'cbd' },
   { id: 'hospital', name: 'Hospital', lat: -20.9410, lng: 29.0180, icon: 'hospital' },
-  { id: 'shopping', name: 'Shopping Centre', lat: -20.9365, lng: 29.0135, icon: 'shopping' },
-  { id: 'police', name: 'Police Station', lat: -20.9345, lng: 29.0155, icon: 'police' },
+  { id: 'shopping', name: 'Shops', lat: -20.9365, lng: 29.0135, icon: 'shopping' },
+  { id: 'police', name: 'Police', lat: -20.9345, lng: 29.0155, icon: 'police' },
 ];
 
 const ICON_MAP = {
@@ -46,11 +46,11 @@ export default function QuickPickChips({ onSelect, selectedName, className }: Qu
             key={pick.id}
             onClick={() => onSelect({ name: pick.name, lat: pick.lat, lng: pick.lng })}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all',
-              'border min-h-[44px]', // Thumb-friendly
+              'inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all',
+              'min-h-[44px] active:scale-95',
               isSelected
-                ? 'bg-accent text-accent-foreground border-accent'
-                : 'bg-secondary/50 text-foreground border-border hover:border-accent/50 hover:bg-secondary'
+                ? 'bg-accent text-accent-foreground shadow-koloi-sm'
+                : 'bg-koloi-gray-100 text-foreground hover:bg-koloi-gray-200'
             )}
           >
             <Icon className="w-4 h-4 shrink-0" />

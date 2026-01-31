@@ -7,7 +7,7 @@ import { useLandmarks } from '@/hooks/useLandmarks';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Loader2, Menu, User } from 'lucide-react';
+import { Loader2, Menu, User, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import OSMMap from '@/components/OSMMap';
 import RideBottomSheet, { type SheetState } from './RideBottomSheet';
@@ -17,6 +17,7 @@ import FareEstimate from './FareEstimate';
 import OffersModal, { type DriverViewing, type DriverOffer } from '@/components/OffersModal';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 import InstallPromptBanner from '@/components/InstallPromptBanner';
+import KoloiLogo from '@/components/KoloiLogo';
 
 interface SelectedLocation {
   name: string;
@@ -234,41 +235,53 @@ export default function RideView() {
       {pickupLocation && dropoffLocation && fareEstimate ? (
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-semibold text-lg">R {fareEstimate.fareR.toFixed(2)}</p>
+            <p className="font-bold text-xl text-foreground">R{fareEstimate.fareR.toFixed(0)}</p>
             <p className="text-sm text-muted-foreground">
               {pickupLocation.name} → {dropoffLocation.name}
             </p>
           </div>
         </div>
       ) : (
-        <p className="text-muted-foreground">Tap to enter your destination</p>
+        <p className="text-muted-foreground font-medium">Tap to enter your destination</p>
       )}
     </div>
   );
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-background">
+    <div className="fixed inset-0 flex flex-col bg-koloi-gray-100">
       {/* Install Prompt Banner */}
       <InstallPromptBanner />
       
-      {/* Top Bar */}
+      {/* Top Bar - Floating header */}
       <div className="absolute top-0 left-0 right-0 z-40 safe-area-top">
         <div className="flex items-center justify-between p-4">
-          <Button variant="secondary" size="icon" className="w-12 h-12 rounded-full shadow-lg">
+          {/* Menu button */}
+          <Button 
+            variant="secondary" 
+            size="icon" 
+            className="w-12 h-12 rounded-full shadow-koloi-md bg-background/95 backdrop-blur-sm hover:bg-background"
+          >
             <Menu className="w-5 h-5" />
           </Button>
           
-          {/* Status Banner */}
-          <RideStatusBanner
-            status={rideStatus}
-            offersCount={offers.length}
-            className="flex-1 mx-3"
-          />
+          {/* Logo or Status */}
+          {rideStatus === 'idle' ? (
+            <div className="bg-background/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-koloi-sm">
+              <KoloiLogo variant="default" size="sm" />
+            </div>
+          ) : (
+            <RideStatusBanner
+              status={rideStatus}
+              offersCount={offers.length}
+              className="flex-1 mx-3"
+            />
+          )}
 
+          {/* User button */}
           <Button
             variant="secondary"
             size="icon"
-            className="w-12 h-12 rounded-full shadow-lg"
+            className="w-12 h-12 rounded-full shadow-koloi-md bg-background/95 backdrop-blur-sm hover:bg-background"
             onClick={() => user ? navigate('/dashboard') : setAuthModalOpen(true)}
           >
             <User className="w-5 h-5" />
@@ -295,7 +308,7 @@ export default function RideView() {
         onStateChange={setSheetState}
         collapsedContent={collapsedContent}
       >
-        <div className="space-y-4 pb-24">
+        <div className="space-y-5 pb-28">
           {/* Ride Inputs */}
           <RideInputs
             pickupLocation={pickupLocation}
@@ -319,23 +332,23 @@ export default function RideView() {
           {routeLoading && pickupLocation && dropoffLocation && (
             <div className="flex items-center justify-center py-4 text-muted-foreground">
               <Loader2 className="w-5 h-5 animate-spin mr-2" />
-              Calculating route...
+              <span className="font-medium">Calculating route...</span>
             </div>
           )}
         </div>
       </RideBottomSheet>
 
       {/* Fixed Request Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent z-50 safe-area-bottom">
+      <div className="fixed bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-background via-background to-transparent z-50 safe-area-bottom">
         <Button
           onClick={handleRequestRide}
           disabled={!canRequestRide}
-          size="lg"
+          size="xl"
           className={cn(
-            'w-full h-14 text-lg font-bold rounded-xl shadow-lg',
+            'w-full font-bold shadow-koloi-lg',
             canRequestRide
-              ? 'bg-accent hover:bg-accent/90 text-accent-foreground'
-              : 'bg-muted text-muted-foreground'
+              ? 'bg-accent hover:brightness-105 text-accent-foreground shadow-koloi-glow'
+              : 'bg-koloi-gray-300 text-koloi-gray-600'
           )}
         >
           {isRequesting ? (
@@ -345,8 +358,13 @@ export default function RideView() {
             </>
           ) : !user ? (
             'Sign in to request ride'
+          ) : canRequestRide ? (
+            <>
+              Request Ride • R{fareEstimate?.fareR.toFixed(0)}
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </>
           ) : (
-            `Request Ride${fareEstimate ? ` • R ${fareEstimate.fareR.toFixed(2)}` : ''}`
+            'Select pickup & destination'
           )}
         </Button>
       </div>
