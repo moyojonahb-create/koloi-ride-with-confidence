@@ -312,9 +312,12 @@ export default function RideView() {
           {/* Location Inputs - Minimal inDrive style */}
           <div className="bg-background rounded-2xl shadow-koloi-sm overflow-hidden mb-4">
             {/* Pickup Row */}
-            <button
+            <div
               onClick={() => setActiveField(activeField === 'pickup' ? null : 'pickup')}
-              className="w-full flex items-center gap-3 p-4 text-left hover:bg-koloi-gray-100/50 transition-colors"
+              className="w-full flex items-center gap-3 p-4 text-left hover:bg-koloi-gray-100/50 transition-colors cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setActiveField(activeField === 'pickup' ? null : 'pickup')}
             >
               <div className={cn(
                 'w-3 h-3 rounded-full shrink-0',
@@ -334,7 +337,7 @@ export default function RideView() {
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               )}
-            </button>
+            </div>
 
             {/* Divider with connector */}
             <div className="flex items-center px-4">
@@ -345,9 +348,12 @@ export default function RideView() {
             </div>
 
             {/* Dropoff Row */}
-            <button
+            <div
               onClick={() => setActiveField(activeField === 'dropoff' ? null : 'dropoff')}
-              className="w-full flex items-center gap-3 p-4 text-left hover:bg-koloi-gray-100/50 transition-colors"
+              className="w-full flex items-center gap-3 p-4 text-left hover:bg-koloi-gray-100/50 transition-colors cursor-pointer"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setActiveField(activeField === 'dropoff' ? null : 'dropoff')}
             >
               <div className={cn(
                 'w-3 h-3 rounded-full shrink-0',
@@ -367,7 +373,7 @@ export default function RideView() {
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               )}
-            </button>
+            </div>
           </div>
 
           {/* Expanded Selection Panel */}

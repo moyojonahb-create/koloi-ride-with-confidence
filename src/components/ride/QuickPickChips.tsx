@@ -34,7 +34,7 @@ interface QuickPickChipsProps {
   className?: string;
 }
 
-export default function QuickPickChips({ onSelect, selectedName, className }: QuickPickChipsProps) {
+const QuickPickChips = ({ onSelect, selectedName, className }: QuickPickChipsProps) => {
   return (
     <div className={cn('flex flex-wrap gap-2', className)}>
       {GWANDA_QUICK_PICKS.map((pick) => {
@@ -44,6 +44,7 @@ export default function QuickPickChips({ onSelect, selectedName, className }: Qu
         return (
           <button
             key={pick.id}
+            type="button"
             onClick={() => onSelect({ name: pick.name, lat: pick.lat, lng: pick.lng })}
             className={cn(
               'inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all',
@@ -60,4 +61,6 @@ export default function QuickPickChips({ onSelect, selectedName, className }: Qu
       })}
     </div>
   );
-}
+};
+
+export default QuickPickChips;
