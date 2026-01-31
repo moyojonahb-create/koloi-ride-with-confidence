@@ -376,35 +376,52 @@ export default function RideView() {
             </div>
           </div>
 
-          {/* Expanded Selection Panel */}
+          {/* Expanded Selection Panel - inDrive style with yellow accent */}
           {activeField && (
-            <div className="space-y-3 animate-fade-in">
-              {/* My Location Button (only for pickup) */}
-              {activeField === 'pickup' && (
-                <button
-                  onClick={handleUseMyLocation}
-                  disabled={gpsState.status === 'loading'}
-                  className="w-full flex items-center gap-3 p-4 rounded-2xl bg-background hover:bg-koloi-gray-200/50 transition-colors text-left shadow-koloi-sm"
-                >
-                  <div className="w-9 h-9 rounded-full bg-accent/15 flex items-center justify-center">
-                    {gpsState.status === 'loading' ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-accent" />
-                    ) : (
-                      <Crosshair className="w-4 h-4 text-accent" />
-                    )}
-                  </div>
-                  <span className="font-medium text-foreground">Use my current location</span>
-                </button>
-              )}
+            <div className="space-y-4 animate-fade-in">
+              {/* Search Input - Yellow/Accent background like inDrive */}
+              <div className="bg-accent/10 rounded-2xl p-4 space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent" />
+                  <Input
+                    placeholder={activeField === 'pickup' ? 'Search pickup location...' : 'Search destination...'}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-12 h-14 bg-background border-0 rounded-xl text-base font-medium shadow-koloi-sm focus-visible:ring-accent"
+                    autoFocus
+                  />
+                </div>
 
-              {gpsState.error && (
-                <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-xl">{gpsState.error}</p>
-              )}
+                {/* My Location Button (only for pickup) */}
+                {activeField === 'pickup' && (
+                  <button
+                    onClick={handleUseMyLocation}
+                    disabled={gpsState.status === 'loading'}
+                    className="w-full flex items-center gap-4 p-4 rounded-xl bg-background hover:bg-koloi-gray-100 transition-colors text-left"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center shrink-0">
+                      {gpsState.status === 'loading' ? (
+                        <Loader2 className="w-5 h-5 animate-spin text-accent-foreground" />
+                      ) : (
+                        <Crosshair className="w-5 h-5 text-accent-foreground" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">Use my current location</p>
+                      <p className="text-sm text-muted-foreground">Find pickup point automatically</p>
+                    </div>
+                  </button>
+                )}
 
-              {/* Quick Picks */}
+                {gpsState.error && (
+                  <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-xl">{gpsState.error}</p>
+                )}
+              </div>
+
+              {/* Quick Picks - Horizontal scroll */}
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 px-1">
-                  Popular
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
+                  Popular places
                 </p>
                 <QuickPickChips
                   onSelect={handleQuickPickSelect}
@@ -412,41 +429,41 @@ export default function RideView() {
                 />
               </div>
 
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder={`Search ${activeField === 'pickup' ? 'pickup' : 'destination'}...`}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-11 h-12 bg-background border-0 rounded-xl text-sm shadow-koloi-sm"
-                />
-              </div>
-
-              {/* Search Results */}
+              {/* Search Results - inDrive place listing style */}
               {searchQuery.trim() && (
-                <div className="space-y-1.5 max-h-[160px] overflow-y-auto">
-                  {landmarksLoading ? (
-                    <div className="flex items-center justify-center py-4">
-                      <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : landmarks.length === 0 ? (
-                    <p className="text-center py-4 text-muted-foreground text-sm">No results</p>
-                  ) : (
-                    landmarks.map((landmark) => (
-                      <button
-                        key={landmark.id}
-                        onClick={() => handleLandmarkSelect(landmark)}
-                        className="w-full flex items-center gap-3 p-3 rounded-xl bg-background hover:bg-koloi-gray-200/50 transition-colors text-left shadow-koloi-xs"
-                      >
-                        <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-sm truncate">{landmark.name}</p>
-                          <p className="text-xs text-muted-foreground capitalize">{landmark.category}</p>
-                        </div>
-                      </button>
-                    ))
-                  )}
+                <div className="bg-background rounded-2xl shadow-koloi-sm overflow-hidden">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-4 pb-2">
+                    Search results
+                  </p>
+                  <div className="max-h-[200px] overflow-y-auto">
+                    {landmarksLoading ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="w-5 h-5 animate-spin text-accent" />
+                      </div>
+                    ) : landmarks.length === 0 ? (
+                      <p className="text-center py-8 text-muted-foreground">No places found</p>
+                    ) : (
+                      landmarks.map((landmark, index) => (
+                        <button
+                          key={landmark.id}
+                          onClick={() => handleLandmarkSelect(landmark)}
+                          className={cn(
+                            'w-full flex items-center gap-4 p-4 hover:bg-koloi-gray-100 transition-colors text-left',
+                            index !== landmarks.length - 1 && 'border-b border-koloi-gray-200'
+                          )}
+                        >
+                          <div className="w-10 h-10 rounded-full bg-koloi-gray-200 flex items-center justify-center shrink-0">
+                            <MapPin className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-foreground truncate">{landmark.name}</p>
+                            <p className="text-sm text-muted-foreground capitalize">{landmark.category}</p>
+                          </div>
+                          <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                        </button>
+                      ))
+                    )}
+                  </div>
                 </div>
               )}
             </div>
