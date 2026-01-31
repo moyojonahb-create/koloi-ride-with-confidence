@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { User, LogOut, Heart, Clock, Settings, FileText, Shield } from 'lucide-react';
+import { User, LogOut, Heart, Clock, Settings, FileText, Shield, Car } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import {
@@ -22,6 +23,7 @@ interface UserMenuProps {
 const UserMenu = ({ onFavoritesClick, onHistoryClick, variant = 'default' }: UserMenuProps) => {
   const { user, signOut } = useAuth();
   const { isAdmin } = useUserRole();
+  const { isApproved: isApprovedDriver } = useDriverStatus();
   const [open, setOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -75,7 +77,19 @@ const UserMenu = ({ onFavoritesClick, onHistoryClick, variant = 'default' }: Use
             <DropdownMenuSeparator />
           </>
         )}
-        
+
+        {/* Driver Dashboard Link - only visible to approved drivers */}
+        {isApprovedDriver && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link to="/driver" className="flex items-center text-primary font-medium">
+                <Car className="mr-2 h-4 w-4" />
+                <span>Driver Dashboard</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem asChild>
           <Link to="/app" className="flex items-center">
             <FileText className="mr-2 h-4 w-4" />
