@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin, Navigation, Clock, Minus, Plus, Send, Radio, Bell, MessageCircle, Phone, Volume2 } from "lucide-react";
-import { playNewRequestSound, playAcceptedSound } from "@/lib/notificationSounds";
+import { playNewRequestSound, playAcceptedSound, playUrgentAlert } from "@/lib/notificationSounds";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 
 type Ride = {
@@ -113,28 +113,43 @@ export default function DriverDashboard() {
         const list = await fetchOpenRides();
         setRides(list as Ride[]);
 
-        // Notify on new rides with sound and voice
+        // Notify on new rides with LOUD sound and voice
         const currentIds = new Set(list.map((r) => r.id));
+        let hasNewRide = false;
         for (const id of currentIds) {
           if (!lastRideIds.current.has(id)) {
-            // Play sound
-            playNewRequestSound();
-            
-            // Voice announcement
-            if (voiceEnabled && voiceSupported) {
-              speak("New ride request received!");
-            }
-            
-            toast.info("🚗 New ride request!", { description: "A rider is looking for a driver" });
-            
-            // Browser notification
-            if (Notification.permission === "granted") {
-              new Notification("🚗 New Koloi Ride Request!", {
-                body: "A rider is looking for a driver near you",
-                icon: "/icons/icon-192x192.png"
-              });
-            }
+            hasNewRide = true;
             break;
+          }
+        }
+        
+        if (hasNewRide) {
+          // Play URGENT alert sound (louder, longer)
+          playUrgentAlert();
+          
+          // Voice announcement
+          if (voiceEnabled && voiceSupported) {
+            speak("Attention! New ride request received! Open Koloi to respond.");
+          }
+          
+          toast.info("🚗 NEW RIDE REQUEST!", { 
+            description: "A rider is looking for a driver - respond quickly!",
+            duration: 10000 // Keep toast longer
+          });
+          
+          // Browser notification with vibration if supported
+          if (Notification.permission === "granted") {
+            new Notification("🚗 NEW KOLOI RIDE REQUEST!", {
+              body: "⚡ A rider is looking for a driver near you - respond NOW!",
+              icon: "/icons/icon-192x192.png",
+              tag: "koloi-ride-request",
+              requireInteraction: true // Keep notification until user interacts
+            });
+          }
+          
+          // Vibrate if supported (mobile)
+          if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200, 100, 400]);
           }
         }
         lastRideIds.current = currentIds;
