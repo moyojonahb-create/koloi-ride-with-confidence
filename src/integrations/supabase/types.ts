@@ -223,6 +223,38 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          created_at: string
+          id: string
+          ride_id: string
+          sender_id: string
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ride_id: string
+          sender_id: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ride_id?: string
+          sender_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string
@@ -255,6 +287,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      offers: {
+        Row: {
+          created_at: string
+          driver_id: string
+          eta_minutes: number | null
+          id: string
+          message: string | null
+          price: number
+          ride_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          driver_id: string
+          eta_minutes?: number | null
+          id?: string
+          message?: string | null
+          price: number
+          ride_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          driver_id?: string
+          eta_minutes?: number | null
+          id?: string
+          message?: string | null
+          price?: number
+          ride_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pricing_settings: {
         Row: {
