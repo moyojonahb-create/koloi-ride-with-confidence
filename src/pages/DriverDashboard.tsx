@@ -15,8 +15,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { ArrowLeft, MapPin, Navigation, Clock, Minus, Plus, Send } from "lucide-react";
+import { ArrowLeft, MapPin, Navigation, Clock, Minus, Plus, Send, Radio, Bell } from "lucide-react";
 
 type Ride = {
   id: string;
@@ -38,6 +39,8 @@ export default function DriverDashboard() {
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState(false);
+  const [togglingOnline, setTogglingOnline] = useState(false);
 
   const [selectedRide, setSelectedRide] = useState<Ride | null>(null);
   const [mult, setMult] = useState(defaultNightMultiplier());
@@ -48,12 +51,44 @@ export default function DriverDashboard() {
 
   const lastRideIds = useRef<Set<string>>(new Set());
 
+  // Toggle online status
+  const toggleOnline = async (online: boolean) => {
+    if (!profile || togglingOnline) return;
+    
+    setTogglingOnline(true);
+    try {
+      const { error: updateErr } = await supabase
+        .from("drivers")
+        .update({ is_online: online })
+        .eq("id", profile.id);
+
+      if (updateErr) throw new Error(updateErr.message);
+      
+      setIsOnline(online);
+      setProfile({ ...profile, is_online: online });
+      
+      if (online) {
+        toast.success("You're now online!", { description: "You'll see new ride requests" });
+        // Fetch rides immediately when going online
+        refresh();
+      } else {
+        toast.info("You're now offline", { description: "You won't receive new ride requests" });
+        setRides([]);
+      }
+    } catch (e: any) {
+      toast.error("Failed to update status", { description: e.message });
+    } finally {
+      setTogglingOnline(false);
+    }
+  };
+
   const refresh = useCallback(async () => {
     try {
       setError(null);
       
       const p = await getDriverProfile();
       setProfile(p);
+      setIsOnline(p?.is_online ?? false);
 
       if (!p) {
         setLoading(false);
@@ -66,23 +101,42 @@ export default function DriverDashboard() {
         return;
       }
 
-      const list = await fetchOpenRides();
-      setRides(list as Ride[]);
+      // Only fetch rides if driver is online
+      if (p.is_online) {
+        const list = await fetchOpenRides();
+        setRides(list as Ride[]);
 
-      // Notify on new rides
-      const currentIds = new Set(list.map((r) => r.id));
-      for (const id of currentIds) {
-        if (!lastRideIds.current.has(id)) {
-          toast.info("New ride request!", { description: "A rider is looking for a driver" });
-          break;
+        // Notify on new rides
+        const currentIds = new Set(list.map((r) => r.id));
+        for (const id of currentIds) {
+          if (!lastRideIds.current.has(id)) {
+            toast.info("New ride request!", { description: "A rider is looking for a driver" });
+            // Also send browser notification if permitted
+            if (Notification.permission === "granted") {
+              new Notification("New Koloi Ride Request!", {
+                body: "A rider is looking for a driver near you",
+                icon: "/icons/icon-192x192.png"
+              });
+            }
+            break;
+          }
         }
+        lastRideIds.current = currentIds;
+      } else {
+        setRides([]);
       }
-      lastRideIds.current = currentIds;
 
       setLoading(false);
     } catch (e: any) {
       setError(e.message);
       setLoading(false);
+    }
+  }, []);
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
     }
   }, []);
 
@@ -96,7 +150,7 @@ export default function DriverDashboard() {
     }
   }, [authLoading, user, nav, refresh]);
 
-  // Realtime subscription for open rides
+  // Realtime subscription for open rides (only triggers refresh if online)
   useOpenRidesRealtime(refresh);
 
   const chooseRide = (r: Ride) => {
@@ -190,37 +244,79 @@ export default function DriverDashboard() {
       </div>
 
       <div className="max-w-lg mx-auto p-4 space-y-4">
-        {/* Night Pricing Info */}
-        <Card>
+        {/* Online Status Toggle */}
+        <Card className={isOnline ? "border-primary bg-primary/5" : ""}>
           <CardContent className="pt-4">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold">Night Mode</p>
-                <p className="text-xs text-muted-foreground">
-                  {isNightLocal() ? "Active (20:00-05:00)" : "Inactive"}
-                </p>
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-full ${isOnline ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                  <Radio className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-lg">{isOnline ? "You're Online" : "You're Offline"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {isOnline ? "Receiving ride requests" : "Go online to see ride requests"}
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm">Multiplier:</span>
-                <Input
-                  type="number"
-                  step="0.1"
-                  min="1"
-                  max="2"
-                  value={mult}
-                  onChange={(e) => setMult(Math.max(1, Math.min(2, Number(e.target.value) || 1)))}
-                  className="w-20"
-                />
-              </div>
+              <Switch
+                checked={isOnline}
+                onCheckedChange={toggleOnline}
+                disabled={togglingOnline}
+              />
             </div>
           </CardContent>
         </Card>
 
+        {/* Night Pricing Info - only show when online */}
+        {isOnline && (
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold">Night Mode</p>
+                  <p className="text-xs text-muted-foreground">
+                    {isNightLocal() ? "Active (20:00-05:00)" : "Inactive"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">Multiplier:</span>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    min="1"
+                    max="2"
+                    value={mult}
+                    onChange={(e) => setMult(Math.max(1, Math.min(2, Number(e.target.value) || 1)))}
+                    className="w-20"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Available Rides */}
         <div className="space-y-3">
-          <h2 className="font-bold text-lg">Available Rides</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-bold text-lg">Available Rides</h2>
+            {isOnline && rides.length > 0 && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Bell className="h-4 w-4" />
+                <span>{rides.length} request{rides.length !== 1 ? 's' : ''}</span>
+              </div>
+            )}
+          </div>
           
-          {rides.length === 0 ? (
+          {!isOnline ? (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <Radio className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground font-medium">You're currently offline</p>
+                <p className="text-sm text-muted-foreground mt-1">Toggle the switch above to go online and see ride requests</p>
+              </CardContent>
+            </Card>
+          ) : rides.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
                 No open ride requests right now. Stay online!
