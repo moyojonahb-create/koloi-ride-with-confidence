@@ -8,6 +8,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Ride from "./pages/Ride";
 import RiderRideDetail from "./pages/RiderRideDetail";
+import RideDetail from "./pages/RideDetail";
 import DriverDashboard from "./pages/DriverDashboard";
 import NotFound from "./pages/NotFound";
 import DriverApplication from "./pages/DriverApplication";
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/ride" element={<Ride />} />
               <Route path="/ride/:rideId" element={<RiderRideDetail />} />
+              <Route path="/ride-detail/:rideId" element={<RideDetail />} />
               <Route path="/driver" element={<DriverDashboard />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/login" element={<Auth />} />
