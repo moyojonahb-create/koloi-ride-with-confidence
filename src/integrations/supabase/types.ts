@@ -590,6 +590,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_driver_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -597,10 +598,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_online_driver: { Args: { _user_id: string }; Returns: boolean }
       is_ride_driver: {
         Args: { _driver_id: string; _user_id: string }
         Returns: boolean
       }
+      is_user_driver: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
