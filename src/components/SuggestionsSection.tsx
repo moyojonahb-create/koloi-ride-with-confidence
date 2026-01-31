@@ -1,4 +1,4 @@
-import { Car, Wallet, Briefcase } from 'lucide-react';
+import { Car, Wallet, Briefcase, ArrowUpRight } from 'lucide-react';
 
 const suggestions = [
   {
@@ -26,19 +26,25 @@ const suggestions = [
 
 const SuggestionsSection = () => {
   return (
-    <section className="bg-background py-12 lg:py-20">
+    <section className="bg-background py-16 lg:py-24">
       <div className="koloi-container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {suggestions.map((item) => (
+          {suggestions.map((item, index) => (
             <a
               key={item.id}
               href={item.href}
-              className="group block p-6 bg-koloi-gray-100 rounded-xl hover:bg-koloi-gray-200 transition-all duration-300 hover:shadow-koloi-md"
+              className="group relative block p-8 bg-koloi-gray-100 rounded-3xl hover:bg-koloi-gray-200 transition-all duration-300 hover:shadow-koloi-lg hover:-translate-y-1"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="w-12 h-12 bg-background rounded-lg flex items-center justify-center mb-4 group-hover:bg-koloi-gray-100 transition-colors">
-                <item.icon className="w-6 h-6 text-foreground" />
+              {/* Arrow indicator */}
+              <div className="absolute top-6 right-6 w-10 h-10 bg-background rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1">
+                <ArrowUpRight className="w-5 h-5 text-foreground" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2 group-hover:underline underline-offset-4">
+
+              <div className="koloi-icon-box bg-background mb-5 group-hover:bg-accent/10 group-hover:text-accent">
+                <item.icon className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
                 {item.title}
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
