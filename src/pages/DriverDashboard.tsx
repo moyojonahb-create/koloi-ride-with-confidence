@@ -17,7 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { ArrowLeft, MapPin, Navigation, Clock, Minus, Plus, Send, Radio, Bell } from "lucide-react";
+import { ArrowLeft, MapPin, Navigation, Clock, Minus, Plus, Send, Radio, Bell, MessageCircle, Phone, Volume2 } from "lucide-react";
+import { playNewRequestSound, playAcceptedSound } from "@/lib/notificationSounds";
+import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 
 type Ride = {
   id: string;
@@ -48,8 +50,10 @@ export default function DriverDashboard() {
   const [eta, setEta] = useState(10);
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
 
   const lastRideIds = useRef<Set<string>>(new Set());
+  const { speak, isSupported: voiceSupported } = useVoiceNavigation({ enabled: voiceEnabled });
 
   // Toggle online status
   const toggleOnline = async (online: boolean) => {
@@ -69,6 +73,9 @@ export default function DriverDashboard() {
       
       if (online) {
         toast.success("You're now online!", { description: "You'll see new ride requests" });
+        if (voiceEnabled && voiceSupported) {
+          speak("You are now online. Waiting for ride requests.");
+        }
         // Fetch rides immediately when going online
         refresh();
       } else {
@@ -106,14 +113,23 @@ export default function DriverDashboard() {
         const list = await fetchOpenRides();
         setRides(list as Ride[]);
 
-        // Notify on new rides
+        // Notify on new rides with sound and voice
         const currentIds = new Set(list.map((r) => r.id));
         for (const id of currentIds) {
           if (!lastRideIds.current.has(id)) {
-            toast.info("New ride request!", { description: "A rider is looking for a driver" });
-            // Also send browser notification if permitted
+            // Play sound
+            playNewRequestSound();
+            
+            // Voice announcement
+            if (voiceEnabled && voiceSupported) {
+              speak("New ride request received!");
+            }
+            
+            toast.info("🚗 New ride request!", { description: "A rider is looking for a driver" });
+            
+            // Browser notification
             if (Notification.permission === "granted") {
-              new Notification("New Koloi Ride Request!", {
+              new Notification("🚗 New Koloi Ride Request!", {
                 body: "A rider is looking for a driver near you",
                 icon: "/icons/icon-192x192.png"
               });
@@ -131,7 +147,7 @@ export default function DriverDashboard() {
       setError(e.message);
       setLoading(false);
     }
-  }, []);
+  }, [voiceEnabled, voiceSupported, speak]);
 
   // Request notification permission on mount
   useEffect(() => {
@@ -268,11 +284,30 @@ export default function DriverDashboard() {
           </CardContent>
         </Card>
 
-        {/* Night Pricing Info - only show when online */}
+        {/* Voice & Night Settings - only show when online */}
         {isOnline && (
           <Card>
-            <CardContent className="pt-4">
+            <CardContent className="pt-4 space-y-4">
+              {/* Voice Navigation Toggle */}
               <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Volume2 className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-semibold">Voice Announcements</p>
+                    <p className="text-xs text-muted-foreground">
+                      {voiceSupported ? "Announce new rides" : "Not supported"}
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  checked={voiceEnabled}
+                  onCheckedChange={setVoiceEnabled}
+                  disabled={!voiceSupported}
+                />
+              </div>
+              
+              {/* Night Mode */}
+              <div className="flex items-center justify-between pt-2 border-t border-border">
                 <div>
                   <p className="text-sm font-semibold">Night Mode</p>
                   <p className="text-xs text-muted-foreground">
