@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import { GWANDA_SERVICE_AREA } from '@/lib/constants';
 
 export interface MapLandmark {

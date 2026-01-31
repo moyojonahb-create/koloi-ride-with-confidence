@@ -1,3 +1,6 @@
+// Environment polyfill MUST be imported first to patch missing env vars
+import './lib/envPolyfill';
+
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
