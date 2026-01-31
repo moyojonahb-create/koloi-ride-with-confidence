@@ -73,13 +73,20 @@
     --koloi-gray-800: 215 25% 20%;
     --koloi-gray-900: 215 25% 10%;
 
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(215 25% 0% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(215 25% 0% / 0.1), 0 2px 4px -2px hsl(215 25% 0% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(215 25% 0% / 0.1), 0 4px 6px -4px hsl(215 25% 0% / 0.1);
-    --shadow-xl: 0 20px 25px -5px hsl(215 25% 0% / 0.1), 0 8px 10px -6px hsl(215 25% 0% / 0.1);
-    --shadow-card: 0 4px 24px -4px hsl(215 25% 0% / 0.15);
-    --shadow-phone: 0 25px 50px -12px hsl(215 25% 0% / 0.4);
+    /* Modern Shadows - softer, more diffused */
+    --shadow-xs: 0 1px 2px 0 hsl(215 25% 0% / 0.03);
+    --shadow-sm: 0 2px 4px -1px hsl(215 25% 0% / 0.06), 0 1px 2px -1px hsl(215 25% 0% / 0.04);
+    --shadow-md: 0 6px 16px -4px hsl(215 25% 0% / 0.08), 0 2px 6px -2px hsl(215 25% 0% / 0.05);
+    --shadow-lg: 0 12px 28px -8px hsl(215 25% 0% / 0.12), 0 4px 10px -4px hsl(215 25% 0% / 0.06);
+    --shadow-xl: 0 24px 48px -12px hsl(215 25% 0% / 0.15), 0 12px 24px -8px hsl(215 25% 0% / 0.08);
+    --shadow-card: 0 8px 32px -8px hsl(215 25% 0% / 0.1), 0 4px 12px -4px hsl(215 25% 0% / 0.05);
+    --shadow-phone: 0 32px 64px -16px hsl(215 25% 0% / 0.35);
+    --shadow-glow: 0 0 24px hsl(var(--accent) / 0.25);
+
+    /* Glassmorphism */
+    --glass-bg: hsl(0 0% 100% / 0.7);
+    --glass-border: hsl(0 0% 100% / 0.3);
+    --glass-blur: blur(12px);
   }
 
   .dark {
@@ -144,23 +151,31 @@
   }
 
   .koloi-card {
-    @apply bg-card rounded-xl shadow-[var(--shadow-card)] p-6;
+    @apply bg-card rounded-2xl shadow-[var(--shadow-card)] p-6 transition-shadow duration-300 hover:shadow-[var(--shadow-lg)];
+  }
+
+  .koloi-card-glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    @apply rounded-2xl p-6;
   }
 
   .koloi-input {
-    @apply w-full h-14 px-4 bg-koloi-gray-100 border-0 rounded-lg text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:bg-background transition-all duration-200;
+    @apply w-full h-14 px-5 bg-koloi-gray-100 border-0 rounded-2xl text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:bg-background transition-all duration-300;
   }
 
   .koloi-btn-primary {
-    @apply h-14 px-8 bg-primary text-primary-foreground font-semibold rounded-lg hover:brightness-95 active:scale-[0.98] transition-all duration-200;
+    @apply h-14 px-8 bg-primary text-primary-foreground font-semibold rounded-full hover:brightness-105 hover:shadow-[var(--shadow-md)] active:scale-[0.97] transition-all duration-200;
   }
 
   .koloi-btn-secondary {
-    @apply h-12 px-6 bg-secondary text-secondary-foreground font-medium rounded-lg hover:brightness-95 active:scale-[0.98] transition-all duration-200;
+    @apply h-12 px-6 bg-secondary text-secondary-foreground font-medium rounded-full hover:brightness-98 hover:shadow-[var(--shadow-sm)] active:scale-[0.97] transition-all duration-200;
   }
 
   .koloi-btn-accent {
-    @apply h-14 px-8 bg-accent text-accent-foreground font-semibold rounded-lg hover:brightness-95 active:scale-[0.98] transition-all duration-200;
+    @apply h-14 px-8 bg-accent text-accent-foreground font-bold rounded-full hover:brightness-105 hover:shadow-[var(--shadow-glow)] active:scale-[0.97] transition-all duration-200;
   }
 
   .koloi-link {
@@ -168,7 +183,27 @@
   }
 
   .koloi-link-nav {
-    @apply text-sm font-medium text-foreground hover:bg-koloi-gray-100 px-4 py-2 rounded-full transition-all duration-200;
+    @apply text-sm font-medium text-foreground hover:bg-koloi-gray-100 px-5 py-2.5 rounded-full transition-all duration-200;
+  }
+
+  /* Stat cards with hover lift */
+  .koloi-stat-card {
+    @apply bg-primary-foreground/10 rounded-2xl p-6 text-center transition-all duration-300 hover:bg-primary-foreground/15 hover:-translate-y-1;
+  }
+
+  /* Feature cards with icon badges */
+  .koloi-feature-card {
+    @apply bg-card rounded-2xl p-6 shadow-[var(--shadow-sm)] transition-all duration-300 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5;
+  }
+
+  /* Pill badges */
+  .koloi-badge {
+    @apply inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 text-accent rounded-full text-sm font-medium;
+  }
+
+  /* Icon containers */
+  .koloi-icon-box {
+    @apply w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-200;
   }
 }
 

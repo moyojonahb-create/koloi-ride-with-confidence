@@ -1,4 +1,4 @@
-import { Shield, Phone, MapPin, Users } from 'lucide-react';
+import { Shield, Phone, MapPin, Users, CheckCircle2 } from 'lucide-react';
 
 const safetyFeatures = [
   {
@@ -25,27 +25,32 @@ const safetyFeatures = [
 
 const SafetySection = () => {
   return (
-    <section className="bg-koloi-gray-100 py-16 lg:py-24">
+    <section className="bg-koloi-gray-100 py-20 lg:py-28">
       <div className="koloi-container">
-        <div className="text-center mb-12 lg:mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
+        <div className="text-center mb-14 lg:mb-18">
+          <div className="koloi-badge justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-4 h-4" />
+            Your Safety Matters
+          </div>
+          <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-5 tracking-tight">
             Your safety drives us
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
             Whether you're riding or driving, we're committed to your safety. Every trip is tracked and our support team is always ready to help.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {safetyFeatures.map((feature) => (
+          {safetyFeatures.map((feature, index) => (
             <div
               key={feature.title}
-              className="bg-card rounded-xl p-6 shadow-koloi-sm hover:shadow-koloi-md transition-shadow"
+              className="koloi-feature-card group"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                <feature.icon className="w-6 h-6 text-accent" />
+              <div className="koloi-icon-box bg-accent/10 text-accent mb-5 group-hover:bg-accent group-hover:text-accent-foreground transition-all duration-300">
+                <feature.icon className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">
+              <h3 className="text-lg font-bold text-foreground mb-2">
                 {feature.title}
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed">

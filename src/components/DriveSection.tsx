@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, DollarSign, Clock, Shield } from 'lucide-react';
+import { ArrowRight, DollarSign, Clock, Shield, TrendingUp } from 'lucide-react';
 
 const benefits = [
   {
@@ -20,28 +20,39 @@ const benefits = [
   },
 ];
 
+const stats = [
+  { value: '10K+', label: 'Active drivers', icon: '🚗' },
+  { value: '50K+', label: 'Trips completed', icon: '✓' },
+  { value: '4.9', label: 'Average rating', icon: '⭐' },
+  { value: '24/7', label: 'Driver support', icon: '📞' },
+];
+
 const DriveSection = () => {
   return (
-    <section id="drive" className="bg-primary text-primary-foreground py-16 lg:py-24">
+    <section id="drive" className="bg-primary text-primary-foreground py-20 lg:py-28">
       <div className="koloi-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Content */}
           <div>
-            <h2 className="text-3xl lg:text-4xl font-bold mb-6 leading-tight">
+            <div className="koloi-badge bg-primary-foreground/10 text-primary-foreground mb-6">
+              <TrendingUp className="w-4 h-4" />
+              Start Earning
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight tracking-tight">
               Drive when you want, earn what you need
             </h2>
-            <p className="text-primary-foreground/80 text-lg mb-8 leading-relaxed">
+            <p className="text-primary-foreground/80 text-lg mb-10 leading-relaxed max-w-lg">
               Join thousands of drivers earning on their own terms. Whether you need extra income or want to make driving your career, Koloi has you covered.
             </p>
 
-            <div className="space-y-6 mb-8">
+            <div className="space-y-5 mb-10">
               {benefits.map((benefit) => (
-                <div key={benefit.title} className="flex gap-4">
-                  <div className="w-10 h-10 bg-primary-foreground/10 rounded-lg flex items-center justify-center shrink-0">
+                <div key={benefit.title} className="flex gap-4 items-start">
+                  <div className="koloi-icon-box bg-primary-foreground/10 text-primary-foreground shrink-0">
                     <benefit.icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-1">{benefit.title}</h4>
+                    <h4 className="font-semibold mb-1 text-lg">{benefit.title}</h4>
                     <p className="text-primary-foreground/70 text-sm">
                       {benefit.description}
                     </p>
@@ -51,7 +62,7 @@ const DriveSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 h-14 px-8 font-semibold">
+              <Button asChild className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 h-14 px-8 font-bold">
                 <Link to="/drive">
                   Sign up to drive
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -59,31 +70,23 @@ const DriveSection = () => {
               </Button>
               <Button 
                 variant="outline" 
-                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 h-14 px-8"
+                size="lg"
+                className="border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
               >
                 Learn more
               </Button>
             </div>
           </div>
 
-          {/* Right Stats */}
-          <div className="grid grid-cols-2 gap-6">
-            <div className="bg-primary-foreground/10 rounded-xl p-6 text-center">
-              <div className="text-4xl lg:text-5xl font-bold mb-2">10K+</div>
-              <div className="text-primary-foreground/70 text-sm">Active drivers</div>
-            </div>
-            <div className="bg-primary-foreground/10 rounded-xl p-6 text-center">
-              <div className="text-4xl lg:text-5xl font-bold mb-2">50K+</div>
-              <div className="text-primary-foreground/70 text-sm">Trips completed</div>
-            </div>
-            <div className="bg-primary-foreground/10 rounded-xl p-6 text-center">
-              <div className="text-4xl lg:text-5xl font-bold mb-2">4.9</div>
-              <div className="text-primary-foreground/70 text-sm">Average rating</div>
-            </div>
-            <div className="bg-primary-foreground/10 rounded-xl p-6 text-center">
-              <div className="text-4xl lg:text-5xl font-bold mb-2">24/7</div>
-              <div className="text-primary-foreground/70 text-sm">Driver support</div>
-            </div>
+          {/* Right Stats Grid */}
+          <div className="grid grid-cols-2 gap-5">
+            {stats.map((stat) => (
+              <div key={stat.label} className="koloi-stat-card">
+                <div className="text-2xl mb-2">{stat.icon}</div>
+                <div className="text-4xl lg:text-5xl font-bold mb-2">{stat.value}</div>
+                <div className="text-primary-foreground/70 text-sm">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

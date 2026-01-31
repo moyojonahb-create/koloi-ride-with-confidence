@@ -81,17 +81,22 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        '2xl': '1rem',
+        '3xl': '1.5rem',
+        '4xl': '2rem',
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
       },
       boxShadow: {
+        'koloi-xs': 'var(--shadow-xs)',
         'koloi-sm': 'var(--shadow-sm)',
         'koloi-md': 'var(--shadow-md)',
         'koloi-lg': 'var(--shadow-lg)',
         'koloi-xl': 'var(--shadow-xl)',
         'koloi-card': 'var(--shadow-card)',
         'koloi-phone': 'var(--shadow-phone)',
+        'koloi-glow': 'var(--shadow-glow)',
       },
       keyframes: {
         "accordion-down": {
