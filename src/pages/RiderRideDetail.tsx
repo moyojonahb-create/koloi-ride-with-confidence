@@ -434,27 +434,3 @@ export default function RiderRideDetail() {
     </div>
   );
 }
-useEffect(() => {
-  if (!rideId) return;
-
-  const channel = supabase
-    .channel(`ride-${rideId}-offers`)
-    .on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "offers",
-        filter: `ride_id=eq.${rideId}`,
-      },
-      (payload) => {
-        console.log("📡 Offer update:", payload);
-        fetchOffers(); // re-fetch offers list
-      },
-    )
-    .subscribe();
-
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, [rideId]);

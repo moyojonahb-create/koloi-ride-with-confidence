@@ -1,5 +1,5 @@
 // Bump cache name to force clients to pick up fresh assets after updates
-const CACHE_NAME = 'koloi-v2';
+const CACHE_NAME = 'koloi-v3';
 const STATIC_ASSETS = [
   '/',
   '/ride',
@@ -30,6 +30,28 @@ self.addEventListener('activate', (event) => {
     })
   );
   self.clients.claim();
+});
+
+// Push notification handler
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'Koloi';
+  const options = {
+    body: data.body || 'New update',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/icon-192x192.png',
+    data: data.url || '/',
+    requireInteraction: true,
+    vibrate: [200, 100, 200, 100, 400],
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Notification click handler
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = event.notification.data || '/';
+  event.waitUntil(clients.openWindow(url));
 });
 
 // Fetch event - network first, fallback to cache
