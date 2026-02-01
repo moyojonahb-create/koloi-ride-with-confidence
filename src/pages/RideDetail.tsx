@@ -227,8 +227,9 @@ export default function RideDetail() {
         .from("drivers")
         .select("id")
         .eq("user_id", offer.driver_id)
-        .single();
+        .maybeSingle();
       if (driverErr) throw new Error(driverErr.message);
+      if (!driverData) throw new Error("Driver record not found");
 
       // Mark offer accepted
       await supabase.from("offers").update({ status: "accepted" }).eq("id", offer.id);

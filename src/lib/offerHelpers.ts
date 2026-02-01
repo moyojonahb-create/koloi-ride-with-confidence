@@ -142,9 +142,10 @@ export async function acceptOffer(rideId: string, offer: Offer): Promise<boolean
     .from("drivers")
     .select("id")
     .eq("user_id", offer.driver_id)
-    .single();
+    .maybeSingle();
 
   if (driverErr) throw new Error(driverErr.message);
+  if (!driverData) throw new Error("Driver record not found");
 
   // Update ride to accepted with driver
   const { error: rideErr } = await supabase
