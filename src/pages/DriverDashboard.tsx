@@ -466,29 +466,3 @@ export default function DriverDashboard() {
     </div>
   );
 }
-useEffect(() => {
-  const channel = supabase
-    .channel("driver-rides-realtime")
-    .on(
-      "postgres_changes",
-      {
-        event: "INSERT",
-        schema: "public",
-        table: "rides",
-      },
-      (payload) => {
-        console.log("🚗 New ride request:", payload.new);
-
-        // Add ride to list instantly
-        setRides((prev) => [payload.new, ...prev]);
-
-        // Optional big alert (like inDrive)
-        alert("New ride request nearby 🚕");
-      },
-    )
-    .subscribe();
-
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, []);
