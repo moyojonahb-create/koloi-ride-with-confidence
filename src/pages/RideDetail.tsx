@@ -80,11 +80,7 @@ export default function RideDetail() {
     if (!rideId) return;
     setLoading(true);
     try {
-      const { data: r, error: rErr } = await supabase
-        .from("rides")
-        .select("*")
-        .eq("id", rideId)
-        .single();
+      const { data: r, error: rErr } = await supabase.from("rides").select("*").eq("id", rideId).single();
       if (rErr) throw new Error(rErr.message);
       setRide(r as RideRow);
 
@@ -120,9 +116,13 @@ export default function RideDetail() {
 
     const ch = supabase
       .channel(`db:ride:${rideId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "offers", filter: `ride_id=eq.${rideId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "offers", filter: `ride_id=eq.${rideId}` }, () =>
+        load(),
+      )
       .on("postgres_changes", { event: "*", schema: "public", table: "rides", filter: `id=eq.${rideId}` }, () => load())
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `ride_id=eq.${rideId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `ride_id=eq.${rideId}` }, () =>
+        load(),
+      )
       .subscribe();
 
     return () => {
@@ -341,9 +341,7 @@ export default function RideDetail() {
             </p>
           </div>
 
-          <div className="text-3xl font-black text-primary">
-            R{clampTo5(Number(ride.fare ?? 35))}
-          </div>
+          <div className="text-3xl font-black text-primary">R{clampTo5(Number(ride.fare ?? 35))}</div>
 
           {!accepted ? (
             <button
@@ -503,3 +501,27 @@ export default function RideDetail() {
     </div>
   );
 }
+useEffect(() => {
+  if (!rideId) return;
+
+  const channel = supabase
+    .channel(`ride-${rideId}-offers`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "offers",
+        filter: `ride_id=eq.${rideId}`,
+      },
+      (payload) => {
+        console.log("📡 Offer update:", payload);
+        fetchOffers(); // re-fetch offers list
+      },
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [rideId]);

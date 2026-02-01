@@ -51,12 +51,8 @@ export default function RiderRideDetail() {
 
   const refreshRide = useCallback(async () => {
     if (!rideId) return;
-    
-    const { data, error } = await supabase
-      .from("rides")
-      .select("*")
-      .eq("id", rideId)
-      .single();
+
+    const { data, error } = await supabase.from("rides").select("*").eq("id", rideId).single();
 
     if (error) {
       setError(error.message);
@@ -72,7 +68,7 @@ export default function RiderRideDetail() {
       if (Notification.permission === "granted") {
         new Notification("🎉 Driver Accepted!", {
           body: "Your ride has been confirmed. You can now contact your driver.",
-          icon: "/icons/icon-192x192.png"
+          icon: "/icons/icon-192x192.png",
         });
       }
     }
@@ -98,17 +94,17 @@ export default function RiderRideDetail() {
 
   const refreshOffers = useCallback(async () => {
     if (!rideId) return;
-    
+
     try {
       const list = await fetchPendingOffers(rideId);
-      
+
       // Play sound when new offers come in
       if (list.length > lastOfferCount && lastOfferCount > 0) {
         playNewRequestSound();
         if (Notification.permission === "granted") {
           new Notification("New Driver Offer!", {
             body: "A driver has made an offer on your ride request.",
-            icon: "/icons/icon-192x192.png"
+            icon: "/icons/icon-192x192.png",
           });
         }
       }
@@ -143,27 +139,23 @@ export default function RiderRideDetail() {
     }
 
     if (!authLoading && rideId) {
-      Promise.all([refreshRide(), refreshOffers()])
-        .finally(() => setLoading(false));
+      Promise.all([refreshRide(), refreshOffers()]).finally(() => setLoading(false));
     }
   }, [authLoading, user, rideId, nav, refreshRide, refreshOffers]);
 
   // Update fare - rider can adjust price
   const updateFare = async (newFare: number) => {
     if (!rideId || !ride || ride.status !== "pending") return;
-    
+
     const clampedFare = clampTo5(newFare);
     if (clampedFare === ride.fare) return;
-    
+
     setUpdatingFare(true);
     try {
-      const { error } = await supabase
-        .from("rides")
-        .update({ fare: clampedFare })
-        .eq("id", rideId);
+      const { error } = await supabase.from("rides").update({ fare: clampedFare }).eq("id", rideId);
 
       if (error) throw error;
-      
+
       setRide({ ...ride, fare: clampedFare });
       toast.success(`Fare updated to R${clampedFare}`);
     } catch (e: any) {
@@ -182,8 +174,8 @@ export default function RiderRideDetail() {
       await acceptOffer(rideId, offer);
       setModalOpen(false);
       playAcceptedSound();
-      toast.success("Driver accepted!", { 
-        description: "You can now contact your driver" 
+      toast.success("Driver accepted!", {
+        description: "You can now contact your driver",
       });
       await refreshRide();
     } catch (e: any) {
@@ -204,15 +196,12 @@ export default function RiderRideDetail() {
 
   const handleCancelRide = async () => {
     if (!rideId) return;
-    
+
     try {
-      const { error } = await supabase
-        .from("rides")
-        .update({ status: "cancelled" })
-        .eq("id", rideId);
+      const { error } = await supabase.from("rides").update({ status: "cancelled" }).eq("id", rideId);
 
       if (error) throw error;
-      
+
       toast.info("Ride cancelled");
       nav("/ride");
     } catch (e: any) {
@@ -292,9 +281,9 @@ export default function RiderRideDetail() {
           </Button>
           <h1 className="font-black text-lg">Your Ride</h1>
           {isAccepted && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setShowCommunication(!showCommunication)}
               className="relative"
             >
@@ -320,7 +309,7 @@ export default function RiderRideDetail() {
                 <p className="text-sm text-muted-foreground truncate">{ride.dropoff_address}</p>
               </div>
             </div>
-            
+
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
               <div>
                 <p className="text-sm text-muted-foreground">Your offer</p>
@@ -370,9 +359,9 @@ export default function RiderRideDetail() {
                 </div>
                 <span className="font-black text-lg">{offers.length}</span>
               </div>
-              
-              <Button 
-                className="w-full mt-4 bg-primary hover:bg-primary/90" 
+
+              <Button
+                className="w-full mt-4 bg-primary hover:bg-primary/90"
                 onClick={() => setModalOpen(true)}
                 disabled={offers.length === 0}
               >
@@ -412,14 +401,10 @@ export default function RiderRideDetail() {
                       </Button>
                     </div>
                   )}
-                  {driverPhone && (
-                    <p className="text-xs text-muted-foreground mt-2 text-center">
-                      📞 {driverPhone}
-                    </p>
-                  )}
+                  {driverPhone && <p className="text-xs text-muted-foreground mt-2 text-center">📞 {driverPhone}</p>}
                 </div>
               )}
-              
+
               {showCommunication && (
                 <RideCommunication
                   rideId={ride.id}
@@ -444,10 +429,32 @@ export default function RiderRideDetail() {
           onClose={() => setModalOpen(false)}
         />
 
-        {error && (
-          <p className="text-sm text-destructive text-center">{error}</p>
-        )}
+        {error && <p className="text-sm text-destructive text-center">{error}</p>}
       </div>
     </div>
   );
 }
+useEffect(() => {
+  if (!rideId) return;
+
+  const channel = supabase
+    .channel(`ride-${rideId}-offers`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "offers",
+        filter: `ride_id=eq.${rideId}`,
+      },
+      (payload) => {
+        console.log("📡 Offer update:", payload);
+        fetchOffers(); // re-fetch offers list
+      },
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [rideId]);

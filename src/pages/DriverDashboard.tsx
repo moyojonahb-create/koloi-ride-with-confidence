@@ -3,21 +3,34 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useOpenRidesRealtime } from "@/hooks/useRideRealtime";
-import { 
-  fetchOpenRides, 
-  getDriverProfile, 
-  submitOffer, 
-  clampTo5, 
+import {
+  fetchOpenRides,
+  getDriverProfile,
+  submitOffer,
+  clampTo5,
   isNightLocal,
   defaultNightMultiplier,
-  type DriverProfile 
+  type DriverProfile,
 } from "@/lib/offerHelpers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { ArrowLeft, MapPin, Navigation, Clock, Minus, Plus, Send, Radio, Bell, MessageCircle, Phone, Volume2 } from "lucide-react";
+import {
+  ArrowLeft,
+  MapPin,
+  Navigation,
+  Clock,
+  Minus,
+  Plus,
+  Send,
+  Radio,
+  Bell,
+  MessageCircle,
+  Phone,
+  Volume2,
+} from "lucide-react";
 import { playNewRequestSound, playAcceptedSound, playUrgentAlert } from "@/lib/notificationSounds";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 
@@ -36,7 +49,7 @@ type Ride = {
 export default function DriverDashboard() {
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
-  
+
   const [profile, setProfile] = useState<DriverProfile | null>(null);
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,19 +71,16 @@ export default function DriverDashboard() {
   // Toggle online status
   const toggleOnline = async (online: boolean) => {
     if (!profile || togglingOnline) return;
-    
+
     setTogglingOnline(true);
     try {
-      const { error: updateErr } = await supabase
-        .from("drivers")
-        .update({ is_online: online })
-        .eq("id", profile.id);
+      const { error: updateErr } = await supabase.from("drivers").update({ is_online: online }).eq("id", profile.id);
 
       if (updateErr) throw new Error(updateErr.message);
-      
+
       setIsOnline(online);
       setProfile({ ...profile, is_online: online });
-      
+
       if (online) {
         toast.success("You're now online!", { description: "You'll see new ride requests" });
         if (voiceEnabled && voiceSupported) {
@@ -92,7 +102,7 @@ export default function DriverDashboard() {
   const refresh = useCallback(async () => {
     try {
       setError(null);
-      
+
       const p = await getDriverProfile();
       setProfile(p);
       setIsOnline(p?.is_online ?? false);
@@ -122,33 +132,33 @@ export default function DriverDashboard() {
             break;
           }
         }
-        
+
         if (hasNewRide) {
           // Play URGENT alert sound (louder, longer)
           playUrgentAlert();
-          
+
           // Voice announcement
           if (voiceEnabled && voiceSupported) {
             speak("Attention! New ride request received! Open Koloi to respond.");
           }
-          
-          toast.info("🚗 NEW RIDE REQUEST!", { 
+
+          toast.info("🚗 NEW RIDE REQUEST!", {
             description: "A rider is looking for a driver - respond quickly!",
-            duration: 10000 // Keep toast longer
+            duration: 10000, // Keep toast longer
           });
-          
+
           // Browser notification with vibration if supported
           if (Notification.permission === "granted") {
             new Notification("🚗 NEW KOLOI RIDE REQUEST!", {
               body: "⚡ A rider is looking for a driver near you - respond NOW!",
               icon: "/icons/icon-192x192.png",
               tag: "koloi-ride-request",
-              requireInteraction: true // Keep notification until user interacts
+              requireInteraction: true, // Keep notification until user interacts
             });
           }
-          
+
           // Vibrate if supported (mobile)
-          if ('vibrate' in navigator) {
+          if ("vibrate" in navigator) {
             navigator.vibrate([200, 100, 200, 100, 400]);
           }
         }
@@ -197,15 +207,15 @@ export default function DriverDashboard() {
 
   const sendOffer = async () => {
     if (!selectedRide || submitting) return;
-    
+
     try {
       setSubmitting(true);
       setError(null);
-      await submitOffer({ 
-        ride_id: selectedRide.id, 
-        price: offerPrice, 
-        eta_minutes: eta, 
-        message: note 
+      await submitOffer({
+        ride_id: selectedRide.id,
+        price: offerPrice,
+        eta_minutes: eta,
+        message: note,
       });
       toast.success("Offer sent!", { description: `R${offerPrice} for ${eta} min ETA` });
       setSelectedRide(null);
@@ -252,8 +262,8 @@ export default function DriverDashboard() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-muted-foreground">
-              Your driver status is <strong>{profile.status}</strong>. 
-              Please wait for admin approval before accepting rides.
+              Your driver status is <strong>{profile.status}</strong>. Please wait for admin approval before accepting
+              rides.
             </p>
           </CardContent>
         </Card>
@@ -290,11 +300,7 @@ export default function DriverDashboard() {
                   </p>
                 </div>
               </div>
-              <Switch
-                checked={isOnline}
-                onCheckedChange={toggleOnline}
-                disabled={togglingOnline}
-              />
+              <Switch checked={isOnline} onCheckedChange={toggleOnline} disabled={togglingOnline} />
             </div>
           </CardContent>
         </Card>
@@ -314,13 +320,9 @@ export default function DriverDashboard() {
                     </p>
                   </div>
                 </div>
-                <Switch
-                  checked={voiceEnabled}
-                  onCheckedChange={setVoiceEnabled}
-                  disabled={!voiceSupported}
-                />
+                <Switch checked={voiceEnabled} onCheckedChange={setVoiceEnabled} disabled={!voiceSupported} />
               </div>
-              
+
               {/* Night Mode */}
               <div className="flex items-center justify-between pt-2 border-t border-border">
                 <div>
@@ -353,17 +355,21 @@ export default function DriverDashboard() {
             {isOnline && rides.length > 0 && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Bell className="h-4 w-4" />
-                <span>{rides.length} request{rides.length !== 1 ? 's' : ''}</span>
+                <span>
+                  {rides.length} request{rides.length !== 1 ? "s" : ""}
+                </span>
               </div>
             )}
           </div>
-          
+
           {!isOnline ? (
             <Card>
               <CardContent className="py-8 text-center">
                 <Radio className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-muted-foreground font-medium">You're currently offline</p>
-                <p className="text-sm text-muted-foreground mt-1">Toggle the switch above to go online and see ride requests</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Toggle the switch above to go online and see ride requests
+                </p>
               </CardContent>
             </Card>
           ) : rides.length === 0 ? (
@@ -374,8 +380,8 @@ export default function DriverDashboard() {
             </Card>
           ) : (
             rides.map((r) => (
-              <Card 
-                key={r.id} 
+              <Card
+                key={r.id}
                 className="cursor-pointer hover:border-primary transition-colors"
                 onClick={() => chooseRide(r)}
               >
@@ -392,9 +398,7 @@ export default function DriverDashboard() {
                     </div>
                     <div className="text-right">
                       <p className="font-black text-lg">R{r.fare}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {r.distance_km?.toFixed(1)} km
-                      </p>
+                      <p className="text-xs text-muted-foreground">{r.distance_km?.toFixed(1)} km</p>
                     </div>
                   </div>
                 </CardContent>
@@ -445,20 +449,11 @@ export default function DriverDashboard() {
                 </div>
                 <div className="flex-2">
                   <label className="text-xs text-muted-foreground">Note (optional)</label>
-                  <Input
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    placeholder="e.g., Night service"
-                  />
+                  <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g., Night service" />
                 </div>
               </div>
 
-              <Button 
-                className="w-full" 
-                size="lg"
-                onClick={sendOffer}
-                disabled={submitting}
-              >
+              <Button className="w-full" size="lg" onClick={sendOffer} disabled={submitting}>
                 <Send className="h-4 w-4 mr-2" />
                 {submitting ? "Sending..." : `Send Offer • R${offerPrice}`}
               </Button>
@@ -466,10 +461,34 @@ export default function DriverDashboard() {
           </div>
         )}
 
-        {error && (
-          <p className="text-sm text-destructive text-center">{error}</p>
-        )}
+        {error && <p className="text-sm text-destructive text-center">{error}</p>}
       </div>
     </div>
   );
 }
+useEffect(() => {
+  const channel = supabase
+    .channel("driver-rides-realtime")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "rides",
+      },
+      (payload) => {
+        console.log("🚗 New ride request:", payload.new);
+
+        // Add ride to list instantly
+        setRides((prev) => [payload.new, ...prev]);
+
+        // Optional big alert (like inDrive)
+        alert("New ride request nearby 🚕");
+      },
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, []);
