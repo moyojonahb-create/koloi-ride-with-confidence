@@ -83,7 +83,7 @@ export default function RiderRideDetail() {
         .from("drivers")
         .select("*, profiles:user_id(full_name, phone)")
         .eq("id", data.driver_id)
-        .single();
+        .maybeSingle();
 
       if (driverData) {
         setDriverProfile(driverData);
