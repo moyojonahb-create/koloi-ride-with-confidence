@@ -31,7 +31,7 @@ import {
   Phone,
   Volume2,
 } from "lucide-react";
-import { playNewRequestSound, playAcceptedSound, playUrgentAlert } from "@/lib/notificationSounds";
+import { triggerFullAlert, playAlert, vibrateAlert } from "@/lib/alerts";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 
 type Ride = {
@@ -134,33 +134,23 @@ export default function DriverDashboard() {
         }
 
         if (hasNewRide) {
-          // Play URGENT alert sound (louder, longer)
-          playUrgentAlert();
+          // Trigger LOUD full alert (sound + vibration + browser notification)
+          triggerFullAlert(
+            "🚗 NEW KOLOI RIDE REQUEST!",
+            "⚡ A rider is looking for a driver near you - respond NOW!",
+            "/driver"
+          );
 
           // Voice announcement
           if (voiceEnabled && voiceSupported) {
             speak("Attention! New ride request received! Open Koloi to respond.");
           }
 
+          // Also show in-app toast
           toast.info("🚗 NEW RIDE REQUEST!", {
             description: "A rider is looking for a driver - respond quickly!",
-            duration: 10000, // Keep toast longer
+            duration: 10000,
           });
-
-          // Browser notification with vibration if supported
-          if (Notification.permission === "granted") {
-            new Notification("🚗 NEW KOLOI RIDE REQUEST!", {
-              body: "⚡ A rider is looking for a driver near you - respond NOW!",
-              icon: "/icons/icon-192x192.png",
-              tag: "koloi-ride-request",
-              requireInteraction: true, // Keep notification until user interacts
-            });
-          }
-
-          // Vibrate if supported (mobile)
-          if ("vibrate" in navigator) {
-            navigator.vibrate([200, 100, 200, 100, 400]);
-          }
         }
         lastRideIds.current = currentIds;
       } else {
