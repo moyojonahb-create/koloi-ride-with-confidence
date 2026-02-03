@@ -34,20 +34,15 @@ const KoloiLogo = ({
       <img 
         src={koloiLogoImage} 
         alt="Koloi" 
-        className={`${sizeClasses[size]} w-auto ${isLight ? 'brightness-0 invert' : ''}`}
+        className={`${sizeClasses[size]} w-auto`}
       />
       
-      {/* Logo Text */}
-      <div className="flex flex-col">
-        <span className={`${textSizes[size]} font-bold tracking-tight ${textColor}`}>
-          Koloi
+      {/* Logo Text - hidden since new logo includes text */}
+      {showTagline && (
+        <span className={`text-xs ${isLight ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+          Get picked. Get moving.
         </span>
-        {showTagline && (
-          <span className={`text-xs ${isLight ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-            Get picked. Get moving.
-          </span>
-        )}
-      </div>
+      )}
     </div>
   );
 };
