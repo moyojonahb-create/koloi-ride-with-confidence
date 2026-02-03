@@ -1,4 +1,4 @@
-import koloiLogoImage from '@/assets/koloi-logo-generated.png';
+import koloiLogoImage from '@/assets/koloi-logo-official.png';
 
 interface KoloiLogoProps {
   className?: string;
