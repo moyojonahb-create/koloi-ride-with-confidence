@@ -22,9 +22,7 @@ const LandingHero = ({
         <div className="text-center mb-8 sm:mb-12 animate-slide-up">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary-foreground mb-4 tracking-tight">
             Get picked.{' '}
-            <span className="relative inline-block">
-              Get moving.
-              <span className="absolute -bottom-2 left-0 w-full h-2 bg-accent rounded-full" />
+            <span className="relative inline-block">Get moving.<span className="absolute -bottom-2 left-0 w-full h-2 bg-accent rounded-full" />
             </span>
           </h1>
           <p className="text-primary-foreground/80 text-lg sm:text-xl mt-6 max-w-lg mx-auto leading-relaxed">
@@ -60,7 +58,7 @@ const LandingHero = ({
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
           <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
             <Star className="w-4 h-4 text-accent fill-accent" />
-            <span className="text-primary-foreground/90 text-sm font-medium">Let join and+ rides</span>
+            <span className="text-primary-foreground/90 text-sm font-medium">Lets join and+ rides</span>
           </div>
           <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
             <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
