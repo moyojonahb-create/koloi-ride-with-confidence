@@ -72,26 +72,4 @@ const App = () => (
 
 export default App;
 
-/m/rider/*     /m/driver/*
-// src/App.tsx (or wherever your <Routes> are)
-import { Routes, Route, Navigate } from "react-router-dom";
-
-import RiderMobileApp from "@/pages/mobile/RiderMobileApp";
-import DriverMobileApp from "@/pages/mobile/DriverMobileApp";
-
-export default function App() {
-  return (
-    <Routes>
-      {/* existing web routes... */}
-
-      {/* ✅ Mobile-only entry points */}
-      <Route path="/m/rider/*" element={<RiderMobileApp />} />
-      <Route path="/m/driver/*" element={<DriverMobileApp />} />
-
-      {/* optional */}
-      <Route path="/m" element={<Navigate to="/m/rider" replace />} />
-    </Routes>
-  );
-}
-
 
