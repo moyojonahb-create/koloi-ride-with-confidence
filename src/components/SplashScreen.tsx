@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import splashLogo from '@/assets/koloi-logo-full.png';
+import splashLogo from '@/assets/koloi-splash-logo.png';
 
 interface SplashScreenProps {
   onComplete: () => void;
-  duration?: number;
+  duration?: number; // Default is now 7000ms (7 seconds)
 }
 
-const SplashScreen = ({ onComplete, duration = 2000 }: SplashScreenProps) => {
+const SplashScreen = ({ onComplete, duration = 7000 }: SplashScreenProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const [isFading, setIsFading] = useState(false);
 
