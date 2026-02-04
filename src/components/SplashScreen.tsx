@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import splashLogo from '@/assets/koloi-splash-logo.png';
+import splashLogo from '@/assets/koloi-logo-full.png';
 
 interface SplashScreenProps {
   onComplete: () => void;
