@@ -3,14 +3,15 @@
 export type Location = { lat: number; lng: number };
 
 // Default values (used as fallback)
+// Day pricing: R20 min, R40 max, all in multiples of R5
 const DEFAULT_SETTINGS = {
   baseFare: 20,
-  perKmRate: 10,
-  minFare: 25,
-  maxTownFare: 50,
-  fixedTownFare: 50,
+  perKmRate: 5,
+  minFare: 20,
+  maxTownFare: 40,
+  fixedTownFare: 40,
   townRadiusKm: 5,
-  peakMultiplier: 1.2,
+  peakMultiplier: 1.0, // No peak multiplier during day
   nightMultiplier: 1.3,
   gwandaCbd: { lat: -20.933, lng: 29.013 },
 };
@@ -136,7 +137,10 @@ export function calculateKoloiFare(
   // Apply time multiplier for around-town only
   price = price * mult;
 
-  // Min/Max rules
+  // Round to nearest R5 multiple
+  price = Math.round(price / 5) * 5;
+  
+  // Min/Max rules (R20-R40 during day)
   if (price < cfg.minFare) price = cfg.minFare;
   if (price > cfg.maxTownFare) price = cfg.maxTownFare;
 
