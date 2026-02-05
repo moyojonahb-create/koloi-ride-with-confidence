@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 import FavoritesSheet from '@/components/FavoritesSheet';
 import RideHistorySheet from '@/components/RideHistorySheet';
+import InstallPromptBanner from '@/components/InstallPromptBanner';
 
 const Index = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -40,8 +41,9 @@ const Index = () => {
   return (
     <>
       {showSplash && (
-        <SplashScreen onComplete={() => setShowSplash(false)} duration={5000} />
+        <SplashScreen onComplete={() => setShowSplash(false)} duration={3000} />
       )}
+      <InstallPromptBanner />
       <div className="min-h-screen bg-background">
       <Header 
         onLoginClick={handleLoginClick} 
