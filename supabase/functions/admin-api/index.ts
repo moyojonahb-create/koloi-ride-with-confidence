@@ -72,6 +72,16 @@ serve(async (req) => {
     let result;
 
     switch (action) {
+      case "verify_admin": {
+        // Simple verification - if we got here, user is admin (checked above)
+        result = { 
+          isAdmin: true, 
+          userId,
+          verifiedAt: new Date().toISOString()
+        };
+        break;
+      }
+
       case "get_metrics": {
         // Get dashboard metrics
         const today = new Date();
