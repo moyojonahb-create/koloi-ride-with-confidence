@@ -63,29 +63,6 @@
   </head>
 
   <body>
-     <!-- In-app launch screen (guaranteed to show while app loads) -->
-     <div id="launch" style="position:fixed; inset:0; background:#0b3b78; display:flex; align-items:center; justify-content:center; z-index:999999;">
-       <img src="/icons/koloi-launch.png" alt="Koloi" style="width:120px; height:120px; border-radius:24px; animation: pulse 1.5s ease-in-out infinite;" />
-     </div>
-     <style>
-       @keyframes pulse {
-         0%, 100% { transform: scale(1); opacity: 1; }
-         50% { transform: scale(1.05); opacity: 0.9; }
-       }
-     </style>
-     <script>
-       window.addEventListener('load', function() {
-         setTimeout(function() {
-           var el = document.getElementById('launch');
-           if (el) {
-             el.style.transition = 'opacity 0.3s ease-out';
-             el.style.opacity = '0';
-             setTimeout(function() { el.remove(); }, 300);
-           }
-         }, 700);
-       });
-     </script>
-     
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
