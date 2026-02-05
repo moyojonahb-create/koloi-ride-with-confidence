@@ -1,0 +1,228 @@
+ import { useState, useMemo } from 'react';
+ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+ import { z } from 'zod';
+ import { useForm } from 'react-hook-form';
+ import { zodResolver } from '@hookform/resolvers/zod';
+ import { useAuth } from '@/hooks/useAuth';
+ import { supabase } from '@/integrations/supabase/client';
+ import { Button } from '@/components/ui/button';
+ import { Input } from '@/components/ui/input';
+ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+ import { Loader2, ArrowLeft } from 'lucide-react';
+ import { useToast } from '@/hooks/use-toast';
+ 
+ const signupSchema = z.object({
+   fullName: z.string().min(2, 'Full Name is required'),
+   idNumber: z.string().min(1, 'ID Number is required'),
+   phone: z.string().min(1, 'Phone number is required'),
+   email: z.string().email('Enter a valid email address'),
+   password: z.string().min(6, 'Password must be at least 6 characters'),
+ });
+ 
+ type SignupFormData = z.infer<typeof signupSchema>;
+ 
+ const Signup = () => {
+   const [searchParams] = useSearchParams();
+   const next = useMemo(() => searchParams.get('next') || '/ride', [searchParams]);
+   const [isSubmitting, setIsSubmitting] = useState(false);
+   const { signUp } = useAuth();
+   const navigate = useNavigate();
+   const { toast } = useToast();
+ 
+   const form = useForm<SignupFormData>({
+     resolver: zodResolver(signupSchema),
+     defaultValues: {
+       fullName: '',
+       idNumber: '',
+       phone: '',
+       email: '',
+       password: '',
+     },
+   });
+ 
+   const onSubmit = async (data: SignupFormData) => {
+     setIsSubmitting(true);
+     try {
+       const { error } = await signUp(data.email, data.password, data.fullName);
+       
+       if (error) {
+         let message = error.message;
+         if (message.includes('already registered')) {
+           message = 'An account with this email already exists. Please sign in.';
+         }
+         toast({
+           title: 'Signup failed',
+           description: message,
+           variant: 'destructive',
+         });
+         return;
+       }
+ 
+       // Update profile with phone number after signup
+       const { data: authData } = await supabase.auth.getUser();
+       if (authData?.user) {
+         await supabase
+           .from('profiles')
+           .update({ phone: data.phone })
+           .eq('user_id', authData.user.id);
+       }
+ 
+       toast({
+         title: 'Account created!',
+         description: 'Welcome to Koloi.',
+       });
+       navigate(next);
+     } catch (err) {
+       toast({
+         title: 'Sign up failed',
+         description: 'Please try again.',
+         variant: 'destructive',
+       });
+     } finally {
+       setIsSubmitting(false);
+     }
+   };
+ 
+   return (
+     <div className="min-h-[100dvh] bg-primary flex items-center justify-center p-4 pt-[calc(16px+env(safe-area-inset-top))] pb-[calc(16px+env(safe-area-inset-bottom))]">
+       <div className="w-full max-w-[520px] bg-white/95 backdrop-blur-[10px] rounded-[26px] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+         <div className="flex items-center gap-3 mb-4">
+           <Link to="/" className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors">
+             <ArrowLeft className="h-5 w-5 text-foreground" />
+           </Link>
+           <div>
+             <h1 className="text-xl font-black text-foreground">Create your Koloi account</h1>
+             <p className="text-sm text-muted-foreground">Sign up to request a ride.</p>
+           </div>
+         </div>
+ 
+         <Form {...form}>
+           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+             <FormField
+               control={form.control}
+               name="fullName"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-foreground font-semibold">Full Name</FormLabel>
+                   <FormControl>
+                     <Input 
+                       placeholder="John Doe" 
+                       className="h-12 rounded-2xl border-border/10 bg-white"
+                       {...field} 
+                     />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+ 
+             <FormField
+               control={form.control}
+               name="idNumber"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-foreground font-semibold">ID Number</FormLabel>
+                   <FormControl>
+                     <Input 
+                       placeholder="National ID or Passport" 
+                       className="h-12 rounded-2xl border-border/10 bg-white"
+                       {...field} 
+                     />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+ 
+             <FormField
+               control={form.control}
+               name="phone"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-foreground font-semibold">Phone</FormLabel>
+                   <FormControl>
+                     <Input 
+                       type="tel"
+                       inputMode="tel"
+                       placeholder="+263 77 123 4567" 
+                       className="h-12 rounded-2xl border-border/10 bg-white"
+                       {...field} 
+                     />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+ 
+             <FormField
+               control={form.control}
+               name="email"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-foreground font-semibold">Email</FormLabel>
+                   <FormControl>
+                     <Input 
+                       type="email"
+                       inputMode="email"
+                       placeholder="you@email.com" 
+                       className="h-12 rounded-2xl border-border/10 bg-white"
+                       {...field} 
+                     />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+ 
+             <FormField
+               control={form.control}
+               name="password"
+               render={({ field }) => (
+                 <FormItem>
+                   <FormLabel className="text-foreground font-semibold">Password</FormLabel>
+                   <FormControl>
+                     <Input 
+                       type="password"
+                       placeholder="••••••••" 
+                       className="h-12 rounded-2xl border-border/10 bg-white"
+                       {...field} 
+                     />
+                   </FormControl>
+                   <FormMessage />
+                 </FormItem>
+               )}
+             />
+ 
+             <Button 
+               type="submit" 
+               className="w-full h-[52px] rounded-2xl bg-foreground hover:bg-foreground/90 text-white font-black text-base mt-2"
+               disabled={isSubmitting}
+             >
+               {isSubmitting ? (
+                 <>
+                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                   Creating...
+                 </>
+               ) : (
+                 'Create account'
+               )}
+             </Button>
+           </form>
+         </Form>
+ 
+         <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
+           By continuing you agree to Koloi's basic terms of use.
+         </p>
+ 
+         <p className="mt-4 text-center text-sm text-muted-foreground">
+           Already have an account?{' '}
+           <Link to="/login" className="text-accent font-semibold hover:underline">
+             Sign in
+           </Link>
+         </p>
+       </div>
+     </div>
+   );
+ };
+ 
+ export default Signup;
