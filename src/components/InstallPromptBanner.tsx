@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, Download, Smartphone } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { X, Download } from 'lucide-react';
+import koloiLogo from '@/assets/koloi-logo.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -10,34 +10,37 @@ interface BeforeInstallPromptEvent extends Event {
 
 export default function InstallPromptBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showBanner, setShowBanner] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     // Check if already installed (standalone mode)
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+      (window.navigator as any).standalone === true;
+    
+    if (isStandalone) {
       setIsInstalled(true);
       return;
     }
 
     // Check if dismissed recently (within 7 days)
-    const dismissedAt = localStorage.getItem('koloi-install-dismissed');
-    if (dismissedAt) {
-      const dismissedDate = new Date(dismissedAt);
-      const daysSinceDismissed = (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24);
-      if (daysSinceDismissed < 7) {
-        return;
-      }
+    const lastShown = Number(localStorage.getItem('koloi_install_modal_last') || 0);
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    if (Date.now() - lastShown < sevenDays) {
+      return;
     }
 
     // Detect iOS
-    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const isIOSDevice = /iphone|ipad|ipod/i.test(navigator.userAgent);
     setIsIOS(isIOSDevice);
 
-    // For iOS, show banner after a delay (no beforeinstallprompt event)
+    // For iOS, show modal after a delay
     if (isIOSDevice) {
-      const timer = setTimeout(() => setShowBanner(true), 3000);
+      const timer = setTimeout(() => {
+        localStorage.setItem('koloi_install_modal_last', String(Date.now()));
+        setShowModal(true);
+      }, 3000);
       return () => clearTimeout(timer);
     }
 
@@ -45,86 +48,128 @@ export default function InstallPromptBanner() {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      // Show banner after a short delay
-      setTimeout(() => setShowBanner(true), 2000);
+      // Show modal after a short delay
+      setTimeout(() => {
+        localStorage.setItem('koloi_install_modal_last', String(Date.now()));
+        setShowModal(true);
+      }, 2000);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
     // Listen for app installed event
-    window.addEventListener('appinstalled', () => {
+    const handleAppInstalled = () => {
       setIsInstalled(true);
-      setShowBanner(false);
+      setShowModal(false);
       setDeferredPrompt(null);
-    });
+    };
+    window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
   const handleInstall = async () => {
+    if (isIOS) {
+      setShowModal(false);
+      return;
+    }
+    
     if (deferredPrompt) {
       await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setShowBanner(false);
-      }
+      await deferredPrompt.userChoice;
       setDeferredPrompt(null);
+      setShowModal(false);
     }
   };
 
   const handleDismiss = () => {
-    setShowBanner(false);
-    localStorage.setItem('koloi-install-dismissed', new Date().toISOString());
+    setShowModal(false);
   };
 
-  if (isInstalled || !showBanner) {
+  if (isInstalled || !showModal) {
     return null;
   }
 
   return (
-    <div
-      className={cn(
-        'fixed top-0 left-0 right-0 z-[60] safe-area-top',
-        'bg-primary text-primary-foreground',
-        'animate-in slide-in-from-top duration-300'
-      )}
-    >
-      <div className="flex items-center gap-3 px-4 py-3">
-        <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
-          <Smartphone className="w-5 h-5" />
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm">Install Koloi App</p>
-          <p className="text-xs text-primary-foreground/80 truncate">
-            {isIOS 
-              ? 'Tap Share → Add to Home Screen'
-              : 'Get the full app experience'
-            }
-          </p>
+    <div className="fixed inset-0 z-[99999] bg-black/60 flex items-start justify-center pt-[10vh] px-4">
+      <div className="w-full max-w-[520px] bg-background rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+        {/* Header with close button */}
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="flex items-center gap-3">
+            <img 
+              src={koloiLogo} 
+              alt="Koloi" 
+              className="w-12 h-12 rounded-xl object-cover"
+            />
+            <div>
+              <h2 className="text-lg font-bold text-foreground">Install Koloi</h2>
+              <p className="text-sm text-muted-foreground">Get picked. Get moving.</p>
+            </div>
+          </div>
+          <button
+            onClick={handleDismiss}
+            className="p-2 rounded-full hover:bg-muted transition-colors"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5 text-muted-foreground" />
+          </button>
         </div>
 
-        {!isIOS && deferredPrompt && (
+        {/* Content */}
+        <div className="p-5">
+          {isIOS ? (
+            <div className="space-y-4">
+              <p className="text-foreground leading-relaxed">
+                Install Koloi on your iPhone for the best experience:
+              </p>
+              <ol className="space-y-3 text-foreground">
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">1</span>
+                  <span>Tap the <strong>Share</strong> button in Safari</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">2</span>
+                  <span>Scroll down and select <strong>Add to Home Screen</strong></span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">3</span>
+                  <span>Tap <strong>Add</strong> in the top right corner</span>
+                </li>
+              </ol>
+            </div>
+          ) : (
+            <p className="text-foreground leading-relaxed">
+              Install Koloi to your home screen for quick access and the best ride-hailing experience.
+            </p>
+          )}
+        </div>
+
+        {/* Footer buttons */}
+        <div className="flex gap-3 p-4 pt-0 justify-end">
+          <Button
+            variant="outline"
+            onClick={handleDismiss}
+            className="px-4"
+          >
+            Not now
+          </Button>
           <Button
             onClick={handleInstall}
-            size="sm"
-            variant="secondary"
-            className="flex-shrink-0 h-9 px-3 bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+            className="px-4 gap-2"
           >
-            <Download className="w-4 h-4 mr-1.5" />
-            Install
+            {isIOS ? (
+              'Got it'
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                Install
+              </>
+            )}
           </Button>
-        )}
-
-        <button
-          onClick={handleDismiss}
-          className="flex-shrink-0 p-1.5 rounded-full hover:bg-primary-foreground/20 transition-colors"
-          aria-label="Dismiss"
-        >
-          <X className="w-4 h-4" />
-        </button>
+        </div>
       </div>
     </div>
   );

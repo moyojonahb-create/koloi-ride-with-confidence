@@ -278,7 +278,7 @@ const AdminTrips = () => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem asChild>
-                              <Link to={`/admin/trips/${ride.id}`}>
+                              <Link to={`/ride-detail/${ride.id}`}>
                                 <Eye className="w-4 h-4 mr-2" />
                                 View Details
                               </Link>
