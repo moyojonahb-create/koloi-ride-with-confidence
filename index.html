@@ -8,13 +8,13 @@
     <meta name="author" content="Koloi Technologies" />
 
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#1e3a5f" />
+     <meta name="theme-color" content="#0b3b78" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Koloi" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="application-name" content="Koloi" />
-    <meta name="msapplication-TileColor" content="#1e3a5f" />
+     <meta name="msapplication-TileColor" content="#0b3b78" />
     <meta name="msapplication-tap-highlight" content="no" />
 
     <!-- PWA Manifest -->
@@ -47,9 +47,18 @@
         --sar: env(safe-area-inset-right);
         --sab: env(safe-area-inset-bottom);
         --sal: env(safe-area-inset-left);
+         --navH: 56px;
+         --pad: 14px;
       }
       .safe-area-top { padding-top: env(safe-area-inset-top); }
       .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+       
+       /* Ensure app fills entire screen on mobile */
+       html, body, #root {
+         height: 100%;
+         min-height: 100vh;
+         min-height: 100dvh;
+       }
     </style>
   </head>
 
