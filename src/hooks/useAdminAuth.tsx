@@ -10,7 +10,7 @@ interface AdminAuthState {
 }
 
 export const useAdminAuth = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [state, setState] = useState<AdminAuthState>({
     isAdmin: false,
@@ -22,38 +22,60 @@ export const useAdminAuth = () => {
     const checkAdminRole = async () => {
       if (authLoading) return;
 
-      if (!user) {
+      if (!user || !session) {
         setState({ isAdmin: false, isLoading: false, error: 'Not authenticated' });
         navigate('/');
         return;
       }
 
       try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
+        // Server-side validation via edge function
+        // This uses the service role to verify admin status, preventing client-side manipulation
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-api?action=verify_admin`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({}),
+          }
+        );
+        
+        const data = await response.json();
 
-        if (error) throw error;
-
-        if (!data) {
+        // Check for HTTP errors
+        if (!response.ok) {
+          console.log('Admin access denied:', data?.error || response.statusText);
+          setState({ isAdmin: false, isLoading: false, error: 'Access denied' });
+          navigate('/');
+          return;
+        }
+        if (data?.error) {
+          console.log('Admin access denied:', data.error);
           setState({ isAdmin: false, isLoading: false, error: 'Access denied' });
           navigate('/');
           return;
         }
 
-        setState({ isAdmin: true, isLoading: false, error: null });
+        // If we got here with isAdmin: true, server confirmed admin role
+        if (data?.isAdmin === true) {
+          console.log('Admin verified server-side at:', data.verifiedAt);
+          setState({ isAdmin: true, isLoading: false, error: null });
+        } else {
+          setState({ isAdmin: false, isLoading: false, error: 'Access denied' });
+          navigate('/');
+        }
       } catch (err) {
-        console.error('Error checking admin role:', err);
+        console.error('Error verifying admin role:', err);
         setState({ isAdmin: false, isLoading: false, error: 'Failed to verify permissions' });
         navigate('/');
       }
     };
 
     checkAdminRole();
-  }, [user, authLoading, navigate]);
+  }, [user, session, authLoading, navigate]);
 
   return state;
 };
