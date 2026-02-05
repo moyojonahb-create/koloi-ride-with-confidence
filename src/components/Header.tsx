@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Menu, X, Globe } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import KoloiLogo from '@/components/KoloiLogo';
-import UserMenu from '@/components/UserMenu';
-import { useAuth } from '@/hooks/useAuth';
+import { useState } from "react";
+import { Menu, X, Globe } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import KoloiLogo from "@/components/KoloiLogo";
+import UserMenu from "@/components/UserMenu";
+import { useAuth } from "@/hooks/useAuth";
 
 interface HeaderProps {
   onLoginClick: () => void;
@@ -17,10 +17,10 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { label: 'Ride', href: '#ride' },
-    { label: 'Drive', href: '#drive' },
-    { label: 'Business', href: '#business' },
-    { label: 'About', href: '#about' },
+    { label: "Ride", href: "#ride" },
+    { label: "Drive", href: "#drive" },
+    { label: "Business", href: "#business" },
+    { label: "About", href: "#about" },
   ];
 
   return (
@@ -51,34 +51,28 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
               <Globe className="w-4 h-4" />
               <span>EN</span>
             </button>
-            <a href="#help" className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-200">
+            <a
+              href="#help"
+              className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-200"
+            >
               Help
             </a>
-            {!loading && (
-              user ? (
-                <UserMenu 
-                  onFavoritesClick={onFavoritesClick}
-                  onHistoryClick={onHistoryClick}
-                  variant="light"
-                />
+            {!loading &&
+              (user ? (
+                <UserMenu onFavoritesClick={onFavoritesClick} onHistoryClick={onHistoryClick} variant="light" />
               ) : (
                 <>
-                  <button 
+                  <button
                     onClick={onLoginClick}
                     className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-200"
                   >
                     Log in
                   </button>
-                  <Button 
-                    onClick={onSignupClick}
-                    variant="accent"
-                    size="sm"
-                  >
+                  <Button onClick={onSignupClick} variant="accent" size="sm">
                     Sign up
                   </Button>
                 </>
-              )
-            )}
+              ))}
           </div>
 
           {/* Mobile Menu Button */}
@@ -87,11 +81,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
             className="lg:hidden p-2.5 hover:bg-primary-foreground/10 text-primary-foreground rounded-full transition-colors"
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </nav>
 
@@ -121,10 +111,10 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                 English
               </button>
               <div className="border-t border-primary-foreground/10 my-3" />
-              {!loading && (
-                user ? (
+              {!loading &&
+                (user ? (
                   <div className="px-4">
-                    <UserMenu 
+                    <UserMenu
                       onFavoritesClick={() => {
                         setIsMobileMenuOpen(false);
                         onFavoritesClick();
@@ -138,7 +128,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3 px-4">
-                    <Button 
+                    <Button
                       onClick={() => {
                         setIsMobileMenuOpen(false);
                         onLoginClick();
@@ -149,7 +139,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                     >
                       Log in
                     </Button>
-                    <Button 
+                    <Button
                       onClick={() => {
                         setIsMobileMenuOpen(false);
                         onSignupClick();
@@ -161,8 +151,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                       Sign up
                     </Button>
                   </div>
-                )
-              )}
+                ))}
             </div>
           </div>
         )}
@@ -172,3 +161,4 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
 };
 
 export default Header;
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />;
