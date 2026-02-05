@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Instagram, Linkedin, Globe } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Linkedin, Globe, Mail, Phone, MapPin } from 'lucide-react';
 import KoloiLogo from '@/components/KoloiLogo';
 
 const footerLinks = {
@@ -142,8 +142,26 @@ const Footer = () => {
           </div>
 
           {/* Legal Links */}
-          <div className="flex flex-wrap gap-4 mt-10 text-sm text-primary-foreground/60">
-            <span>© 2025 Koloi Technologies Inc.</span>
+          <div className="flex flex-col gap-6 mt-10">
+            {/* Contact Info */}
+            <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-primary-foreground/80">
+              <a href="mailto:moyojonahb@gmail.com" className="flex items-center gap-2 hover:text-primary-foreground transition-colors">
+                <Mail className="w-4 h-4" />
+                moyojonahb@gmail.com
+              </a>
+              <a href="tel:+263778553169" className="flex items-center gap-2 hover:text-primary-foreground transition-colors">
+                <Phone className="w-4 h-4" />
+                +263 778 553 169
+              </a>
+              <span className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Gwanda Town, Zimbabwe
+              </span>
+            </div>
+
+            {/* Copyright & Legal */}
+            <div className="flex flex-wrap gap-4 text-sm text-primary-foreground/60">
+              <span>© 2026 Koloi. Powered by Tautona Tek</span>
             <a href="#" className="hover:text-primary-foreground transition-colors">
               Privacy
             </a>
@@ -153,6 +171,7 @@ const Footer = () => {
             <a href="#" className="hover:text-primary-foreground transition-colors">
               Terms
             </a>
+          </div>
           </div>
         </div>
       </div>
