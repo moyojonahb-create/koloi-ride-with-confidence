@@ -277,18 +277,18 @@ export default function RideView() {
     });
   };
   const canRequestRide = pickupLocation && dropoffLocation && fareEstimate && !isRequesting;
-  return <div className="min-h-screen bg-primary flex flex-col">
+    return <div className="rider-screen bg-primary flex flex-col" style={{ minHeight: '100dvh' }}>
       <InstallPromptBanner />
       
       {/* Header */}
-      <header className="flex items-center justify-between p-4 safe-area-top">
-        <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full text-primary-foreground hover:bg-primary-foreground/10">
+       <header className="topbar flex items-center justify-between h-14 px-[calc(var(--pad,14px)+env(safe-area-inset-left))] pr-[calc(var(--pad,14px)+env(safe-area-inset-right))] pt-[env(safe-area-inset-top)] bg-primary">
+         <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-white/10 text-primary-foreground hover:bg-white/20">
           <Menu className="w-5 h-5" />
         </Button>
         
         <KoloiLogo variant="light" size="sm" />
 
-        <Button variant="ghost" size="icon" className="w-10 h-10 rounded-full text-primary-foreground hover:bg-primary-foreground/10" onClick={() => user ? navigate('/dashboard') : setAuthModalOpen(true)}>
+         <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-white/10 text-primary-foreground hover:bg-white/20" onClick={() => user ? navigate('/dashboard') : setAuthModalOpen(true)}>
           <User className="w-5 h-5" />
         </Button>
       </header>
@@ -299,14 +299,21 @@ export default function RideView() {
         </div>}
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col pb-4 gap-4 px-[8px] py-0 my-0 mx-0 text-secondary-foreground">
-        {/* Map Frame - Explicit heights for mobile/desktop */}
-        <div className="bg-koloi-gray-200 rounded-3xl overflow-hidden shadow-koloi-lg relative" style={{
-        height: 'clamp(260px, 45vh, 420px)',
-        minHeight: '260px'
-      }}>
+       <main className="map-area relative flex-1 min-h-0 p-[var(--pad,14px)] pb-[calc(var(--pad,14px)+env(safe-area-inset-bottom))]">
+         {/* Map Container - Fills available space */}
+         <div 
+           id="map-container"
+           className="absolute rounded-[22px] overflow-hidden bg-koloi-gray-200"
+           style={{
+             top: 'var(--pad, 14px)',
+             left: 'var(--pad, 14px)',
+             right: 'var(--pad, 14px)',
+             bottom: 'var(--pad, 14px)',
+           }}
+         >
           <OSMMap pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} className="w-full h-full" height="100%" showRecenterButton />
-          
+         </div>
+         
           {/* Route loading overlay */}
           {routeLoading && pickupLocation && dropoffLocation && <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-20">
               <div className="flex items-center gap-2 bg-background px-4 py-2 rounded-full shadow-koloi-sm">
@@ -314,21 +321,29 @@ export default function RideView() {
                 <span className="text-sm font-medium">Calculating route...</span>
               </div>
             </div>}
-        </div>
 
-        {/* Ride Card - Clean inDrive Style */}
-        <div className="bg-background rounded-3xl shadow-koloi-xl pt-4 pb-6 px-5 flex flex-col">
-          {/* Handle Bar */}
-          <div className="w-10 h-1 bg-koloi-gray-300 rounded-full mx-auto mb-4" />
+         {/* Bottom Sheet - inDrive style */}
+         <section 
+           className="sheet absolute left-[var(--pad,14px)] right-[var(--pad,14px)] bottom-[calc(var(--pad,14px)+env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-[10px] rounded-[26px] p-[14px] shadow-[0_18px_40px_rgba(0,0,0,0.18)] z-30"
+           style={{
+             maxHeight: 'calc(100dvh - var(--navH, 56px) - 2*var(--pad, 14px) - env(safe-area-inset-top) - env(safe-area-inset-bottom))',
+             overflow: 'auto',
+           }}
+         >
+           {/* Grabber */}
+           <div className="grabber w-11 h-[5px] rounded-full bg-black/15 mx-auto mb-3" />
 
           {/* Location Inputs - Minimal inDrive style */}
-          <div className="bg-background rounded-2xl shadow-koloi-sm overflow-hidden mb-4">
+           <div className="inputs grid gap-[10px] mb-3">
             {/* Pickup Row */}
-            <div onClick={() => setActiveField(activeField === 'pickup' ? null : 'pickup')} className="w-full flex items-center gap-3 p-4 text-left hover:bg-koloi-gray-100/50 transition-colors cursor-pointer" role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && setActiveField(activeField === 'pickup' ? null : 'pickup')}>
-              <div className={cn('w-3 h-3 rounded-full shrink-0', pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400')} />
-              <p className={cn('flex-1 text-base font-medium truncate', pickupLocation ? 'text-foreground' : 'text-muted-foreground')}>
+             <label 
+               onClick={() => setActiveField(activeField === 'pickup' ? null : 'pickup')} 
+               className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors"
+             >
+               <span className={cn('dot w-2.5 h-2.5 rounded-full', pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400')} />
+               <span className={cn('text-base font-medium truncate', pickupLocation ? 'text-foreground' : 'text-muted-foreground')}>
                 {pickupLocation?.name || 'From where?'}
-              </p>
+               </span>
               {pickupLocation && <button onClick={e => {
               e.stopPropagation();
               setPickupLocation(null);
@@ -336,22 +351,17 @@ export default function RideView() {
             }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>}
-            </div>
-
-            {/* Divider with connector */}
-            <div className="flex items-center px-4">
-              <div className="w-3 flex justify-center">
-                <div className="w-px h-4 bg-koloi-gray-300" />
-              </div>
-              <div className="flex-1 h-px bg-koloi-gray-200 ml-3" />
-            </div>
+             </label>
 
             {/* Dropoff Row */}
-            <div onClick={() => setActiveField(activeField === 'dropoff' ? null : 'dropoff')} className="w-full flex items-center gap-3 p-4 text-left hover:bg-koloi-gray-100/50 transition-colors cursor-pointer" role="button" tabIndex={0} onKeyDown={e => e.key === 'Enter' && setActiveField(activeField === 'dropoff' ? null : 'dropoff')}>
-              <div className={cn('w-3 h-3 rounded-full shrink-0', dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400')} />
-              <p className={cn('flex-1 text-base font-medium truncate', dropoffLocation ? 'text-foreground' : 'text-muted-foreground')}>
+             <label 
+               onClick={() => setActiveField(activeField === 'dropoff' ? null : 'dropoff')} 
+               className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors"
+             >
+               <span className={cn('dot w-2.5 h-2.5 rounded-full', dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400')} />
+               <span className={cn('text-base font-medium truncate', dropoffLocation ? 'text-foreground' : 'text-muted-foreground')}>
                 {dropoffLocation?.name || 'Where to?'}
-              </p>
+               </span>
               {dropoffLocation && <button onClick={e => {
               e.stopPropagation();
               setDropoffLocation(null);
@@ -359,7 +369,7 @@ export default function RideView() {
             }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
                   <X className="w-4 h-4 text-muted-foreground" />
                 </button>}
-            </div>
+             </label>
           </div>
 
           {/* Expanded Selection Panel - inDrive style with yellow accent */}
@@ -436,7 +446,7 @@ export default function RideView() {
                   </> : 'Select locations'}
               </Button>
             </div>}
-        </div>
+         </section>
       </main>
 
       {/* Modals */}
