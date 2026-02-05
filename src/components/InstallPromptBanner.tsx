@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, Download } from 'lucide-react';
+import { X, Download, Share, Plus } from 'lucide-react';
 import koloiLogo from '@/assets/koloi-logo.png';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -8,7 +8,11 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-export default function InstallPromptBanner() {
+interface InstallPromptBannerProps {
+  forceShow?: boolean;
+}
+
+export default function InstallPromptBanner({ forceShow = false }: InstallPromptBannerProps) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
@@ -24,10 +28,15 @@ export default function InstallPromptBanner() {
       return;
     }
 
-    // Check if dismissed recently (within 7 days)
+    // For testing: clear localStorage if forceShow is true
+    if (forceShow) {
+      localStorage.removeItem('koloi_install_modal_last');
+    }
+
+    // Check if dismissed recently (within 3 days for better UX)
     const lastShown = Number(localStorage.getItem('koloi_install_modal_last') || 0);
-    const sevenDays = 7 * 24 * 60 * 60 * 1000;
-    if (Date.now() - lastShown < sevenDays) {
+    const threeDays = 3 * 24 * 60 * 60 * 1000;
+    if (!forceShow && Date.now() - lastShown < threeDays) {
       return;
     }
 
@@ -35,24 +44,16 @@ export default function InstallPromptBanner() {
     const isIOSDevice = /iphone|ipad|ipod/i.test(navigator.userAgent);
     setIsIOS(isIOSDevice);
 
-    // For iOS, show modal after a delay
-    if (isIOSDevice) {
-      const timer = setTimeout(() => {
-        localStorage.setItem('koloi_install_modal_last', String(Date.now()));
-        setShowModal(true);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
+    // Show modal after splash screen completes (delay of 3.5 seconds)
+    const showTimer = setTimeout(() => {
+      localStorage.setItem('koloi_install_modal_last', String(Date.now()));
+      setShowModal(true);
+    }, 3500);
 
     // Listen for beforeinstallprompt event (Android/Chrome)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      // Show modal after a short delay
-      setTimeout(() => {
-        localStorage.setItem('koloi_install_modal_last', String(Date.now()));
-        setShowModal(true);
-      }, 2000);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -66,23 +67,19 @@ export default function InstallPromptBanner() {
     window.addEventListener('appinstalled', handleAppInstalled);
 
     return () => {
+      clearTimeout(showTimer);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
-  }, []);
+  }, [forceShow]);
 
   const handleInstall = async () => {
-    if (isIOS) {
-      setShowModal(false);
-      return;
-    }
-    
     if (deferredPrompt) {
       await deferredPrompt.prompt();
       await deferredPrompt.userChoice;
       setDeferredPrompt(null);
-      setShowModal(false);
     }
+    setShowModal(false);
   };
 
   const handleDismiss = () => {
@@ -94,74 +91,77 @@ export default function InstallPromptBanner() {
   }
 
   return (
-    <div className="fixed inset-0 z-[99999] bg-black/60 flex items-start justify-center pt-[10vh] px-4">
-      <div className="w-full max-w-[520px] bg-background rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-        {/* Header with close button */}
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <div className="flex items-center gap-3">
-            <img 
-              src={koloiLogo} 
-              alt="Koloi" 
-              className="w-12 h-12 rounded-xl object-cover"
-            />
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Install Koloi</h2>
-              <p className="text-sm text-muted-foreground">Get picked. Get moving.</p>
-            </div>
-          </div>
+    <div className="fixed inset-0 z-[99999] bg-black/60 flex items-center justify-center p-4">
+      <div className="w-full max-w-[400px] bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+        {/* Header */}
+        <div className="relative p-6 pb-4 text-center">
           <button
             onClick={handleDismiss}
-            className="p-2 rounded-full hover:bg-muted transition-colors"
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
             aria-label="Close"
           >
-            <X className="w-5 h-5 text-muted-foreground" />
+            <X className="w-5 h-5 text-gray-500" />
           </button>
+          
+          <img 
+            src={koloiLogo} 
+            alt="Koloi" 
+            className="w-20 h-20 mx-auto rounded-2xl object-cover shadow-lg mb-4"
+          />
+          <h2 className="text-xl font-bold text-gray-900">Install Koloi</h2>
+          <p className="text-sm text-gray-500 mt-1">Add to your home screen</p>
         </div>
 
         {/* Content */}
-        <div className="p-5">
+        <div className="px-6 pb-6">
           {isIOS ? (
             <div className="space-y-4">
-              <p className="text-foreground leading-relaxed">
-                Install Koloi on your iPhone for the best experience:
+              <p className="text-gray-600 text-center text-sm">
+                Install Koloi for the best experience:
               </p>
-              <ol className="space-y-3 text-foreground">
-                <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">1</span>
-                  <span>Tap the <strong>Share</strong> button in Safari</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">2</span>
-                  <span>Scroll down and select <strong>Add to Home Screen</strong></span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">3</span>
-                  <span>Tap <strong>Add</strong> in the top right corner</span>
-                </li>
-              </ol>
+              <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <Share className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-gray-700 text-sm">Tap the <strong>Share</strong> button below</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <Plus className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-gray-700 text-sm">Select <strong>Add to Home Screen</strong></span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-xs font-bold">✓</span>
+                  </div>
+                  <span className="text-gray-700 text-sm">Tap <strong>Add</strong> to confirm</span>
+                </div>
+              </div>
             </div>
           ) : (
-            <p className="text-foreground leading-relaxed">
-              Install Koloi to your home screen for quick access and the best ride-hailing experience.
+            <p className="text-gray-600 text-center text-sm">
+              Get quick access to Koloi from your home screen for the best ride-hailing experience.
             </p>
           )}
         </div>
 
         {/* Footer buttons */}
-        <div className="flex gap-3 p-4 pt-0 justify-end">
+        <div className="flex gap-3 p-4 pt-0 border-t border-gray-100">
           <Button
-            variant="outline"
+            variant="ghost"
             onClick={handleDismiss}
-            className="px-4"
+            className="flex-1 h-12 rounded-xl text-gray-600"
           >
-            Not now
+            Maybe later
           </Button>
           <Button
             onClick={handleInstall}
-            className="px-4 gap-2"
+            className="flex-1 h-12 rounded-xl gap-2 bg-primary hover:bg-primary/90"
           >
             {isIOS ? (
-              'Got it'
+              'Got it!'
             ) : (
               <>
                 <Download className="w-4 h-4" />
