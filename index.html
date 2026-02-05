@@ -63,6 +63,17 @@
   </head>
 
   <body>
+    <!-- Instant splash screen (shows before React loads) -->
+    <div id="instant-splash" style="position:fixed; inset:0; background:#ffffff; display:flex; align-items:center; justify-content:center; z-index:999999;">
+      <img src="/icons/koloi-launch.png" alt="Koloi" style="width:192px; height:auto; animation: splash-pulse 2s ease-in-out infinite;" />
+    </div>
+    <style>
+      @keyframes splash-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+    </style>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

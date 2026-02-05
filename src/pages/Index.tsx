@@ -40,7 +40,7 @@ const Index = () => {
   return (
     <>
       {showSplash && (
-        <SplashScreen onComplete={() => setShowSplash(false)} duration={2500} />
+        <SplashScreen onComplete={() => setShowSplash(false)} duration={5000} />
       )}
       <div className="min-h-screen bg-background">
       <Header 

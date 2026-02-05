@@ -1,14 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import splashLogo from '@/assets/koloi-splash-logo.png';
 
 interface SplashScreenProps {
   onComplete: () => void;
-  duration?: number; // Default is now 7000ms (7 seconds)
+  duration?: number;
 }
 
-const SplashScreen = ({ onComplete, duration = 7000 }: SplashScreenProps) => {
+const SplashScreen = ({ onComplete, duration = 5000 }: SplashScreenProps) => {
   const [isVisible, setIsVisible] = useState(true);
   const [isFading, setIsFading] = useState(false);
+
+  // Remove the HTML instant splash as soon as React takes over
+  useLayoutEffect(() => {
+    const instantSplash = document.getElementById('instant-splash');
+    if (instantSplash) {
+      instantSplash.remove();
+    }
+  }, []);
 
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
@@ -35,7 +43,7 @@ const SplashScreen = ({ onComplete, duration = 7000 }: SplashScreenProps) => {
       }`}
     >
       <img 
-        src={splashLogo} 
+        src="/icons/koloi-launch.png" 
         alt="Koloi" 
         className="w-48 h-auto sm:w-64 md:w-72 animate-fade-in animate-pulse"
         style={{ animationDuration: '2s' }}
