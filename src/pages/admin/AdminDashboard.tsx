@@ -1,8 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import AdminGuard from '@/components/admin/AdminGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
+import AdminMap from '@/components/admin/AdminMap';
 
 interface DriverRow {
   id: string;
@@ -39,6 +40,7 @@ const AdminDashboard = () => {
   const [pendingDrivers, setPendingDrivers] = useState<DriverRow[]>([]);
   const [onlineDrivers, setOnlineDrivers] = useState<DriverRow[]>([]);
   const [latestRides, setLatestRides] = useState<RideRow[]>([]);
+  const [activeRides, setActiveRides] = useState<RideRow[]>([]);
 
   const refreshAll = useCallback(async () => {
     setError('');
@@ -111,9 +113,17 @@ const AdminDashboard = () => {
       
       if (ridesErr) throw ridesErr;
 
+      // Active rides (for map)
+      const { data: active } = await supabase
+        .from('rides')
+        .select('id, pickup_address, dropoff_address, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, fare, status, created_at, driver_id')
+        .in('status', ['pending', 'requested', 'accepted', 'in_progress', 'arrived'])
+        .limit(50);
+
       setPendingDrivers(pendingWithProfiles);
       setOnlineDrivers(onlineWithDetails);
       setLatestRides(rides || []);
+      setActiveRides(active || []);
     } catch (e: any) {
       setError(e?.message || 'Failed to load dashboard data');
     } finally {
@@ -183,6 +193,32 @@ const AdminDashboard = () => {
     await refreshAll();
   };
 
+  // Transform data for map
+  const mapDrivers = useMemo(() => 
+    onlineDrivers
+      .filter(d => d.location?.latitude && d.location?.longitude)
+      .map(d => ({
+        id: d.id,
+        name: d.profile?.full_name || 'Driver',
+        lat: d.location!.latitude,
+        lng: d.location!.longitude,
+        isOnline: true,
+      }))
+  , [onlineDrivers]);
+
+  const mapRides = useMemo(() => 
+    activeRides.map(r => ({
+      id: r.id,
+      pickupLat: (r as any).pickup_lat,
+      pickupLng: (r as any).pickup_lon,
+      dropoffLat: (r as any).dropoff_lat,
+      dropoffLng: (r as any).dropoff_lon,
+      status: r.status,
+      pickupAddress: r.pickup_address,
+      dropoffAddress: r.dropoff_address,
+    }))
+  , [activeRides]);
+
   return (
     <AdminGuard>
       <AdminLayout>
@@ -200,6 +236,17 @@ const AdminDashboard = () => {
           </header>
 
           {error && <div style={S.error}>{error}</div>}
+
+          {/* Live Map */}
+          <section style={{ ...S.card, marginBottom: 16 }}>
+            <div style={S.cardTitle}>Live Map — Drivers & Active Rides</div>
+            <AdminMap 
+              drivers={mapDrivers} 
+              rides={mapRides} 
+              height="420px"
+              className="mt-2"
+            />
+          </section>
 
           <div style={S.grid}>
             {/* Pending Approvals */}
