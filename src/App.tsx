@@ -13,6 +13,7 @@ import DriverDashboard from "./pages/DriverDashboard";
 import NotFound from "./pages/NotFound";
 import DriverApplication from "./pages/DriverApplication";
 import Auth from "./pages/Auth";
+import Signup from "./pages/Signup";
 import AppDashboard from "./pages/AppDashboard";
 import PilotTest from "./pages/PilotTest";
 
@@ -44,7 +45,7 @@ const App = () => (
               <Route path="/driver" element={<DriverDashboard />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/login" element={<Auth />} />
-              <Route path="/signup" element={<Auth />} />
+              <Route path="/signup" element={<Signup />} />
               <Route path="/dashboard" element={<AppDashboard />} />
               <Route path="/app" element={<AppDashboard />} />
               <Route path="/drive" element={<DriverApplication />} />
