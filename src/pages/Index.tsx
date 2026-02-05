@@ -41,9 +41,9 @@ const Index = () => {
   return (
     <>
       {showSplash && (
-        <SplashScreen onComplete={() => setShowSplash(false)} duration={3000} />
+        <SplashScreen onComplete={() => setShowSplash(false)} duration={2500} />
       )}
-      <InstallPromptBanner />
+      {!showSplash && <InstallPromptBanner />}
       <div className="min-h-screen bg-background">
       <Header 
         onLoginClick={handleLoginClick} 
