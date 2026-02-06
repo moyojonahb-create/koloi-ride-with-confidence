@@ -17,6 +17,7 @@ import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 import InstallPromptBanner from '@/components/InstallPromptBanner';
 import KoloiLogo from '@/components/KoloiLogo';
 import QuickPickChips from './QuickPickChips';
+import ProximityFilter from './ProximityFilter';
 import { Input } from '@/components/ui/input';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
 interface SelectedLocation {
@@ -58,6 +59,7 @@ export default function RideView() {
   });
   const [activeField, setActiveField] = useState<'pickup' | 'dropoff' | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [proximityRadius, setProximityRadius] = useState<number | null>(null);
 
   // Ride state
   const [rideStatus, setRideStatus] = useState<RideStatus>('idle');
@@ -73,13 +75,15 @@ export default function RideView() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
-  // Search landmarks
+  // Search landmarks with proximity filter
   const {
     landmarks,
     loading: landmarksLoading
   } = useLandmarksSearch({
     searchQuery,
-    limit: 6
+    limit: 15,
+    userLocation: gpsState.coords,
+    radiusKm: proximityRadius,
   });
 
   // Route calculation
@@ -395,6 +399,19 @@ export default function RideView() {
                 {gpsState.error && <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-xl">{gpsState.error}</p>}
               </div>
 
+              {/* Proximity Filter - When GPS is available */}
+              {gpsState.coords && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
+                    Nearby places
+                  </p>
+                  <ProximityFilter
+                    selected={proximityRadius}
+                    onSelect={setProximityRadius}
+                  />
+                </div>
+              )}
+
               {/* Quick Picks - Horizontal scroll */}
               <div>
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
@@ -403,15 +420,31 @@ export default function RideView() {
                 <QuickPickChips onSelect={handleQuickPickSelect} selectedName={activeField === 'pickup' ? pickupLocation?.name : dropoffLocation?.name} />
               </div>
 
-              {/* Search Results - inDrive place listing style */}
-              {searchQuery.trim() && <div className="bg-background rounded-2xl shadow-koloi-sm overflow-hidden">
+              {/* Search Results / Nearby Places - inDrive place listing style */}
+              {(searchQuery.trim() || proximityRadius !== null) && (
+                <div className="bg-background rounded-2xl shadow-koloi-sm overflow-hidden">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-4 pb-2">
-                    Search results
+                    {searchQuery.trim() ? 'Search results' : `Places within ${proximityRadius}km`}
                   </p>
                   <div className="max-h-[200px] overflow-y-auto">
-                    {landmarksLoading ? <div className="flex items-center justify-center py-8">
+                    {landmarksLoading ? (
+                      <div className="flex items-center justify-center py-8">
                         <Loader2 className="w-5 h-5 animate-spin text-accent" />
-                      </div> : landmarks.length === 0 ? <p className="text-center py-8 text-muted-foreground">No places found</p> : landmarks.map((landmark, index) => <button key={landmark.id} onClick={() => handleLandmarkSelect(landmark)} className={cn('w-full flex items-center gap-4 p-4 hover:bg-koloi-gray-100 transition-colors text-left', index !== landmarks.length - 1 && 'border-b border-koloi-gray-200')}>
+                      </div>
+                    ) : landmarks.length === 0 ? (
+                      <p className="text-center py-8 text-muted-foreground">
+                        {searchQuery.trim() ? 'No places found' : `No places within ${proximityRadius}km`}
+                      </p>
+                    ) : (
+                      landmarks.map((landmark, index) => (
+                        <button 
+                          key={landmark.id} 
+                          onClick={() => handleLandmarkSelect(landmark)} 
+                          className={cn(
+                            'w-full flex items-center gap-4 p-4 hover:bg-koloi-gray-100 transition-colors text-left', 
+                            index !== landmarks.length - 1 && 'border-b border-koloi-gray-200'
+                          )}
+                        >
                           <div className="w-10 h-10 rounded-full bg-koloi-gray-200 flex items-center justify-center shrink-0">
                             <MapPin className="w-5 h-5 text-muted-foreground" />
                           </div>
@@ -420,9 +453,12 @@ export default function RideView() {
                             <p className="text-sm text-muted-foreground capitalize">{landmark.category}</p>
                           </div>
                           <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                        </button>)}
+                        </button>
+                      ))
+                    )}
                   </div>
-                </div>}
+                </div>
+              )}
             </div>}
 
           {/* Fare Display & Request Button - Always visible when not searching */}

@@ -1,0 +1,215 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// Map OSM tags to our categories
+const getCategoryFromProperties = (props: Record<string, any>): string | null => {
+  if (props.amenity) {
+    const amenityMap: Record<string, string> = {
+      school: 'School',
+      hospital: 'Hospital',
+      clinic: 'Clinic',
+      pharmacy: 'Pharmacy',
+      bank: 'Bank',
+      atm: 'Bank',
+      fuel: 'Fuel Station',
+      police: 'Police',
+      post_office: 'Post Office',
+      restaurant: 'Restaurant',
+      fast_food: 'Restaurant',
+      cafe: 'Restaurant',
+      bar: 'Bar',
+      pub: 'Bar',
+      place_of_worship: 'Church',
+      courthouse: 'Government',
+      townhall: 'Government',
+      community_centre: 'Community',
+      library: 'Library',
+      bus_station: 'Transport',
+      taxi: 'Transport',
+    };
+    return amenityMap[props.amenity] || 'Amenity';
+  }
+
+  if (props.shop) {
+    const shopMap: Record<string, string> = {
+      supermarket: 'Supermarket',
+      mall: 'Shopping',
+      convenience: 'Shop',
+      butcher: 'Shop',
+      clothes: 'Shop',
+      hardware: 'Hardware',
+      furniture: 'Furniture',
+      car_repair: 'Auto Services',
+      agrarian: 'Agricultural',
+      jewelry: 'Shop',
+    };
+    return shopMap[props.shop] || 'Shop';
+  }
+
+  if (props.tourism) {
+    const tourismMap: Record<string, string> = {
+      hotel: 'Hotel',
+      guest_house: 'Hotel',
+      motel: 'Hotel',
+      hostel: 'Hotel',
+      camp_site: 'Camping',
+    };
+    return tourismMap[props.tourism] || 'Tourism';
+  }
+
+  if (props.office) {
+    if (props.office === 'government' || props.government) return 'Government';
+    if (props.office === 'educational_institution') return 'Education';
+    return 'Office';
+  }
+
+  // Education tag without amenity
+  if (props.education === 'yes') return 'School';
+  
+  if (props.healthcare || props.medical) return 'Healthcare';
+  if (props.leisure === 'park') return 'Park';
+  if (props.leisure === 'fitness_centre') return 'Fitness';
+  if (props.leisure === 'sports_centre' || props.sport) return 'Sports';
+  if (props.landuse === 'commercial') return 'Commercial';
+  if (props.landuse === 'industrial' || props.man_made === 'works') return 'Industrial';
+  if (props.highway && ['bus_stop', 'taxi'].includes(props.highway)) return 'Transport';
+  if (props.craft) return 'Services';
+  
+  // Named buildings with name but no other tags - include as Landmark
+  if (props.building && props.name) return 'Landmark';
+  
+  // Named places without specific tags
+  if (props.place) return 'Area';
+
+  // Skip routes, boundaries, and non-POI features
+  if (props.route || props.boundary || props.highway || (props.building === 'yes' && !props.name)) {
+    return null;
+  }
+
+  return null;
+};
+
+// Extract keywords from the place name and properties
+const extractKeywords = (name: string, props: Record<string, any>): string[] => {
+  const keywords: string[] = [];
+  
+  const nameParts = name.toLowerCase().split(/[\s,\-&]+/).filter((p: string) => p.length > 2);
+  keywords.push(...nameParts);
+
+  if (props.amenity) keywords.push(props.amenity);
+  if (props.shop) keywords.push(props.shop);
+  if (props.tourism) keywords.push(props.tourism);
+  if (props.religion) keywords.push(props.religion);
+  if (props.product) keywords.push(props.product);
+  if (props.operator) keywords.push(...props.operator.toLowerCase().split(/\s+/));
+
+  return [...new Set(keywords)].slice(0, 10);
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const { geojson } = await req.json();
+
+    if (!geojson || !geojson.features) {
+      return new Response(JSON.stringify({ error: "Invalid GeoJSON" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const places: any[] = [];
+    const seenNames = new Set<string>();
+
+    for (const feature of geojson.features) {
+      const props = feature.properties || {};
+      const name = props.name;
+
+      if (!name || typeof name !== 'string' || name.length < 2) continue;
+      
+      const normalizedName = name.toLowerCase().trim();
+      if (seenNames.has(normalizedName)) continue;
+
+      const category = getCategoryFromProperties(props);
+      if (!category) continue;
+
+      const coords = feature.geometry?.coordinates;
+      if (!coords || coords.length < 2) continue;
+
+      const [longitude, latitude] = coords;
+      
+      // Validate coordinates for Gwanda area (approx 50km box)
+      if (latitude < -21.5 || latitude > -20.5 || longitude < 28.5 || longitude > 29.5) {
+        continue;
+      }
+
+      seenNames.add(normalizedName);
+      
+      places.push({
+        name: name.trim(),
+        category,
+        latitude,
+        longitude,
+        keywords: extractKeywords(name, props),
+        is_active: true,
+      });
+    }
+
+    console.log(`Parsed ${places.length} places from GeoJSON`);
+
+    // Clear existing landmarks first
+    const { error: deleteError } = await supabase
+      .from('koloi_landmarks')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+
+    if (deleteError) {
+      console.error("Delete error:", deleteError);
+    }
+
+    // Insert in batches of 100
+    const batchSize = 100;
+    let inserted = 0;
+    
+    for (let i = 0; i < places.length; i += batchSize) {
+      const batch = places.slice(i, i + batchSize);
+      const { error: insertError } = await supabase
+        .from('koloi_landmarks')
+        .insert(batch);
+
+      if (insertError) {
+        console.error("Insert error:", insertError);
+        throw insertError;
+      }
+      inserted += batch.length;
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        success: true, 
+        imported: inserted,
+        message: `Successfully imported ${inserted} places from OSM` 
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+
+  } catch (error: any) {
+    console.error("Import error:", error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});

@@ -26,6 +26,7 @@ import AdminTrips from "./pages/admin/AdminTrips";
 import AdminLandmarks from "./pages/admin/AdminLandmarks";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminSettings from "./pages/admin/AdminSettings";
+import ImportOsmPlaces from "./pages/admin/ImportOsmPlaces";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/admin/landmarks" element={<AdminLandmarks />} />
               <Route path="/admin/reports" element={<AdminReports />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
+              <Route path="/admin/import-osm" element={<ImportOsmPlaces />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

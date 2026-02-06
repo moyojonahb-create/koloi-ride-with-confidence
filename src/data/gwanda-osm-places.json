@@ -1,0 +1,4138 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-02-06T05:39:11Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/2119856",
+        "name": "Beitbridge–Bulawayo",
+        "route": "railway",
+        "type": "route",
+        "wikidata": "Q1114336",
+        "wikipedia": "en:Beitbridge Bulawayo Railway",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.4035345,
+          -21.1352767
+        ]
+      },
+      "id": "relation/2119856"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/2314001",
+        "name": "A6",
+        "network": "zw",
+        "ref": "A6",
+        "route": "road",
+        "type": "route",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.2906152,
+          -21.1659681
+        ]
+      },
+      "id": "relation/2314001"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/3336981",
+        "ISO3166-2": "ZW-MS",
+        "admin_level": "4",
+        "alt_name:ar": "إقليم ماتابيليلاند الجنوبية",
+        "alt_name:de": "Provinz Matabeleland South",
+        "alt_name:es": "Provincia de Matabelelandia Meridional",
+        "boundary": "administrative",
+        "name": "Matabeleland South",
+        "name:af": "Matabeleland-Suid",
+        "name:ar": "مقاطعة جنوب ماتابيليلاند",
+        "name:bar": "Provinz Matabeleland South",
+        "name:be-tarask": "Паўднёвы Матабэлелэнд",
+        "name:bg": "Южен Матабелеленд",
+        "name:ca": "Matabeleland Meridional",
+        "name:ceb": "Matabeleland South Province",
+        "name:da": "Matabeleland South",
+        "name:de": "Südmatabeleland",
+        "name:en": "Matabeleland South Province",
+        "name:es": "Matabelelandia Meridional",
+        "name:et": "Lõuna-Matabelelandi provints",
+        "name:eu": "Hegoaldeko Matabeleland",
+        "name:fa": "استان ماتابلند جنوبی",
+        "name:fi": "Matabeleland South",
+        "name:fr": "Matabeleland méridional",
+        "name:frr": "Matabeleland South",
+        "name:id": "Matabeleland Selatan",
+        "name:it": "Provincia del Matabeleland Meridionale",
+        "name:ja": "南マタベレランド州",
+        "name:ka": "სამხრეთი მატაბელელენდი",
+        "name:ko": "남마타벨랜드주",
+        "name:lt": "Pietų Matabelelandas",
+        "name:mrj": "Кечӹвӓлвел Матабелеленд",
+        "name:nan": "Lâm Matabeleland Séng",
+        "name:nl": "Matabeleland South",
+        "name:no": "Matabeleland South",
+        "name:pl": "Matabeleland Południowy",
+        "name:pt": "Matabelelândia Sul",
+        "name:ro": "Matabeleland South",
+        "name:ru": "Южный Матабелеленд",
+        "name:sn": "Dunhu reMatabeleland South",
+        "name:sr": "Матабелеленд Југ",
+        "name:sv": "Matabeleland South",
+        "name:tr": "Matabeleland Güney",
+        "name:uk": "Південний Матабелеленд",
+        "name:ur": "ماتابیلےلینڈ جنوبی صوبہ",
+        "name:wuu": "南马塔贝莱兰省",
+        "name:zh": "南馬塔貝萊蘭省",
+        "name:zu": "Matabeleland South",
+        "type": "boundary",
+        "wikidata": "Q498355",
+        "wikipedia": "en:Matabeleland South Province",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9117768,
+          -20.9197782
+        ]
+      },
+      "id": "relation/3336981"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/5986731",
+        "landuse": "landfill",
+        "name": "Slimes Dam",
+        "type": "multipolygon",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.909251,
+          -20.8439343
+        ]
+      },
+      "id": "relation/5986731"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/8472186",
+        "name": "Bulawayo–Beitbridge",
+        "operator": "National Railways of Zimbabwe",
+        "public_transport:version": "2",
+        "route": "train",
+        "service": "international",
+        "type": "route",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.2840616,
+          -21.1637907
+        ]
+      },
+      "id": "relation/8472186"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "relation/20147709",
+        "building": "yes",
+        "name": "NASSA Complex",
+        "shop": "mall",
+        "type": "multipolygon",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0070537,
+          -20.9449361
+        ]
+      },
+      "id": "relation/20147709"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/31687765",
+        "boat": "no",
+        "intermittent": "yes",
+        "name": "Thuli River",
+        "tidal": "no",
+        "waterway": "river",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.8367023,
+          -21.0800362
+        ]
+      },
+      "id": "way/31687765"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/216525232",
+        "highway": "tertiary",
+        "name": "Phakama Road",
+        "source": "bing aerial tracing",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0232103,
+          -20.9436339
+        ]
+      },
+      "id": "way/216525232"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/216525249",
+        "highway": "tertiary",
+        "name": "Geniva Road",
+        "source": "bing aerial tracing",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0155329,
+          -20.9429343
+        ]
+      },
+      "id": "way/216525249"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/216525251",
+        "highway": "unclassified",
+        "name": "Spitzkop Road",
+        "surface": "asphalt",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0724101,
+          -20.9387631
+        ]
+      },
+      "id": "way/216525251"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/216525267",
+        "highway": "residential",
+        "name": "2nd Avenue",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0033442,
+          -20.9400416
+        ]
+      },
+      "id": "way/216525267"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/216525270",
+        "highway": "residential",
+        "name": "1st Avenue",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0025228,
+          -20.9395701
+        ]
+      },
+      "id": "way/216525270"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/216525335",
+        "highway": "residential",
+        "name": "3rd Avenue",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0036068,
+          -20.9414582
+        ]
+      },
+      "id": "way/216525335"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/216525341",
+        "highway": "residential",
+        "name": "Lawley street",
+        "surface": "asphalt",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0036735,
+          -20.9426935
+        ]
+      },
+      "id": "way/216525341"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/216525351",
+        "aeroway": "aerodrome",
+        "icao": "FVGD",
+        "name": "Gwanda Airport",
+        "source": "ourairports.com",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0009912,
+          -20.8990876
+        ]
+      },
+      "id": "way/216525351"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/265379979",
+        "bridge": "yes",
+        "highway": "tertiary",
+        "layer": "1",
+        "name": "Mtshabezi Bridge",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9937889,
+          -20.9481289
+        ]
+      },
+      "id": "way/265379979"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/265380011",
+        "highway": "residential",
+        "name": "Marriage Phakathi Road",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0221209,
+          -20.9411554
+        ]
+      },
+      "id": "way/265380011"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/268578646",
+        "amenity": "retail",
+        "landuse": "residential",
+        "name": "Rural Business Centre",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.8972484,
+          -20.8165838
+        ]
+      },
+      "id": "way/268578646"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/268590872",
+        "amenity": "school",
+        "name": "Sabiwa",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9241043,
+          -20.8749784
+        ]
+      },
+      "id": "way/268590872"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/268844994",
+        "amenity": "school",
+        "name": "Nkazhi Primary School",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.1392319,
+          -20.8494778
+        ]
+      },
+      "id": "way/268844994"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/268844995",
+        "amenity": "school",
+        "name": "Nkazhi Secondary School",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.1376789,
+          -20.8502975
+        ]
+      },
+      "id": "way/268844995"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/268846013",
+        "amenity": "school",
+        "name": "Dombosho Primary School",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0587217,
+          -20.7989355
+        ]
+      },
+      "id": "way/268846013"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/268846014",
+        "landuse": "retail",
+        "name": "Rural Business Centre",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0608889,
+          -20.7983989
+        ]
+      },
+      "id": "way/268846014"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/297522524",
+        "capital": "4",
+        "name": "Gwanda",
+        "name:ar": "جواندا",
+        "name:ru": "Гванда",
+        "place": "town",
+        "population": "14450",
+        "wikidata": "Q1557796",
+        "wikipedia": "en:Gwanda"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0036855,
+          -20.9414292
+        ]
+      },
+      "id": "node/297522524"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/429452436",
+        "amenity": "university",
+        "name": "Joshua Mqabuko Nkomo Gwanda Polytechnical College",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0118487,
+          -20.9517011
+        ]
+      },
+      "id": "way/429452436"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/441529830",
+        "name": "Lower Mudjeni Dam",
+        "natural": "water",
+        "water": "reservoir",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9452795,
+          -20.8443691
+        ]
+      },
+      "id": "way/441529830"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/488852109",
+        "intermittent": "yes",
+        "name": "Mtshabezi River",
+        "seasonal": "yes",
+        "waterway": "river",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9224872,
+          -20.9551563
+        ]
+      },
+      "id": "way/488852109"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/489244302",
+        "leisure": "swimming_pool",
+        "name": "Gwanda Public Swimming Pool",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0014084,
+          -20.9436773
+        ]
+      },
+      "id": "way/489244302"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/489273506",
+        "amenity": "place_of_worship",
+        "building": "yes",
+        "name": "BICC Spitzkop North",
+        "religion": "christian",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0320396,
+          -20.9313819
+        ]
+      },
+      "id": "way/489273506"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/489343443",
+        "building": "yes",
+        "name": "ZTDC Gwanda Off Town",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0059028,
+          -20.9336916
+        ]
+      },
+      "id": "way/489343443"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/490652090",
+        "name": "Gwanda Substation",
+        "power": "substation",
+        "voltage": "88000",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0064175,
+          -20.9358499
+        ]
+      },
+      "id": "way/490652090"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/629632571",
+        "addr:city": "Gwanda",
+        "name": "AFM Spitzkop North",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0303881,
+          -20.9301326
+        ]
+      },
+      "id": "way/629632571"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/629641732",
+        "amenity": "place_of_worship",
+        "building": "yes",
+        "name": "ASSEMBLIES OF GOD",
+        "religion": "christian",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0269195,
+          -20.9240076
+        ]
+      },
+      "id": "way/629641732"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/629641743",
+        "amenity": "college",
+        "name": "JOSHUA MQABUKO POLYTECHNIC OLD SIDE CAMPUS",
+        "smoking": "outside",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0299493,
+          -20.9347609
+        ]
+      },
+      "id": "way/629641743"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/666816906",
+        "highway": "trunk",
+        "lanes": "2",
+        "name": "Byo - GDA-BB road",
+        "ref": "A6",
+        "surface": "asphalt",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.006115,
+          -20.9412566
+        ]
+      },
+      "id": "way/666816906"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/682818334",
+        "highway": "tertiary",
+        "name": "Jacaranda Way",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0069975,
+          -20.9330729
+        ]
+      },
+      "id": "way/682818334"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1118438865",
+        "name": "Blanket Mine Solar Farm",
+        "operator": "Caledonia Mining Corporation",
+        "plant:method": "photovoltaic",
+        "plant:output:electricity": "12 MW",
+        "plant:source": "solar",
+        "power": "plant",
+        "start_date": "2022",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9130286,
+          -20.8552413
+        ]
+      },
+      "id": "way/1118438865"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1119620995",
+        "landuse": "landfill",
+        "name": "Slimes Dam",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9209095,
+          -20.8830195
+        ]
+      },
+      "id": "way/1119620995"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1119620999",
+        "landuse": "landfill",
+        "name": "Slimes Dam",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9257035,
+          -20.8827147
+        ]
+      },
+      "id": "way/1119620999"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1121774994",
+        "building": "yes",
+        "name": "ACS",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.8996585,
+          -20.8522388
+        ]
+      },
+      "id": "way/1121774994"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1175781868",
+        "building": "yes",
+        "name": "Animal pen",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0706568,
+          -20.81377
+        ]
+      },
+      "id": "way/1175781868"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1175781881",
+        "building": "yes",
+        "name": "Animal Pen?",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0734719,
+          -20.8114401
+        ]
+      },
+      "id": "way/1175781881"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1298076185",
+        "name": "Sunset Tech Solar Farm",
+        "operator": "Richaw",
+        "plant:method": "photovoltaic",
+        "plant:output:electricity": "1.3MW",
+        "plant:source": "solar",
+        "power": "plant",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.1032433,
+          -21.0068814
+        ]
+      },
+      "id": "way/1298076185"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1324990508",
+        "addr:city": "Gwanda",
+        "addr:housenumber": "Stand 1317",
+        "addr:street": "Phakama",
+        "amenity": "university",
+        "email": "senondopryschool@gmail.com",
+        "internet_access": "yes",
+        "name": "Senondo Primary School",
+        "website": "https://www.senondoprimary.ac.zw",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0274485,
+          -20.9428365
+        ]
+      },
+      "id": "way/1324990508"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1368302108",
+        "bicycle": "yes",
+        "foot": "yes",
+        "highway": "track",
+        "motor_vehicle": "yes",
+        "name": "Unknown",
+        "smoothness": "bad",
+        "source": "local knowledge",
+        "surface": "ground",
+        "tracktype": "grade2",
+        "width": "3",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9877163,
+          -20.9406236
+        ]
+      },
+      "id": "way/1368302108"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1408720332",
+        "highway": "residential",
+        "name": "Gwanda Show Grounds way",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0020522,
+          -20.931248
+        ]
+      },
+      "id": "way/1408720332"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1408720333",
+        "highway": "residential",
+        "name": "Gwanda Show Grounds Road",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0017051,
+          -20.9304751
+        ]
+      },
+      "id": "way/1408720333"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471619111",
+        "addr:city": "Gwanda Town",
+        "building": "yes",
+        "layer": "1",
+        "name": "OPC Mat-South Building",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0101201,
+          -20.9409992
+        ]
+      },
+      "id": "way/1471619111"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471624040",
+        "landuse": "retail",
+        "name": "Jahunda Shopping Center",
+        "shop": "mall",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0141708,
+          -20.9419227
+        ]
+      },
+      "id": "way/1471624040"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471629534",
+        "building": "yes",
+        "layer": "1",
+        "name": "Ultra Shopping Center",
+        "shop": "mall",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0308485,
+          -20.9437091
+        ]
+      },
+      "id": "way/1471629534"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471649144",
+        "building": "university",
+        "layer": "1",
+        "name": "Zimbabwe Open University",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0027281,
+          -20.9331799
+        ]
+      },
+      "id": "way/1471649144"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471681931",
+        "amenity": "marketplace",
+        "name": "Emabhizeni",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.005252,
+          -20.94187
+        ]
+      },
+      "id": "way/1471681931"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471683916",
+        "landuse": "commercial",
+        "name": "Government Complex",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0046107,
+          -20.9411368
+        ]
+      },
+      "id": "way/1471683916"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471688927",
+        "building": "yes",
+        "layer": "1",
+        "name": "Oasis Mall",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0061774,
+          -20.9408151
+        ]
+      },
+      "id": "way/1471688927"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471703585",
+        "name": "Mt Cazalete 1, 2, Posh Hotel",
+        "tourism": "hotel",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9993987,
+          -20.9490134
+        ]
+      },
+      "id": "way/1471703585"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471712274",
+        "leisure": "park",
+        "name": "Gwanda Park",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0034444,
+          -20.941437
+        ]
+      },
+      "id": "way/1471712274"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471715292",
+        "amenity": "police",
+        "name": "ZRP Provincial Police Camp",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0131476,
+          -20.9390472
+        ]
+      },
+      "id": "way/1471715292"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471716081",
+        "amenity": "school",
+        "name": "Jahunda Pry School",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0168788,
+          -20.9398321
+        ]
+      },
+      "id": "way/1471716081"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1471716725",
+        "amenity": "courthouse",
+        "building": "yes",
+        "name": "Mat-South Provincial Court",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0173687,
+          -20.9368509
+        ]
+      },
+      "id": "way/1471716725"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472095693",
+        "amenity": "school",
+        "name": "Mt Czalete Pry School",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9968251,
+          -20.9493677
+        ]
+      },
+      "id": "way/1472095693"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472095698",
+        "amenity": "school",
+        "name": "St Christipher's Grounds",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0015245,
+          -20.9384316
+        ]
+      },
+      "id": "way/1472095698"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472095752",
+        "leisure": "park",
+        "name": "Jahunda Park",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0182183,
+          -20.9403871
+        ]
+      },
+      "id": "way/1472095752"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472095753",
+        "amenity": "school",
+        "name": "Gwanda High School",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0220407,
+          -20.9392601
+        ]
+      },
+      "id": "way/1472095753"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472095823",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Gwanda Provincial Hospital",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.000811,
+          -20.9419768
+        ]
+      },
+      "id": "way/1472095823"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472469080",
+        "barrier": "wall",
+        "leisure": "stadium",
+        "name": "Phelandaba Stadium",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.017794,
+          -20.9455051
+        ]
+      },
+      "id": "way/1472469080"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472469111",
+        "amenity": "place_of_worship",
+        "building": "yes",
+        "name": "Reformed church in Zimbabwe",
+        "religion": "christian",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.016239,
+          -20.9404344
+        ]
+      },
+      "id": "way/1472469111"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472469120",
+        "amenity": "place_of_worship",
+        "building": "yes",
+        "name": "BICC Jahunda",
+        "religion": "christian",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0161326,
+          -20.9395761
+        ]
+      },
+      "id": "way/1472469120"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472469125",
+        "amenity": "fuel",
+        "name": "Nugget Fuel Station",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0184948,
+          -20.9385737
+        ]
+      },
+      "id": "way/1472469125"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472469129",
+        "highway": "tertiary",
+        "name": "Phakama Road",
+        "source": "bing aerial tracing",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0196712,
+          -20.9443971
+        ]
+      },
+      "id": "way/1472469129"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472469131",
+        "highway": "tertiary",
+        "name": "Spitzkop Road",
+        "surface": "asphalt",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0166883,
+          -20.9400319
+        ]
+      },
+      "id": "way/1472469131"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472469134",
+        "highway": "tertiary",
+        "name": "Phakama Road",
+        "source": "bing aerial tracing",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0246303,
+          -20.9399176
+        ]
+      },
+      "id": "way/1472469134"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472476067",
+        "highway": "residential",
+        "name": "Gwanda Show Grounds Road",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0029695,
+          -20.9337118
+        ]
+      },
+      "id": "way/1472476067"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1472476068",
+        "highway": "residential",
+        "name": "Gwanda Show Grounds Road",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0028147,
+          -20.9336573
+        ]
+      },
+      "id": "way/1472476068"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1473289347",
+        "landuse": "garages",
+        "name": "Glow Petrolium",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0027783,
+          -20.9360591
+        ]
+      },
+      "id": "way/1473289347"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1473290072",
+        "landuse": "residential",
+        "name": "Spitzkop Medium",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0228625,
+          -20.9357929
+        ]
+      },
+      "id": "way/1473290072"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2808517119",
+        "name": "Koodoovale",
+        "place": "village"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.039105,
+          -20.9885694
+        ]
+      },
+      "id": "node/2808517119"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4011613742",
+        "name": "Blanket Mine",
+        "place": "village"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9095537,
+          -20.860712
+        ]
+      },
+      "id": "node/4011613742"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4011613748",
+        "name": "Vubachikwe Mine",
+        "place": "village"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9236878,
+          -20.8771108
+        ]
+      },
+      "id": "node/4011613748"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4828338136",
+        "communication:microwave": "yes",
+        "communication:mobile": "yes",
+        "man_made": "Microwave Relay",
+        "name": "Mocrowave Relay & GSM",
+        "tower:construction": "lattice_steel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0670009,
+          -20.9270245
+        ]
+      },
+      "id": "node/4828338136"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6420976090",
+        "name": "Mop",
+        "tourism": "apartment"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0381672,
+          -20.9897163
+        ]
+      },
+      "id": "node/6420976090"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7035208087",
+        "name": "WVI GWANDA",
+        "office": "ngo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0039742,
+          -20.9415864
+        ]
+      },
+      "id": "node/7035208087"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7035208089",
+        "amenity": "school",
+        "name": "Konongwe Primary School",
+        "opening_hours": "24/7"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.8907208,
+          -20.9893682
+        ]
+      },
+      "id": "node/7035208089"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7035208090",
+        "amenity": "bus_station",
+        "name": "Sizenzj Corner"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.8608023,
+          -20.9762824
+        ]
+      },
+      "id": "node/7035208090"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7035224087",
+        "amenity": "school",
+        "name": "Konongwe"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.891025,
+          -20.964503
+        ]
+      },
+      "id": "node/7035224087"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7035239185",
+        "name": "WVI",
+        "office": "ngo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0040105,
+          -20.9421669
+        ]
+      },
+      "id": "node/7035239185"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8482844531",
+        "communication:radio": "yes",
+        "communication:television": "yes",
+        "man_made": "mast",
+        "name": "Radio & TV Transmitter",
+        "tower:construction": "guyed_lattice",
+        "tower:type": "communication"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0671877,
+          -20.9274089
+        ]
+      },
+      "id": "node/8482844531"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10013909217",
+        "fixme": "I don't think this is placed correctly",
+        "name": "Mbiza plot",
+        "tourism": "apartment"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9407427,
+          -21.0635284
+        ]
+      },
+      "id": "node/10013909217"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10016409717",
+        "amenity": "school",
+        "name": "Moodspruit Primary School"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9855924,
+          -21.0254557
+        ]
+      },
+      "id": "node/10016409717"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10713211508",
+        "amenity": "bar",
+        "name": "Phakama"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0262172,
+          -20.9471304
+        ]
+      },
+      "id": "node/10713211508"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11174714811",
+        "addr:city": "Gwanda",
+        "name": "Gwanda Train Crosing",
+        "public_transport": "station",
+        "railway": "station",
+        "train": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0073134,
+          -20.9400899
+        ]
+      },
+      "id": "node/11174714811"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11397526043",
+        "amenity": "school",
+        "name": "South hill primary"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.1205205,
+          -20.9400576
+        ]
+      },
+      "id": "node/11397526043"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503868538",
+        "name": "Emakharadini eRanking",
+        "place": "village"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0117314,
+          -20.9418663
+        ]
+      },
+      "id": "node/13503868538"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503870266",
+        "name": "Garikai/Hlalani Kuhle",
+        "place": "quarter"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0135491,
+          -20.9466152
+        ]
+      },
+      "id": "node/13503870266"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503877536",
+        "name": "Spitz Ko Njanji Shops",
+        "shop": "mall"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0345046,
+          -20.9307879
+        ]
+      },
+      "id": "node/13503877536"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503888355",
+        "addr:city": "Gwanda Town",
+        "name": "Phumulani Hotel",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0135151,
+          -20.9415259
+        ]
+      },
+      "id": "node/13503888355"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503898341",
+        "name": "Spitzkop Gvt Flats",
+        "place": "square"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0271927,
+          -20.9349019
+        ]
+      },
+      "id": "node/13503898341"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503900242",
+        "name": "Senondo Township",
+        "place": "quarter"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0274239,
+          -20.9403034
+        ]
+      },
+      "id": "node/13503900242"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503906053",
+        "name": "Geniva Township",
+        "place": "quarter"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0162578,
+          -20.9435575
+        ]
+      },
+      "id": "node/13503906053"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503915052",
+        "amenity": "clinic",
+        "healthcare": "clinic",
+        "name": "Phakama Clinic"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0241643,
+          -20.9397224
+        ]
+      },
+      "id": "node/13503915052"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503918062",
+        "name": "Phakama Shopping Center",
+        "shop": "mall"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0248946,
+          -20.9439182
+        ]
+      },
+      "id": "node/13503918062"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503918996",
+        "name": "Phakama Township",
+        "place": "quarter"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0245881,
+          -20.944589
+        ]
+      },
+      "id": "node/13503918996"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503923043",
+        "name": "Spitz Ko Nare Shopping",
+        "shop": "mall"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.026413,
+          -20.9350891
+        ]
+      },
+      "id": "node/13503923043"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503930803",
+        "name": "Ultra Area",
+        "place": "village"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0290743,
+          -20.9479509
+        ]
+      },
+      "id": "node/13503930803"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503934304",
+        "name": "Spitz Red Cross Shops",
+        "shop": "mall"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0283109,
+          -20.9271576
+        ]
+      },
+      "id": "node/13503934304"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503936487",
+        "name": "AFROT Enterprises",
+        "office": "moving_company"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0073093,
+          -20.9288296
+        ]
+      },
+      "id": "node/13503936487"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503940902",
+        "education": "yes",
+        "name": "Gwanda Christian Pry School"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0239565,
+          -20.9428569
+        ]
+      },
+      "id": "node/13503940902"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503948579",
+        "amenity": "place_of_worship",
+        "name": "BICC Spitz",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0319495,
+          -20.9313508
+        ]
+      },
+      "id": "node/13503948579"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13503989184",
+        "education": "yes",
+        "name": "Gwanda Adventist Pry School"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0297402,
+          -20.9311845
+        ]
+      },
+      "id": "node/13503989184"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504004892",
+        "education": "yes",
+        "name": "SL Mbiabolawe Pvt Pry School"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0327042,
+          -20.9258997
+        ]
+      },
+      "id": "node/13504004892"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504011169",
+        "name": "Med Chem Pharmacy",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0072961,
+          -20.9424455
+        ]
+      },
+      "id": "node/13504011169"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504014298",
+        "amenity": "bar",
+        "name": "Round Bar"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0021155,
+          -20.9298436
+        ]
+      },
+      "id": "node/13504014298"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504029055",
+        "man_made": "works",
+        "name": "Delta Gwanda Depo",
+        "product": "beer"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0043593,
+          -20.9368451
+        ]
+      },
+      "id": "node/13504029055"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504035390",
+        "name": "Ministry of Mines",
+        "office": "yes",
+        "tower:construction": "ministry_of_mines_offices"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0056129,
+          -20.9384947
+        ]
+      },
+      "id": "node/13504035390"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504038857",
+        "amenity": "community_centre",
+        "name": "Social Welfare"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0051886,
+          -20.9372581
+        ]
+      },
+      "id": "node/13504038857"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504040409",
+        "name": "Singwazi Lorge Gwanda",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0005401,
+          -20.9259995
+        ]
+      },
+      "id": "node/13504040409"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504041759",
+        "name": "Easy GO garage",
+        "shop": "car_repair"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0050837,
+          -20.936546
+        ]
+      },
+      "id": "node/13504041759"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504047766",
+        "name": "Gwanda RDC Workshop",
+        "shop": "car_repair"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0043613,
+          -20.9350023
+        ]
+      },
+      "id": "node/13504047766"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504048841",
+        "name": "Asima Abator",
+        "shop": "butcher"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0056399,
+          -20.9238427
+        ]
+      },
+      "id": "node/13504048841"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504050044",
+        "amenity": "bar",
+        "name": "Mkhekhelezi"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0019053,
+          -20.929406
+        ]
+      },
+      "id": "node/13504050044"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504053547",
+        "name": "Pro feeds farmer Gwanda",
+        "shop": "agrarian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.005222,
+          -20.9378805
+        ]
+      },
+      "id": "node/13504053547"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504059608",
+        "name": "Agric Show Offices",
+        "office": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0023775,
+          -20.9303767
+        ]
+      },
+      "id": "node/13504059608"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504070235",
+        "amenity": "restaurant",
+        "building": "yes",
+        "layer": "1",
+        "name": "Mosa House"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0019576,
+          -20.9302515
+        ]
+      },
+      "id": "node/13504070235"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504072845",
+        "craft": "electrician",
+        "name": "ZDTC Gwanda ZESA"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0057899,
+          -20.9337588
+        ]
+      },
+      "id": "node/13504072845"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504079174",
+        "name": "GMB Gwanda Depo",
+        "shop": "wholesale"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0048822,
+          -20.9315277
+        ]
+      },
+      "id": "node/13504079174"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504082187",
+        "name": "Little explores of Jacaranda",
+        "office": "educational_institution"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0105135,
+          -20.9334067
+        ]
+      },
+      "id": "node/13504082187"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504082736",
+        "amenity": "veterinary",
+        "name": "Mat-South Vertinary Offices"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9998396,
+          -20.9280516
+        ]
+      },
+      "id": "node/13504082736"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504083020",
+        "amenity": "place_of_worship",
+        "name": "Jacaranda SDA",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0071055,
+          -20.9301733
+        ]
+      },
+      "id": "node/13504083020"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504083614",
+        "name": "Gain Cash n Carry",
+        "shop": "wholesale"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0070978,
+          -20.9343157
+        ]
+      },
+      "id": "node/13504083614"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504086610",
+        "name": "SKMO Logde",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9977058,
+          -20.9196225
+        ]
+      },
+      "id": "node/13504086610"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504091944",
+        "amenity": "car_wash",
+        "name": "Dawu Car Wash"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0080094,
+          -20.9301733
+        ]
+      },
+      "id": "node/13504091944"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504097595",
+        "amenity": "bus_station",
+        "bus": "yes",
+        "name": "ZUPCO Gwanda Depot",
+        "public_transport": "station"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0051091,
+          -20.9271122
+        ]
+      },
+      "id": "node/13504097595"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504102250",
+        "name": "CMED Pvt Gwanda",
+        "shop": "storage_rental"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0082287,
+          -20.9269433
+        ]
+      },
+      "id": "node/13504102250"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504102417",
+        "man_made": "mineshaft",
+        "name": "Onething Slow Mine"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0086287,
+          -20.9339169
+        ]
+      },
+      "id": "node/13504102417"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504104572",
+        "name": "Spring Lodges & BnB",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0114098,
+          -20.933942
+        ]
+      },
+      "id": "node/13504104572"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504107250",
+        "name": "MOVA Moving Garage",
+        "shop": "car_repair"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0127561,
+          -20.932602
+        ]
+      },
+      "id": "node/13504107250"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504111555",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Mapisa Bus Stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0058414,
+          -20.9450946
+        ]
+      },
+      "id": "node/13504111555"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504114931",
+        "amenity": "taxi",
+        "name": "West, Collenbawn Tax rank"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0076823,
+          -20.9432054
+        ]
+      },
+      "id": "node/13504114931"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504115611",
+        "name": "Gwanda Hotel",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0078,
+          -20.9437002
+        ]
+      },
+      "id": "node/13504115611"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504116558",
+        "name": "OK Gwanda",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0066013,
+          -20.9450347
+        ]
+      },
+      "id": "node/13504116558"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504116750",
+        "leisure": "park",
+        "name": "MC Area Gwanda"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.008972,
+          -20.9412612
+        ]
+      },
+      "id": "node/13504116750"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504116752",
+        "amenity": "vehicle_inspection",
+        "name": "VID Gwanda"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.009443,
+          -20.9375626
+        ]
+      },
+      "id": "node/13504116752"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504116977",
+        "name": "OPC",
+        "office": "government"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0101708,
+          -20.9410963
+        ]
+      },
+      "id": "node/13504116977"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504122385",
+        "name": "Gwanda ZIMSEC Offices",
+        "office": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.005333,
+          -20.9452396
+        ]
+      },
+      "id": "node/13504122385"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504124545",
+        "amenity": "fast_food",
+        "name": "Chicken Inn Caltex Garage"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0078268,
+          -20.9429705
+        ]
+      },
+      "id": "node/13504124545"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504125647",
+        "club": "yes",
+        "name": "Gwanda District Club"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0051939,
+          -20.9438901
+        ]
+      },
+      "id": "node/13504125647"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504134368",
+        "amenity": "taxi",
+        "name": "Manama, Beitbridge Tax Rank"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0077251,
+          -20.9431554
+        ]
+      },
+      "id": "node/13504134368"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504134491",
+        "name": "Gwanda Magazine",
+        "shop": "photo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0073077,
+          -20.9425607
+        ]
+      },
+      "id": "node/13504134491"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504134492",
+        "amenity": "taxi",
+        "name": "Gwanda Tax Rank"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0073345,
+          -20.9426756
+        ]
+      },
+      "id": "node/13504134492"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504140895",
+        "amenity": "fast_food",
+        "name": "Braai Masters"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0076234,
+          -20.9422558
+        ]
+      },
+      "id": "node/13504140895"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504144504",
+        "name": "Chicken Taxas",
+        "shop": "butcher"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0072167,
+          -20.9424707
+        ]
+      },
+      "id": "node/13504144504"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504144669",
+        "education": "yes",
+        "name": "Gwand Gvt Sec School"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0067619,
+          -20.9470438
+        ]
+      },
+      "id": "node/13504144669"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504146480",
+        "amenity": "fast_food",
+        "name": "Steers"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0062214,
+          -20.9431255
+        ]
+      },
+      "id": "node/13504146480"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504152472",
+        "amenity": "prison",
+        "name": "Gwanda Prison"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0062588,
+          -20.9426756
+        ]
+      },
+      "id": "node/13504152472"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504154028",
+        "name": "Zebraine",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0073452,
+          -20.9425407
+        ]
+      },
+      "id": "node/13504154028"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504170904",
+        "name": "Mars Main Supermarket",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0064605,
+          -20.9417051
+        ]
+      },
+      "id": "node/13504170904"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504171067",
+        "amenity": "bank",
+        "name": "CBZ Gwanda Branch"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0056531,
+          -20.9422048
+        ]
+      },
+      "id": "node/13504171067"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504172074",
+        "name": "Cooland",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0060413,
+          -20.9418364
+        ]
+      },
+      "id": "node/13504172074"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504172514",
+        "amenity": "marketplace",
+        "name": "Gwanda Traders Market"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0070757,
+          -20.9421997
+        ]
+      },
+      "id": "node/13504172514"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504173521",
+        "name": "Moonlight Funeral Services Gwanda",
+        "shop": "funeral_directors"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.005892,
+          -20.9392167
+        ]
+      },
+      "id": "node/13504173521"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504180206",
+        "name": "Ngoma Grocery Shop",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0059458,
+          -20.9416166
+        ]
+      },
+      "id": "node/13504180206"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504199481",
+        "name": "Pick n Pay Gwanda",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0064803,
+          -20.9413551
+        ]
+      },
+      "id": "node/13504199481"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504216926",
+        "amenity": "bank",
+        "name": "Mukuru"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0058122,
+          -20.9421514
+        ]
+      },
+      "id": "node/13504216926"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504228694",
+        "name": "Blissful Hardware",
+        "shop": "hardware"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.005566,
+          -20.9405493
+        ]
+      },
+      "id": "node/13504228694"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504233904",
+        "name": "ARK City Lodge",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.005685,
+          -20.9416106
+        ]
+      },
+      "id": "node/13504233904"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504233908",
+        "name": "Municipality Engineering Offices and Fire Deprt",
+        "office": "engineer"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0069012,
+          -20.9398558
+        ]
+      },
+      "id": "node/13504233908"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504238333",
+        "amenity": "bar",
+        "name": "Phoenix Shisanyama"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0049639,
+          -20.9406437
+        ]
+      },
+      "id": "node/13504238333"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504243071",
+        "name": "Oasis Hardware",
+        "shop": "furniture"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0058763,
+          -20.9405591
+        ]
+      },
+      "id": "node/13504243071"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504243072",
+        "name": "Metro Cash n Carry",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0041078,
+          -20.9397361
+        ]
+      },
+      "id": "node/13504243072"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504247509",
+        "historic": "tomb",
+        "name": "Black Granite Tombstones"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0067231,
+          -20.9401768
+        ]
+      },
+      "id": "node/13504247509"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504265032",
+        "name": "ZESA Town Offices",
+        "office": "union"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0057513,
+          -20.9410931
+        ]
+      },
+      "id": "node/13504265032"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504279823",
+        "name": "BATA Zim",
+        "shop": "clothes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0057124,
+          -20.9408505
+        ]
+      },
+      "id": "node/13504279823"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504279826",
+        "amenity": "bar",
+        "name": "Chill Spot"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0064606,
+          -20.9399229
+        ]
+      },
+      "id": "node/13504279826"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504289393",
+        "name": "ZANU-PF Offices",
+        "office": "union"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0052295,
+          -20.9412799
+        ]
+      },
+      "id": "node/13504289393"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504319353",
+        "name": "Mkoko Furniture",
+        "shop": "furniture"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0054764,
+          -20.9395552
+        ]
+      },
+      "id": "node/13504319353"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504323446",
+        "amenity": "bar",
+        "name": "Ko Nyathi Bar"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0055201,
+          -20.9386388
+        ]
+      },
+      "id": "node/13504323446"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504324302",
+        "name": "Zapalala",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0053608,
+          -20.9403256
+        ]
+      },
+      "id": "node/13504324302"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504325250",
+        "leisure": "fitness_centre",
+        "name": "Power House Gym"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0045609,
+          -20.938849
+        ]
+      },
+      "id": "node/13504325250"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504325251",
+        "name": "Barney and Friends Nursery",
+        "office": "educational_institution"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0044453,
+          -20.9387468
+        ]
+      },
+      "id": "node/13504325251"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504325516",
+        "amenity": "bank",
+        "name": "CABS Bank Gwanda"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0060763,
+          -20.9402381
+        ]
+      },
+      "id": "node/13504325516"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504325636",
+        "name": "Viglamz",
+        "shop": "jewelry"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0059638,
+          -20.9406554
+        ]
+      },
+      "id": "node/13504325636"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504328153",
+        "amenity": "place_of_worship",
+        "name": "Roman Catholic Church Gwanda",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0037047,
+          -20.940562
+        ]
+      },
+      "id": "node/13504328153"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504331756",
+        "government": "tax",
+        "name": "Zianara and Zimra Buildings",
+        "office": "government"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0059107,
+          -20.9405824
+        ]
+      },
+      "id": "node/13504331756"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504333774",
+        "amenity": "fast_food",
+        "name": "Zizwe Zonke, Nguni, China Shop"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0045265,
+          -20.9394647
+        ]
+      },
+      "id": "node/13504333774"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504340059",
+        "amenity": "fast_food",
+        "name": "Mc Inn Foods, Liquor Rama"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.004764,
+          -20.9390883
+        ]
+      },
+      "id": "node/13504340059"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504343862",
+        "name": "Forest Commission, ZINWA, Fawcett Security",
+        "office": "government"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0037704,
+          -20.9396865
+        ]
+      },
+      "id": "node/13504343862"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504343902",
+        "name": "Ngoma Clothing Shop",
+        "shop": "clothes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0039922,
+          -20.9387935
+        ]
+      },
+      "id": "node/13504343902"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504350343",
+        "name": "Newziana Ilanga Newspapers, Nkomwa Foundation Trust",
+        "office": "newspaper"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0031235,
+          -20.9399725
+        ]
+      },
+      "id": "node/13504350343"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504353361",
+        "name": "Car Parts",
+        "shop": "car_parts"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0050889,
+          -20.9384375
+        ]
+      },
+      "id": "node/13504353361"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504353702",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Town Bus Rank",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0053201,
+          -20.9388665
+        ]
+      },
+      "id": "node/13504353702"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504353703",
+        "name": "Gwanda Lodge",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0023111,
+          -20.9407225
+        ]
+      },
+      "id": "node/13504353703"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504363781",
+        "amenity": "restaurant",
+        "name": "Asima Restaurant, Farm Harvest Fresh Produce"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0038828,
+          -20.9390678
+        ]
+      },
+      "id": "node/13504363781"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504364670",
+        "name": "Rainbow Mall",
+        "shop": "mall"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0036016,
+          -20.9391466
+        ]
+      },
+      "id": "node/13504364670"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504365055",
+        "name": "Lime Fit",
+        "shop": "car_repair"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0042359,
+          -20.9382828
+        ]
+      },
+      "id": "node/13504365055"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504367580",
+        "craft": "tiler",
+        "name": "Tile and carpet center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0042796,
+          -20.9383032
+        ]
+      },
+      "id": "node/13504367580"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504367748",
+        "amenity": "pharmacy",
+        "healthcare": "pharmacy",
+        "name": "Health Kings Pharmacy"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0020114,
+          -20.9419583
+        ]
+      },
+      "id": "node/13504367748"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504370498",
+        "name": "LP Gas Shop",
+        "shop": "gas"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0041328,
+          -20.9383324
+        ]
+      },
+      "id": "node/13504370498"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504371484",
+        "name": "Dove Funeral Services",
+        "shop": "funeral_directors"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.002452,
+          -20.9425999
+        ]
+      },
+      "id": "node/13504371484"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504377148",
+        "amenity": "townhall",
+        "name": "Municipality of Gwanda(MoG)",
+        "townhall:type": "city"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0032407,
+          -20.9422057
+        ]
+      },
+      "id": "node/13504377148"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504381998",
+        "amenity": "car_wash",
+        "name": "Shane's Car Wash and Restaurant"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0025424,
+          -20.9405561
+        ]
+      },
+      "id": "node/13504381998"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504384462",
+        "name": "Trigger Lodge",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9977342,
+          -20.9382495
+        ]
+      },
+      "id": "node/13504384462"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504385964",
+        "name": "Joshua Mqabuko Nkomo Poly New Site",
+        "office": "educational_institution"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0131206,
+          -20.953227
+        ]
+      },
+      "id": "node/13504385964"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504389277",
+        "name": "Apex Lodge",
+        "tourism": "hotel"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0028741,
+          -20.9422288
+        ]
+      },
+      "id": "node/13504389277"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504394771",
+        "amenity": "place_of_worship",
+        "name": "St Martin's Anglican Church of Gwanda",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0025475,
+          -20.9410835
+        ]
+      },
+      "id": "node/13504394771"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504403079",
+        "amenity": "library",
+        "name": "Edward Ndlovu Memorial Trust Library"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0029203,
+          -20.941495
+        ]
+      },
+      "id": "node/13504403079"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504410580",
+        "name": "Mt Cazalette Suburbs",
+        "place": "quarter"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.001521,
+          -20.9494896
+        ]
+      },
+      "id": "node/13504410580"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504412904",
+        "amenity": "police",
+        "name": "Old Camp Police, ZRP Gwanda Rural Police"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9990814,
+          -20.945955
+        ]
+      },
+      "id": "node/13504412904"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504413384",
+        "amenity": "place_of_worship",
+        "name": "SDA Town",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0008622,
+          -20.9439178
+        ]
+      },
+      "id": "node/13504413384"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504443198",
+        "amenity": "gambling",
+        "name": "Moors, Bezbets,"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0067319,
+          -20.9417228
+        ]
+      },
+      "id": "node/13504443198"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504444830",
+        "name": "Marvel Pry School",
+        "office": "educational_institution"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.00089,
+          -20.9496438
+        ]
+      },
+      "id": "node/13504444830"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504444837",
+        "amenity": "post_office",
+        "name": "Gwanda Post Office"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0043528,
+          -20.9421286
+        ]
+      },
+      "id": "node/13504444837"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504444838",
+        "amenity": "post_office",
+        "name": "Gwanda Post Office"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0040148,
+          -20.9423039
+        ]
+      },
+      "id": "node/13504444838"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504447929",
+        "name": "Herentals College",
+        "office": "educational_institution"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0087057,
+          -20.9453666
+        ]
+      },
+      "id": "node/13504447929"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504450670",
+        "name": "Gwanda Hair Mall",
+        "shop": "hairdresser"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0047659,
+          -20.9422889
+        ]
+      },
+      "id": "node/13504450670"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504452433",
+        "name": "APK Advertising",
+        "office": "advertising_agency"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0055544,
+          -20.9418505
+        ]
+      },
+      "id": "node/13504452433"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504459211",
+        "name": "Nyaradzo Funeral",
+        "shop": "funeral_directors"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0074937,
+          -20.9421586
+        ]
+      },
+      "id": "node/13504459211"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504473382",
+        "healthcare": "yes",
+        "name": "Red Cross Hall, Zimbabwe Red Cross Society, Upperroom Shekinah Ministries Int Gwanda"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0142442,
+          -20.9405129
+        ]
+      },
+      "id": "node/13504473382"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504475421",
+        "name": "Matopo Book Center",
+        "shop": "books"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0047551,
+          -20.9424442
+        ]
+      },
+      "id": "node/13504475421"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504477258",
+        "amenity": "bar",
+        "name": "Ko Benjamini"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0049697,
+          -20.9424818
+        ]
+      },
+      "id": "node/13504477258"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504486983",
+        "name": "TV sales",
+        "shop": "electronics"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.006174,
+          -20.9419031
+        ]
+      },
+      "id": "node/13504486983"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504496825",
+        "healthcare": "yes",
+        "name": "National AIDS Council"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.004212,
+          -20.9427029
+        ]
+      },
+      "id": "node/13504496825"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504500766",
+        "amenity": "courthouse",
+        "name": "Gwanda Court"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0028315,
+          -20.9433139
+        ]
+      },
+      "id": "node/13504500766"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504501378",
+        "name": "Mtshabezi Building",
+        "office": "government"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0021261,
+          -20.9432087
+        ]
+      },
+      "id": "node/13504501378"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504505862",
+        "name": "Thuli Building, Registry, DDC Offices",
+        "office": "government"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0030488,
+          -20.9432238
+        ]
+      },
+      "id": "node/13504505862"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504505863",
+        "name": "Shashe Building",
+        "office": "government"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0029468,
+          -20.9429332
+        ]
+      },
+      "id": "node/13504505863"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504506384",
+        "amenity": "place_of_worship",
+        "name": "Methodist Church in Zimbabwe",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.015183,
+          -20.9403976
+        ]
+      },
+      "id": "node/13504506384"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504517268",
+        "amenity": "place_of_worship",
+        "name": "Lutheran Church",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0175085,
+          -20.9389973
+        ]
+      },
+      "id": "node/13504517268"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504536048",
+        "amenity": "place_of_worship",
+        "name": "Gwanda P.A.O.Z",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.010811,
+          -20.9406557
+        ]
+      },
+      "id": "node/13504536048"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504548269",
+        "name": "Enkunini Shops",
+        "shop": "mall"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0186939,
+          -20.9428112
+        ]
+      },
+      "id": "node/13504548269"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504548359",
+        "name": "Lollies",
+        "place": "village"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0194879,
+          -20.9437631
+        ]
+      },
+      "id": "node/13504548359"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504555113",
+        "club": "yes",
+        "name": "Cry Mantengwane, Conqure and other Bars Clubs"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0259521,
+          -20.9440149
+        ]
+      },
+      "id": "node/13504555113"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504557848",
+        "amenity": "post_office",
+        "name": "Phakama Post Office"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0241335,
+          -20.9407634
+        ]
+      },
+      "id": "node/13504557848"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504557849",
+        "name": "Sai Mart, Choppies Supermarket",
+        "shop": "supermarket"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0252118,
+          -20.9442353
+        ]
+      },
+      "id": "node/13504557849"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504573619",
+        "amenity": "place_of_worship",
+        "name": "Zaoga",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0240584,
+          -20.9430329
+        ]
+      },
+      "id": "node/13504573619"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504573620",
+        "amenity": "place_of_worship",
+        "name": "Guta Ramwari",
+        "religion": "christian"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0300612,
+          -20.9461341
+        ]
+      },
+      "id": "node/13504573620"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504583644",
+        "name": "Ultra High School",
+        "office": "educational_institution"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0301953,
+          -20.9433536
+        ]
+      },
+      "id": "node/13504583644"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504587895",
+        "name": "ku Hump",
+        "place": "quarter"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0294633,
+          -20.9276474
+        ]
+      },
+      "id": "node/13504587895"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504590701",
+        "name": "Spitzkop",
+        "place": "suburb"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0291549,
+          -20.9309819
+        ]
+      },
+      "id": "node/13504590701"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504599447",
+        "name": "Marriage Township",
+        "place": "quarter"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0197132,
+          -20.9420196
+        ]
+      },
+      "id": "node/13504599447"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13504605311",
+        "name": "Emadramini",
+        "place": "village"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0223418,
+          -20.9412481
+        ]
+      },
+      "id": "node/13504605311"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13507699309",
+        "name": "Jacaranda Suburbs",
+        "place": "suburb"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0091366,
+          -20.9300574
+        ]
+      },
+      "id": "node/13507699309"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13516226787",
+        "amenity": "restaurant",
+        "name": "Chicken Inn Glow/ Cream Inn Glow"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0027424,
+          -20.9360783
+        ]
+      },
+      "id": "node/13516226787"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13516230386",
+        "name": "Prison Camp",
+        "place": "village"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.9962916,
+          -20.9354581
+        ]
+      },
+      "id": "node/13516230386"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/13516257309",
+        "name": "Monef",
+        "place": "village"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          29.0253194,
+          -20.9250675
+        ]
+      },
+      "id": "node/13516257309"
+    }
+  ]
+}
