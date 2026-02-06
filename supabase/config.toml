@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.google-routes]
 verify_jwt = false
+
+[functions.twilio-otp]
+verify_jwt = false
