@@ -51,9 +51,10 @@ interface UseLandmarksOptions {
   userLocation?: { lat: number; lng: number } | null;
   searchQuery?: string;
   limit?: number;
+  radiusKm?: number | null; // Filter by proximity radius
 }
 
-export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10 }: UseLandmarksOptions = {}) => {
+export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiusKm = null }: UseLandmarksOptions = {}) => {
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -115,9 +116,27 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10 }: Use
     return 0;
   };
 
-  // Filter and sort landmarks based on search query and user location
+  // Filter and sort landmarks based on search query, user location, and proximity
   const filteredLandmarks = useMemo(() => {
     let results = [...landmarks];
+
+    // Calculate distances if user location is available
+    if (userLocation) {
+      results = results.map(landmark => ({
+        ...landmark,
+        distance: calculateDistance(
+          userLocation.lat,
+          userLocation.lng,
+          landmark.latitude,
+          landmark.longitude
+        )
+      }));
+
+      // Apply proximity filter first (before search, so we search within radius)
+      if (radiusKm !== null) {
+        results = results.filter(landmark => (landmark.distance || 0) <= radiusKm);
+      }
+    }
 
     // Filter by search query with fuzzy matching
     if (searchQuery.trim()) {
@@ -142,28 +161,13 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10 }: Use
       results = scoredResults
         .filter(r => r.matchScore > 0)
         .sort((a, b) => b.matchScore - a.matchScore);
-    }
-
-    // Calculate distances if user location is available
-    if (userLocation) {
-      results = results.map(landmark => ({
-        ...landmark,
-        distance: calculateDistance(
-          userLocation.lat,
-          userLocation.lng,
-          landmark.latitude,
-          landmark.longitude
-        )
-      }));
-
-      // If no search query, sort by distance only
-      if (!searchQuery.trim()) {
-        results.sort((a, b) => (a.distance || 0) - (b.distance || 0));
-      }
+    } else if (userLocation) {
+      // If no search query but have location, sort by distance
+      results.sort((a, b) => (a.distance || 0) - (b.distance || 0));
     }
 
     return results.slice(0, limit);
-  }, [landmarks, searchQuery, userLocation, limit]);
+  }, [landmarks, searchQuery, userLocation, limit, radiusKm]);
 
   // Get nearby landmarks (within specified radius in km)
   const getNearbyLandmarks = (radiusKm: number = 5): Landmark[] => {

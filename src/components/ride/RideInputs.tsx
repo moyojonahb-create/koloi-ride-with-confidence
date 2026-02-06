@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { MapPin, Navigation, Crosshair, Loader2, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useLandmarks, type Landmark } from '@/hooks/useLandmarks';
 import QuickPickChips from './QuickPickChips';
+import ProximityFilter from './ProximityFilter';
 
 interface SelectedLocation {
   name: string;
@@ -20,6 +21,7 @@ interface RideInputsProps {
   onUseMyLocation: () => void;
   isGettingLocation?: boolean;
   gpsError?: string | null;
+  userLocation?: { lat: number; lng: number } | null;
   className?: string;
 }
 
@@ -31,14 +33,18 @@ export default function RideInputs({
   onUseMyLocation,
   isGettingLocation = false,
   gpsError,
+  userLocation,
   className,
 }: RideInputsProps) {
   const [activeField, setActiveField] = useState<'pickup' | 'dropoff' | null>('pickup');
   const [searchQuery, setSearchQuery] = useState('');
+  const [proximityRadius, setProximityRadius] = useState<number | null>(null);
 
   const { landmarks, loading: landmarksLoading, findNearestLandmark } = useLandmarks({
     searchQuery,
-    limit: 10,
+    limit: 15,
+    userLocation,
+    radiusKm: proximityRadius,
   });
 
   const handleLandmarkSelect = (landmark: Landmark) => {
@@ -195,6 +201,19 @@ export default function RideInputs({
         </div>
       )}
 
+      {/* Proximity Filter - Only when we have user location */}
+      {activeField && userLocation && (
+        <div>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            Distance
+          </p>
+          <ProximityFilter
+            selected={proximityRadius}
+            onSelect={setProximityRadius}
+          />
+        </div>
+      )}
+
       {/* Search Input */}
       {activeField && (
         <div className="relative">
@@ -208,16 +227,20 @@ export default function RideInputs({
         </div>
       )}
 
-      {/* Search Results */}
-      {activeField && searchQuery.trim() && (
-        <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+      {/* Search Results - Show when active (with or without query for nearby places) */}
+      {activeField && (searchQuery.trim() || proximityRadius !== null) && (
+        <div className="space-y-1.5 max-h-[240px] overflow-y-auto">
           {landmarksLoading ? (
             <div className="flex items-center justify-center py-6">
               <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
             </div>
           ) : landmarks.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground text-sm">
-              No results for "{searchQuery}"
+              {searchQuery.trim() 
+                ? `No results for "${searchQuery}"` 
+                : proximityRadius 
+                  ? `No places within ${proximityRadius}km`
+                  : 'No places found'}
             </div>
           ) : (
             landmarks.map((landmark) => (
