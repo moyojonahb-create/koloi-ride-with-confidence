@@ -3,7 +3,7 @@ import { MapPin, Navigation, Crosshair, Loader2, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { useLandmarks, type Landmark } from '@/hooks/useLandmarks';
+import { useLandmarks, type Landmark, formatDistance } from '@/hooks/useLandmarks';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 
@@ -254,7 +254,14 @@ export default function RideInputs({
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-sm truncate">{landmark.name}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{landmark.category}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-muted-foreground capitalize">{landmark.category}</p>
+                    {landmark.distance !== undefined && userLocation && (
+                      <span className="text-xs text-accent font-medium">
+                        {formatDistance(landmark.distance)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </button>
             ))
