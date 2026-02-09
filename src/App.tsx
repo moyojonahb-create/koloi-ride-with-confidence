@@ -16,6 +16,8 @@ import Auth from "./pages/Auth";
 import Signup from "./pages/Signup";
 import AppDashboard from "./pages/AppDashboard";
 import PilotTest from "./pages/PilotTest";
+import DriverWalletPage from "./pages/DriverWalletPage";
+import DriverDepositPage from "./pages/DriverDepositPage";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -27,6 +29,8 @@ import AdminLandmarks from "./pages/admin/AdminLandmarks";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminSettings from "./pages/admin/AdminSettings";
 import ImportOsmPlaces from "./pages/admin/ImportOsmPlaces";
+import AdminRatePage from "./pages/admin/AdminRatePage";
+import AdminDepositsPage from "./pages/admin/AdminDepositsPage";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +55,8 @@ const App = () => (
               <Route path="/app" element={<AppDashboard />} />
               <Route path="/drive" element={<DriverApplication />} />
               <Route path="/pilot-test" element={<PilotTest />} />
+              <Route path="/drivers/wallet" element={<DriverWalletPage />} />
+              <Route path="/drivers/deposit" element={<DriverDepositPage />} />
               
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
@@ -62,6 +68,8 @@ const App = () => (
               <Route path="/admin/reports" element={<AdminReports />} />
               <Route path="/admin/settings" element={<AdminSettings />} />
               <Route path="/admin/import-osm" element={<ImportOsmPlaces />} />
+              <Route path="/admin/rate" element={<AdminRatePage />} />
+              <Route path="/admin/deposits" element={<AdminDepositsPage />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

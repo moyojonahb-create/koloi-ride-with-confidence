@@ -52,6 +52,48 @@ export type Database = {
           },
         ]
       }
+      deposit_requests: {
+        Row: {
+          admin_note: string | null
+          amount_usd: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          driver_id: string
+          ecocash_phone: string
+          ecocash_reference: string
+          id: string
+          proof_path: string | null
+          status: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount_usd: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          driver_id: string
+          ecocash_phone: string
+          ecocash_reference: string
+          id?: string
+          proof_path?: string | null
+          status?: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount_usd?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          driver_id?: string
+          ecocash_phone?: string
+          ecocash_reference?: string
+          id?: string
+          proof_path?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       driver_documents: {
         Row: {
           created_at: string
@@ -98,6 +140,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      driver_wallets: {
+        Row: {
+          balance_usd: number
+          created_at: string
+          driver_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          balance_usd?: number
+          created_at?: string
+          driver_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          balance_usd?: number
+          created_at?: string
+          driver_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       drivers: {
         Row: {
@@ -180,6 +246,30 @@ export type Database = {
           name?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      fx_rates: {
+        Row: {
+          created_at: string
+          effective_date: string
+          id: string
+          set_by: string | null
+          zar_per_usd: number
+        }
+        Insert: {
+          created_at?: string
+          effective_date?: string
+          id?: string
+          set_by?: string | null
+          zar_per_usd: number
+        }
+        Update: {
+          created_at?: string
+          effective_date?: string
+          id?: string
+          set_by?: string | null
+          zar_per_usd?: number
         }
         Relationships: []
       }
@@ -700,6 +790,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_deposit: {
+        Args: { p_deposit_id: string; p_note?: string }
+        Returns: Json
+      }
+      admin_set_fx_rate: { Args: { p_zar_per_usd: number }; Returns: Json }
+      complete_trip_and_charge_flat_r4: {
+        Args: { p_trip_id: string }
+        Returns: Json
+      }
       get_driver_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
