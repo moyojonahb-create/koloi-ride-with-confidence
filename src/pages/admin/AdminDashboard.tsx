@@ -1,9 +1,12 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Wallet, Eye } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import AdminGuard from '@/components/admin/AdminGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
 import AdminMap from '@/components/admin/AdminMap';
+import { useAdminEarnings } from '@/hooks/useWallet';
+import AdminEarningsSheet from '@/components/wallet/AdminEarningsSheet';
+import { Button } from '@/components/ui/button';
 
 interface DriverRow {
   id: string;
@@ -41,6 +44,9 @@ const AdminDashboard = () => {
   const [onlineDrivers, setOnlineDrivers] = useState<DriverRow[]>([]);
   const [latestRides, setLatestRides] = useState<RideRow[]>([]);
   const [activeRides, setActiveRides] = useState<RideRow[]>([]);
+  const [earningsSheetOpen, setEarningsSheetOpen] = useState(false);
+
+  const { earnings, totalEarnings, totalPlatformFees, refresh: refreshEarnings } = useAdminEarnings();
 
   const refreshAll = useCallback(async () => {
     setError('');
@@ -229,10 +235,32 @@ const AdminDashboard = () => {
               <div style={{ fontWeight: 900, fontSize: 18 }}>Koloi Admin</div>
               <div style={{ opacity: 0.7, fontSize: 13 }}>Approvals • Monitoring • Live tracking</div>
             </div>
-            <button style={S.refreshBtn} onClick={refreshAll} disabled={loading}>
-              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {/* Platform Earnings Balance */}
+              <button
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  height: 40,
+                  padding: '0 16px',
+                  borderRadius: 20,
+                  border: 0,
+                  background: '#3b82f6',
+                  color: '#fff',
+                  fontWeight: 900,
+                  cursor: 'pointer',
+                }}
+                onClick={() => setEarningsSheetOpen(true)}
+              >
+                <Wallet className="w-4 h-4" />
+                R{totalPlatformFees.toFixed(2)}
+              </button>
+              <button style={S.refreshBtn} onClick={() => { refreshAll(); refreshEarnings(); }} disabled={loading}>
+                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+            </div>
           </header>
 
           {error && <div style={S.error}>{error}</div>}
@@ -343,9 +371,18 @@ const AdminDashboard = () => {
                   </tbody>
                 </table>
               </div>
-              <div style={S.muted}>(Next upgrade: show a map with pins for online drivers + active rides.)</div>
+              
             </section>
           </div>
+
+          {/* Earnings Sheet */}
+          <AdminEarningsSheet
+            isOpen={earningsSheetOpen}
+            onClose={() => setEarningsSheetOpen(false)}
+            earnings={earnings}
+            totalFares={totalEarnings}
+            totalPlatformFees={totalPlatformFees}
+          />
         </div>
       </AdminLayout>
     </AdminGuard>
