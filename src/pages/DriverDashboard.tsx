@@ -28,10 +28,13 @@ import {
   Bell,
   Volume2,
   History,
+  Wallet,
+  CheckCircle2,
 } from "lucide-react";
 import { triggerFullAlert } from "@/lib/alerts";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 import { useWallet } from "@/hooks/useWallet";
+import { completeTrip } from "@/lib/completeTrip";
 import WalletBalance from "@/components/wallet/WalletBalance";
 import DepositModal from "@/components/wallet/DepositModal";
 import TransactionsSheet from "@/components/wallet/TransactionsSheet";
@@ -68,6 +71,8 @@ export default function DriverDashboard() {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [transactionsOpen, setTransactionsOpen] = useState(false);
+  const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number } | null>(null);
+  const [completing, setCompleting] = useState(false);
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const { speak, isSupported: voiceSupported } = useVoiceNavigation({ enabled: voiceEnabled });
@@ -123,6 +128,17 @@ export default function DriverDashboard() {
         return;
       }
 
+      // Fetch active trip (accepted/in_progress) assigned to this driver
+      const { data: activeTripData } = await supabase
+        .from("rides")
+        .select("id, pickup_address, dropoff_address, fare, status")
+        .eq("driver_id", p.id)
+        .in("status", ["accepted", "in_progress", "arrived"])
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      setActiveTrip(activeTripData ? { id: activeTripData.id, pickup_address: activeTripData.pickup_address, dropoff_address: activeTripData.dropoff_address, fare: Number(activeTripData.fare) } : null);
+
       // Only fetch rides if driver is online
       if (p.is_online) {
         const list = await fetchOpenRides();
@@ -139,19 +155,16 @@ export default function DriverDashboard() {
         }
 
         if (hasNewRide) {
-          // Trigger LOUD full alert (sound + vibration + browser notification)
           triggerFullAlert(
             "🚗 NEW KOLOI RIDE REQUEST!",
             "⚡ A rider is looking for a driver near you - respond NOW!",
             "/driver"
           );
 
-          // Voice announcement
           if (voiceEnabled && voiceSupported) {
             speak("Attention! New ride request received! Open Koloi to respond.");
           }
 
-          // Also show in-app toast
           toast.info("🚗 NEW RIDE REQUEST!", {
             description: "A rider is looking for a driver - respond quickly!",
             duration: 10000,
@@ -222,6 +235,27 @@ export default function DriverDashboard() {
     }
   };
 
+  const handleCompleteTrip = async () => {
+    if (!activeTrip || completing) return;
+    setCompleting(true);
+    try {
+      const result = await completeTrip(activeTrip.id);
+      if (!(result as any)?.ok) {
+        throw new Error((result as any)?.reason || "Failed to complete trip");
+      }
+      toast.success("Trip completed!", {
+        description: `R4 fee charged (≈$${(result as any)?.fee_usd ?? "?"})`,
+      });
+      setActiveTrip(null);
+      refreshWallet();
+      refresh();
+    } catch (e: any) {
+      toast.error("Failed to complete trip", { description: e.message });
+    } finally {
+      setCompleting(false);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -286,7 +320,7 @@ export default function DriverDashboard() {
             </Button>
             <WalletBalance
               balance={balance}
-              onClick={() => setDepositModalOpen(true)}
+              onClick={() => nav("/drivers/wallet")}
               size="sm"
             />
           </div>
@@ -314,7 +348,35 @@ export default function DriverDashboard() {
           </CardContent>
         </Card>
 
-        {/* Voice & Night Settings - only show when online */}
+        {/* Active Trip */}
+        {activeTrip && (
+          <Card className="border-emerald-500 bg-emerald-500/5">
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="flex flex-col items-center">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <div className="w-0.5 h-6 bg-border" />
+                  <Navigation className="h-4 w-4 text-destructive" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
+                  <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
+                </div>
+                <p className="font-black text-lg">R{activeTrip.fare}</p>
+              </div>
+              <Button
+                className="w-full bg-emerald-600 hover:bg-emerald-700"
+                size="lg"
+                onClick={handleCompleteTrip}
+                disabled={completing}
+              >
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                {completing ? "Completing..." : "Complete Trip (R4 fee)"}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
         {isOnline && (
           <Card>
             <CardContent className="pt-4 space-y-4">
