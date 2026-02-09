@@ -14,25 +14,27 @@ import {
 } from "@/lib/offerHelpers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import {
   ArrowLeft,
   MapPin,
   Navigation,
-  Clock,
   Minus,
   Plus,
   Send,
   Radio,
   Bell,
-  MessageCircle,
-  Phone,
   Volume2,
+  History,
 } from "lucide-react";
-import { triggerFullAlert, playAlert, vibrateAlert } from "@/lib/alerts";
+import { triggerFullAlert } from "@/lib/alerts";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
+import { useWallet } from "@/hooks/useWallet";
+import WalletBalance from "@/components/wallet/WalletBalance";
+import DepositModal from "@/components/wallet/DepositModal";
+import TransactionsSheet from "@/components/wallet/TransactionsSheet";
 
 type Ride = {
   id: string;
@@ -64,9 +66,12 @@ export default function DriverDashboard() {
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [depositModalOpen, setDepositModalOpen] = useState(false);
+  const [transactionsOpen, setTransactionsOpen] = useState(false);
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const { speak, isSupported: voiceSupported } = useVoiceNavigation({ enabled: voiceEnabled });
+  const { wallet, balance, transactions, deposit, refresh: refreshWallet } = useWallet();
 
   // Toggle online status
   const toggleOnline = async (online: boolean) => {
@@ -263,14 +268,28 @@ export default function DriverDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Header with Wallet */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border p-4">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <Button variant="ghost" size="icon" onClick={() => nav(-1)}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="font-black text-lg">Driver Dashboard</h1>
-          <div className="w-10" />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTransactionsOpen(true)}
+              className="text-muted-foreground"
+            >
+              <History className="h-5 w-5" />
+            </Button>
+            <WalletBalance
+              balance={balance}
+              onClick={() => setDepositModalOpen(true)}
+              size="sm"
+            />
+          </div>
         </div>
       </div>
 
@@ -453,6 +472,28 @@ export default function DriverDashboard() {
 
         {error && <p className="text-sm text-destructive text-center">{error}</p>}
       </div>
+
+      {/* Deposit Modal */}
+      <DepositModal
+        isOpen={depositModalOpen}
+        onClose={() => setDepositModalOpen(false)}
+        onDeposit={deposit}
+        currentBalance={balance}
+      />
+
+      {/* Transactions Sheet */}
+      <TransactionsSheet
+        isOpen={transactionsOpen}
+        onClose={() => setTransactionsOpen(false)}
+        transactions={transactions.map(tx => ({
+          id: tx.id,
+          amount: Number(tx.amount),
+          transaction_type: tx.transaction_type as 'deposit' | 'withdrawal' | 'trip_fee' | 'refund',
+          description: tx.description,
+          created_at: tx.created_at,
+        }))}
+        title="Wallet History"
+      />
     </div>
   );
 }

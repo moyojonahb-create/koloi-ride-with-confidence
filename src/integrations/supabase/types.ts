@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_earnings: {
+        Row: {
+          created_at: string
+          driver_earnings: number
+          driver_id: string
+          fare_amount: number
+          id: string
+          platform_fee: number
+          ride_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          driver_earnings: number
+          driver_id: string
+          fare_amount: number
+          id?: string
+          platform_fee: number
+          ride_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          driver_earnings?: number
+          driver_id?: string
+          fare_amount?: number
+          id?: string
+          platform_fee?: number
+          ride_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_earnings_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       driver_documents: {
         Row: {
           created_at: string
@@ -581,6 +619,78 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          ride_id: string | null
+          transaction_type: string
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          ride_id?: string | null
+          transaction_type: string
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          ride_id?: string | null
+          transaction_type?: string
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
