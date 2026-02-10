@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useRideRealtime } from "@/hooks/useRideRealtime";
+import { getSecondsRemaining, isRideExpired } from "@/lib/rideExpiry";
 import {
   fetchPendingOffers,
   fetchDriversByIds,
@@ -17,7 +18,7 @@ import OffersModal from "@/components/OffersModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone } from "lucide-react";
+import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock } from "lucide-react";
 import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds";
 
 type Ride = {
@@ -30,6 +31,7 @@ type Ride = {
   fare: number;
   distance_km: number;
   duration_minutes: number;
+  expires_at?: string | null;
 };
 
 export default function RiderRideDetail() {
@@ -48,6 +50,7 @@ export default function RiderRideDetail() {
   const [updatingFare, setUpdatingFare] = useState(false);
   const [showCommunication, setShowCommunication] = useState(false);
   const [lastOfferCount, setLastOfferCount] = useState(0);
+  const [secondsLeft, setSecondsLeft] = useState(30);
 
   const refreshRide = useCallback(async () => {
     if (!rideId) return;
@@ -131,6 +134,28 @@ export default function RiderRideDetail() {
       Notification.requestPermission();
     }
   }, []);
+
+  // Countdown timer for ride expiry
+  useEffect(() => {
+    if (!ride || ride.status !== "pending" || !ride.expires_at) return;
+
+    const updateCountdown = () => {
+      const secs = getSecondsRemaining(ride.expires_at ?? null);
+      setSecondsLeft(secs);
+
+      // Auto-navigate back if expired
+      if (secs <= 0 && ride.status === "pending") {
+        toast.info("Ride request expired", {
+          description: "Your request timed out. Please try again.",
+        });
+        nav("/ride");
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [ride, nav]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -347,6 +372,32 @@ export default function RiderRideDetail() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Expiry Countdown - Only for pending rides */}
+        {isPending && ride.expires_at && (
+          <Card className={secondsLeft <= 10 ? "border-destructive" : "border-primary"}>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-muted-foreground" />
+                  <span className="font-semibold">Waiting for drivers…</span>
+                </div>
+                <span className={`font-black text-lg ${secondsLeft <= 10 ? 'text-destructive' : 'text-primary'}`}>
+                  {secondsLeft}s
+                </span>
+              </div>
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-200 ease-linear ${secondsLeft <= 10 ? 'bg-destructive' : 'bg-primary'}`}
+                  style={{ width: `${Math.min(100, (secondsLeft / 30) * 100)}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 text-center">
+                Your request will expire automatically when the timer runs out
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Offers Section - Only show if not accepted */}
         {!isAccepted && (
