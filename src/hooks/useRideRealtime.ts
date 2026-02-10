@@ -13,7 +13,6 @@ export function useRideRealtime(
     onMessageChange?: () => void;
   }
 ) {
-  // Use refs to store latest callbacks to avoid stale closures
   const callbacksRef = useRef(callbacks);
   callbacksRef.current = callbacks;
 
@@ -56,7 +55,7 @@ export function useRideRealtime(
       console.log('[Realtime] Unsubscribing from ride:', rideId);
       supabase.removeChannel(channel);
     };
-  }, [rideId]); // Only re-subscribe when rideId changes
+  }, [rideId]);
 }
 
 /**
@@ -96,5 +95,126 @@ export function useOpenRidesRealtime(onUpdate: () => void) {
       console.log('[Realtime] Unsubscribing from open rides');
       supabase.removeChannel(channel);
     };
-  }, []); // Empty deps - only subscribe once
+  }, []);
+}
+
+/**
+ * Hook for subscribing to new ride requests (INSERT only) - for driver notifications
+ * Calls onNewRide only for newly inserted pending rides that haven't expired
+ */
+export function useRealtimeRideRequests(onNewRide: (ride: any) => void) {
+  const onNewRideRef = useRef(onNewRide);
+  onNewRideRef.current = onNewRide;
+
+  useEffect(() => {
+    console.log('[Realtime] Subscribing to new ride requests');
+
+    const channel = supabase
+      .channel(`driver-ride-requests-${Date.now()}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "rides",
+        },
+        (payload) => {
+          const ride = payload.new;
+          if (ride.status === "pending") {
+            // Check if ride hasn't already expired
+            const expiresAt = ride.expires_at ? new Date(ride.expires_at).getTime() : null;
+            if (!expiresAt || expiresAt > Date.now()) {
+              console.log('[Realtime] New ride request:', ride.id);
+              onNewRideRef.current(ride);
+            }
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('[Realtime] Ride requests subscription status:', status);
+      });
+
+    return () => {
+      console.log('[Realtime] Unsubscribing from ride requests');
+      supabase.removeChannel(channel);
+    };
+  }, []);
+}
+
+/**
+ * Hook for subscribing to offers on a specific ride (INSERT only) - for rider notifications
+ * Calls onOffer when a new offer is submitted for this ride
+ */
+export function useRealtimeOffers(rideId: string | null, onOffer: (offer: any) => void) {
+  const onOfferRef = useRef(onOffer);
+  onOfferRef.current = onOffer;
+
+  useEffect(() => {
+    if (!rideId) return;
+
+    console.log('[Realtime] Subscribing to offers for ride:', rideId);
+
+    const channel = supabase
+      .channel(`rider-offers-${rideId}-${Date.now()}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "offers",
+          filter: `ride_id=eq.${rideId}`,
+        },
+        (payload) => {
+          console.log('[Realtime] New offer received:', payload.new);
+          onOfferRef.current(payload.new);
+        }
+      )
+      .subscribe((status) => {
+        console.log('[Realtime] Offers subscription status:', status);
+      });
+
+    return () => {
+      console.log('[Realtime] Unsubscribing from offers for ride:', rideId);
+      supabase.removeChannel(channel);
+    };
+  }, [rideId]);
+}
+
+/**
+ * Hook for subscribing to ride status changes (UPDATE only) - for both rider and driver
+ * Calls onUpdate when the ride record is updated (status change, driver assignment, etc.)
+ */
+export function useRealtimeRideStatus(rideId: string | null, onUpdate: (ride: any) => void) {
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+
+  useEffect(() => {
+    if (!rideId) return;
+
+    console.log('[Realtime] Subscribing to ride status:', rideId);
+
+    const channel = supabase
+      .channel(`ride-status-${rideId}-${Date.now()}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "rides",
+          filter: `id=eq.${rideId}`,
+        },
+        (payload) => {
+          console.log('[Realtime] Ride status updated:', payload.new);
+          onUpdateRef.current(payload.new);
+        }
+      )
+      .subscribe((status) => {
+        console.log('[Realtime] Ride status subscription status:', status);
+      });
+
+    return () => {
+      console.log('[Realtime] Unsubscribing from ride status:', rideId);
+      supabase.removeChannel(channel);
+    };
+  }, [rideId]);
 }

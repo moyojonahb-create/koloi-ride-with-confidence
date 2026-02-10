@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { triggerFullAlert } from "@/lib/alerts";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
+import { filterActiveRides, getSecondsRemaining, expireOldRides } from "@/lib/rideExpiry";
 import { useWallet } from "@/hooks/useWallet";
 import { completeTrip } from "@/lib/completeTrip";
 import WalletBalance from "@/components/wallet/WalletBalance";
@@ -49,6 +50,7 @@ type Ride = {
   distance_km: number;
   duration_minutes: number;
   created_at: string;
+  expires_at?: string | null;
 };
 
 export default function DriverDashboard() {
@@ -141,8 +143,11 @@ export default function DriverDashboard() {
 
       // Only fetch rides if driver is online
       if (p.is_online) {
+        // Expire old rides server-side first
+        await expireOldRides();
         const list = await fetchOpenRides();
-        setRides(list as Ride[]);
+        const activeList = filterActiveRides(list);
+        setRides(activeList as Ride[]);
 
         // Notify on new rides with LOUD sound and voice
         const currentIds = new Set(list.map((r) => r.id));
@@ -202,6 +207,18 @@ export default function DriverDashboard() {
   // Realtime subscription for open rides (only triggers refresh if online)
   useOpenRidesRealtime(refresh);
 
+  // Client-side timer to filter out expired rides every second
+  useEffect(() => {
+    if (!isOnline) return;
+    const interval = setInterval(() => {
+      setRides((prev) => {
+        const filtered = filterActiveRides(prev);
+        return filtered.length !== prev.length ? filtered : prev;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isOnline]);
+
   const chooseRide = (r: Ride) => {
     setSelectedRide(r);
     const base = clampTo5((r.fare || 50) * mult);
@@ -215,6 +232,13 @@ export default function DriverDashboard() {
 
   const sendOffer = async () => {
     if (!selectedRide || submitting) return;
+
+    // Check if ride has expired before sending
+    if (selectedRide.expires_at && new Date(selectedRide.expires_at).getTime() < Date.now()) {
+      toast.error("This request has expired");
+      setSelectedRide(null);
+      return;
+    }
 
     try {
       setSubmitting(true);
@@ -450,31 +474,48 @@ export default function DriverDashboard() {
               </CardContent>
             </Card>
           ) : (
-            rides.map((r) => (
-              <Card
-                key={r.id}
-                className="cursor-pointer hover:border-primary transition-colors"
-                onClick={() => chooseRide(r)}
-              >
-                <CardContent className="pt-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex flex-col items-center">
-                      <MapPin className="h-4 w-4 text-primary" />
-                      <div className="w-0.5 h-6 bg-border" />
-                      <Navigation className="h-4 w-4 text-destructive" />
+            rides.map((r) => {
+              const secsLeft = getSecondsRemaining(r.expires_at ?? null);
+              return (
+                <Card
+                  key={r.id}
+                  className="cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => chooseRide(r)}
+                >
+                  <CardContent className="pt-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex flex-col items-center">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <div className="w-0.5 h-6 bg-border" />
+                        <Navigation className="h-4 w-4 text-destructive" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold truncate">{r.pickup_address}</p>
+                        <p className="text-sm text-muted-foreground truncate">{r.dropoff_address}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-black text-lg">R{r.fare}</p>
+                        <p className="text-xs text-muted-foreground">{r.distance_km?.toFixed(1)} km</p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">{r.pickup_address}</p>
-                      <p className="text-sm text-muted-foreground truncate">{r.dropoff_address}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-black text-lg">R{r.fare}</p>
-                      <p className="text-xs text-muted-foreground">{r.distance_km?.toFixed(1)} km</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                    {r.expires_at && secsLeft > 0 && (
+                      <div className="mt-2">
+                        <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                          <span>Expires in</span>
+                          <span className={`font-bold ${secsLeft <= 10 ? 'text-destructive' : 'text-primary'}`}>{secsLeft}s</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-200 ease-linear ${secsLeft <= 10 ? 'bg-destructive' : 'bg-primary'}`}
+                            style={{ width: `${Math.min(100, (secsLeft / 30) * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })
           )}
         </div>
 

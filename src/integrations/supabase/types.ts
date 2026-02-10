@@ -544,6 +544,7 @@ export type Database = {
           dropoff_lat: number
           dropoff_lon: number
           duration_minutes: number
+          expires_at: string | null
           fare: number
           id: string
           pickup_address: string
@@ -563,6 +564,7 @@ export type Database = {
           dropoff_lat: number
           dropoff_lon: number
           duration_minutes: number
+          expires_at?: string | null
           fare: number
           id?: string
           pickup_address: string
@@ -582,6 +584,7 @@ export type Database = {
           dropoff_lat?: number
           dropoff_lon?: number
           duration_minutes?: number
+          expires_at?: string | null
           fare?: number
           id?: string
           pickup_address?: string
@@ -799,6 +802,7 @@ export type Database = {
         Args: { p_trip_id: string }
         Returns: Json
       }
+      expire_old_rides: { Args: never; Returns: number }
       get_driver_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
