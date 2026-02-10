@@ -10,7 +10,8 @@ import {
   Bell,
   LogOut,
   Menu,
-  X
+  X,
+  Banknote
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ const navItems = [
   { label: 'Drivers', href: '/admin/drivers', icon: Car },
   { label: 'Trips', href: '/admin/trips', icon: Navigation },
   { label: 'Landmarks', href: '/admin/landmarks', icon: MapPin },
+  { label: 'Deposits', href: '/admin/deposits', icon: Banknote },
   { label: 'Reports', href: '/admin/reports', icon: FileBarChart },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ];
