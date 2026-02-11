@@ -460,6 +460,48 @@ export type Database = {
           },
         ]
       }
+      places_cache: {
+        Row: {
+          address: Json | null
+          class: string | null
+          created_at: string
+          display_name: string
+          id: string
+          lat: number
+          lon: number
+          name: string | null
+          osm_id: number | null
+          osm_type: string | null
+          type: string | null
+        }
+        Insert: {
+          address?: Json | null
+          class?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          lat: number
+          lon: number
+          name?: string | null
+          osm_id?: number | null
+          osm_type?: string | null
+          type?: string | null
+        }
+        Update: {
+          address?: Json | null
+          class?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          lat?: number
+          lon?: number
+          name?: string | null
+          osm_id?: number | null
+          osm_type?: string | null
+          type?: string | null
+        }
+        Relationships: []
+      }
       pricing_settings: {
         Row: {
           base_fare: number
