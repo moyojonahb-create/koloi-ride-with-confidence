@@ -30,6 +30,8 @@ import {
   History,
   Wallet,
   CheckCircle2,
+  Clock,
+  AlertTriangle,
 } from "lucide-react";
 import { triggerFullAlert } from "@/lib/alerts";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
@@ -80,12 +82,34 @@ export default function DriverDashboard() {
   const { speak, isSupported: voiceSupported } = useVoiceNavigation({ enabled: voiceEnabled });
   const { wallet, balance, transactions, deposit, refresh: refreshWallet } = useWallet();
 
-  // Toggle online status
+  // Helper: days left in trial
+  const trialDaysLeft = profile?.trial_ends_at
+    ? Math.max(0, Math.ceil((new Date(profile.trial_ends_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : 0;
+  const trialActive = profile?.trial_ends_at
+    ? new Date(profile.trial_ends_at).getTime() > Date.now()
+    : false;
+
+  // Toggle online status with can_driver_operate check
   const toggleOnline = async (online: boolean) => {
     if (!profile || togglingOnline) return;
 
     setTogglingOnline(true);
     try {
+      if (online) {
+        // Check if driver can operate (trial or wallet balance)
+        const { data: canOperate, error: rpcErr } = await supabase.rpc("can_driver_operate", { p_driver_id: user!.id });
+        if (rpcErr) throw new Error(rpcErr.message);
+        if (!canOperate) {
+          toast.error("Cannot go online", {
+            description: "Your trial has ended or your wallet balance is too low. Please deposit to continue.",
+            duration: 8000,
+          });
+          setTogglingOnline(false);
+          return;
+        }
+      }
+
       const { error: updateErr } = await supabase.from("drivers").update({ is_online: online }).eq("id", profile.id);
 
       if (updateErr) throw new Error(updateErr.message);
@@ -98,7 +122,6 @@ export default function DriverDashboard() {
         if (voiceEnabled && voiceSupported) {
           speak("You are now online. Waiting for ride requests.");
         }
-        // Fetch rides immediately when going online
         refresh();
       } else {
         toast.info("You're now offline", { description: "You won't receive new ride requests" });
@@ -352,6 +375,42 @@ export default function DriverDashboard() {
       </div>
 
       <div className="max-w-lg mx-auto p-4 space-y-4">
+        {/* Trial Banner */}
+        {profile && trialActive && (
+          <Card className="border-amber-500 bg-amber-500/10">
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-3">
+                <Clock className="h-5 w-5 text-amber-600 shrink-0" />
+                <div>
+                  <p className="font-semibold text-sm">Free Trial Active</p>
+                  <p className="text-xs text-muted-foreground">
+                    {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} remaining — no fees until trial ends
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Trial Ended Warning */}
+        {profile && !trialActive && (
+          <Card className="border-destructive bg-destructive/5">
+            <CardContent className="pt-4">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+                <div className="flex-1">
+                  <p className="font-semibold text-sm">Trial Ended</p>
+                  <p className="text-xs text-muted-foreground">
+                    Maintain wallet balance to stay online (R4 fee per trip)
+                  </p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => nav("/drivers/wallet")}>
+                  <Wallet className="h-4 w-4 mr-1" /> Deposit
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         {/* Online Status Toggle */}
         <Card className={isOnline ? "border-primary bg-primary/5" : ""}>
           <CardContent className="pt-4">
