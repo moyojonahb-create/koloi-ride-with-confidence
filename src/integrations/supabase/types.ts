@@ -174,6 +174,7 @@ export type Database = {
           rating_avg: number | null
           status: string
           total_trips: number | null
+          trial_ends_at: string | null
           updated_at: string
           user_id: string
           vehicle_make: string | null
@@ -189,6 +190,7 @@ export type Database = {
           rating_avg?: number | null
           status?: string
           total_trips?: number | null
+          trial_ends_at?: string | null
           updated_at?: string
           user_id: string
           vehicle_make?: string | null
@@ -204,6 +206,7 @@ export type Database = {
           rating_avg?: number | null
           status?: string
           total_trips?: number | null
+          trial_ends_at?: string | null
           updated_at?: string
           user_id?: string
           vehicle_make?: string | null
@@ -798,6 +801,7 @@ export type Database = {
         Returns: Json
       }
       admin_set_fx_rate: { Args: { p_zar_per_usd: number }; Returns: Json }
+      can_driver_operate: { Args: { p_driver_id: string }; Returns: boolean }
       complete_trip_and_charge_flat_r4: {
         Args: { p_trip_id: string }
         Returns: Json

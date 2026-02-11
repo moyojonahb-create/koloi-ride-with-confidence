@@ -21,6 +21,7 @@ export type DriverProfile = {
   vehicle_make: string | null;
   vehicle_model: string | null;
   is_online: boolean | null;
+  trial_ends_at: string | null;
 };
 
 // Round to nearest R5
