@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import Header from '@/components/Header';
 import LandingHero from '@/components/LandingHero';
-import SplashScreen from '@/components/SplashScreen';
 import SuggestionsSection from '@/components/SuggestionsSection';
 import DriveSection from '@/components/DriveSection';
 import BusinessSection from '@/components/BusinessSection';
@@ -13,7 +12,6 @@ import RideHistorySheet from '@/components/RideHistorySheet';
 import InstallPromptBanner from '@/components/InstallPromptBanner';
 
 const Index = () => {
-  const [showSplash, setShowSplash] = useState(true);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [favoritesOpen, setFavoritesOpen] = useState(false);
@@ -40,10 +38,7 @@ const Index = () => {
 
   return (
     <>
-      {showSplash && (
-        <SplashScreen onComplete={() => setShowSplash(false)} duration={2500} />
-      )}
-      {!showSplash && <InstallPromptBanner />}
+      <InstallPromptBanner />
       <div className="min-h-screen bg-background">
       <Header 
         onLoginClick={handleLoginClick} 

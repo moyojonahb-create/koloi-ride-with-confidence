@@ -168,6 +168,7 @@ export type Database = {
       drivers: {
         Row: {
           created_at: string
+          gender: string | null
           id: string
           is_online: boolean | null
           plate_number: string | null
@@ -184,6 +185,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          gender?: string | null
           id?: string
           is_online?: boolean | null
           plate_number?: string | null
@@ -200,6 +202,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          gender?: string | null
           id?: string
           is_online?: boolean | null
           plate_number?: string | null
