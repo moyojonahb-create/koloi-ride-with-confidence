@@ -15,6 +15,7 @@ import {
 } from "@/lib/offerHelpers";
 import { RideCommunication } from "@/components/ride/RideCommunication";
 import OffersModal from "@/components/OffersModal";
+import OSMMap from "@/components/OSMMap";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -28,10 +29,15 @@ type Ride = {
   status: string;
   pickup_address: string;
   dropoff_address: string;
+  pickup_lat: number;
+  pickup_lon: number;
+  dropoff_lat: number;
+  dropoff_lon: number;
   fare: number;
   distance_km: number;
   duration_minutes: number;
   expires_at?: string | null;
+  route_polyline?: string | null;
 };
 
 export default function RiderRideDetail() {
@@ -44,6 +50,7 @@ export default function RiderRideDetail() {
   const [driversById, setDriversById] = useState<Record<string, DriverProfile>>({});
   const [driverProfile, setDriverProfile] = useState<any>(null);
   const [driverPhone, setDriverPhone] = useState<string | null>(null);
+  const [driverLocation, setDriverLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -134,6 +141,28 @@ export default function RiderRideDetail() {
       Notification.requestPermission();
     }
   }, []);
+
+  // Poll driver location when ride is accepted
+  useEffect(() => {
+    if (!ride || !driverProfile || ride.status !== "accepted") return;
+
+    const fetchDriverLocation = async () => {
+      const { data } = await supabase
+        .from("live_locations")
+        .select("latitude, longitude")
+        .eq("user_id", driverProfile.user_id)
+        .eq("user_type", "driver")
+        .maybeSingle();
+
+      if (data) {
+        setDriverLocation({ lat: data.latitude, lng: data.longitude });
+      }
+    };
+
+    fetchDriverLocation();
+    const interval = setInterval(fetchDriverLocation, 5000);
+    return () => clearInterval(interval);
+  }, [ride?.status, driverProfile?.user_id]);
 
   // Countdown timer for ride expiry
   useEffect(() => {
@@ -267,6 +296,7 @@ export default function RiderRideDetail() {
       driverName: d?.vehicle_make ? `${d.vehicle_make} Driver` : "Driver",
       vehicleMake: d?.vehicle_make || undefined,
       vehicleModel: d?.vehicle_model || undefined,
+      gender: d?.gender || null,
     };
   });
 
@@ -320,6 +350,20 @@ export default function RiderRideDetail() {
       </div>
 
       <div className="max-w-lg mx-auto p-4 space-y-4">
+        {/* Map - Show route and driver location */}
+        {isAccepted && ride.pickup_lat && (
+          <Card className="overflow-hidden">
+            <OSMMap
+              pickup={{ lat: ride.pickup_lat, lng: ride.pickup_lon }}
+              dropoff={{ lat: ride.dropoff_lat, lng: ride.dropoff_lon }}
+              routeGeometry={ride.route_polyline}
+              driverLocation={driverLocation}
+              height="280px"
+              showRecenterButton
+            />
+          </Card>
+        )}
+
         {/* Ride Details */}
         <Card>
           <CardContent className="pt-4">
@@ -338,7 +382,6 @@ export default function RiderRideDetail() {
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
               <div>
                 <p className="text-sm text-muted-foreground">Your offer</p>
-                {/* Price adjustment for pending rides */}
                 {isPending ? (
                   <div className="flex items-center gap-2 mt-1">
                     <Button
@@ -429,10 +472,19 @@ export default function RiderRideDetail() {
             <CardContent className="pt-4">
               {driverProfile && (
                 <div className="mb-4 p-3 bg-muted rounded-lg">
-                  <p className="font-semibold">Your Driver</p>
-                  <p className="text-sm text-muted-foreground">
-                    {driverProfile.vehicle_make} {driverProfile.vehicle_model} • {driverProfile.plate_number}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold">Your Driver</p>
+                      <p className="text-sm text-muted-foreground">
+                        {driverProfile.vehicle_make} {driverProfile.vehicle_model} • {driverProfile.plate_number}
+                      </p>
+                    </div>
+                    {driverProfile.gender && (
+                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                        {driverProfile.gender === 'female' ? '♀' : '♂'} {driverProfile.gender.charAt(0).toUpperCase() + driverProfile.gender.slice(1)}
+                      </span>
+                    )}
+                  </div>
                   {driverPhone && (
                     <div className="flex gap-2 mt-3">
                       <a

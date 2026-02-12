@@ -20,6 +20,7 @@ export type DriverOffer = DriverViewing & {
   driverName?: string;
   vehicleMake?: string;
   vehicleModel?: string;
+  gender?: string | null;
 };
 
 type Props = {
@@ -226,6 +227,13 @@ export default function OffersModal({
                       <div className="text-sm text-muted-foreground mt-0.5">
                         Plate: <span className="font-semibold text-foreground">{o.plateNumber}</span>
                       </div>
+                      {o.gender && (
+                        <div className="text-sm mt-0.5">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                            {o.gender === 'female' ? '♀' : '♂'} {o.gender.charAt(0).toUpperCase() + o.gender.slice(1)} driver
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="text-right">
                       <div className="font-black text-2xl text-primary">

@@ -15,12 +15,15 @@ import { useToast } from '@/hooks/use-toast';
 
 const vehicleTypes = ['economy', 'comfort', 'premium', 'suv'] as const;
 
+const genderOptions = ['male', 'female'] as const;
+
 const applicationSchema = z.object({
   vehicleType: z.enum(vehicleTypes),
   vehicleMake: z.string().min(2, 'Vehicle make is required'),
   vehicleModel: z.string().min(2, 'Vehicle model is required'),
   vehicleYear: z.number().min(1990, 'Year must be 1990 or later').max(new Date().getFullYear() + 1, 'Invalid year'),
   plateNumber: z.string().min(2, 'Plate number is required'),
+  gender: z.enum(genderOptions, { required_error: 'Please select your gender' }),
 });
 
 type ApplicationFormData = z.infer<typeof applicationSchema>;
@@ -42,6 +45,7 @@ const DriverApplicationForm = ({ onSuccess }: DriverApplicationFormProps) => {
       vehicleModel: '',
       vehicleYear: new Date().getFullYear(),
       plateNumber: '',
+      gender: undefined,
     },
   });
 
@@ -57,6 +61,7 @@ const DriverApplicationForm = ({ onSuccess }: DriverApplicationFormProps) => {
         vehicle_model: data.vehicleModel,
         vehicle_year: data.vehicleYear,
         plate_number: data.plateNumber,
+        gender: data.gender,
         status: 'pending',
       });
 
@@ -182,6 +187,28 @@ const DriverApplicationForm = ({ onSuccess }: DriverApplicationFormProps) => {
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gender</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
