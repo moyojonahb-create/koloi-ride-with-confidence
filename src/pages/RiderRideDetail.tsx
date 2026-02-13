@@ -84,20 +84,35 @@ export default function RiderRideDetail() {
     }
 
     // If ride is accepted, fetch driver info
-    if (data.driver_id && data.status === "accepted") {
-      const { data: driverData } = await supabase
-        .from("drivers")
-        .select("*, profiles:user_id(full_name, phone)")
-        .eq("id", data.driver_id)
-        .maybeSingle();
+    if (data.driver_id && (data.status === "accepted" || data.status === "in_progress" || data.status === "arrived")) {
+      try {
+        // First get the driver record
+        const { data: driverData, error: driverErr } = await supabase
+          .from("drivers")
+          .select("*")
+          .eq("id", data.driver_id)
+          .maybeSingle();
 
-      if (driverData) {
-        setDriverProfile(driverData);
-        // Get phone from profiles join
-        const profile = (driverData as any).profiles;
-        if (profile?.phone) {
-          setDriverPhone(profile.phone);
+        if (driverErr) {
+          console.warn("Failed to fetch driver:", driverErr.message);
         }
+
+        if (driverData) {
+          setDriverProfile(driverData);
+
+          // Now fetch the profile separately using the driver's user_id
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("full_name, phone")
+            .eq("user_id", driverData.user_id)
+            .maybeSingle();
+
+          if (profileData?.phone) {
+            setDriverPhone(profileData.phone);
+          }
+        }
+      } catch (e: any) {
+        console.warn("Error fetching driver details:", e.message);
       }
     }
   }, [rideId, ride?.status]);
@@ -144,13 +159,16 @@ export default function RiderRideDetail() {
 
   // Poll driver location when ride is accepted
   useEffect(() => {
-    if (!ride || !driverProfile || ride.status !== "accepted") return;
+    if (!ride || !driverProfile || !["accepted", "in_progress", "arrived"].includes(ride.status)) return;
+
+    const driverUserId = driverProfile.user_id;
+    if (!driverUserId) return;
 
     const fetchDriverLocation = async () => {
       const { data } = await supabase
         .from("live_locations")
         .select("latitude, longitude")
-        .eq("user_id", driverProfile.user_id)
+        .eq("user_id", driverUserId)
         .eq("user_type", "driver")
         .maybeSingle();
 
@@ -323,7 +341,7 @@ export default function RiderRideDetail() {
     );
   }
 
-  const isAccepted = ride.status === "accepted";
+  const isAccepted = ["accepted", "in_progress", "arrived"].includes(ride.status);
   const isPending = ride.status === "pending";
 
   return (
@@ -357,7 +375,7 @@ export default function RiderRideDetail() {
               pickup={{ lat: ride.pickup_lat, lng: ride.pickup_lon }}
               dropoff={{ lat: ride.dropoff_lat, lng: ride.dropoff_lon }}
               routeGeometry={ride.route_polyline}
-              driverLocation={driverLocation}
+              driverLocation={driverLocation || undefined}
               height="280px"
               showRecenterButton
             />
