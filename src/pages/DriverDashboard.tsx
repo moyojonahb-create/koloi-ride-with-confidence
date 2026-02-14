@@ -35,6 +35,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { triggerFullAlert } from "@/lib/alerts";
+import { updateDriverLocation } from "@/lib/driverLocation";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 import { filterActiveRides, getSecondsRemaining, expireOldRides } from "@/lib/rideExpiry";
 import { useWallet } from "@/hooks/useWallet";
@@ -82,6 +83,7 @@ export default function DriverDashboard() {
   const [completing, setCompleting] = useState(false);
 
   const lastRideIds = useRef<Set<string>>(new Set());
+  const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { speak, isSupported: voiceSupported } = useVoiceNavigation({ enabled: voiceEnabled });
   const { wallet, balance, transactions, deposit, refresh: refreshWallet } = useWallet();
 
@@ -92,6 +94,43 @@ export default function DriverDashboard() {
   const trialActive = profile?.trial_ends_at
     ? new Date(profile.trial_ends_at).getTime() > Date.now()
     : false;
+
+  // Location tracking for admin monitoring
+  const startLocationTracking = () => {
+    stopLocationTracking();
+    if (!navigator.geolocation) return;
+    // Send initial location
+    navigator.geolocation.getCurrentPosition(
+      (pos) => updateDriverLocation(pos.coords.latitude, pos.coords.longitude),
+      () => {}
+    );
+    // Update every 10 seconds
+    locationIntervalRef.current = setInterval(() => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => updateDriverLocation(pos.coords.latitude, pos.coords.longitude),
+        () => {}
+      );
+    }, 10000);
+  };
+
+  const stopLocationTracking = () => {
+    if (locationIntervalRef.current) {
+      clearInterval(locationIntervalRef.current);
+      locationIntervalRef.current = null;
+    }
+  };
+
+  // Clean up location tracking on unmount
+  useEffect(() => {
+    return () => stopLocationTracking();
+  }, []);
+
+  // Auto-start tracking if already online on mount
+  useEffect(() => {
+    if (isOnline && profile?.status === "approved") {
+      startLocationTracking();
+    }
+  }, [isOnline, profile?.status]);
 
   // Toggle online status with can_driver_operate check
   const toggleOnline = async (online: boolean) => {
@@ -125,9 +164,12 @@ export default function DriverDashboard() {
         if (voiceEnabled && voiceSupported) {
           speak("You are now online. Waiting for ride requests.");
         }
+        // Start live location tracking for admin monitoring
+        startLocationTracking();
         refresh();
       } else {
         toast.info("You're now offline", { description: "You won't receive new ride requests" });
+        stopLocationTracking();
         setRides([]);
       }
     } catch (e: any) {

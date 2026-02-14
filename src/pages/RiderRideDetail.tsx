@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds";
 
 type Ride = {
@@ -75,12 +76,14 @@ export default function RiderRideDetail() {
     // Play sound when ride is accepted
     if (wasAccepted) {
       playAcceptedSound();
-      if (Notification.permission === "granted") {
-        new Notification("🎉 Driver Accepted!", {
-          body: "Your ride has been confirmed. You can now contact your driver.",
-          icon: "/icons/icon-192x192.png",
-        });
-      }
+      try {
+        if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
+          new Notification("🎉 Driver Accepted!", {
+            body: "Your ride has been confirmed. You can now contact your driver.",
+            icon: "/icons/icon-192x192.png",
+          });
+        }
+      } catch (_) { /* Notification API not available */ }
     }
 
     // If ride is accepted, fetch driver info
@@ -126,12 +129,14 @@ export default function RiderRideDetail() {
       // Play sound when new offers come in
       if (list.length > lastOfferCount && lastOfferCount > 0) {
         playNewRequestSound();
-        if (Notification.permission === "granted") {
-          new Notification("New Driver Offer!", {
-            body: "A driver has made an offer on your ride request.",
-            icon: "/icons/icon-192x192.png",
-          });
-        }
+        try {
+          if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
+            new Notification("New Driver Offer!", {
+              body: "A driver has made an offer on your ride request.",
+              icon: "/icons/icon-192x192.png",
+            });
+          }
+        } catch (_) { /* Notification API not available */ }
       }
       setLastOfferCount(list.length);
       setOffers(list);
@@ -152,9 +157,11 @@ export default function RiderRideDetail() {
 
   // Request notification permission
   useEffect(() => {
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
+    try {
+      if (typeof globalThis.Notification !== "undefined" && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    } catch (_) { /* Notification API not available */ }
   }, []);
 
   // Poll driver location when ride is accepted
@@ -491,15 +498,22 @@ export default function RiderRideDetail() {
               {driverProfile && (
                 <div className="mb-4 p-3 bg-muted rounded-lg">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">Your Driver</p>
-                      <p className="text-sm text-muted-foreground">
-                        {driverProfile.vehicle_make} {driverProfile.vehicle_model} • {driverProfile.plate_number}
-                      </p>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12 border-2 border-primary/20">
+                        <AvatarFallback className={`text-sm font-bold ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {driverProfile.gender === 'female' ? '♀' : '♂'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold">Your Driver</p>
+                        <p className="text-sm text-muted-foreground">
+                          {driverProfile.vehicle_make} {driverProfile.vehicle_model} • {driverProfile.plate_number}
+                        </p>
+                      </div>
                     </div>
                     {driverProfile.gender && (
                       <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
-                        {driverProfile.gender === 'female' ? '♀' : '♂'} {driverProfile.gender.charAt(0).toUpperCase() + driverProfile.gender.slice(1)}
+                        {driverProfile.gender === 'female' ? '♀ Female' : '♂ Male'}
                       </span>
                     )}
                   </div>
