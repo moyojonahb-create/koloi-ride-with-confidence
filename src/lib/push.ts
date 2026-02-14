@@ -5,22 +5,24 @@
  */
 
 export async function requestNotificationPermission(): Promise<boolean> {
-  if (!("Notification" in window)) {
-    console.warn("[Push] Notifications not supported");
+  try {
+    if (typeof globalThis.Notification === "undefined") {
+      console.warn("[Push] Notifications not supported");
+      return false;
+    }
+
+    if (Notification.permission === "granted") return true;
+    if (Notification.permission === "denied") {
+      console.warn("[Push] Notifications permission denied");
+      return false;
+    }
+
+    const permission = await Notification.requestPermission();
+    return permission === "granted";
+  } catch {
+    console.warn("[Push] Notification API error");
     return false;
   }
-
-  if (Notification.permission === "granted") {
-    return true;
-  }
-
-  if (Notification.permission === "denied") {
-    console.warn("[Push] Notifications permission denied");
-    return false;
-  }
-
-  const permission = await Notification.requestPermission();
-  return permission === "granted";
 }
 
 export async function enablePush(): Promise<boolean> {

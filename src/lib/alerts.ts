@@ -38,9 +38,9 @@ export function vibrateAlert(): void {
 }
 
 export function showBrowserNotification(title: string, body: string, url?: string): void {
-  if (!("Notification" in window)) return;
-  
-  if (Notification.permission === "granted") {
+  try {
+    if (typeof globalThis.Notification === "undefined") return;
+    if (Notification.permission !== "granted") return;
     const notification = new Notification(title, {
       body,
       icon: "/icons/icon-192x192.png",
@@ -54,6 +54,8 @@ export function showBrowserNotification(title: string, body: string, url?: strin
       if (url) window.location.href = url;
       notification.close();
     };
+  } catch (e) {
+    console.warn("[Alerts] Browser notification failed:", e);
   }
 }
 
