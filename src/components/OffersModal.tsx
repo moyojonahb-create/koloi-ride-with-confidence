@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { playNewRequestSound } from "@/lib/notificationSounds";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { User } from "lucide-react";
 
 export type DriverViewing = {
   driverId: string;
@@ -213,27 +215,34 @@ export default function OffersModal({
                 >
                   {/* Driver Info */}
                   <div className="flex justify-between items-start gap-2 mb-3">
-                    <div className="flex-1">
-                      <div className="font-bold text-foreground text-lg">
-                        {o.driverName || o.name || 'Driver'}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {o.vehicleMake && o.vehicleModel 
-                          ? `${o.vehicleMake} ${o.vehicleModel}`
-                          : o.vehicleType
-                        }
-                        {o.vehicleColor && ` • ${o.vehicleColor}`}
-                      </div>
-                      <div className="text-sm text-muted-foreground mt-0.5">
-                        Plate: <span className="font-semibold text-foreground">{o.plateNumber}</span>
-                      </div>
-                      {o.gender && (
-                        <div className="text-sm mt-0.5">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
-                            {o.gender === 'female' ? '♀' : '♂'} {o.gender.charAt(0).toUpperCase() + o.gender.slice(1)} driver
-                          </span>
+                    <div className="flex items-start gap-3 flex-1">
+                      <Avatar className="h-12 w-12 border-2 border-primary/20">
+                        <AvatarFallback className={`text-sm font-bold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {o.gender === 'female' ? '♀' : '♂'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-foreground text-lg">
+                          {o.driverName || o.name || 'Driver'}
                         </div>
-                      )}
+                        <div className="text-sm text-muted-foreground">
+                          {o.vehicleMake && o.vehicleModel 
+                            ? `${o.vehicleMake} ${o.vehicleModel}`
+                            : o.vehicleType
+                          }
+                          {o.vehicleColor && ` • ${o.vehicleColor}`}
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-0.5">
+                          Plate: <span className="font-semibold text-foreground">{o.plateNumber}</span>
+                        </div>
+                        {o.gender && (
+                          <div className="text-sm mt-1">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                              {o.gender === 'female' ? '♀ Female' : '♂ Male'} driver
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="text-right">
                       <div className="font-black text-2xl text-primary">
