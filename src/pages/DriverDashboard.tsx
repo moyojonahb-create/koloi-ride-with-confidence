@@ -32,6 +32,7 @@ import {
   CheckCircle2,
   Clock,
   AlertTriangle,
+  MessageCircle,
 } from "lucide-react";
 import { triggerFullAlert } from "@/lib/alerts";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
@@ -41,6 +42,7 @@ import { completeTrip } from "@/lib/completeTrip";
 import WalletBalance from "@/components/wallet/WalletBalance";
 import DepositModal from "@/components/wallet/DepositModal";
 import TransactionsSheet from "@/components/wallet/TransactionsSheet";
+import { RideCommunication } from "@/components/ride/RideCommunication";
 
 type Ride = {
   id: string;
@@ -75,7 +77,8 @@ export default function DriverDashboard() {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [transactionsOpen, setTransactionsOpen] = useState(false);
-  const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number } | null>(null);
+  const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number; user_id: string } | null>(null);
+  const [riderPhone, setRiderPhone] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
 
   const lastRideIds = useRef<Set<string>>(new Set());
@@ -156,13 +159,32 @@ export default function DriverDashboard() {
       // Fetch active trip (accepted/in_progress) assigned to this driver
       const { data: activeTripData } = await supabase
         .from("rides")
-        .select("id, pickup_address, dropoff_address, fare, status")
+        .select("id, pickup_address, dropoff_address, fare, status, user_id")
         .eq("driver_id", p.id)
         .in("status", ["accepted", "in_progress", "arrived"])
         .order("updated_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      setActiveTrip(activeTripData ? { id: activeTripData.id, pickup_address: activeTripData.pickup_address, dropoff_address: activeTripData.dropoff_address, fare: Number(activeTripData.fare) } : null);
+      
+      if (activeTripData) {
+        setActiveTrip({
+          id: activeTripData.id,
+          pickup_address: activeTripData.pickup_address,
+          dropoff_address: activeTripData.dropoff_address,
+          fare: Number(activeTripData.fare),
+          user_id: activeTripData.user_id,
+        });
+        // Fetch rider phone
+        const { data: riderProfile } = await supabase
+          .from("profiles")
+          .select("phone")
+          .eq("user_id", activeTripData.user_id)
+          .maybeSingle();
+        setRiderPhone(riderProfile?.phone ?? null);
+      } else {
+        setActiveTrip(null);
+        setRiderPhone(null);
+      }
 
       // Only fetch rides if driver is online
       if (p.is_online) {
@@ -212,9 +234,11 @@ export default function DriverDashboard() {
 
   // Request notification permission on mount
   useEffect(() => {
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
+    try {
+      if (typeof globalThis.Notification !== "undefined" && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    } catch (_) { /* Notification API not available */ }
   }, []);
 
   useEffect(() => {
@@ -433,31 +457,45 @@ export default function DriverDashboard() {
 
         {/* Active Trip */}
         {activeTrip && (
-          <Card className="border-emerald-500 bg-emerald-500/5">
-            <CardContent className="pt-4">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="flex flex-col items-center">
-                  <MapPin className="h-4 w-4 text-primary" />
-                  <div className="w-0.5 h-6 bg-border" />
-                  <Navigation className="h-4 w-4 text-destructive" />
+          <>
+            <Card className="border-emerald-500 bg-emerald-500/5">
+              <CardContent className="pt-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="flex flex-col items-center">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <div className="w-0.5 h-6 bg-border" />
+                    <Navigation className="h-4 w-4 text-destructive" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
+                    <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
+                  </div>
+                  <p className="font-black text-lg">R{activeTrip.fare}</p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
-                  <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
-                </div>
-                <p className="font-black text-lg">R{activeTrip.fare}</p>
-              </div>
-              <Button
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
-                size="lg"
-                onClick={handleCompleteTrip}
-                disabled={completing}
-              >
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                {completing ? "Completing..." : "Complete Trip (R4 fee)"}
-              </Button>
-            </CardContent>
-          </Card>
+                <Button
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  size="lg"
+                  onClick={handleCompleteTrip}
+                  disabled={completing}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  {completing ? "Completing..." : "Complete Trip (R4 fee)"}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Communication with Rider */}
+            <Card>
+              <CardContent className="pt-4">
+                <RideCommunication
+                  rideId={activeTrip.id}
+                  currentUserId={user!.id}
+                  otherUserPhone={riderPhone}
+                  riderId={activeTrip.user_id}
+                />
+              </CardContent>
+            </Card>
+          </>
         )}
 
         {isOnline && (
