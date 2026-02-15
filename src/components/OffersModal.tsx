@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { playNewRequestSound } from "@/lib/notificationSounds";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User } from "lucide-react";
 
 export type DriverViewing = {
@@ -23,6 +23,7 @@ export type DriverOffer = DriverViewing & {
   vehicleMake?: string;
   vehicleModel?: string;
   gender?: string | null;
+  avatarUrl?: string | null;
 };
 
 type Props = {
@@ -217,6 +218,9 @@ export default function OffersModal({
                   <div className="flex justify-between items-start gap-2 mb-3">
                     <div className="flex items-start gap-3 flex-1">
                       <Avatar className="h-12 w-12 border-2 border-primary/20">
+                        {o.avatarUrl ? (
+                          <AvatarImage src={o.avatarUrl} alt={o.driverName || 'Driver'} />
+                        ) : null}
                         <AvatarFallback className={`text-sm font-bold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
                           {o.gender === 'female' ? '♀' : '♂'}
                         </AvatarFallback>

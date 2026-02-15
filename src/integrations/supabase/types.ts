@@ -167,6 +167,7 @@ export type Database = {
       }
       drivers: {
         Row: {
+          avatar_url: string | null
           created_at: string
           gender: string | null
           id: string
@@ -184,6 +185,7 @@ export type Database = {
           vehicle_year: number | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           gender?: string | null
           id?: string
@@ -201,6 +203,7 @@ export type Database = {
           vehicle_year?: number | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           gender?: string | null
           id?: string

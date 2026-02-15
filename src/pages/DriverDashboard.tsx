@@ -44,6 +44,7 @@ import WalletBalance from "@/components/wallet/WalletBalance";
 import DepositModal from "@/components/wallet/DepositModal";
 import TransactionsSheet from "@/components/wallet/TransactionsSheet";
 import { RideCommunication } from "@/components/ride/RideCommunication";
+import DriverAvatarUpload from "@/components/driver/DriverAvatarUpload";
 
 type Ride = {
   id: string;
@@ -477,6 +478,18 @@ export default function DriverDashboard() {
             </CardContent>
           </Card>
         )}
+        {/* Profile Photo Upload */}
+        <Card>
+          <CardContent className="pt-4">
+            <p className="font-semibold text-sm mb-3">Profile Photo</p>
+            <DriverAvatarUpload
+              currentAvatarUrl={profile.avatar_url}
+              gender={profile.gender}
+              onUploaded={(url) => setProfile(prev => prev ? { ...prev, avatar_url: url } : prev)}
+            />
+          </CardContent>
+        </Card>
+
         {/* Online Status Toggle */}
         <Card className={isOnline ? "border-primary bg-primary/5" : ""}>
           <CardContent className="pt-4">
