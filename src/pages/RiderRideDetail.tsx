@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds";
 
 type Ride = {
@@ -322,6 +322,7 @@ export default function RiderRideDetail() {
       vehicleMake: d?.vehicle_make || undefined,
       vehicleModel: d?.vehicle_model || undefined,
       gender: d?.gender || null,
+      avatarUrl: d?.avatar_url || null,
     };
   });
 
@@ -500,6 +501,9 @@ export default function RiderRideDetail() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-12 w-12 border-2 border-primary/20">
+                        {driverProfile.avatar_url ? (
+                          <AvatarImage src={driverProfile.avatar_url} alt="Driver" />
+                        ) : null}
                         <AvatarFallback className={`text-sm font-bold ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
                           {driverProfile.gender === 'female' ? '♀' : '♂'}
                         </AvatarFallback>

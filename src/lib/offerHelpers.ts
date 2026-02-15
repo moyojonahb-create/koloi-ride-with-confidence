@@ -23,6 +23,7 @@ export type DriverProfile = {
   is_online: boolean | null;
   trial_ends_at: string | null;
   gender: string | null;
+  avatar_url: string | null;
 };
 
 // Round to nearest R5
