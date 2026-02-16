@@ -405,6 +405,12 @@ export default function RiderRideDetail() {
               </div>
             </div>
 
+            {ride.status === "completed" && (
+              <div className="mt-3 px-3 py-2 bg-muted rounded-xl text-sm text-muted-foreground">
+                ✅ Sent to platform account: <span className="font-semibold text-foreground">98855</span> (demo)
+              </div>
+            )}
+
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
               <div>
                 <p className="text-sm text-muted-foreground">Your offer</p>

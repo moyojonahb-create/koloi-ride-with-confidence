@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.import-osm-places]
 verify_jwt = false
+
+[functions.settle-trip]
+verify_jwt = false
