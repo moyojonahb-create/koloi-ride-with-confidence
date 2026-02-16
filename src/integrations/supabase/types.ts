@@ -508,6 +508,50 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          driver_id: string | null
+          id: string
+          passenger_id: string | null
+          status: string
+          to_account_id: string
+          trip_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          driver_id?: string | null
+          id?: string
+          passenger_id?: string | null
+          status?: string
+          to_account_id?: string
+          trip_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          driver_id?: string | null
+          id?: string
+          passenger_id?: string | null
+          status?: string
+          to_account_id?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_ledger_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: true
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pricing_settings: {
         Row: {
           base_fare: number

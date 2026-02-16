@@ -343,6 +343,12 @@ export default function RideDetail() {
 
           <div className="text-3xl font-black text-primary">R{clampTo5(Number(ride.fare ?? 35))}</div>
 
+          {ride.status === "completed" && (
+            <div className="mt-2 px-3 py-2 bg-muted rounded-xl text-sm text-muted-foreground">
+              ✅ Sent to platform account: <span className="font-semibold text-foreground">98855</span> (demo)
+            </div>
+          )}
+
           {!accepted ? (
             <button
               onClick={() => setShowOffersModal(true)}
