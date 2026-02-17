@@ -55,6 +55,9 @@ export default function RideView() {
   const [nominatimLoading, setNominatimLoading] = useState(false);
   const [reverseGeoLoading, setReverseGeoLoading] = useState(false);
 
+  // Passenger count
+  const [passengerCount, setPassengerCount] = useState(1);
+
   // Ride state
   const [rideStatus, setRideStatus] = useState<RideStatus>('idle');
   const [isRequesting, setIsRequesting] = useState(false);
@@ -251,6 +254,7 @@ export default function RideView() {
         duration_minutes: fareEstimate.durationMinutes,
         fare: fareEstimate.fareR,
         route_polyline: routeData?.geometry || null,
+        passenger_count: passengerCount,
       });
       if (!result.ok) throw new Error(result.error);
       const data = result.ride;
@@ -607,6 +611,31 @@ export default function RideView() {
           {/* Fare Display & Request Button */}
           {!activeField && (
             <div className="space-y-4">
+              {/* Passenger Count Selector */}
+              <div className="flex items-center justify-between bg-koloi-gray-100 rounded-2xl p-3">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Passengers</p>
+                  <p className="text-xs text-muted-foreground">How many are riding?</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPassengerCount(c => Math.max(1, c - 1))}
+                    disabled={passengerCount <= 1}
+                    className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center text-lg font-bold text-foreground disabled:opacity-30 transition-opacity"
+                  >
+                    −
+                  </button>
+                  <span className="w-8 text-center text-lg font-bold text-foreground">{passengerCount}</span>
+                  <button
+                    onClick={() => setPassengerCount(c => Math.min(10, c + 1))}
+                    disabled={passengerCount >= 10}
+                    className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center text-lg font-bold text-foreground disabled:opacity-30 transition-opacity"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
               {fareEstimate && (
                 <div className="pt-2">
                   <p className="text-3xl font-bold text-foreground">R{fareEstimate.fareR.toFixed(0)}</p>

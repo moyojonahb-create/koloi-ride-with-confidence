@@ -1,0 +1,1 @@
+ALTER TABLE public.rides ADD COLUMN passenger_count integer NOT NULL DEFAULT 1;

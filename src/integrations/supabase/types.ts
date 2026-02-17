@@ -675,6 +675,7 @@ export type Database = {
           expires_at: string | null
           fare: number
           id: string
+          passenger_count: number
           pickup_address: string
           pickup_lat: number
           pickup_lon: number
@@ -695,6 +696,7 @@ export type Database = {
           expires_at?: string | null
           fare: number
           id?: string
+          passenger_count?: number
           pickup_address: string
           pickup_lat: number
           pickup_lon: number
@@ -715,6 +717,7 @@ export type Database = {
           expires_at?: string | null
           fare?: number
           id?: string
+          passenger_count?: number
           pickup_address?: string
           pickup_lat?: number
           pickup_lon?: number
