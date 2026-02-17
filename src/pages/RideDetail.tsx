@@ -6,6 +6,61 @@ import { joinRidePresence, countDriversViewing } from "@/lib/koloiRealtime";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
+function SettlementInfo({ tripId }: { tripId: string }) {
+  const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [settling, setSettling] = useState(false);
+
+  useEffect(() => {
+    supabase
+      .from("platform_ledger")
+      .select("status, created_at")
+      .eq("trip_id", tripId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setSettlement(data);
+        setLoading(false);
+      });
+  }, [tripId]);
+
+  const handleSettle = async () => {
+    setSettling(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+      await supabase.functions.invoke("settle-trip", { body: { tripId } });
+      const { data } = await supabase
+        .from("platform_ledger")
+        .select("status, created_at")
+        .eq("trip_id", tripId)
+        .maybeSingle();
+      setSettlement(data);
+    } catch {}
+    setSettling(false);
+  };
+
+  if (loading) return null;
+
+  if (settlement) {
+    return (
+      <div className="mt-2 px-3 py-2 bg-muted rounded-xl text-sm text-muted-foreground space-y-1">
+        <p>✅ Sent to platform account: <span className="font-semibold text-foreground">98855</span> (demo)</p>
+        <p>Status: <span className="font-semibold text-foreground">{settlement.status}</span> • {new Date(settlement.created_at).toLocaleString()}</p>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={handleSettle}
+      disabled={settling}
+      className="mt-2 w-full py-2 rounded-xl border border-border bg-background text-sm font-bold hover:bg-secondary"
+    >
+      {settling ? "Settling..." : "Settle Now"}
+    </button>
+  );
+}
+
 type RideRow = {
   id: string;
   user_id: string;
@@ -343,11 +398,7 @@ export default function RideDetail() {
 
           <div className="text-3xl font-black text-primary">R{clampTo5(Number(ride.fare ?? 35))}</div>
 
-          {ride.status === "completed" && (
-            <div className="mt-2 px-3 py-2 bg-muted rounded-xl text-sm text-muted-foreground">
-              ✅ Sent to platform account: <span className="font-semibold text-foreground">98855</span> (demo)
-            </div>
-          )}
+          {ride.status === "completed" && <SettlementInfo tripId={ride.id} />}
 
           {!accepted ? (
             <button

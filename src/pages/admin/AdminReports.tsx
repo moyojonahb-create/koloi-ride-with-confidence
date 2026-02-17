@@ -44,6 +44,14 @@ interface ReportMetrics {
   topLandmark: string;
 }
 
+interface SettlementMetrics {
+  totalSettled: number;
+  settledToday: number;
+  settledWeek: number;
+  settledMonth: number;
+  settledCount: number;
+}
+
 interface DailyData {
   date: string;
   trips: number;
@@ -57,6 +65,28 @@ const AdminReports = () => {
   const [dailyData, setDailyData] = useState<DailyData[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [settlements, setSettlements] = useState<SettlementMetrics | null>(null);
+
+  useEffect(() => {
+    const fetchSettlements = async () => {
+      const { data } = await supabase.from('platform_ledger').select('amount, created_at');
+      if (!data) return;
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekStart = new Date(todayStart);
+      weekStart.setDate(weekStart.getDate() - 7);
+      const monthStart = new Date(todayStart);
+      monthStart.setDate(monthStart.getDate() - 30);
+      setSettlements({
+        totalSettled: data.reduce((s, r) => s + Number(r.amount), 0),
+        settledToday: data.filter(r => new Date(r.created_at) >= todayStart).reduce((s, r) => s + Number(r.amount), 0),
+        settledWeek: data.filter(r => new Date(r.created_at) >= weekStart).reduce((s, r) => s + Number(r.amount), 0),
+        settledMonth: data.filter(r => new Date(r.created_at) >= monthStart).reduce((s, r) => s + Number(r.amount), 0),
+        settledCount: data.length,
+      });
+    };
+    fetchSettlements();
+  }, []);
 
   useEffect(() => {
     const fetchReportData = async () => {
@@ -287,6 +317,35 @@ const AdminReports = () => {
               )}
             </div>
           </div>
+
+          {/* Settlement Analytics */}
+          {settlements && (
+            <div className="bg-card rounded-xl border border-border p-6">
+              <h3 className="font-semibold mb-4">Settlement Analytics</h3>
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="text-center p-3 bg-muted rounded-lg">
+                  <p className="text-2xl font-bold text-foreground">R{settlements.totalSettled.toFixed(0)}</p>
+                  <p className="text-xs text-muted-foreground">Total Settled</p>
+                </div>
+                <div className="text-center p-3 bg-muted rounded-lg">
+                  <p className="text-2xl font-bold text-foreground">R{settlements.settledToday.toFixed(0)}</p>
+                  <p className="text-xs text-muted-foreground">Today</p>
+                </div>
+                <div className="text-center p-3 bg-muted rounded-lg">
+                  <p className="text-2xl font-bold text-foreground">R{settlements.settledWeek.toFixed(0)}</p>
+                  <p className="text-xs text-muted-foreground">This Week</p>
+                </div>
+                <div className="text-center p-3 bg-muted rounded-lg">
+                  <p className="text-2xl font-bold text-foreground">R{settlements.settledMonth.toFixed(0)}</p>
+                  <p className="text-xs text-muted-foreground">This Month</p>
+                </div>
+                <div className="text-center p-3 bg-muted rounded-lg">
+                  <p className="text-2xl font-bold text-foreground">{settlements.settledCount}</p>
+                  <p className="text-xs text-muted-foreground">Settled Trips</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Export Section */}
           <div className="bg-card rounded-xl border border-border p-6">

@@ -29,6 +29,7 @@ const navItems = [
   { label: 'Trips', href: '/admin/trips', icon: Navigation },
   { label: 'Landmarks', href: '/admin/landmarks', icon: MapPin },
   { label: 'Deposits', href: '/admin/deposits', icon: Banknote },
+  { label: 'Ledger', href: '/admin/ledger', icon: Banknote },
   { label: 'Reports', href: '/admin/reports', icon: FileBarChart },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ];
