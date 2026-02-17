@@ -13,6 +13,7 @@ type RequestRideInput = {
   dropoff_lng: number;
   vehicle_type?: string;
   route_polyline?: string | null;
+  passenger_count?: number;
 };
 
 export async function requestRide(input: RequestRideInput) {
@@ -68,6 +69,7 @@ export async function requestRide(input: RequestRideInput) {
       dropoff_lon: input.dropoff_lng,
       vehicle_type: input.vehicle_type ?? "economy",
       route_polyline: input.route_polyline ?? null,
+      passenger_count: input.passenger_count ?? 1,
     })
     .select("*")
     .single();
