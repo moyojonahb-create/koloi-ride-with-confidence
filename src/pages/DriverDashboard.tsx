@@ -45,6 +45,7 @@ import DepositModal from "@/components/wallet/DepositModal";
 import TransactionsSheet from "@/components/wallet/TransactionsSheet";
 import { RideCommunication } from "@/components/ride/RideCommunication";
 import DriverAvatarUpload from "@/components/driver/DriverAvatarUpload";
+import DriverFeedback from "@/components/driver/DriverFeedback";
 
 type Ride = {
   id: string;
@@ -724,6 +725,9 @@ export default function DriverDashboard() {
             </div>
           </div>
         )}
+
+        {/* Suggestions & Complaints */}
+        <DriverFeedback />
 
         {error && <p className="text-sm text-destructive text-center">{error}</p>}
       </div>

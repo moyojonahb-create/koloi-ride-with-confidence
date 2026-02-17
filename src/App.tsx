@@ -31,6 +31,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import ImportOsmPlaces from "./pages/admin/ImportOsmPlaces";
 import AdminRatePage from "./pages/admin/AdminRatePage";
 import AdminDepositsPage from "./pages/admin/AdminDepositsPage";
+import AdminLedger from "./pages/admin/AdminLedger";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/admin/import-osm" element={<ImportOsmPlaces />} />
               <Route path="/admin/rate" element={<AdminRatePage />} />
               <Route path="/admin/deposits" element={<AdminDepositsPage />} />
+              <Route path="/admin/ledger" element={<AdminLedger />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

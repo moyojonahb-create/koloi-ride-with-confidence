@@ -141,6 +141,39 @@ export type Database = {
           },
         ]
       }
+      driver_feedback: {
+        Row: {
+          admin_response: string | null
+          created_at: string
+          driver_id: string
+          id: string
+          message: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          admin_response?: string | null
+          created_at?: string
+          driver_id: string
+          id?: string
+          message: string
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          admin_response?: string | null
+          created_at?: string
+          driver_id?: string
+          id?: string
+          message?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       driver_wallets: {
         Row: {
           balance_usd: number
