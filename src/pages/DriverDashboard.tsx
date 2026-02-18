@@ -554,6 +554,21 @@ export default function DriverDashboard() {
           </>
         )}
 
+        {/* inDrive-style Negotiation Link */}
+        <Card className="border-dashed border-primary/40">
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-sm">Negotiate Fares</p>
+                <p className="text-xs text-muted-foreground">Browse & bid on rider requests (inDrive style)</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => nav('/negotiate/driver')}>
+                View Requests
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {isOnline && (
           <Card>
             <CardContent className="pt-4 space-y-4">

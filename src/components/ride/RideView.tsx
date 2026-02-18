@@ -671,6 +671,14 @@ export default function RideView() {
                   'Select locations'
                 )}
               </Button>
+
+              {/* inDrive-style: negotiate fare with drivers */}
+              <button
+                onClick={() => user ? navigate('/negotiate/request') : setAuthModalOpen(true)}
+                className="w-full text-center text-sm text-muted-foreground underline underline-offset-2 py-1 hover:text-foreground transition-colors"
+              >
+                Prefer to negotiate the price? →
+              </button>
             </div>
           )}
         </section>

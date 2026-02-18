@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -45,8 +45,8 @@ export default function RiderOffersScreen() {
       .then(({ data }) => { if (data) setRequest(data as RideRequest); });
   }, [requestId]);
 
-  // Load offers
-  async function loadOffers() {
+  // Load offers — stable ref to avoid stale closures in realtime
+  const loadOffers = useCallback(async () => {
     if (!requestId) return;
     const { data } = await supabase
       .from('ride_offers')
@@ -54,13 +54,16 @@ export default function RiderOffersScreen() {
       .eq('request_id', requestId)
       .order('created_at', { ascending: false });
     if (data) setOffers(data as RideOffer[]);
-  }
+  }, [requestId]);
+
+  const loadOffersRef = useRef(loadOffers);
+  useEffect(() => { loadOffersRef.current = loadOffers; }, [loadOffers]);
 
   useEffect(() => {
     loadOffers();
-  }, [requestId]);
+  }, [loadOffers]);
 
-  // Realtime subscription
+  // Realtime subscription — uses ref to avoid stale closure
   useEffect(() => {
     if (!requestId) return;
 
@@ -69,7 +72,7 @@ export default function RiderOffersScreen() {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'ride_offers', filter: `request_id=eq.${requestId}` },
-        () => { loadOffers(); }
+        () => { loadOffersRef.current(); }
       )
       .subscribe();
 
@@ -81,11 +84,25 @@ export default function RiderOffersScreen() {
     if (!user || !request) return;
     setAccepting(offer.id);
 
-    // Insert into rides
+    // Resolve the driver's drivers.id (FK) from their auth user_id (offer.driver_id)
+    const { data: driverRow, error: driverErr } = await supabase
+      .from('drivers')
+      .select('id')
+      .eq('user_id', offer.driver_id)
+      .maybeSingle();
+
+    if (driverErr || !driverRow) {
+      toast({ title: 'Driver not found', description: 'Could not find driver profile. They may not be registered as a driver.', variant: 'destructive' });
+      setAccepting(null);
+      return;
+    }
+
+    // Insert into rides with correct driver_id (drivers table FK)
     const { data: rideData, error: rideErr } = await supabase
       .from('rides')
       .insert({
         user_id: user.id,
+        driver_id: driverRow.id,
         pickup_address: request.pickup,
         dropoff_address: request.dropoff,
         pickup_lat: 0,
@@ -108,24 +125,12 @@ export default function RiderOffersScreen() {
       return;
     }
 
-    // Update request status
-    await supabase
-      .from('ride_requests')
-      .update({ status: 'accepted' })
-      .eq('id', requestId);
-
-    // Accept this offer
-    await supabase
-      .from('ride_offers')
-      .update({ status: 'accepted' })
-      .eq('id', offer.id);
-
-    // Reject all other offers
-    await supabase
-      .from('ride_offers')
-      .update({ status: 'rejected' })
-      .eq('request_id', requestId)
-      .neq('id', offer.id);
+    // Update request status, accept this offer, reject all others
+    await Promise.all([
+      supabase.from('ride_requests').update({ status: 'accepted' }).eq('id', requestId),
+      supabase.from('ride_offers').update({ status: 'accepted' }).eq('id', offer.id),
+      supabase.from('ride_offers').update({ status: 'rejected' }).eq('request_id', requestId).neq('id', offer.id),
+    ]);
 
     setAcceptedRideId(rideData.id);
     setAccepting(null);
