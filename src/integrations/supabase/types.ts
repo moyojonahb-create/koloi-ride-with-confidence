@@ -663,6 +663,80 @@ export type Database = {
         }
         Relationships: []
       }
+      ride_offers: {
+        Row: {
+          created_at: string
+          driver_id: string
+          id: string
+          offer_fare: number
+          request_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          driver_id: string
+          id?: string
+          offer_fare: number
+          request_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          driver_id?: string
+          id?: string
+          offer_fare?: number
+          request_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_offers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ride_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ride_requests: {
+        Row: {
+          created_at: string
+          currency: string
+          dropoff: string
+          id: string
+          offered_fare: number
+          pickup: string
+          rider_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          dropoff: string
+          id?: string
+          offered_fare: number
+          pickup: string
+          rider_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          dropoff?: string
+          id?: string
+          offered_fare?: number
+          pickup?: string
+          rider_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rides: {
         Row: {
           created_at: string

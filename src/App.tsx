@@ -32,6 +32,9 @@ import ImportOsmPlaces from "./pages/admin/ImportOsmPlaces";
 import AdminRatePage from "./pages/admin/AdminRatePage";
 import AdminDepositsPage from "./pages/admin/AdminDepositsPage";
 import AdminLedger from "./pages/admin/AdminLedger";
+import RiderRequestScreen from "./pages/negotiate/RiderRequestScreen";
+import RiderOffersScreen from "./pages/negotiate/RiderOffersScreen";
+import DriverRequestsScreen from "./pages/negotiate/DriverRequestsScreen";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +75,11 @@ const App = () => (
               <Route path="/admin/rate" element={<AdminRatePage />} />
               <Route path="/admin/deposits" element={<AdminDepositsPage />} />
               <Route path="/admin/ledger" element={<AdminLedger />} />
+
+              {/* Negotiate / inDrive-style */}
+              <Route path="/negotiate/request" element={<RiderRequestScreen />} />
+              <Route path="/negotiate/offers/:requestId" element={<RiderOffersScreen />} />
+              <Route path="/negotiate/driver" element={<DriverRequestsScreen />} />
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
