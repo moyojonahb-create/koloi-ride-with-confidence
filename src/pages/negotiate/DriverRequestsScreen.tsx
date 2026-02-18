@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,7 +25,7 @@ export default function DriverRequestsScreen() {
   const [offerFares, setOfferFares] = useState<Record<string, string>>({});
   const [sending, setSending] = useState<string | null>(null);
 
-  async function loadRequests() {
+  const loadRequests = useCallback(async () => {
     setLoading(true);
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     const { data, error } = await supabase
@@ -39,9 +39,25 @@ export default function DriverRequestsScreen() {
     if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
     else setRequests((data ?? []) as RideRequest[]);
     setLoading(false);
-  }
+  }, []);
 
-  useEffect(() => { loadRequests(); }, []);
+  const loadRequestsRef = useRef(loadRequests);
+  useEffect(() => { loadRequestsRef.current = loadRequests; }, [loadRequests]);
+
+  useEffect(() => { loadRequests(); }, [loadRequests]);
+
+  // Realtime: auto-refresh when ride_requests change
+  useEffect(() => {
+    const channel = supabase
+      .channel(`driver-requests-realtime-${Date.now()}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ride_requests' },
+        () => { loadRequestsRef.current(); }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   async function sendOffer(requestId: string) {
     if (!user) {
@@ -81,7 +97,7 @@ export default function DriverRequestsScreen() {
         </button>
         <h1 className="text-lg font-bold text-foreground">Open Ride Requests</h1>
         <button
-          onClick={loadRequests}
+          onClick={() => loadRequests()}
           className="ml-auto p-1.5 rounded-lg hover:bg-muted transition-colors"
         >
           <RefreshCw className={`w-4 h-4 text-muted-foreground ${loading ? 'animate-spin' : ''}`} />
