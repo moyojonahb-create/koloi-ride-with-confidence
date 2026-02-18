@@ -27,10 +27,12 @@ export default function DriverRequestsScreen() {
 
   async function loadRequests() {
     setLoading(true);
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     const { data, error } = await supabase
       .from('ride_requests')
       .select('*')
       .eq('status', 'negotiating')
+      .gte('created_at', fiveMinutesAgo)
       .order('created_at', { ascending: false })
       .limit(30);
 
