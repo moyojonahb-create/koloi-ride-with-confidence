@@ -382,13 +382,9 @@ export default function RideView() {
           </div>
         )}
 
-        {/* Bottom Sheet */}
+        {/* Bottom Sheet — compact, always visible */}
         <section
           className="sheet absolute left-[var(--pad,14px)] right-[var(--pad,14px)] bottom-[calc(var(--pad,14px)+env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-[10px] rounded-[26px] p-[14px] shadow-[0_18px_40px_rgba(0,0,0,0.18)] z-30"
-          style={{
-            maxHeight: 'calc(100dvh - var(--navH, 56px) - 2*var(--pad, 14px) - env(safe-area-inset-top) - env(safe-area-inset-bottom))',
-            overflow: 'auto',
-          }}
         >
           {/* Grabber */}
           <div className="grabber w-11 h-[5px] rounded-full bg-black/15 mx-auto mb-3" />
@@ -396,217 +392,39 @@ export default function RideView() {
           {/* Location Inputs */}
           <div className="inputs grid gap-[10px] mb-3">
             {/* Pickup Row */}
-            <label
-              onClick={() => setActiveField(activeField === 'pickup' ? null : 'pickup')}
-              className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors"
+            <button
+              type="button"
+              onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
+              className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
             >
-              <span className={cn('dot w-2.5 h-2.5 rounded-full', pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400')} />
+              <span className={cn('dot w-2.5 h-2.5 rounded-full shrink-0', pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400')} />
               <span className={cn('text-base font-medium truncate', pickupLocation ? 'text-foreground' : 'text-muted-foreground')}>
                 {pickupLocation?.name || 'From where?'}
               </span>
               {pickupLocation && (
-                <button onClick={e => { e.stopPropagation(); setPickupLocation(null); setActiveField('pickup'); }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
+                <span onClick={e => { e.stopPropagation(); setPickupLocation(null); }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
                   <X className="w-4 h-4 text-muted-foreground" />
-                </button>
+                </span>
               )}
-            </label>
+            </button>
 
             {/* Dropoff Row */}
-            <label
-              onClick={() => setActiveField(activeField === 'dropoff' ? null : 'dropoff')}
-              className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors"
+            <button
+              type="button"
+              onClick={() => { setActiveField('dropoff'); setSearchQuery(''); }}
+              className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
             >
-              <span className={cn('dot w-2.5 h-2.5 rounded-full', dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400')} />
+              <span className={cn('dot w-2.5 h-2.5 rounded-full shrink-0', dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400')} />
               <span className={cn('text-base font-medium truncate', dropoffLocation ? 'text-foreground' : 'text-muted-foreground')}>
                 {dropoffLocation?.name || 'Where to?'}
               </span>
               {dropoffLocation && (
-                <button onClick={e => { e.stopPropagation(); setDropoffLocation(null); setActiveField('dropoff'); }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
+                <span onClick={e => { e.stopPropagation(); setDropoffLocation(null); }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
                   <X className="w-4 h-4 text-muted-foreground" />
-                </button>
+                </span>
               )}
-            </label>
+            </button>
           </div>
-
-          {/* Expanded Selection Panel */}
-          {activeField && (
-            <div className="space-y-4 animate-fade-in">
-              {/* Search Input */}
-              <div className="bg-accent/10 rounded-2xl p-4 space-y-3">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-accent" />
-                  <Input
-                    placeholder={activeField === 'pickup' ? 'Search pickup location...' : 'Search destination...'}
-                    value={searchQuery}
-                    onChange={e => handleSearchChange(e.target.value)}
-                    className="pl-12 h-14 bg-background border-0 rounded-xl text-base font-medium shadow-koloi-sm focus-visible:ring-accent"
-                    autoFocus
-                  />
-                </div>
-
-                {/* My Location Button (only for pickup) */}
-                {activeField === 'pickup' && (
-                  <button
-                    onClick={handleUseMyLocation}
-                    disabled={gpsState.status === 'loading'}
-                    className="w-full flex items-center gap-4 p-4 rounded-xl bg-background hover:bg-koloi-gray-100 transition-colors text-left"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center shrink-0">
-                      {gpsState.status === 'loading' ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-accent-foreground" />
-                      ) : (
-                        <Crosshair className="w-5 h-5 text-accent-foreground" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground">Use my current location</p>
-                      <p className="text-sm text-muted-foreground">Find pickup point automatically</p>
-                    </div>
-                  </button>
-                )}
-
-                {gpsState.error && <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-xl">{gpsState.error}</p>}
-              </div>
-
-              {/* Proximity Filter */}
-              {gpsState.coords && (
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
-                    Nearby places
-                  </p>
-                  <ProximityFilter selected={proximityRadius} onSelect={setProximityRadius} />
-                </div>
-              )}
-
-              {/* Quick Picks */}
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
-                  Popular places
-                </p>
-                <QuickPickChips
-                  onSelect={handleQuickPickSelect}
-                  selectedName={activeField === 'pickup' ? pickupLocation?.name : dropoffLocation?.name}
-                />
-              </div>
-
-              {/* Search Results */}
-              {(searchQuery.trim() || proximityRadius !== null) && (
-                <div className="bg-background rounded-2xl shadow-koloi-sm overflow-hidden">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-4 pb-2">
-                    {searchQuery.trim() ? 'Search results' : `Places within ${proximityRadius}km`}
-                  </p>
-                  <div className="max-h-[200px] overflow-y-auto">
-                    {landmarksLoading ? (
-                      <div className="flex items-center justify-center py-8">
-                        <Loader2 className="w-5 h-5 animate-spin text-accent" />
-                      </div>
-                    ) : landmarks.length === 0 && !showNominatimFallback ? (
-                      <div className="text-center py-6 text-muted-foreground">
-                        <p className="text-sm">No landmarks found</p>
-                        {nominatimLoading && (
-                          <div className="flex items-center justify-center gap-2 mt-2">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span className="text-xs">Searching Gwanda area...</span>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <>
-                        {/* Landmark results */}
-                        {landmarks.map((landmark, index) => (
-                          <button
-                            key={landmark.id}
-                            onClick={() => handleLandmarkSelect(landmark)}
-                            className={cn(
-                              'w-full flex items-center gap-4 p-4 hover:bg-koloi-gray-100 transition-colors text-left',
-                              index !== landmarks.length - 1 && 'border-b border-koloi-gray-200'
-                            )}
-                          >
-                            <div className="w-10 h-10 rounded-full bg-koloi-gray-200 flex items-center justify-center shrink-0">
-                              <MapPin className="w-5 h-5 text-muted-foreground" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="font-semibold text-foreground truncate">{landmark.name}</p>
-                              <p className="text-sm text-muted-foreground capitalize">{landmark.category}</p>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                          </button>
-                        ))}
-                      </>
-                    )}
-
-                    {/* Nominatim fallback results */}
-                    {showNominatimFallback && (
-                      <>
-                        <div className="px-4 py-2 bg-accent/5 border-t border-koloi-gray-200">
-                          <p className="text-xs font-semibold text-accent uppercase tracking-wider">
-                            📍 More places in Gwanda
-                          </p>
-                        </div>
-                        {nominatimResults.map((result, index) => (
-                          <button
-                            key={`nom-${index}`}
-                            onClick={() => handleNominatimSelect(result)}
-                            className={cn(
-                              'w-full flex items-center gap-4 p-4 hover:bg-koloi-gray-100 transition-colors text-left',
-                              index !== nominatimResults.length - 1 && 'border-b border-koloi-gray-200'
-                            )}
-                          >
-                            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                              <Navigation className="w-5 h-5 text-accent" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="font-semibold text-foreground truncate">{result.name}</p>
-                              <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                          </button>
-                        ))}
-                      </>
-                    )}
-
-                    {/* Nominatim loading indicator when landmarks found but also searching */}
-                    {landmarks.length > 0 && nominatimLoading && (
-                      <div className="flex items-center justify-center gap-2 py-3 border-t border-koloi-gray-200">
-                        <Loader2 className="w-4 h-4 animate-spin text-accent" />
-                        <span className="text-xs text-muted-foreground">Searching more places...</span>
-                      </div>
-                    )}
-
-                    {/* Show nominatim results below landmarks when both exist */}
-                    {landmarks.length > 0 && !nominatimLoading && nominatimResults.length > 0 && (
-                      <>
-                        <div className="px-4 py-2 bg-accent/5 border-t border-koloi-gray-200">
-                          <p className="text-xs font-semibold text-accent uppercase tracking-wider">
-                            📍 More from OpenStreetMap
-                          </p>
-                        </div>
-                        {nominatimResults.map((result, index) => (
-                          <button
-                            key={`nom-extra-${index}`}
-                            onClick={() => handleNominatimSelect(result)}
-                            className={cn(
-                              'w-full flex items-center gap-4 p-4 hover:bg-koloi-gray-100 transition-colors text-left',
-                              index !== nominatimResults.length - 1 && 'border-b border-koloi-gray-200'
-                            )}
-                          >
-                            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                              <Navigation className="w-5 h-5 text-accent" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="font-semibold text-foreground truncate">{result.name}</p>
-                              <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
-                            </div>
-                            <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                          </button>
-                        ))}
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Fare Display & Request Button */}
           {!activeField && (
@@ -682,6 +500,152 @@ export default function RideView() {
             </div>
           )}
         </section>
+
+        {/* ══ inDrive-style Full-Screen Search Overlay ══ */}
+        {activeField && (
+          <div className="absolute inset-0 z-40 flex flex-col bg-background" style={{ animation: 'slideUp 0.25s ease' }}>
+            {/* Search header */}
+            <div className="flex items-center gap-3 px-4 bg-background border-b border-border" style={{ paddingTop: `calc(env(safe-area-inset-top) + 12px)`, paddingBottom: '12px' }}>
+              <button
+                onClick={() => { setActiveField(null); setSearchQuery(''); setNominatimResults([]); }}
+                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors shrink-0"
+              >
+                <X className="w-5 h-5 text-foreground" />
+              </button>
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder={activeField === 'pickup' ? 'Search pickup location...' : 'Search destination...'}
+                  value={searchQuery}
+                  onChange={e => handleSearchChange(e.target.value)}
+                  className="w-full h-11 pl-10 pr-4 bg-muted rounded-xl text-base font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent border-0"
+                />
+              </div>
+            </div>
+
+            {/* Scrollable results */}
+            <div className="flex-1 overflow-y-auto">
+              {/* My Location — pickup only */}
+              {activeField === 'pickup' && (
+                <button
+                  onClick={handleUseMyLocation}
+                  disabled={gpsState.status === 'loading'}
+                  className="w-full flex items-center gap-4 px-4 py-4 hover:bg-muted transition-colors border-b border-border text-left"
+                >
+                  <div className="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                    {gpsState.status === 'loading' ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-accent" />
+                    ) : (
+                      <Crosshair className="w-5 h-5 text-accent" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Use my current location</p>
+                    <p className="text-sm text-muted-foreground">Find pickup point automatically</p>
+                  </div>
+                </button>
+              )}
+
+              {gpsState.error && (
+                <p className="text-sm text-amber-600 bg-amber-50 mx-4 my-3 p-3 rounded-xl">{gpsState.error}</p>
+              )}
+
+              {/* Proximity Filter */}
+              {gpsState.coords && (
+                <div className="px-4 pt-3 pb-1">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Nearby places</p>
+                  <ProximityFilter selected={proximityRadius} onSelect={setProximityRadius} />
+                </div>
+              )}
+
+              {/* Quick Picks — shown when no search query */}
+              {!searchQuery.trim() && (
+                <div className="px-4 pt-4 pb-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Popular places</p>
+                  <QuickPickChips
+                    onSelect={handleQuickPickSelect}
+                    selectedName={activeField === 'pickup' ? pickupLocation?.name : dropoffLocation?.name}
+                  />
+                </div>
+              )}
+
+              {/* Search / proximity results */}
+              {(searchQuery.trim() || proximityRadius !== null) && (
+                <>
+                  <div className="px-4 pt-4 pb-1">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {searchQuery.trim() ? 'Results' : `Within ${proximityRadius}km`}
+                    </p>
+                  </div>
+
+                  {landmarksLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="w-6 h-6 animate-spin text-accent" />
+                    </div>
+                  ) : (
+                    <>
+                      {landmarks.map((landmark) => (
+                        <button
+                          key={landmark.id}
+                          onClick={() => handleLandmarkSelect(landmark)}
+                          className="w-full flex items-center gap-4 px-4 py-4 hover:bg-muted transition-colors border-b border-border/50 text-left"
+                        >
+                          <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center shrink-0">
+                            <MapPin className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-foreground truncate">{landmark.name}</p>
+                            <p className="text-sm text-muted-foreground capitalize">{landmark.category}</p>
+                          </div>
+                        </button>
+                      ))}
+
+                      {landmarks.length === 0 && !nominatimLoading && !showNominatimFallback && searchQuery.trim() && (
+                        <div className="text-center py-12 text-muted-foreground">
+                          <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                          <p className="text-sm">No results for "{searchQuery}"</p>
+                        </div>
+                      )}
+
+                      {nominatimLoading && (
+                        <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span className="text-sm">Searching more places...</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Nominatim / OSM results */}
+                  {(showNominatimFallback || (landmarks.length > 0 && nominatimResults.length > 0)) && (
+                    <>
+                      <div className="px-4 py-2 bg-accent/5 border-t border-border">
+                        <p className="text-xs font-semibold text-accent uppercase tracking-wider">📍 More places in Gwanda</p>
+                      </div>
+                      {nominatimResults.map((result, index) => (
+                        <button
+                          key={`nom-${index}`}
+                          onClick={() => handleNominatimSelect(result)}
+                          className="w-full flex items-center gap-4 px-4 py-4 hover:bg-muted transition-colors border-b border-border/50 text-left"
+                        >
+                          <div className="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                            <Navigation className="w-5 h-5 text-accent" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold text-foreground truncate">{result.name}</p>
+                            <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Modals */}
