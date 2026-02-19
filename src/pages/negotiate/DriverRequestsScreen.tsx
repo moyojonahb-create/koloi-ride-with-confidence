@@ -33,8 +33,8 @@ export default function DriverRequestsScreen() {
       .select('*')
       .eq('status', 'negotiating')
       .gte('created_at', fiveMinutesAgo)
-      .order('created_at', { ascending: false })
-      .limit(30);
+      .order('created_at', { ascending: false });
+    // No .limit() — all drivers see ALL active requests simultaneously
 
     if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
     else setRequests((data ?? []) as RideRequest[]);
