@@ -1,14 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, MapPin, Navigation, DollarSign, X, Search, Crosshair, Loader2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Navigation, DollarSign, X, Search, Crosshair, Loader2, Users, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLandmarks, type Landmark } from '@/hooks/useLandmarks';
+import { useOSRMRoute } from '@/hooks/useOSRMRoute';
+import { usePricingSettings } from '@/hooks/usePricingSettings';
 import { nominatimSearchGwanda } from '@/lib/geo';
 import { cachePlaceFromNominatim } from '@/lib/placeCache';
 import QuickPickChips from '@/components/ride/QuickPickChips';
@@ -27,6 +28,7 @@ export default function RiderRequestScreen() {
   const [dropoff, setDropoff] = useState<SelectedLocation | null>(null);
   const [offeredFare, setOfferedFare] = useState('');
   const [loading, setLoading] = useState(false);
+  const [passengerCount, setPassengerCount] = useState(1);
 
   // Search overlay state
   const [activeField, setActiveField] = useState<'pickup' | 'dropoff' | null>(null);
@@ -49,6 +51,42 @@ export default function RiderRequestScreen() {
     userLocation: gpsCoords,
     radiusKm: proximityRadius,
   });
+
+  // Route & pricing
+  const { route: routeData, loading: routeLoading } = useOSRMRoute(
+    pickup ? { lat: pickup.lat, lng: pickup.lng } : null,
+    dropoff ? { lat: dropoff.lat, lng: dropoff.lng } : null
+  );
+  const { data: pricingSettings } = usePricingSettings();
+
+  // Calculate fare estimate
+  const fareEstimate = (() => {
+    if (!routeData?.distanceKm || !pricingSettings) return null;
+    const { distanceKm, durationMinutes } = routeData;
+    const baseFare = pricingSettings.base_fare;
+    const perKmRate = pricingSettings.per_km_rate;
+    const minFare = pricingSettings.min_fare;
+
+    let fare = baseFare + distanceKm * perKmRate;
+    fare = Math.max(fare, minFare);
+
+    // R5 surcharge for 3-5 passengers
+    if (passengerCount >= 3 && passengerCount <= 5) {
+      fare += 5;
+    }
+
+    // Round to nearest R5
+    fare = Math.round(fare / 5) * 5;
+
+    return { fareR: fare, distanceKm, durationMinutes };
+  })();
+
+  // Auto-fill offered fare when estimate changes
+  useEffect(() => {
+    if (fareEstimate && !offeredFare) {
+      setOfferedFare(String(fareEstimate.fareR));
+    }
+  }, [fareEstimate?.fareR]);
 
   const showNominatimFallback = searchQuery.trim().length >= 3 && landmarks.length === 0 && nominatimResults.length > 0;
 
@@ -155,6 +193,14 @@ export default function RiderRequestScreen() {
     navigate(`/negotiate/offers/${data.id}`);
   }
 
+  // Fare adjustment helpers (R5 steps)
+  const adjustFare = (direction: 'up' | 'down') => {
+    const current = parseFloat(offeredFare) || 0;
+    const step = 5;
+    const newFare = direction === 'up' ? current + step : Math.max(step, current - step);
+    setOfferedFare(String(newFare));
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col relative">
       {/* Header */}
@@ -188,7 +234,7 @@ export default function RiderRequestScreen() {
               {pickup?.name || 'Tap to search pickup...'}
             </span>
             {pickup && (
-              <span onClick={e => { e.stopPropagation(); setPickup(null); }} className="p-1 hover:bg-muted rounded-full">
+              <span onClick={e => { e.stopPropagation(); setPickup(null); setOfferedFare(''); }} className="p-1 hover:bg-muted rounded-full">
                 <X className="w-4 h-4 text-muted-foreground" />
               </span>
             )}
@@ -213,27 +259,106 @@ export default function RiderRequestScreen() {
               {dropoff?.name || 'Tap to search destination...'}
             </span>
             {dropoff && (
-              <span onClick={e => { e.stopPropagation(); setDropoff(null); }} className="p-1 hover:bg-muted rounded-full">
+              <span onClick={e => { e.stopPropagation(); setDropoff(null); setOfferedFare(''); }} className="p-1 hover:bg-muted rounded-full">
                 <X className="w-4 h-4 text-muted-foreground" />
               </span>
             )}
           </button>
         </div>
 
-        {/* Offered Fare */}
+        {/* Fare Estimate Card */}
+        {pickup && dropoff && (
+          <div className="bg-accent/5 border border-accent/20 rounded-2xl p-4 space-y-2">
+            {routeLoading ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Calculating route...</span>
+              </div>
+            ) : fareEstimate ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Estimated fare</p>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Info className="w-3 h-3" /> approx.
+                  </span>
+                </div>
+                <p className="text-3xl font-bold text-foreground">R{fareEstimate.fareR}</p>
+                <p className="text-sm text-muted-foreground">
+                  {fareEstimate.distanceKm.toFixed(1)} km • {fareEstimate.durationMinutes} min
+                </p>
+                {passengerCount >= 3 && passengerCount <= 5 && (
+                  <p className="text-xs text-accent font-medium">+R5 group surcharge (3-5 passengers)</p>
+                )}
+              </>
+            ) : null}
+          </div>
+        )}
+
+        {/* Passenger Count */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-primary" /> Your Offered Fare (USD)
+            <Users className="w-4 h-4 text-primary" /> Passengers
           </Label>
-          <Input
-            type="number"
-            placeholder="e.g. 5"
-            min="0.01"
-            step="0.01"
-            value={offeredFare}
-            onChange={e => setOfferedFare(e.target.value)}
-          />
-          <p className="text-xs text-muted-foreground">Drivers can negotiate a different price.</p>
+          <div className="flex items-center justify-between bg-muted rounded-xl p-3">
+            <div>
+              <p className="text-sm font-semibold text-foreground">{passengerCount} {passengerCount === 1 ? 'person' : 'people'}</p>
+              {passengerCount >= 3 && passengerCount <= 5 && (
+                <p className="text-xs text-accent">+R5 surcharge applies</p>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => { setPassengerCount(c => Math.max(1, c - 1)); setOfferedFare(''); }}
+                disabled={passengerCount <= 1}
+                className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center text-lg font-bold text-foreground disabled:opacity-30 transition-opacity"
+              >
+                −
+              </button>
+              <span className="w-8 text-center text-lg font-bold text-foreground">{passengerCount}</span>
+              <button
+                onClick={() => { setPassengerCount(c => Math.min(5, c + 1)); setOfferedFare(''); }}
+                disabled={passengerCount >= 5}
+                className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center text-lg font-bold text-foreground disabled:opacity-30 transition-opacity"
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Offered Fare with R5 stepper */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+            <DollarSign className="w-4 h-4 text-primary" /> Your Offered Fare (ZAR)
+          </Label>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => adjustFare('down')}
+              disabled={!offeredFare || parseFloat(offeredFare) <= 5}
+              className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center text-xl font-bold text-foreground disabled:opacity-30 transition-opacity shrink-0"
+            >
+              −
+            </button>
+            <div className="flex-1 relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold">R</span>
+              <input
+                type="number"
+                placeholder="0"
+                min="5"
+                step="5"
+                value={offeredFare}
+                onChange={e => setOfferedFare(e.target.value)}
+                className="w-full h-12 pl-8 pr-4 bg-muted rounded-xl text-2xl font-bold text-foreground text-center focus:outline-none focus:ring-2 focus:ring-accent border-0"
+              />
+            </div>
+            <button
+              onClick={() => adjustFare('up')}
+              className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center text-xl font-bold text-foreground transition-opacity shrink-0"
+            >
+              +
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground">Adjust in R5 steps. Drivers can negotiate a different price.</p>
         </div>
 
         <Button
