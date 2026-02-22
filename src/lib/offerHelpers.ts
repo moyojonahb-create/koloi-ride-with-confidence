@@ -24,6 +24,8 @@ export type DriverProfile = {
   trial_ends_at: string | null;
   gender: string | null;
   avatar_url: string | null;
+  rating_avg: number | null;
+  total_trips: number | null;
 };
 
 // Round to nearest R5

@@ -24,9 +24,17 @@ export default function DriverRequestsScreen() {
   const [loading, setLoading] = useState(true);
   const [offerFares, setOfferFares] = useState<Record<string, string>>({});
   const [sending, setSending] = useState<string | null>(null);
+  const [isTopDriver, setIsTopDriver] = useState(false);
 
   const loadRequests = useCallback(async () => {
     setLoading(true);
+
+    // Check if top driver
+    if (user) {
+      const { data: topStatus } = await supabase.rpc("is_top_driver" as any, { _user_id: user.id });
+      setIsTopDriver(!!topStatus);
+    }
+
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
     const { data, error } = await supabase
       .from('ride_requests')
@@ -34,12 +42,19 @@ export default function DriverRequestsScreen() {
       .eq('status', 'negotiating')
       .gte('created_at', fiveMinutesAgo)
       .order('created_at', { ascending: false });
-    // No .limit() — all drivers see ALL active requests simultaneously
 
     if (error) toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    else setRequests((data ?? []) as RideRequest[]);
+    else {
+      let results = (data ?? []) as RideRequest[];
+      // Non-top drivers only see requests older than 30 seconds
+      if (!isTopDriver) {
+        const thirtySecsAgo = Date.now() - 30_000;
+        results = results.filter(r => new Date(r.created_at).getTime() <= thirtySecsAgo);
+      }
+      setRequests(results);
+    }
     setLoading(false);
-  }, []);
+  }, [user, isTopDriver]);
 
   const loadRequestsRef = useRef(loadRequests);
   useEffect(() => { loadRequestsRef.current = loadRequests; }, [loadRequests]);

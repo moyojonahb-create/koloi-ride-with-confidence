@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { playNewRequestSound } from "@/lib/notificationSounds";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User } from "lucide-react";
+import { User, Star } from "lucide-react";
 
 export type DriverViewing = {
   driverId: string;
@@ -24,6 +24,8 @@ export type DriverOffer = DriverViewing & {
   vehicleModel?: string;
   gender?: string | null;
   avatarUrl?: string | null;
+  ratingAvg?: number | null;
+  totalTrips?: number | null;
 };
 
 type Props = {
@@ -246,6 +248,18 @@ export default function OffersModal({
                             </span>
                           </div>
                         )}
+                        {/* Rating & Trips */}
+                        <div className="flex items-center gap-2 mt-1">
+                          {o.ratingAvg != null && o.ratingAvg > 0 && (
+                            <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">
+                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                              {Number(o.ratingAvg).toFixed(1)}
+                            </span>
+                          )}
+                          <span className="text-xs text-muted-foreground">
+                            {o.totalTrips || 0} trips
+                          </span>
+                        </div>
                       </div>
                     </div>
                     <div className="text-right">
