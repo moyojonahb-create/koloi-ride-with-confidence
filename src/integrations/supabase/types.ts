@@ -174,6 +174,51 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          driver_id: string
+          id: string
+          rating: number
+          ride_id: string
+          rider_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          driver_id: string
+          id?: string
+          rating: number
+          ride_id: string
+          rider_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          driver_id?: string
+          id?: string
+          rating?: number
+          ride_id?: string
+          rider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_ratings_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_ratings_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       driver_wallets: {
         Row: {
           balance_usd: number
@@ -1022,6 +1067,7 @@ export type Database = {
         Args: { _driver_id: string; _user_id: string }
         Returns: boolean
       }
+      is_top_driver: { Args: { _user_id: string }; Returns: boolean }
       is_user_driver: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {

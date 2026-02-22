@@ -19,7 +19,9 @@ import OSMMap from "@/components/OSMMap";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock } from "lucide-react";
+import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock, Star } from "lucide-react";
+import EmergencyButton from "@/components/ride/EmergencyButton";
+import DriverRatingModal from "@/components/ride/DriverRatingModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds";
 
@@ -58,6 +60,8 @@ export default function RiderRideDetail() {
   const [updatingFare, setUpdatingFare] = useState(false);
   const [showCommunication, setShowCommunication] = useState(false);
   const [lastOfferCount, setLastOfferCount] = useState(0);
+  const [showRating, setShowRating] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(30);
 
   const refreshRide = useCallback(async () => {
@@ -71,6 +75,7 @@ export default function RiderRideDetail() {
     }
 
     const wasAccepted = ride?.status !== "accepted" && data.status === "accepted";
+    const wasCompleted = ride?.status !== "completed" && data.status === "completed";
     setRide(data as Ride);
 
     // Play sound when ride is accepted
@@ -86,7 +91,11 @@ export default function RiderRideDetail() {
       } catch (_) { /* Notification API not available */ }
     }
 
-    // If ride is accepted, fetch driver info
+    // Show rating modal when ride completes
+    if (wasCompleted && !hasRated) {
+      setShowRating(true);
+    }
+
     if (data.driver_id && (data.status === "accepted" || data.status === "in_progress" || data.status === "arrived")) {
       try {
         // First get the driver record
@@ -323,6 +332,8 @@ export default function RiderRideDetail() {
       vehicleModel: d?.vehicle_model || undefined,
       gender: d?.gender || null,
       avatarUrl: d?.avatar_url || null,
+      ratingAvg: (d as any)?.rating_avg || null,
+      totalTrips: (d as any)?.total_trips || null,
     };
   });
 
@@ -361,17 +372,19 @@ export default function RiderRideDetail() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="font-black text-lg">Your Ride</h1>
-          {isAccepted && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowCommunication(!showCommunication)}
-              className="relative"
-            >
-              <MessageCircle className="h-5 w-5" />
-            </Button>
-          )}
-          {!isAccepted && <div className="w-10" />}
+          <div className="flex items-center gap-1">
+            {isAccepted && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowCommunication(!showCommunication)}
+                className="relative"
+              >
+                <MessageCircle className="h-5 w-5" />
+              </Button>
+            )}
+            <EmergencyButton />
+          </div>
         </div>
       </div>
 
@@ -519,6 +532,17 @@ export default function RiderRideDetail() {
                         <p className="text-sm text-muted-foreground">
                           {driverProfile.vehicle_make} {driverProfile.vehicle_model} • {driverProfile.plate_number}
                         </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          {driverProfile.rating_avg > 0 && (
+                            <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">
+                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                              {Number(driverProfile.rating_avg).toFixed(1)}
+                            </span>
+                          )}
+                          <span className="text-xs text-muted-foreground">
+                            {driverProfile.total_trips || 0} trips
+                          </span>
+                        </div>
                       </div>
                     </div>
                     {driverProfile.gender && (
@@ -575,6 +599,33 @@ export default function RiderRideDetail() {
         />
 
         {error && <p className="text-sm text-destructive text-center">{error}</p>}
+
+        {/* Rating Modal - shown after ride completion */}
+        {showRating && ride.driver_id && user && (
+          <DriverRatingModal
+            rideId={ride.id}
+            driverId={ride.driver_id}
+            riderId={user.id}
+            driverName={driverProfile ? `${driverProfile.vehicle_make || ''} Driver`.trim() : undefined}
+            onClose={() => {
+              setShowRating(false);
+              setHasRated(true);
+            }}
+          />
+        )}
+
+        {/* Show rate button for completed rides that haven't been rated */}
+        {ride.status === "completed" && !hasRated && !showRating && ride.driver_id && user && (
+          <div className="fixed bottom-6 left-4 right-4 max-w-lg mx-auto z-50">
+            <Button
+              className="w-full gap-2"
+              onClick={() => setShowRating(true)}
+            >
+              <Star className="h-4 w-4" />
+              Rate Your Driver
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

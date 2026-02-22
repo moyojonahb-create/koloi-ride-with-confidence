@@ -83,6 +83,7 @@ export default function DriverDashboard() {
   const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number; user_id: string } | null>(null);
   const [riderPhone, setRiderPhone] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
+  const [isTopDriver, setIsTopDriver] = useState(false);
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -230,12 +231,23 @@ export default function DriverDashboard() {
         setRiderPhone(null);
       }
 
+      // Check if top driver for priority access
+      const { data: topStatus } = await supabase.rpc("is_top_driver" as any, { _user_id: user!.id });
+      setIsTopDriver(!!topStatus);
+
       // Only fetch rides if driver is online
       if (p.is_online) {
         // Expire old rides server-side first
         await expireOldRides();
         const list = await fetchOpenRides();
-        const activeList = filterActiveRides(list);
+        let activeList = filterActiveRides(list);
+
+        // Non-top drivers only see rides older than 30 seconds
+        if (!topStatus) {
+          const thirtySecsAgo = Date.now() - 30_000;
+          activeList = activeList.filter((r: any) => new Date(r.created_at).getTime() <= thirtySecsAgo);
+        }
+
         setRides(activeList as Ride[]);
 
         // Notify on new rides with LOUD sound and voice
