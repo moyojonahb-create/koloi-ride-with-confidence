@@ -135,8 +135,10 @@ export const parseOsmGeoJson = (geojson: any): OsmPlace[] => {
 
     const [longitude, latitude] = coords;
     
-    // Validate coordinates are within reasonable bounds for Gwanda area
-    if (latitude < -21.5 || latitude > -20.5 || longitude < 28.5 || longitude > 29.5) {
+    // Validate coordinates are within supported towns
+    const isGwanda = latitude >= -21.5 && latitude <= -20.5 && longitude >= 28.5 && longitude <= 29.5;
+    const isBeitbridge = latitude >= -22.35 && latitude <= -22.05 && longitude >= 29.85 && longitude <= 30.15;
+    if (!isGwanda && !isBeitbridge) {
       continue;
     }
 

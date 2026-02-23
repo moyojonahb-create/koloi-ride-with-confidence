@@ -1,22 +1,6 @@
 import { cn } from '@/lib/utils';
 import { MapPin, Building2, Stethoscope, ShoppingBag, Shield, Fuel, School } from 'lucide-react';
-
-interface QuickPick {
-  id: string;
-  name: string;
-  lat: number;
-  lng: number;
-  icon: 'rank' | 'cbd' | 'hospital' | 'shopping' | 'police' | 'fuel' | 'school';
-}
-
-// Gwanda quick picks
-const GWANDA_QUICK_PICKS: QuickPick[] = [
-  { id: 'rank', name: 'Gwanda Rank', lat: -20.9380, lng: 29.0120, icon: 'rank' },
-  { id: 'cbd', name: 'CBD', lat: -20.9355, lng: 29.0147, icon: 'cbd' },
-  { id: 'hospital', name: 'Hospital', lat: -20.9410, lng: 29.0180, icon: 'hospital' },
-  { id: 'shopping', name: 'Shops', lat: -20.9365, lng: 29.0135, icon: 'shopping' },
-  { id: 'police', name: 'Police', lat: -20.9345, lng: 29.0155, icon: 'police' },
-];
+import { DEFAULT_TOWN, detectTown, TownConfig } from '@/lib/towns';
 
 const ICON_MAP = {
   rank: MapPin,
@@ -32,12 +16,16 @@ interface QuickPickChipsProps {
   onSelect: (pick: { name: string; lat: number; lng: number }) => void;
   selectedName?: string;
   className?: string;
+  userLocation?: { lat: number; lng: number } | null;
 }
 
-const QuickPickChips = ({ onSelect, selectedName, className }: QuickPickChipsProps) => {
+const QuickPickChips = ({ onSelect, selectedName, className, userLocation }: QuickPickChipsProps) => {
+  const town = userLocation ? detectTown(userLocation.lat, userLocation.lng) : DEFAULT_TOWN;
+  const picks = town.quickPicks;
+
   return (
     <div className={cn('flex flex-wrap gap-2', className)}>
-      {GWANDA_QUICK_PICKS.map((pick) => {
+      {picks.map((pick) => {
         const Icon = ICON_MAP[pick.icon];
         const isSelected = selectedName === pick.name;
 

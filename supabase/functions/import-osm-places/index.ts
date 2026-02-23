@@ -150,8 +150,12 @@ serve(async (req) => {
 
       const [longitude, latitude] = coords;
       
-      // Validate coordinates for Gwanda area (approx 50km box)
-      if (latitude < -21.5 || latitude > -20.5 || longitude < 28.5 || longitude > 29.5) {
+      // Validate coordinates for supported towns
+      // Gwanda area: lat -21.5 to -20.5, lng 28.5 to 29.5
+      // Beitbridge area: lat -22.35 to -22.05, lng 29.85 to 30.15
+      const isGwanda = latitude >= -21.5 && latitude <= -20.5 && longitude >= 28.5 && longitude <= 29.5;
+      const isBeitbridge = latitude >= -22.35 && latitude <= -22.05 && longitude >= 29.85 && longitude <= 30.15;
+      if (!isGwanda && !isBeitbridge) {
         continue;
       }
 

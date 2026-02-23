@@ -32,18 +32,24 @@ export const GWANDA_SERVICE_AREA = {
   },
 };
 
-// Check if a location is within the Gwanda service area
+// Check if a location is within ANY service area (Gwanda or Beitbridge)
 export const isWithinServiceArea = (lat: number, lng: number): boolean => {
+  // First try Gwanda
   const { bounds, center, maxDistanceKm } = GWANDA_SERVICE_AREA;
-  
-  // First check bounding box (fast check)
-  if (lat < bounds.south || lat > bounds.north || lng < bounds.west || lng > bounds.east) {
-    return false;
+  if (lat >= bounds.south && lat <= bounds.north && lng >= bounds.west && lng <= bounds.east) {
+    const distance = calculateHaversineDistance(center.lat, center.lng, lat, lng);
+    if (distance <= maxDistanceKm) return true;
   }
   
-  // Then check distance from center (more accurate)
-  const distance = calculateHaversineDistance(center.lat, center.lng, lat, lng);
-  return distance <= maxDistanceKm;
+  // Then try Beitbridge
+  const bb = { center: { lat: -22.2170, lng: 29.9900 }, maxDistanceKm: 15,
+    bounds: { north: -22.14, south: -22.28, east: 30.05, west: 29.93 } };
+  if (lat >= bb.bounds.south && lat <= bb.bounds.north && lng >= bb.bounds.west && lng <= bb.bounds.east) {
+    const distance = calculateHaversineDistance(bb.center.lat, bb.center.lng, lat, lng);
+    if (distance <= bb.maxDistanceKm) return true;
+  }
+  
+  return false;
 };
 
 // Haversine distance calculation
