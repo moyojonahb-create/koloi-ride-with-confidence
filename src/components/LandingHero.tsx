@@ -1,8 +1,10 @@
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight, Star, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import PhoneMockup from '@/components/PhoneMockup';
 import koloiLogo from '@/assets/koloi-logo-official.png';
+import { TOWNS } from '@/lib/towns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 interface LandingHeroProps {
   onGetStarted?: () => void;
 }
@@ -53,16 +55,33 @@ const LandingHero = ({
         </div>
       </div>
 
-      {/* Bottom Trust Indicators - pill badges */}
-      <div className="pb-8 px-6">
+      {/* Town Selector + Trust Indicators */}
+      <div className="pb-8 px-6 space-y-4">
+        {/* Town Selector */}
+        <div className="flex justify-center">
+          <Select defaultValue="gwanda">
+            <SelectTrigger className="w-56 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground rounded-full h-10 focus:ring-accent">
+              <MapPin className="w-4 h-4 mr-2 text-accent" />
+              <SelectValue placeholder="Select your town" />
+            </SelectTrigger>
+            <SelectContent className="bg-background border rounded-xl z-50">
+              {TOWNS.map((town) => (
+                <SelectItem key={town.id} value={town.id} className="cursor-pointer">
+                  {town.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
           <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
             <Star className="w-4 h-4 text-accent fill-accent" />
-            <span className="text-primary-foreground/90 text-sm font-medium">Lets join and+ rides</span>
+            <span className="text-primary-foreground/90 text-sm font-medium">Join us today</span>
           </div>
           <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
             <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <span className="text-primary-foreground/90 text-sm font-medium">Gwanda & Surrounds</span>
+            <span className="text-primary-foreground/90 text-sm font-medium">Gwanda & Beitbridge</span>
           </div>
           <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
             <span className="text-primary-foreground/90 text-sm font-medium">24/7 support</span>
