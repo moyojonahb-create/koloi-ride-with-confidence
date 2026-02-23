@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Crosshair, RefreshCw, AlertTriangle } from 'lucide-react';
-import { GWANDA_BOUNDS } from '@/hooks/useGwandaLandmarks';
+import { DEFAULT_TOWN, detectTown, TownConfig } from '@/lib/towns';
 
 // Fix default marker icons for Leaflet in React
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -84,8 +84,14 @@ const driverIcon = L.divIcon({
   iconAnchor: [20, 20],
 });
 
-// Gwanda, Zimbabwe default center
-const GWANDA_CENTER: Coordinates = { lat: -20.9355, lng: 29.0147 };
+// Default center
+const DEFAULT_CENTER: Coordinates = { lat: DEFAULT_TOWN.center.lat, lng: DEFAULT_TOWN.center.lng };
+
+// Helper to get bounds from a town config
+const getTownBounds = (town: TownConfig): L.LatLngBoundsExpression => [
+  [town.bounds.south, town.bounds.west],
+  [town.bounds.north, town.bounds.east],
+];
 
 // Available tile layers - Humanitarian as default since Gwanda OSM is updated
 const TILE_LAYERS = {
@@ -106,14 +112,18 @@ const TILE_LAYERS = {
   },
 };
 
-// Gwanda service area bounds for map fitting
-const gwandaBounds: L.LatLngBoundsExpression = [
-  [GWANDA_BOUNDS.south, GWANDA_BOUNDS.west],
-  [GWANDA_BOUNDS.north, GWANDA_BOUNDS.east],
-];
+// Combined bounds covering all towns
+const allTownsBounds: L.LatLngBoundsExpression = (() => {
+  const allBounds = [DEFAULT_TOWN, ...([{ bounds: { south: -22.28, north: -22.14, west: 29.93, east: 30.05 } }])];
+  const south = Math.min(...allBounds.map(t => t.bounds.south));
+  const north = Math.max(...allBounds.map(t => t.bounds.north));
+  const west = Math.min(...allBounds.map(t => t.bounds.west));
+  const east = Math.max(...allBounds.map(t => t.bounds.east));
+  return [[south - 0.5, west - 0.5], [north + 0.5, east + 0.5]] as L.LatLngBoundsExpression;
+})();
 
 export default function OSMMap({
-  center = GWANDA_CENTER,
+  center = DEFAULT_CENTER,
   zoom = 14,
   pickup,
   dropoff,
@@ -134,14 +144,18 @@ export default function OSMMap({
   const [mapState, setMapState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [isMounted, setIsMounted] = useState(false);
 
-  // Recenter map to Gwanda service area
+  // Detect current town from center coordinates
+  const currentTown = detectTown(center.lat, center.lng);
+  const townBounds = getTownBounds(currentTown);
+
+  // Recenter map to current town's service area
   const handleRecenter = useCallback(() => {
     if (!mapInstanceRef.current) return;
-    mapInstanceRef.current.fitBounds(gwandaBounds, { 
+    mapInstanceRef.current.fitBounds(townBounds, { 
       padding: [20, 20],
       maxZoom: 15,
     });
-  }, []);
+  }, [townBounds]);
 
   // Retry loading map
   const handleRetry = useCallback(() => {
@@ -186,10 +200,7 @@ export default function OSMMap({
         zoom,
         zoomControl: true,
         attributionControl: true,
-        maxBounds: [
-          [GWANDA_BOUNDS.south - 0.1, GWANDA_BOUNDS.west - 0.1],
-          [GWANDA_BOUNDS.north + 0.1, GWANDA_BOUNDS.east + 0.1],
-        ],
+        maxBounds: allTownsBounds,
         maxBoundsViscosity: 0.8,
       });
 
@@ -231,8 +242,8 @@ export default function OSMMap({
       // Add layer control
       L.control.layers(baseLayers, {}, { position: 'topright' }).addTo(map);
 
-      // Fit to Gwanda service area on initial load
-      map.fitBounds(gwandaBounds, { 
+      // Fit to current town's service area on initial load
+      map.fitBounds(townBounds, { 
         padding: [20, 20],
         maxZoom: 15,
       });
@@ -412,10 +423,10 @@ export default function OSMMap({
             variant="secondary"
             size="sm"
             className="shadow-lg bg-background/95 backdrop-blur-sm"
-            title="Recenter to Gwanda"
+            title={`Recenter to ${currentTown.name}`}
           >
             <Crosshair className="w-4 h-4 mr-1.5" />
-            Gwanda
+            {currentTown.name}
           </Button>
         </div>
       )}

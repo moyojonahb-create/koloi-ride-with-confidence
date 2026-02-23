@@ -1,4 +1,5 @@
-// Nominatim geocoding utilities bounded to Gwanda, Zimbabwe
+// Nominatim geocoding utilities bounded to service areas in Zimbabwe
+import { DEFAULT_TOWN, TownConfig } from '@/lib/towns';
 
 export const GWANDA_VIEWBOX = {
   left: 28.8107,
@@ -21,10 +22,11 @@ export interface NominatimResult {
 }
 
 /**
- * Forward geocode search bounded to Gwanda area via Nominatim.
- * Returns up to 10 results within the Gwanda viewbox.
+ * Forward geocode search bounded to a town's area via Nominatim.
+ * Falls back to Gwanda viewbox if no town provided.
  */
-export async function nominatimSearchGwanda(q: string): Promise<NominatimResult[]> {
+export async function nominatimSearchGwanda(q: string, town?: TownConfig): Promise<NominatimResult[]> {
+  const vb = town?.nominatimViewbox ?? GWANDA_VIEWBOX;
   const url = new URL("https://nominatim.openstreetmap.org/search");
   url.searchParams.set("format", "jsonv2");
   url.searchParams.set("q", q);
@@ -34,7 +36,7 @@ export async function nominatimSearchGwanda(q: string): Promise<NominatimResult[
   url.searchParams.set("bounded", "1");
   url.searchParams.set(
     "viewbox",
-    `${GWANDA_VIEWBOX.left},${GWANDA_VIEWBOX.top},${GWANDA_VIEWBOX.right},${GWANDA_VIEWBOX.bottom}`
+    `${vb.left},${vb.top},${vb.right},${vb.bottom}`
   );
   url.searchParams.set("dedupe", "1");
 
