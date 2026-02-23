@@ -19,6 +19,7 @@ import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 import InstallPromptBanner from '@/components/InstallPromptBanner';
 import KoloiLogo from '@/components/KoloiLogo';
 import QuickPickChips from './QuickPickChips';
+import EmergencyButton from './EmergencyButton';
 import ProximityFilter from './ProximityFilter';
 import { Input } from '@/components/ui/input';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
@@ -317,9 +318,12 @@ export default function RideView() {
           <Menu className="w-5 h-5" />
         </Button>
         <KoloiLogo variant="light" size="sm" />
-        <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-white/10 text-primary-foreground hover:bg-white/20" onClick={() => user ? navigate('/dashboard') : setAuthModalOpen(true)}>
-          <User className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <EmergencyButton />
+          <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-white/10 text-primary-foreground hover:bg-white/20" onClick={() => user ? navigate('/dashboard') : setAuthModalOpen(true)}>
+            <User className="w-5 h-5" />
+          </Button>
+        </div>
       </header>
 
       {/* Status Banner */}
