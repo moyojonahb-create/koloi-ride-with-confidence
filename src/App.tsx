@@ -36,6 +36,13 @@ import RiderRequestScreen from "./pages/negotiate/RiderRequestScreen";
 import RiderOffersScreen from "./pages/negotiate/RiderOffersScreen";
 import DriverRequestsScreen from "./pages/negotiate/DriverRequestsScreen";
 
+// Mapp (mobile app shell)
+import MappLayout from "./components/mapp/MappLayout";
+import MappRedirect from "./components/mapp/MappRedirect";
+import MappAuthGuard from "./components/mapp/MappAuthGuard";
+import MappDriverGuard from "./components/mapp/MappDriverGuard";
+import MappAdminGuard from "./components/mapp/MappAdminGuard";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -47,6 +54,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              {/* ── Existing web routes ── */}
               <Route path="/" element={<Index />} />
               <Route path="/ride" element={<Ride />} />
               <Route path="/ride/:rideId" element={<RiderRideDetail />} />
@@ -80,6 +88,27 @@ const App = () => (
               <Route path="/negotiate/request" element={<RiderRequestScreen />} />
               <Route path="/negotiate/offers/:requestId" element={<RiderOffersScreen />} />
               <Route path="/negotiate/driver" element={<DriverRequestsScreen />} />
+
+              {/* ── /mapp – Mobile App Shell for Median.co ── */}
+              <Route path="/mapp" element={<MappRedirect />} />
+              <Route path="/mapp/login" element={<Auth />} />
+              <Route path="/mapp/signup" element={<Signup />} />
+
+              <Route element={<MappLayout />}>
+                {/* Rider routes (auth required) */}
+                <Route path="/mapp/ride" element={<MappAuthGuard><Ride /></MappAuthGuard>} />
+                <Route path="/mapp/ride/:rideId" element={<MappAuthGuard><RiderRideDetail /></MappAuthGuard>} />
+                <Route path="/mapp/negotiate/request" element={<MappAuthGuard><RiderRequestScreen /></MappAuthGuard>} />
+                <Route path="/mapp/negotiate/offers/:requestId" element={<MappAuthGuard><RiderOffersScreen /></MappAuthGuard>} />
+
+                {/* Driver routes */}
+                <Route path="/mapp/driver" element={<MappAuthGuard><MappDriverGuard><DriverDashboard /></MappDriverGuard></MappAuthGuard>} />
+                <Route path="/mapp/drivers/wallet" element={<MappAuthGuard><MappDriverGuard><DriverWalletPage /></MappDriverGuard></MappAuthGuard>} />
+                <Route path="/mapp/drivers/deposit" element={<MappAuthGuard><MappDriverGuard><DriverDepositPage /></MappDriverGuard></MappAuthGuard>} />
+
+                {/* Admin */}
+                <Route path="/mapp/admin" element={<MappAuthGuard><MappAdminGuard><AdminDashboard /></MappAdminGuard></MappAuthGuard>} />
+              </Route>
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
@@ -92,5 +121,3 @@ const App = () => (
 );
 
 export default App;
-
-
