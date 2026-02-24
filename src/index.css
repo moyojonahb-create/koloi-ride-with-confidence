@@ -256,6 +256,11 @@
   }
 }
 
+/* Safe area bottom padding for mobile app shell */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 /* Leaflet custom markers */
 .custom-marker {
   background: transparent !important;
