@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,10 @@ export default function DriverModeLanding() {
   const { user } = useAuth();
   const { isApproved, isDriver } = useDriverStatus();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isMapp = location.pathname.startsWith('/mapp');
+  const prefix = isMapp ? '/mapp' : '';
+
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
 
@@ -33,11 +37,9 @@ export default function DriverModeLanding() {
       return;
     }
     if (isApproved) {
-      navigate('/driver');
-    } else if (isDriver) {
-      navigate('/drive'); // application status
+      navigate(`${prefix}/driver`);
     } else {
-      navigate('/drive'); // start application
+      navigate(`${prefix}/drive`);
     }
   };
 
@@ -45,11 +47,13 @@ export default function DriverModeLanding() {
     <div className="min-h-[100dvh] bg-background flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-        <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
-          ← Back
-        </button>
+        {!isMapp && (
+          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground text-sm">
+            ← Back
+          </button>
+        )}
         <KoloiLogo size="sm" />
-        <div className="w-12" />
+        {!isMapp && <div className="w-12" />}
       </div>
 
       <div className="flex-1 px-5 py-6 flex flex-col">
@@ -107,7 +111,7 @@ export default function DriverModeLanding() {
                 I already have an account
               </Button>
               <button
-                onClick={() => navigate('/ride')}
+                onClick={() => navigate(`${prefix}/ride`)}
                 className="w-full text-center text-muted-foreground hover:text-foreground text-sm py-2"
               >
                 Go to passenger mode

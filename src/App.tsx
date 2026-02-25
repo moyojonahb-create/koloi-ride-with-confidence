@@ -112,6 +112,12 @@ const App = () => (
                 <Route path="/mapp/drivers/wallet" element={<MappAuthGuard><MappDriverGuard><DriverWalletPage /></MappDriverGuard></MappAuthGuard>} />
                 <Route path="/mapp/drivers/deposit" element={<MappAuthGuard><MappDriverGuard><DriverDepositPage /></MappDriverGuard></MappAuthGuard>} />
 
+                {/* New pages */}
+                <Route path="/mapp/safety" element={<MappAuthGuard><SafetyPage /></MappAuthGuard>} />
+                <Route path="/mapp/driver-mode" element={<DriverModeLanding />} />
+                <Route path="/mapp/drive" element={<MappAuthGuard><DriverApplication /></MappAuthGuard>} />
+                <Route path="/mapp/profile" element={<MappAuthGuard><RiderProfile /></MappAuthGuard>} />
+
                 {/* Admin */}
                 <Route path="/mapp/admin" element={<MappAuthGuard><MappAdminGuard><AdminDashboard /></MappAdminGuard></MappAuthGuard>} />
               </Route>

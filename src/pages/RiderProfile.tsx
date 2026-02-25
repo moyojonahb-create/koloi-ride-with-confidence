@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowLeft, User, CreditCard, Calendar, Gift, Settings, LogOut } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Calendar, Gift, Settings, LogOut, Shield, Car } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
 import ScheduleRide from '@/components/ride/ScheduleRide';
@@ -11,6 +11,9 @@ import KoloiLogo from '@/components/KoloiLogo';
 export default function RiderProfile() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isMapp = location.pathname.startsWith('/mapp');
+  const prefix = isMapp ? '/mapp' : '';
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
 
@@ -79,18 +82,32 @@ export default function RiderProfile() {
         {/* Quick Links */}
         <section className="space-y-2">
           <button
-            onClick={() => navigate('/ride')}
+            onClick={() => navigate(`${prefix}/ride`)}
             className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left"
           >
             <Settings className="w-5 h-5 text-muted-foreground" />
             <span className="font-medium text-foreground">Request a Ride</span>
           </button>
           <button
-            onClick={() => navigate('/negotiate/request')}
+            onClick={() => navigate(`${prefix}/negotiate/request`)}
             className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left"
           >
             <Settings className="w-5 h-5 text-muted-foreground" />
             <span className="font-medium text-foreground">Negotiate a Price</span>
+          </button>
+          <button
+            onClick={() => navigate(`${prefix}/safety`)}
+            className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left"
+          >
+            <Shield className="w-5 h-5 text-muted-foreground" />
+            <span className="font-medium text-foreground">Safety</span>
+          </button>
+          <button
+            onClick={() => navigate(`${prefix}/driver-mode`)}
+            className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left"
+          >
+            <Car className="w-5 h-5 text-muted-foreground" />
+            <span className="font-medium text-foreground">Driver Mode</span>
           </button>
         </section>
 
