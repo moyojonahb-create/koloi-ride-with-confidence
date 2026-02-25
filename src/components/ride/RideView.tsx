@@ -331,8 +331,8 @@ export default function RideView() {
     <div className="rider-screen bg-primary flex flex-col" style={{ minHeight: '100dvh' }}>
       <InstallPromptBanner />
 
-      {/* Header */}
-      <header className="topbar flex items-center justify-between h-14 px-[calc(var(--pad,14px)+env(safe-area-inset-left))] pr-[calc(var(--pad,14px)+env(safe-area-inset-right))] pt-[env(safe-area-inset-top)] bg-primary">
+      {/* Header — fixed, content scrolls beneath */}
+      <header className="topbar shrink-0 flex items-center justify-between h-14 px-[calc(var(--pad,14px)+env(safe-area-inset-left))] pr-[calc(var(--pad,14px)+env(safe-area-inset-right))] pt-[env(safe-area-inset-top)] pb-2 bg-primary z-30">
         <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-white/10 text-primary-foreground hover:bg-white/20">
           <Menu className="w-5 h-5" />
         </Button>
@@ -347,13 +347,13 @@ export default function RideView() {
 
       {/* Status Banner */}
       {rideStatus !== 'idle' && (
-        <div className="px-4 pb-2">
+        <div className="shrink-0 px-4 pb-2">
           <RideStatusBanner status={rideStatus} offersCount={offers.length} />
         </div>
       )}
 
-      {/* Main Content */}
-      <main className="map-area relative flex-1 min-h-0 p-[var(--pad,14px)] pb-[calc(var(--pad,14px)+env(safe-area-inset-bottom))]">
+      {/* Main Content — scrollable below fixed header */}
+      <main className="map-area relative flex-1 min-h-0 overflow-y-auto p-[var(--pad,14px)] pb-[calc(var(--pad,14px)+env(safe-area-inset-bottom))]">
         {/* Map Container */}
         <div
           id="map-container"
