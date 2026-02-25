@@ -35,7 +35,7 @@ export default function RiderProfile() {
   return (
     <div className="min-h-[100dvh] bg-background flex flex-col">
       {/* Header */}
-      <header className="flex items-center gap-3 px-4 bg-primary text-primary-foreground" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)', paddingBottom: '12px' }}>
+      <header className="flex items-center justify-between px-4 bg-primary text-primary-foreground" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)', paddingBottom: '12px' }}>
         <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-white/10 text-primary-foreground hover:bg-white/20" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
