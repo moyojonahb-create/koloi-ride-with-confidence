@@ -68,8 +68,8 @@ export async function fetchPendingOffers(rideId: string): Promise<Offer[]> {
   return (data ?? []) as Offer[];
 }
 
-// Fetch drivers by their user IDs
-export async function fetchDriversByIds(driverIds: string[]): Promise<Record<string, DriverProfile>> {
+// Fetch drivers by their user IDs, enriched with profile name
+export async function fetchDriversByIds(driverIds: string[]): Promise<Record<string, DriverProfile & { full_name?: string | null }>> {
   if (driverIds.length === 0) return {};
   const { data, error } = await supabase
     .from("drivers")
@@ -78,9 +78,20 @@ export async function fetchDriversByIds(driverIds: string[]): Promise<Record<str
   
   if (error) throw new Error(error.message);
   
-  const map: Record<string, DriverProfile> = {};
+  // Also fetch profile names
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("user_id, full_name")
+    .in("user_id", driverIds);
+  
+  const nameMap: Record<string, string> = {};
+  for (const p of (profiles ?? [])) {
+    if (p.full_name) nameMap[p.user_id] = p.full_name;
+  }
+  
+  const map: Record<string, DriverProfile & { full_name?: string | null }> = {};
   for (const row of (data ?? []) as DriverProfile[]) {
-    map[row.user_id] = row;
+    map[row.user_id] = { ...row, full_name: nameMap[row.user_id] || null };
   }
   return map;
 }

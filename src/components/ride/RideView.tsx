@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useOSRMRoute } from '@/hooks/useOSRMRoute';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
@@ -39,6 +39,7 @@ interface GPSState {
 export default function RideView() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { data: pricingSettings } = usePricingSettings();
   const { findNearestLandmark } = useLandmarks({});
@@ -80,6 +81,17 @@ export default function RideView() {
     userLocation: gpsState.coords,
     radiusKm: proximityRadius,
   });
+
+  // Handle rebook from ride history
+  useEffect(() => {
+    const rebook = (location.state as any)?.rebook;
+    if (rebook) {
+      if (rebook.pickup) setPickupLocation(rebook.pickup);
+      if (rebook.dropoff) setDropoffLocation(rebook.dropoff);
+      // Clear state so refresh doesn't re-apply
+      window.history.replaceState({}, '');
+    }
+  }, []);
 
   // Route calculation
   const { route: routeData, loading: routeLoading } = useOSRMRoute(
