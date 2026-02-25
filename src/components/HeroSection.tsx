@@ -337,7 +337,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {fareResult.reason} • {fareResult.isOutsideTown ? 'Fixed fare' : `R${PRICING_INFO.baseFare} + R${PRICING_INFO.perKmRate}/km`}
+                    {fareResult.reason} • {fareResult.isInnerZone ? 'Inner zone flat fare' : fareResult.isOutsideTown ? 'Distance-based fare' : `Distance band pricing`}
                     {routeInfo.isTrafficAware && ' • Live traffic'}
                     {routeInfo.isEstimate && ' • Estimated route'}
                   </p>
