@@ -434,8 +434,8 @@ export default function RiderRideDetail() {
             </div>
 
             {ride.status === "completed" && (
-              <div className="mt-3 px-3 py-2 bg-muted rounded-xl text-sm text-muted-foreground">
-                ✅ Sent to platform account: <span className="font-semibold text-foreground">98855</span> (demo)
+              <div className="mt-3 px-3 py-2 bg-primary/10 rounded-xl text-sm text-primary font-semibold">
+                ✅ Trip completed
               </div>
             )}
 
