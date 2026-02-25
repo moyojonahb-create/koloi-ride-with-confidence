@@ -367,9 +367,9 @@ export default function RiderRideDetail() {
   const isPending = ride.status === "pending";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-[100dvh] bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border p-4">
+      <div className="shrink-0 bg-background/95 backdrop-blur border-b border-border px-4 py-3 z-10">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <Button variant="ghost" size="icon" onClick={() => nav("/ride")}>
             <ArrowLeft className="h-5 w-5" />
@@ -391,7 +391,8 @@ export default function RiderRideDetail() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+        <div className="max-w-lg mx-auto p-4 space-y-4 pb-6">
         {/* Map - Show route and driver location */}
         {isAccepted && ride.pickup_lat && (
           <Card className="overflow-hidden">
@@ -639,7 +640,7 @@ export default function RiderRideDetail() {
 
         {/* Show rate button for completed rides that haven't been rated */}
         {ride.status === "completed" && !hasRated && !showRating && ride.driver_id && user && (
-          <div className="fixed bottom-6 left-4 right-4 max-w-lg mx-auto z-50">
+          <div className="pt-2 pb-4">
             <Button
               className="w-full gap-2"
               onClick={() => setShowRating(true)}
@@ -649,6 +650,7 @@ export default function RiderRideDetail() {
             </Button>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
