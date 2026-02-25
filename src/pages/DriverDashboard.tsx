@@ -494,25 +494,7 @@ export default function DriverDashboard() {
           </Card>
         )}
 
-        {/* Trial Ended Warning */}
-        {profile && !trialActive && (
-          <Card className="border-destructive bg-destructive/5">
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
-                <div className="flex-1">
-                  <p className="font-semibold text-sm">Trial Ended</p>
-                  <p className="text-xs text-muted-foreground">
-                    Maintain wallet balance to stay online (R4 fee per trip)
-                  </p>
-                </div>
-                <Button size="sm" variant="outline" onClick={() => nav("/drivers/wallet")}>
-                  <Wallet className="h-4 w-4 mr-1" /> Deposit
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
         {/* Profile Photo Upload */}
         <Card>
           <CardContent className="pt-4">
