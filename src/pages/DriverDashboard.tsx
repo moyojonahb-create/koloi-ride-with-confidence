@@ -244,13 +244,7 @@ export default function DriverDashboard() {
         // Expire old rides server-side first
         await expireOldRides();
         const list = await fetchOpenRides();
-        let activeList = filterActiveRides(list);
-
-        // Non-top drivers only see rides older than 30 seconds
-        if (!topStatus) {
-          const thirtySecsAgo = Date.now() - 30_000;
-          activeList = activeList.filter((r: any) => new Date(r.created_at).getTime() <= thirtySecsAgo);
-        }
+        const activeList = filterActiveRides(list);
 
         setRides(activeList as Ride[]);
 
