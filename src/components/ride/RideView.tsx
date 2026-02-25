@@ -21,6 +21,10 @@ import KoloiLogo from '@/components/KoloiLogo';
 import QuickPickChips from './QuickPickChips';
 import EmergencyButton from './EmergencyButton';
 import ProximityFilter from './ProximityFilter';
+import ScheduleRide from './ScheduleRide';
+import PaymentMethodSelector, { type PaymentMethod } from './PaymentMethodSelector';
+import PromoCodeInput from './PromoCodeInput';
+import ReferralShare from './ReferralShare';
 import { Input } from '@/components/ui/input';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
 
@@ -59,6 +63,11 @@ export default function RideView() {
 
   // Passenger count
   const [passengerCount, setPassengerCount] = useState(1);
+  // Schedule & payment
+  const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [promoDiscount, setPromoDiscount] = useState<number | null>(null);
+  const [promoId, setPromoId] = useState<string | null>(null);
 
   // Ride state
   const [rideStatus, setRideStatus] = useState<RideStatus>('idle');
@@ -256,6 +265,7 @@ export default function RideView() {
     setIsRequesting(true);
     setRideStatus('searching');
     try {
+      const finalFare = promoDiscount ? fareEstimate.fareR - promoDiscount : fareEstimate.fareR;
       const result = await requestRide({
         pickup_address: pickupLocation.name,
         pickup_lat: pickupLocation.lat,
@@ -265,9 +275,11 @@ export default function RideView() {
         dropoff_lng: dropoffLocation.lng,
         distance_km: fareEstimate.distanceKm,
         duration_minutes: fareEstimate.durationMinutes,
-        fare: fareEstimate.fareR,
+        fare: Math.max(5, finalFare),
         route_polyline: routeData?.geometry || null,
         passenger_count: passengerCount,
+        scheduled_at: scheduledAt?.toISOString() || undefined,
+        payment_method: paymentMethod,
       });
       if (!result.ok) throw new Error(result.error);
       const data = result.ride;
@@ -444,7 +456,7 @@ export default function RideView() {
 
           {/* Fare Display & Request Button */}
           {!activeField && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* Passenger Count Selector */}
               <div className="flex items-center justify-between bg-koloi-gray-100 rounded-2xl p-3">
                 <div>
@@ -470,13 +482,37 @@ export default function RideView() {
                 </div>
               </div>
 
+              {/* Payment Method */}
+              <PaymentMethodSelector selected={paymentMethod} onSelect={setPaymentMethod} />
+
+              {/* Schedule for later */}
+              <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
+
               {fareEstimate && (
-                <div className="pt-2">
-                  <p className="text-3xl font-bold text-foreground">R{fareEstimate.fareR.toFixed(0)}</p>
+                <div className="pt-1">
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-3xl font-bold text-foreground">
+                      R{promoDiscount ? (fareEstimate.fareR - promoDiscount).toFixed(0) : fareEstimate.fareR.toFixed(0)}
+                    </p>
+                    {promoDiscount && (
+                      <p className="text-lg text-muted-foreground line-through">R{fareEstimate.fareR.toFixed(0)}</p>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     {fareEstimate.distanceKm.toFixed(1)} km • {fareEstimate.durationMinutes} min
+                    {scheduledAt && ' • Scheduled'}
                   </p>
                 </div>
+              )}
+
+              {/* Promo Code */}
+              {fareEstimate && (
+                <PromoCodeInput
+                  fare={fareEstimate.fareR}
+                  appliedDiscount={promoDiscount}
+                  onApply={(discount, id) => { setPromoDiscount(discount); setPromoId(id); }}
+                  onRemove={() => { setPromoDiscount(null); setPromoId(null); }}
+                />
               )}
 
               <Button
@@ -498,13 +534,16 @@ export default function RideView() {
                   'Sign in to request'
                 ) : canRequestRide ? (
                   <>
-                    Request Ride
+                    {scheduledAt ? 'Schedule Ride' : 'Request Ride'}
                     <ArrowRight className="w-5 h-5" />
                   </>
                 ) : (
                   'Select locations'
                 )}
               </Button>
+
+              {/* Referral share */}
+              {user && <ReferralShare />}
 
               {/* inDrive-style: negotiate fare with drivers */}
               <button
