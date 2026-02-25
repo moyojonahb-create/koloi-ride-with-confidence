@@ -1,24 +1,26 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Car, HandshakeIcon, Truck, Wallet, ShieldCheck } from 'lucide-react';
+import { Car, HandshakeIcon, Shield, User, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { cn } from '@/lib/utils';
-
-const tabs = [
-  { label: 'Ride', icon: Car, path: '/mapp/ride' },
-  { label: 'Negotiate', icon: HandshakeIcon, path: '/mapp/negotiate/request' },
-  { label: 'Driver', icon: Truck, path: '/mapp/driver' },
-  { label: 'Wallet', icon: Wallet, path: '/mapp/drivers/wallet' },
-];
-
-const adminTab = { label: 'Admin', icon: ShieldCheck, path: '/mapp/admin' };
+import KoloiLogo from '@/components/KoloiLogo';
 
 export default function MappLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAdmin } = useUserRole();
+  const { isApproved } = useDriverStatus();
 
-  const visibleTabs = isAdmin ? [...tabs, adminTab] : tabs;
+  const tabs = [
+    { label: 'Ride', icon: Car, path: '/mapp/ride' },
+    { label: 'Negotiate', icon: HandshakeIcon, path: '/mapp/negotiate/request' },
+    { label: 'Safety', icon: Shield, path: '/mapp/safety' },
+    { label: 'Profile', icon: User, path: '/mapp/profile' },
+  ];
+
+  // Add admin tab if admin
+  const visibleTabs = isAdmin ? [...tabs, { label: 'Admin', icon: ShieldCheck, path: '/mapp/admin' }] : tabs;
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 

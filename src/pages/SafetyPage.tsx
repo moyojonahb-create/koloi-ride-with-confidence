@@ -1,6 +1,5 @@
 import { MessageSquare, Users, Phone, Shield, Car, AlertTriangle, Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useNavigate, useLocation } from 'react-router-dom';
 import KoloiLogo from '@/components/KoloiLogo';
 
 const protectionCards = [
@@ -13,16 +12,23 @@ const protectionCards = [
 
 export default function SafetyPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isMapp = location.pathname.startsWith('/mapp');
 
   return (
-    <div className="min-h-[100dvh] bg-background flex flex-col">
+    <div className={`min-h-[100dvh] bg-background flex flex-col ${isMapp ? '' : ''}`}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-        <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
-          ← Back
-        </button>
-        <h1 className="font-bold text-lg text-foreground">Safety</h1>
-        <div className="w-12" />
+        {!isMapp && (
+          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground text-sm">
+            ← Back
+          </button>
+        )}
+        <div className={`flex items-center gap-2 ${isMapp ? 'mx-auto' : ''}`}>
+          <KoloiLogo size="sm" iconOnly />
+          <h1 className="font-bold text-lg text-foreground">Safety</h1>
+        </div>
+        {!isMapp && <div className="w-12" />}
       </div>
 
       <div className="flex-1 px-5 py-6 space-y-6">
