@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowLeft, User, CreditCard, Calendar, Gift, Settings, LogOut, Shield, Car } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Calendar, Gift, Settings, LogOut, Shield, Car, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
 import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
 import KoloiLogo from '@/components/KoloiLogo';
+import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
 
 export default function RiderProfile() {
   const { user, signOut } = useAuth();
@@ -77,6 +78,15 @@ export default function RiderProfile() {
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Invite Friends</h2>
           </div>
           <ReferralShare />
+        </section>
+
+        {/* Notifications Settings */}
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <Bell className="w-4 h-4 text-muted-foreground" />
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Notifications</h2>
+          </div>
+          <RiderSettingsPanel />
         </section>
 
         {/* Quick Links */}
