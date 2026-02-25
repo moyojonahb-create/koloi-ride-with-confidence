@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import SplashScreen from "@/components/SplashScreen";
 import Index from "./pages/Index";
 import Ride from "./pages/Ride";
 import RiderRideDetail from "./pages/RiderRideDetail";
@@ -48,11 +50,16 @@ import MappAdminGuard from "./components/mapp/MappAdminGuard";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  const [splashDone, setSplashDone] = useState(false);
+  const handleSplashComplete = useCallback(() => setSplashDone(true), []);
+
+  return (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <TooltipProvider>
         <ErrorBoundary>
+          {!splashDone && <SplashScreen onComplete={handleSplashComplete} />}
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -130,6 +137,7 @@ const App = () => (
       </TooltipProvider>
     </AuthProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useRideRealtime } from "@/hooks/useRideRealtime";
+import { useDriverTracking } from "@/hooks/useDriverTracking";
 import { getSecondsRemaining, isRideExpired } from "@/lib/rideExpiry";
 import {
   fetchPendingOffers,
@@ -55,7 +56,6 @@ export default function RiderRideDetail() {
   const [driversById, setDriversById] = useState<Record<string, DriverProfile>>({});
   const [driverProfile, setDriverProfile] = useState<any>(null);
   const [driverPhone, setDriverPhone] = useState<string | null>(null);
-  const [driverLocation, setDriverLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -175,30 +175,11 @@ export default function RiderRideDetail() {
     } catch (_) { /* Notification API not available */ }
   }, []);
 
-  // Poll driver location when ride is accepted
-  useEffect(() => {
-    if (!ride || !driverProfile || !["accepted", "in_progress", "arrived"].includes(ride.status)) return;
-
-    const driverUserId = driverProfile.user_id;
-    if (!driverUserId) return;
-
-    const fetchDriverLocation = async () => {
-      const { data } = await supabase
-        .from("live_locations")
-        .select("latitude, longitude")
-        .eq("user_id", driverUserId)
-        .eq("user_type", "driver")
-        .maybeSingle();
-
-      if (data) {
-        setDriverLocation({ lat: data.latitude, lng: data.longitude });
-      }
-    };
-
-    fetchDriverLocation();
-    const interval = setInterval(fetchDriverLocation, 5000);
-    return () => clearInterval(interval);
-  }, [ride?.status, driverProfile?.user_id]);
+  // Real-time driver tracking via Supabase Realtime
+  const driverLocation = useDriverTracking(
+    driverProfile?.user_id ?? null,
+    ride?.status ?? null
+  );
 
   // Countdown timer for ride expiry
   useEffect(() => {
