@@ -1,44 +1,72 @@
-// Koloi Dynamic Fare Pricing System
+// Koloi Dynamic Fare Pricing System — Gwanda Zone-Based Pricing
 
 export type Location = { lat: number; lng: number };
 
-// Default values (used as fallback)
-// Day pricing: R20 min, R40 max, all in multiples of R5
-const DEFAULT_SETTINGS = {
-  baseFare: 20,
-  perKmRate: 5,
-  minFare: 20,
-  maxTownFare: 40,
-  fixedTownFare: 40,
-  townRadiusKm: 5,
-  peakMultiplier: 1.0, // No peak multiplier during day
-  nightMultiplier: 1.3,
-  gwandaCbd: { lat: -20.933, lng: 29.013 },
-};
+// ═══════════════════════════════════════════════════════════
+// GWANDA INNER ZONE — polygon defined by key landmarks
+// Glow Petroleum, St Christopher's, Gwanda Pool, ZIMSEC,
+// NASSA Complex, Railway Line / Substation
+// ═══════════════════════════════════════════════════════════
+const GWANDA_INNER_ZONE: Location[] = [
+  { lat: -20.9358, lng: 29.0028 }, // Glow Petroleum (north-west)
+  { lat: -20.9358, lng: 29.0064 }, // Railway Line / Substation (north-east)
+  { lat: -20.9449, lng: 29.0071 }, // NASSA Complex (south-east)
+  { lat: -20.9452, lng: 29.0053 }, // ZIMSEC Offices (south)
+  { lat: -20.9437, lng: 29.0014 }, // Gwanda Pool (south-west)
+  { lat: -20.9384, lng: 29.0015 }, // St Christopher's (west)
+];
 
-export interface PricingConfig {
-  baseFare: number;
-  perKmRate: number;
-  minFare: number;
-  maxTownFare: number;
-  fixedTownFare: number;
-  townRadiusKm: number;
-  peakMultiplier: number;
-  nightMultiplier: number;
-  gwandaCbd: Location;
+// Gwanda CBD center for town radius checks
+const GWANDA_CBD: Location = { lat: -20.940, lng: 29.004 };
+
+// ═══════════════════════════════════════════════════════════
+// DISTANCE BANDS — outside inner zone pricing
+// ═══════════════════════════════════════════════════════════
+const DISTANCE_BANDS: { minKm: number; maxKm: number; fare: number }[] = [
+  { minKm: 0, maxKm: 2, fare: 20 },
+  { minKm: 2, maxKm: 3, fare: 20 },
+  { minKm: 3, maxKm: 4, fare: 30 },
+  { minKm: 4, maxKm: 5, fare: 40 },
+  { minKm: 5, maxKm: 6, fare: 50 },
+  { minKm: 6, maxKm: 7, fare: 60 },
+  { minKm: 7, maxKm: 8, fare: 70 },
+  { minKm: 8, maxKm: 9, fare: 80 },
+  { minKm: 9, maxKm: Infinity, fare: 80 }, // Cap at R80 for 9km+
+];
+
+// ═══════════════════════════════════════════════════════════
+// COMMISSION TIERS
+// ═══════════════════════════════════════════════════════════
+export function calculateCommission(fare: number): number {
+  if (fare === 15) return 3;
+  if (fare < 50) return 6;
+  return Math.round(fare * 0.11); // 11% rounded
 }
 
-// Mutable pricing info that can be updated from DB
-let currentPricingConfig: PricingConfig = { ...DEFAULT_SETTINGS };
-
-export function setPricingConfig(config: Partial<PricingConfig>) {
-  currentPricingConfig = { ...currentPricingConfig, ...config };
+// ═══════════════════════════════════════════════════════════
+// GEOMETRY — point-in-polygon (ray casting)
+// ═══════════════════════════════════════════════════════════
+function isPointInPolygon(point: Location, polygon: Location[]): boolean {
+  let inside = false;
+  const n = polygon.length;
+  for (let i = 0, j = n - 1; i < n; j = i++) {
+    const xi = polygon[i].lat, yi = polygon[i].lng;
+    const xj = polygon[j].lat, yj = polygon[j].lng;
+    const intersect =
+      yi > point.lng !== yj > point.lng &&
+      point.lat < ((xj - xi) * (point.lng - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside;
 }
 
-export function getPricingConfig(): PricingConfig {
-  return { ...currentPricingConfig };
+export function isInsideInnerZone(loc: Location): boolean {
+  return isPointInPolygon(loc, GWANDA_INNER_ZONE);
 }
 
+// ═══════════════════════════════════════════════════════════
+// HAVERSINE DISTANCE
+// ═══════════════════════════════════════════════════════════
 export function distanceKm(a: Location, b: Location): number {
   const R = 6371;
   const dLat = ((b.lat - a.lat) * Math.PI) / 180;
@@ -51,62 +79,81 @@ export function distanceKm(a: Location, b: Location): number {
   return 2 * R * Math.asin(Math.sqrt(x));
 }
 
-export function isInsideTown(loc: Location, config?: PricingConfig): boolean {
-  const cfg = config || currentPricingConfig;
-  return distanceKm(loc, cfg.gwandaCbd) <= cfg.townRadiusKm;
+// ═══════════════════════════════════════════════════════════
+// CITY DETECTION — is this ride in Gwanda?
+// ═══════════════════════════════════════════════════════════
+const GWANDA_RADIUS_KM = 15; // generous radius for Gwanda area
+
+export function isInGwanda(loc: Location): boolean {
+  return distanceKm(loc, GWANDA_CBD) <= GWANDA_RADIUS_KM;
 }
 
-function toMinutesSinceMidnight(date: Date): number {
-  return date.getHours() * 60 + date.getMinutes();
+export function isInsideTown(loc: Location): boolean {
+  return isInGwanda(loc);
 }
 
-/**
- * Returns the dynamic multiplier based on time.
- * Peak: 06:30–09:00 and 16:00–18:30 => peakMultiplier
- * Night: 19:00–05:59 => nightMultiplier
- * Otherwise => 1.0x
- */
-export function timeMultiplier(now: Date, config?: PricingConfig): number {
-  const cfg = config || currentPricingConfig;
-  const m = toMinutesSinceMidnight(now);
-  const peakMorningStart = 6 * 60 + 30; // 06:30
-  const peakMorningEnd = 9 * 60; // 09:00
-  const peakEveningStart = 16 * 60; // 16:00
-  const peakEveningEnd = 18 * 60 + 30; // 18:30
-  const nightStart = 19 * 60; // 19:00
-  const nightEnd = 5 * 60 + 59; // 05:59
-
-  const isPeak =
-    (m >= peakMorningStart && m <= peakMorningEnd) ||
-    (m >= peakEveningStart && m <= peakEveningEnd);
-
-  // Night crosses midnight
-  const isNight = m >= nightStart || m <= nightEnd;
-
-  // Use the highest multiplier if both match
-  let mult = 1.0;
-  if (isPeak) mult = Math.max(mult, cfg.peakMultiplier);
-  if (isNight) mult = Math.max(mult, cfg.nightMultiplier);
-
-  return mult;
+// ═══════════════════════════════════════════════════════════
+// LEGACY CONFIG (kept for backward compat with DB settings)
+// ═══════════════════════════════════════════════════════════
+export interface PricingConfig {
+  baseFare: number;
+  perKmRate: number;
+  minFare: number;
+  maxTownFare: number;
+  fixedTownFare: number;
+  townRadiusKm: number;
+  peakMultiplier: number;
+  nightMultiplier: number;
+  gwandaCbd: Location;
 }
 
+const DEFAULT_SETTINGS: PricingConfig = {
+  baseFare: 15,
+  perKmRate: 10,
+  minFare: 15,
+  maxTownFare: 80,
+  fixedTownFare: 80,
+  townRadiusKm: 15,
+  peakMultiplier: 1.0,
+  nightMultiplier: 1.2,
+  gwandaCbd: GWANDA_CBD,
+};
+
+let currentPricingConfig: PricingConfig = { ...DEFAULT_SETTINGS };
+
+export function setPricingConfig(config: Partial<PricingConfig>) {
+  currentPricingConfig = { ...currentPricingConfig, ...config };
+}
+
+export function getPricingConfig(): PricingConfig {
+  return { ...currentPricingConfig };
+}
+
+// ═══════════════════════════════════════════════════════════
+// FARE RESULT
+// ═══════════════════════════════════════════════════════════
 export interface FareResult {
   priceR: number;
+  commission: number;
   reason: string;
   multiplier: number;
   isOutsideTown: boolean;
-  routedDistanceKm?: number; // The actual routed distance used for pricing
+  isInnerZone: boolean;
+  routedDistanceKm?: number;
 }
 
-/**
- * Calculate fare using the routed distance from Google Routes API.
- * @param pickup - Pickup location coordinates
- * @param dropoff - Dropoff location coordinates  
- * @param routedDistanceKm - The road-based distance from Google Routes API (authoritative source)
- * @param now - Current time for peak/night pricing
- * @param config - Optional pricing config override
- */
+// ═══════════════════════════════════════════════════════════
+// MAIN FARE CALCULATOR — Gwanda zone-based pricing
+// ═══════════════════════════════════════════════════════════
+function getFareFromDistanceBand(distKm: number): number {
+  for (const band of DISTANCE_BANDS) {
+    if (distKm >= band.minKm && distKm < band.maxKm) {
+      return band.fare;
+    }
+  }
+  return DISTANCE_BANDS[DISTANCE_BANDS.length - 1].fare;
+}
+
 export function calculateKoloiFare(
   pickup: Location,
   dropoff: Location,
@@ -114,53 +161,74 @@ export function calculateKoloiFare(
   now: Date = new Date(),
   config?: PricingConfig
 ): FareResult {
-  const cfg = config || currentPricingConfig;
-  const pickupInTown = isInsideTown(pickup, cfg);
-  const dropoffInTown = isInsideTown(dropoff, cfg);
-  const mult = timeMultiplier(now, cfg);
+  const pickupGwanda = isInGwanda(pickup);
+  const dropoffGwanda = isInGwanda(dropoff);
 
-  // If any point is outside town → fixed price
-  if (!pickupInTown || !dropoffInTown) {
+  // If not in Gwanda, use legacy distance-band pricing
+  if (!pickupGwanda || !dropoffGwanda) {
+    const dist = routedDistanceKm ?? distanceKm(pickup, dropoff);
+    const fare = getFareFromDistanceBand(dist);
     return {
-      priceR: cfg.fixedTownFare,
-      reason: "Fixed town fare",
+      priceR: fare,
+      commission: calculateCommission(fare),
+      reason: 'Out of Gwanda service area',
       multiplier: 1.0,
       isOutsideTown: true,
-      routedDistanceKm,
+      isInnerZone: false,
+      routedDistanceKm: dist,
     };
   }
 
-  // Use routed distance if available, otherwise fall back to Haversine
+  // Check if both points are inside inner zone
+  const pickupInner = isInsideInnerZone(pickup);
+  const dropoffInner = isInsideInnerZone(dropoff);
+
+  if (pickupInner && dropoffInner) {
+    // INNER ZONE: flat R15, R3 commission
+    return {
+      priceR: 15,
+      commission: 3,
+      reason: 'Inner zone fare',
+      multiplier: 1.0,
+      isOutsideTown: false,
+      isInnerZone: true,
+      routedDistanceKm: routedDistanceKm ?? distanceKm(pickup, dropoff),
+    };
+  }
+
+  // OUTSIDE INNER ZONE: distance-band pricing
   const dist = routedDistanceKm ?? distanceKm(pickup, dropoff);
-  let price = cfg.baseFare + dist * cfg.perKmRate;
-
-  // Apply time multiplier for around-town only
-  price = price * mult;
-
-  // Round to nearest R5 multiple
-  price = Math.round(price / 5) * 5;
-  
-  // Min/Max rules (R20-R40 during day)
-  if (price < cfg.minFare) price = cfg.minFare;
-  if (price > cfg.maxTownFare) price = cfg.maxTownFare;
-
-  const reason =
-    mult === cfg.nightMultiplier
-      ? "Night pricing"
-      : mult === cfg.peakMultiplier
-      ? "Peak-time pricing"
-      : "Standard pricing";
+  const fare = getFareFromDistanceBand(dist);
+  const commission = calculateCommission(fare);
 
   return {
-    priceR: Math.round(price),
-    reason,
-    multiplier: mult,
+    priceR: fare,
+    commission,
+    reason: `Distance band (${Math.floor(dist)}–${Math.ceil(dist)} km)`,
+    multiplier: 1.0,
     isOutsideTown: false,
+    isInnerZone: false,
     routedDistanceKm: dist,
   };
 }
 
-// Export for display purposes (uses current config)
+// ═══════════════════════════════════════════════════════════
+// TIME MULTIPLIER (kept for backward compat, not used in new pricing)
+// ═══════════════════════════════════════════════════════════
+function toMinutesSinceMidnight(date: Date): number {
+  return date.getHours() * 60 + date.getMinutes();
+}
+
+export function timeMultiplier(now: Date, config?: PricingConfig): number {
+  const cfg = config || currentPricingConfig;
+  const m = toMinutesSinceMidnight(now);
+  const nightStart = 19 * 60;
+  const nightEnd = 5 * 60 + 59;
+  const isNight = m >= nightStart || m <= nightEnd;
+  return isNight ? cfg.nightMultiplier : 1.0;
+}
+
+// Export for display purposes
 export const PRICING_INFO = {
   get baseFare() { return currentPricingConfig.baseFare; },
   get perKmRate() { return currentPricingConfig.perKmRate; },
@@ -170,4 +238,6 @@ export const PRICING_INFO = {
   get peakMultiplier() { return currentPricingConfig.peakMultiplier; },
   get nightMultiplier() { return currentPricingConfig.nightMultiplier; },
   get townRadiusKm() { return currentPricingConfig.townRadiusKm; },
+  get innerZoneFare() { return 15; },
+  get innerZoneCommission() { return 3; },
 };
