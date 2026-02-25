@@ -453,7 +453,7 @@ export default function DriverDashboard() {
       </div>
 
       <div className="flex-1 overflow-y-auto overscroll-contain">
-      <div className="max-w-lg mx-auto p-4 space-y-4 pb-6">
+      <div className="max-w-lg mx-auto p-4 space-y-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-card rounded-2xl border border-border p-3 text-center">
