@@ -44,7 +44,7 @@ function SettlementInfo({ tripId }: { tripId: string }) {
   if (settlement) {
     return (
       <div className="mt-2 px-3 py-2 bg-primary/10 rounded-xl text-sm text-primary font-semibold space-y-1">
-        <p>✅ Trip completed</p>
+        <p>Trip completed</p>
         <p className="text-xs text-muted-foreground">Settled • {new Date(settlement.created_at).toLocaleString()}</p>
       </div>
     );
