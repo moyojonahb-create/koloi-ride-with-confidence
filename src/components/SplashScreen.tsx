@@ -7,7 +7,7 @@ interface SplashScreenProps {
 }
 
 const SplashScreen = ({ onComplete, duration = 2800 }: SplashScreenProps) => {
-  const [phase, setPhase] = useState<'logo-enter' | 'logo-visible' | 'fade-out' | 'done'>('logo-enter');
+  const [phase, setPhase] = useState<'logo-visible' | 'fade-out' | 'done'>('logo-visible');
 
   useLayoutEffect(() => {
     const instantSplash = document.getElementById('instant-splash');
@@ -22,16 +22,12 @@ const SplashScreen = ({ onComplete, duration = 2800 }: SplashScreenProps) => {
       onComplete();
     };
 
-    // Phase 1: Logo enters (scale + fade in)
-    const t1 = setTimeout(() => setPhase('logo-visible'), 400);
-    // Phase 2: Hold
+    // Fade out before completing
     const t2 = setTimeout(() => setPhase('fade-out'), duration - 500);
-    // Phase 3: Complete
     const t3 = setTimeout(complete, duration);
-    // Failsafe
     const t4 = setTimeout(complete, 4000);
 
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    return () => { clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, [duration, onComplete]);
 
   if (phase === 'done') return null;
@@ -45,11 +41,7 @@ const SplashScreen = ({ onComplete, duration = 2800 }: SplashScreenProps) => {
       <img
         src={splashLogo}
         alt="Koloi"
-        className={`w-36 h-auto sm:w-44 md:w-52 transition-all duration-700 ease-out ${
-          phase === 'logo-enter'
-            ? 'opacity-0 scale-90'
-            : 'opacity-100 scale-100'
-        }`}
+        className="w-36 h-auto sm:w-44 md:w-52"
       />
     </div>
   );
