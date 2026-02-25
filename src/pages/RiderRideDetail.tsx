@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock, Star } from "lucide-react";
+import DriverETABanner from "@/components/ride/DriverETABanner";
 import EmergencyButton from "@/components/ride/EmergencyButton";
 import DriverRatingModal from "@/components/ride/DriverRatingModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -314,6 +315,7 @@ export default function RiderRideDetail() {
 
   const modalOffers = offers.map((o) => {
     const d = driversById[o.driver_id];
+    const driverFullName = (d as any)?.full_name;
     return {
       driverId: o.driver_id,
       name: d?.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model}` : "Driver",
@@ -327,7 +329,7 @@ export default function RiderRideDetail() {
       offerId: o.id,
       offeredFareR: o.price,
       createdAt: o.created_at || new Date().toISOString(),
-      driverName: d?.vehicle_make ? `${d.vehicle_make} Driver` : "Driver",
+      driverName: driverFullName || (d?.vehicle_make ? `${d.vehicle_make} Driver` : "Driver"),
       vehicleMake: d?.vehicle_make || undefined,
       vehicleModel: d?.vehicle_model || undefined,
       gender: d?.gender || null,
@@ -400,6 +402,17 @@ export default function RiderRideDetail() {
               height="280px"
               showRecenterButton
             />
+            {/* Live ETA Banner */}
+            {driverLocation && (
+              <DriverETABanner
+                driverLocation={driverLocation}
+                pickupLat={ride.pickup_lat}
+                pickupLng={ride.pickup_lon}
+                dropoffLat={ride.dropoff_lat}
+                dropoffLng={ride.dropoff_lon}
+                rideStatus={ride.status}
+              />
+            )}
           </Card>
         )}
 
