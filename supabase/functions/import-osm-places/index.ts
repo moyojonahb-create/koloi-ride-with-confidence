@@ -158,7 +158,7 @@ serve(async (req) => {
       });
     }
 
-    const { geojson } = await req.json();
+    const { geojson, mode = 'replace' } = await req.json();
 
     if (!geojson || !geojson.features) {
       return new Response(JSON.stringify({ error: "Invalid GeoJSON" }), {
@@ -210,14 +210,16 @@ serve(async (req) => {
 
     console.log(`Parsed ${places.length} places from GeoJSON`);
 
-    // Clear existing landmarks first
-    const { error: deleteError } = await supabase
-      .from('koloi_landmarks')
-      .delete()
-      .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+    // Only clear existing landmarks in replace mode
+    if (mode === 'replace') {
+      const { error: deleteError } = await supabase
+        .from('koloi_landmarks')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
 
-    if (deleteError) {
-      console.error("Delete error:", deleteError);
+      if (deleteError) {
+        console.error("Delete error:", deleteError);
+      }
     }
 
     // Insert in batches of 100
