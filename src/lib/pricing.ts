@@ -1,4 +1,4 @@
-// Koloi Dynamic Fare Pricing System — Gwanda Zone-Based Pricing
+// Koloi Dynamic Fare Pricing System — Gwanda & Beitbridge Zone-Based Pricing
 
 export type Location = { lat: number; lng: number };
 
@@ -80,16 +80,31 @@ export function distanceKm(a: Location, b: Location): number {
 }
 
 // ═══════════════════════════════════════════════════════════
-// CITY DETECTION — is this ride in Gwanda?
+// CITY DETECTION — Gwanda & Beitbridge
 // ═══════════════════════════════════════════════════════════
-const GWANDA_RADIUS_KM = 15; // generous radius for Gwanda area
+const GWANDA_RADIUS_KM = 15;
+const BEITBRIDGE_CBD: Location = { lat: -22.217, lng: 30.000 };
+const BEITBRIDGE_RADIUS_KM = 15;
+const BEITBRIDGE_SURCHARGE = 10; // R10 on top of Gwanda fare
 
 export function isInGwanda(loc: Location): boolean {
   return distanceKm(loc, GWANDA_CBD) <= GWANDA_RADIUS_KM;
 }
 
+export function isInBeitbridge(loc: Location): boolean {
+  return distanceKm(loc, BEITBRIDGE_CBD) <= BEITBRIDGE_RADIUS_KM;
+}
+
+export type ServiceCity = 'gwanda' | 'beitbridge' | 'unknown';
+
+export function detectCity(loc: Location): ServiceCity {
+  if (isInGwanda(loc)) return 'gwanda';
+  if (isInBeitbridge(loc)) return 'beitbridge';
+  return 'unknown';
+}
+
 export function isInsideTown(loc: Location): boolean {
-  return isInGwanda(loc);
+  return isInGwanda(loc) || isInBeitbridge(loc);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -161,17 +176,19 @@ export function calculateKoloiFare(
   now: Date = new Date(),
   config?: PricingConfig
 ): FareResult {
-  const pickupGwanda = isInGwanda(pickup);
-  const dropoffGwanda = isInGwanda(dropoff);
+  const pickupCity = detectCity(pickup);
+  const dropoffCity = detectCity(dropoff);
 
-  // If not in Gwanda, use legacy distance-band pricing
-  if (!pickupGwanda || !dropoffGwanda) {
+  // Both must be in a supported city
+  const inService = pickupCity !== 'unknown' && dropoffCity !== 'unknown';
+
+  if (!inService) {
     const dist = routedDistanceKm ?? distanceKm(pickup, dropoff);
     const fare = getFareFromDistanceBand(dist);
     return {
       priceR: fare,
       commission: calculateCommission(fare),
-      reason: 'Out of Gwanda service area',
+      reason: 'Out of service area',
       multiplier: 1.0,
       isOutsideTown: true,
       isInnerZone: false,
@@ -179,32 +196,40 @@ export function calculateKoloiFare(
     };
   }
 
-  // Check if both points are inside inner zone
-  const pickupInner = isInsideInnerZone(pickup);
-  const dropoffInner = isInsideInnerZone(dropoff);
+  // Determine if Beitbridge surcharge applies
+  // Surcharge applies if either point is in Beitbridge
+  const isBeitbridgeRide = pickupCity === 'beitbridge' || dropoffCity === 'beitbridge';
+  const surcharge = isBeitbridgeRide ? BEITBRIDGE_SURCHARGE : 0;
 
-  if (pickupInner && dropoffInner) {
-    // INNER ZONE: flat R15, R3 commission
-    return {
-      priceR: 15,
-      commission: 3,
-      reason: 'Inner zone fare',
-      multiplier: 1.0,
-      isOutsideTown: false,
-      isInnerZone: true,
-      routedDistanceKm: routedDistanceKm ?? distanceKm(pickup, dropoff),
-    };
+  // Inner zone only applies in Gwanda (both points must be Gwanda + inside polygon)
+  if (!isBeitbridgeRide) {
+    const pickupInner = isInsideInnerZone(pickup);
+    const dropoffInner = isInsideInnerZone(dropoff);
+
+    if (pickupInner && dropoffInner) {
+      return {
+        priceR: 15,
+        commission: 3,
+        reason: 'Inner zone fare',
+        multiplier: 1.0,
+        isOutsideTown: false,
+        isInnerZone: true,
+        routedDistanceKm: routedDistanceKm ?? distanceKm(pickup, dropoff),
+      };
+    }
   }
 
-  // OUTSIDE INNER ZONE: distance-band pricing
+  // Distance-band pricing + optional Beitbridge surcharge
   const dist = routedDistanceKm ?? distanceKm(pickup, dropoff);
-  const fare = getFareFromDistanceBand(dist);
+  const baseFare = getFareFromDistanceBand(dist);
+  const fare = baseFare + surcharge;
   const commission = calculateCommission(fare);
+  const cityLabel = isBeitbridgeRide ? 'Beitbridge' : 'Gwanda';
 
   return {
     priceR: fare,
     commission,
-    reason: `Distance band (${Math.floor(dist)}–${Math.ceil(dist)} km)`,
+    reason: `${cityLabel} distance band (${Math.floor(dist)}–${Math.ceil(dist)} km)`,
     multiplier: 1.0,
     isOutsideTown: false,
     isInnerZone: false,
