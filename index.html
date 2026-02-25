@@ -61,6 +61,11 @@
          overflow-x: hidden;
        }
        
+       /* Push content below the phone status bar / notch */
+       #root {
+         padding-top: env(safe-area-inset-top, 12px);
+       }
+       
        /* Prevent text/icons from being clipped on small screens */
        * {
          -webkit-box-sizing: border-box;
