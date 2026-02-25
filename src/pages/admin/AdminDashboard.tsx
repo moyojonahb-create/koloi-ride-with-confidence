@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { RefreshCw, Wallet, Eye } from 'lucide-react';
+import { RefreshCw, Wallet, Car, Navigation, Users, MapPin, TrendingUp, Clock, Eye } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import AdminGuard from '@/components/admin/AdminGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -7,6 +7,9 @@ import AdminMap from '@/components/admin/AdminMap';
 import { useAdminEarnings } from '@/hooks/useWallet';
 import AdminEarningsSheet from '@/components/wallet/AdminEarningsSheet';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 
 interface DriverRow {
   id: string;
@@ -37,13 +40,25 @@ interface RideRow {
   driver_id: string | null;
 }
 
+const statusColors: Record<string, string> = {
+  pending: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+  accepted: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+  in_progress: 'bg-primary/10 text-primary border-primary/20',
+  completed: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+  cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
+  expired: 'bg-muted text-muted-foreground border-border',
+};
+
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pendingDrivers, setPendingDrivers] = useState<DriverRow[]>([]);
   const [onlineDrivers, setOnlineDrivers] = useState<DriverRow[]>([]);
   const [latestRides, setLatestRides] = useState<RideRow[]>([]);
   const [activeRides, setActiveRides] = useState<RideRow[]>([]);
+  const [totalDrivers, setTotalDrivers] = useState(0);
+  const [todayTrips, setTodayTrips] = useState(0);
   const [earningsSheetOpen, setEarningsSheetOpen] = useState(false);
 
   const { earnings, totalEarnings, totalPlatformFees, refresh: refreshEarnings } = useAdminEarnings();
@@ -54,16 +69,12 @@ const AdminDashboard = () => {
       // Pending drivers
       const { data: pending, error: pendingErr } = await supabase
         .from('drivers')
-        .select(`
-          id, user_id, vehicle_make, vehicle_model, plate_number, status, is_online
-        `)
+        .select('id, user_id, vehicle_make, vehicle_model, plate_number, status, is_online')
         .eq('status', 'pending')
         .order('created_at', { ascending: false })
         .limit(50);
-      
       if (pendingErr) throw pendingErr;
 
-      // Get profiles for pending drivers
       const pendingWithProfiles = await Promise.all(
         (pending || []).map(async (driver) => {
           const { data: profile } = await supabase
@@ -78,37 +89,35 @@ const AdminDashboard = () => {
       // Online approved drivers
       const { data: online, error: onlineErr } = await supabase
         .from('drivers')
-        .select(`
-          id, user_id, vehicle_make, vehicle_model, plate_number, status, is_online
-        `)
+        .select('id, user_id, vehicle_make, vehicle_model, plate_number, status, is_online')
         .eq('status', 'approved')
         .eq('is_online', true)
         .limit(100);
-      
       if (onlineErr) throw onlineErr;
 
-      // Get profiles and locations for online drivers
       const onlineWithDetails = await Promise.all(
         (online || []).map(async (driver) => {
           const [profileRes, locationRes] = await Promise.all([
-            supabase
-              .from('profiles')
-              .select('full_name, phone')
-              .eq('user_id', driver.user_id)
-              .single(),
-            supabase
-              .from('live_locations')
-              .select('latitude, longitude, updated_at')
-              .eq('user_id', driver.user_id)
-              .single()
+            supabase.from('profiles').select('full_name, phone').eq('user_id', driver.user_id).single(),
+            supabase.from('live_locations').select('latitude, longitude, updated_at').eq('user_id', driver.user_id).single()
           ]);
-          return {
-            ...driver,
-            profile: profileRes.data || undefined,
-            location: locationRes.data || null
-          };
+          return { ...driver, profile: profileRes.data || undefined, location: locationRes.data || null };
         })
       );
+
+      // Total approved drivers
+      const { count: driverCount } = await supabase
+        .from('drivers')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'approved');
+
+      // Today's trips
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const { count: todayCount } = await supabase
+        .from('rides')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', todayStart.toISOString());
 
       // Latest rides
       const { data: rides, error: ridesErr } = await supabase
@@ -116,7 +125,6 @@ const AdminDashboard = () => {
         .select('id, pickup_address, dropoff_address, fare, status, created_at, driver_id')
         .order('created_at', { ascending: false })
         .limit(60);
-      
       if (ridesErr) throw ridesErr;
 
       // Active rides (for map)
@@ -130,6 +138,8 @@ const AdminDashboard = () => {
       setOnlineDrivers(onlineWithDetails);
       setLatestRides(rides || []);
       setActiveRides(active || []);
+      setTotalDrivers(driverCount || 0);
+      setTodayTrips(todayCount || 0);
     } catch (e: any) {
       setError(e?.message || 'Failed to load dashboard data');
     } finally {
@@ -139,22 +149,13 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     refreshAll();
-
-    // Refresh every 10s for monitoring
     const interval = setInterval(refreshAll, 10000);
 
-    // Subscribe to realtime updates
     const channel = supabase
       .channel('admin-dashboard')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'live_locations' }, () => {
-        refreshAll();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'rides' }, () => {
-        refreshAll();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'drivers' }, () => {
-        refreshAll();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'live_locations' }, () => refreshAll())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rides' }, () => refreshAll())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'drivers' }, () => refreshAll())
       .subscribe();
 
     return () => {
@@ -165,41 +166,29 @@ const AdminDashboard = () => {
 
   const setDriverStatus = async (driverId: string, status: 'approved' | 'suspended') => {
     setError('');
-    const { error: updateErr } = await supabase
-      .from('drivers')
-      .update({ status })
-      .eq('id', driverId);
-    
-    if (updateErr) {
-      setError(updateErr.message);
-      return;
-    }
+    const { error: updateErr } = await supabase.from('drivers').update({ status }).eq('id', driverId);
+    if (updateErr) { setError(updateErr.message); return; }
 
-    // Log the action
     await supabase.from('system_events').insert({
       event_type: status === 'approved' ? 'driver_approved' : 'driver_suspended',
       entity_type: 'driver',
       entity_id: driverId,
       details: { status }
     });
-
     await refreshAll();
   };
 
   const forceDriverOffline = async (userId: string, driverId: string) => {
     await supabase.from('drivers').update({ is_online: false }).eq('id', driverId);
     await supabase.from('live_locations').update({ is_online: false }).eq('user_id', userId);
-    
     await supabase.from('system_events').insert({
       event_type: 'force_driver_offline',
       entity_type: 'driver',
       entity_id: driverId,
     });
-
     await refreshAll();
   };
 
-  // Transform data for map
   const mapDrivers = useMemo(() => 
     onlineDrivers
       .filter(d => d.location?.latitude && d.location?.longitude)
@@ -228,152 +217,212 @@ const AdminDashboard = () => {
   return (
     <AdminGuard>
       <AdminLayout>
-        <div style={S.wrap}>
+        <div className="space-y-6">
           {/* Header */}
-          <header style={S.header}>
+          <div className="flex items-center justify-between">
             <div>
-              <div style={{ fontWeight: 900, fontSize: 18 }}>Koloi Admin</div>
-              <div style={{ opacity: 0.7, fontSize: 13 }}>Approvals • Monitoring • Live tracking</div>
+              <h1 className="text-2xl font-black text-foreground">Dashboard</h1>
+              <p className="text-sm text-muted-foreground">Live operations overview</p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              {/* Platform Earnings Balance */}
-              <button
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  height: 40,
-                  padding: '0 16px',
-                  borderRadius: 20,
-                  border: 0,
-                  background: '#3b82f6',
-                  color: '#fff',
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                }}
+            <div className="flex items-center gap-3">
+              <Button
+                variant="default"
+                size="sm"
+                className="font-bold"
                 onClick={() => setEarningsSheetOpen(true)}
               >
-                <Wallet className="w-4 h-4" />
+                <Wallet className="w-4 h-4 mr-2" />
                 R{totalPlatformFees.toFixed(2)}
-              </button>
-              <button style={S.refreshBtn} onClick={() => { refreshAll(); refreshEarnings(); }} disabled={loading}>
-                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => { refreshAll(); refreshEarnings(); }} disabled={loading}>
+                <RefreshCw className={`w-4 h-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
-              </button>
+              </Button>
             </div>
-          </header>
+          </div>
 
-          {error && <div style={S.error}>{error}</div>}
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/20 text-destructive rounded-xl p-4 font-bold text-sm">
+              {error}
+            </div>
+          )}
+
+          {/* Metric Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-primary/10">
+                    <Navigation className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-foreground">{todayTrips}</p>
+                    <p className="text-xs text-muted-foreground">Today's Rides</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-emerald-500/10">
+                    <Car className="h-5 w-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-foreground">{onlineDrivers.length}</p>
+                    <p className="text-xs text-muted-foreground">Online Now</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-amber-500/10">
+                    <Clock className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-foreground">{pendingDrivers.length}</p>
+                    <p className="text-xs text-muted-foreground">Pending Approval</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-blue-500/10">
+                    <Users className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black text-foreground">{totalDrivers}</p>
+                    <p className="text-xs text-muted-foreground">Total Drivers</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Live Map */}
-          <section style={{ ...S.card, marginBottom: 16 }}>
-            <div style={S.cardTitle}>Live Map — Drivers & Active Rides</div>
-            <AdminMap 
-              drivers={mapDrivers} 
-              rides={mapRides} 
-              height="420px"
-              className="mt-2"
-            />
-          </section>
+          <Card>
+            <CardContent className="pt-4">
+              <h2 className="font-bold text-sm mb-3">Live Map — Drivers & Active Rides</h2>
+              <AdminMap 
+                drivers={mapDrivers} 
+                rides={mapRides} 
+                height="420px"
+              />
+            </CardContent>
+          </Card>
 
-          <div style={S.grid}>
+          <div className="grid lg:grid-cols-2 gap-6">
             {/* Pending Approvals */}
-            <section style={S.card}>
-              <div style={S.cardTitle}>Pending driver approvals</div>
-              {pendingDrivers.length === 0 ? (
-                <div style={S.muted}>No pending drivers.</div>
-              ) : (
-                <div style={{ display: 'grid', gap: 10 }}>
-                  {pendingDrivers.map((d) => (
-                    <div key={d.id} style={S.row}>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontWeight: 900, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {d.profile?.full_name || 'Unknown'}
+            <Card>
+              <CardContent className="pt-4">
+                <h2 className="font-bold text-sm mb-3">Pending Driver Approvals</h2>
+                {pendingDrivers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">No pending drivers</p>
+                ) : (
+                  <div className="space-y-3">
+                    {pendingDrivers.map((d) => (
+                      <div key={d.id} className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-xl">
+                        <div className="min-w-0">
+                          <p className="font-bold text-sm truncate">{d.profile?.full_name || 'Unknown'}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {d.profile?.phone || '—'} • {d.vehicle_make} {d.vehicle_model}
+                          </p>
                         </div>
-                        <div style={S.muted}>
-                          {d.profile?.phone || '—'} • {d.vehicle_make} {d.vehicle_model}
+                        <div className="flex gap-2 shrink-0">
+                          <Button size="sm" variant="default" className="h-8 text-xs font-bold" onClick={() => setDriverStatus(d.id, 'approved')}>
+                            Approve
+                          </Button>
+                          <Button size="sm" variant="destructive" className="h-8 text-xs font-bold" onClick={() => setDriverStatus(d.id, 'suspended')}>
+                            Reject
+                          </Button>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button style={S.okBtn} onClick={() => setDriverStatus(d.id, 'approved')}>
-                          Approve
-                        </button>
-                        <button style={S.badBtn} onClick={() => setDriverStatus(d.id, 'suspended')}>
-                          Reject
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Live Tracking */}
-            <section style={S.card}>
-              <div style={S.cardTitle}>Live tracking (online approved drivers)</div>
-              {onlineDrivers.length === 0 ? (
-                <div style={S.muted}>No drivers online.</div>
-              ) : (
-                <div style={{ display: 'grid', gap: 10 }}>
-                  {onlineDrivers.map((d) => (
-                    <div key={d.id} style={S.row}>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontWeight: 900 }}>{d.profile?.full_name || 'Unknown'}</div>
-                        <div style={S.muted}>
-                          Last seen: {d.location?.updated_at ? new Date(d.location.updated_at).toLocaleString() : '—'}
+            <Card>
+              <CardContent className="pt-4">
+                <h2 className="font-bold text-sm mb-3">Online Drivers</h2>
+                {onlineDrivers.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4 text-center">No drivers online</p>
+                ) : (
+                  <div className="space-y-3">
+                    {onlineDrivers.map((d) => (
+                      <div key={d.id} className="flex items-center justify-between gap-3 p-3 bg-muted/50 rounded-xl">
+                        <div className="min-w-0">
+                          <p className="font-bold text-sm">{d.profile?.full_name || 'Unknown'}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {d.location?.latitude && d.location?.longitude
+                              ? `${d.location.latitude.toFixed(4)}, ${d.location.longitude.toFixed(4)}`
+                              : 'No GPS'}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {d.location?.updated_at ? new Date(d.location.updated_at).toLocaleTimeString() : '—'}
+                          </p>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => navigate(`/admin/drivers/${d.id}`)}>
+                            <Eye className="w-3 h-3 mr-1" /> View
+                          </Button>
+                          <Button size="sm" variant="secondary" className="h-8 text-xs font-bold" onClick={() => forceDriverOffline(d.user_id, d.id)}>
+                            Force Offline
+                          </Button>
                         </div>
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontWeight: 800, fontSize: 12 }}>
-                          {d.location?.latitude && d.location?.longitude
-                            ? `${d.location.latitude.toFixed(4)}, ${d.location.longitude.toFixed(4)}`
-                            : 'No GPS'}
-                        </div>
-                        <button
-                          style={S.smallBtn}
-                          onClick={() => forceDriverOffline(d.user_id, d.id)}
-                        >
-                          Force offline
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
-            {/* Ride Monitoring */}
-            <section style={{ ...S.card, gridColumn: '1 / -1' }}>
-              <div style={S.cardTitle}>Ride monitoring (latest)</div>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={S.table}>
+          {/* Ride Monitoring */}
+          <Card>
+            <CardContent className="pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-bold text-sm">Ride Monitoring</h2>
+                <Button size="sm" variant="ghost" onClick={() => navigate('/admin/trips')}>View All</Button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
                   <thead>
-                    <tr>
-                      <th style={S.th}>Time</th>
-                      <th style={S.th}>Status</th>
-                      <th style={S.th}>Pickup</th>
-                      <th style={S.th}>Dropoff</th>
-                      <th style={S.th}>Fare</th>
-                      <th style={S.th}>Assigned driver</th>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 px-2 font-bold text-xs text-muted-foreground">Time</th>
+                      <th className="text-left py-2 px-2 font-bold text-xs text-muted-foreground">Status</th>
+                      <th className="text-left py-2 px-2 font-bold text-xs text-muted-foreground">Pickup</th>
+                      <th className="text-left py-2 px-2 font-bold text-xs text-muted-foreground">Dropoff</th>
+                      <th className="text-left py-2 px-2 font-bold text-xs text-muted-foreground">Fare</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {latestRides.map((r) => (
-                      <tr key={r.id}>
-                        <td style={S.td}>{new Date(r.created_at).toLocaleString()}</td>
-                        <td style={S.td}><b>{r.status}</b></td>
-                        <td style={S.td}>{r.pickup_address || '—'}</td>
-                        <td style={S.td}>{r.dropoff_address || '—'}</td>
-                        <td style={S.td}>R{Number(r.fare).toFixed(2)}</td>
-                        <td style={S.td}>{r.driver_id ? r.driver_id.slice(0, 8) + '…' : '—'}</td>
+                    {latestRides.slice(0, 20).map((r) => (
+                      <tr key={r.id} className="border-b border-border/50 hover:bg-muted/50 transition-colors">
+                        <td className="py-2 px-2 text-xs text-muted-foreground whitespace-nowrap">
+                          {new Date(r.created_at).toLocaleString()}
+                        </td>
+                        <td className="py-2 px-2">
+                          <Badge variant="outline" className={`text-[10px] font-bold ${statusColors[r.status] || ''}`}>
+                            {r.status}
+                          </Badge>
+                        </td>
+                        <td className="py-2 px-2 text-xs max-w-[150px] truncate">{r.pickup_address || '—'}</td>
+                        <td className="py-2 px-2 text-xs max-w-[150px] truncate">{r.dropoff_address || '—'}</td>
+                        <td className="py-2 px-2 text-xs font-bold">R{Number(r.fare).toFixed(0)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              
-            </section>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Earnings Sheet */}
           <AdminEarningsSheet
@@ -387,119 +436,6 @@ const AdminDashboard = () => {
       </AdminLayout>
     </AdminGuard>
   );
-};
-
-const S: Record<string, React.CSSProperties> = {
-  wrap: {
-    fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Arial',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  refreshBtn: {
-    display: 'flex',
-    alignItems: 'center',
-    height: 44,
-    padding: '0 16px',
-    borderRadius: 14,
-    border: 0,
-    fontWeight: 900,
-    background: '#111827',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-  error: {
-    background: '#fee2e2',
-    border: '1px solid #fecaca',
-    color: '#7f1d1d',
-    padding: 12,
-    borderRadius: 14,
-    marginBottom: 12,
-    fontWeight: 800,
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-    gap: 16,
-  },
-  card: {
-    background: 'rgba(255,255,255,.95)',
-    borderRadius: 22,
-    padding: 16,
-    backdropFilter: 'blur(10px)',
-    boxShadow: '0 10px 24px rgba(0,0,0,.08)',
-    border: '1px solid rgba(0,0,0,.06)',
-  },
-  cardTitle: {
-    fontWeight: 900,
-    marginBottom: 12,
-    fontSize: 15,
-  },
-  muted: {
-    opacity: 0.7,
-    fontSize: 13,
-    lineHeight: 1.4,
-  },
-  row: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    gap: 10,
-    alignItems: 'center',
-    background: '#fff',
-    border: '1px solid rgba(0,0,0,.06)',
-    borderRadius: 16,
-    padding: 12,
-  },
-  okBtn: {
-    height: 40,
-    padding: '0 14px',
-    borderRadius: 12,
-    border: 0,
-    background: '#16a34a',
-    color: '#fff',
-    fontWeight: 900,
-    cursor: 'pointer',
-  },
-  badBtn: {
-    height: 40,
-    padding: '0 14px',
-    borderRadius: 12,
-    border: 0,
-    background: '#dc2626',
-    color: '#fff',
-    fontWeight: 900,
-    cursor: 'pointer',
-  },
-  smallBtn: {
-    marginTop: 6,
-    height: 32,
-    padding: '0 12px',
-    borderRadius: 10,
-    border: 0,
-    background: '#111827',
-    color: '#fff',
-    fontWeight: 900,
-    fontSize: 12,
-    cursor: 'pointer',
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-    fontSize: 13,
-  },
-  th: {
-    textAlign: 'left',
-    padding: '10px 8px',
-    borderBottom: '1px solid rgba(0,0,0,.10)',
-    fontWeight: 800,
-  },
-  td: {
-    padding: '10px 8px',
-    borderBottom: '1px solid rgba(0,0,0,.06)',
-  },
 };
 
 export default AdminDashboard;

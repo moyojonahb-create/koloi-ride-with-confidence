@@ -33,6 +33,9 @@ import {
   Clock,
   AlertTriangle,
   MessageCircle,
+  Star,
+  TrendingUp,
+  Zap,
 } from "lucide-react";
 import { triggerFullAlert } from "@/lib/alerts";
 import { updateDriverLocation } from "@/lib/driverLocation";
@@ -456,6 +459,24 @@ export default function DriverDashboard() {
       </div>
 
       <div className="max-w-lg mx-auto p-4 space-y-4">
+        {/* Quick Stats */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-card rounded-2xl border border-border p-3 text-center">
+            <Star className="h-5 w-5 mx-auto text-amber-500 mb-1" />
+            <p className="text-xl font-black">{profile.rating_avg?.toFixed(1) || '—'}</p>
+            <p className="text-[10px] text-muted-foreground font-medium">Rating</p>
+          </div>
+          <div className="bg-card rounded-2xl border border-border p-3 text-center">
+            <TrendingUp className="h-5 w-5 mx-auto text-primary mb-1" />
+            <p className="text-xl font-black">{profile.total_trips || 0}</p>
+            <p className="text-[10px] text-muted-foreground font-medium">Total Trips</p>
+          </div>
+          <div className="bg-card rounded-2xl border border-border p-3 text-center">
+            <Zap className="h-5 w-5 mx-auto text-emerald-500 mb-1" />
+            <p className="text-xl font-black">${balance.toFixed(2)}</p>
+            <p className="text-[10px] text-muted-foreground font-medium">Wallet</p>
+          </div>
+        </div>
         {/* Trial Banner */}
         {profile && trialActive && (
           <Card className="border-amber-500 bg-amber-500/10">
