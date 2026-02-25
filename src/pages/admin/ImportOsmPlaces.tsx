@@ -1,27 +1,44 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Upload, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, Upload, CheckCircle, AlertCircle, Plus, RefreshCw } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import geojsonData from '@/data/gwanda-osm-places.json';
 
 export default function ImportOsmPlaces() {
   const [status, setStatus] = useState<'idle' | 'importing' | 'success' | 'error'>('idle');
   const [result, setResult] = useState<{ imported?: number; message?: string; error?: string } | null>(null);
+  const [fileData, setFileData] = useState<any>(null);
+  const [fileName, setFileName] = useState<string>('');
 
-  const handleImport = async () => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        setFileData(JSON.parse(ev.target?.result as string));
+      } catch {
+        setResult({ error: 'Invalid JSON file' });
+        setStatus('error');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleImport = async (mode: 'replace' | 'append', data: any) => {
     setStatus('importing');
     setResult(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('import-osm-places', {
-        body: { geojson: geojsonData },
+      const { data: res, error } = await supabase.functions.invoke('import-osm-places', {
+        body: { geojson: data, mode },
       });
 
       if (error) throw error;
-
       setStatus('success');
-      setResult(data);
+      setResult(res);
     } catch (err: any) {
       setStatus('error');
       setResult({ error: err.message || 'Import failed' });
@@ -29,7 +46,7 @@ export default function ImportOsmPlaces() {
   };
 
   return (
-    <div className="container max-w-lg mx-auto py-12 px-4">
+    <div className="container max-w-lg mx-auto py-12 px-4 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -37,31 +54,50 @@ export default function ImportOsmPlaces() {
             Import OSM Places
           </CardTitle>
           <CardDescription>
-            Import Gwanda locations from OpenStreetMap data into the landmarks database.
+            Import Gwanda & Beitbridge locations from OpenStreetMap data into the landmarks database.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            This will replace all existing landmarks with {(geojsonData as any).features?.length || 0} places from the OSM export.
+            Built-in dataset: {(geojsonData as any).features?.length || 0} Gwanda places from the OSM export.
           </p>
 
-          <Button 
-            onClick={handleImport} 
-            disabled={status === 'importing'}
-            className="w-full"
-          >
-            {status === 'importing' ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Importing...
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4 mr-2" />
-                Import All Places
-              </>
+          <div className="flex gap-2">
+            <Button onClick={() => handleImport('replace', geojsonData)} disabled={status === 'importing'} variant="destructive" className="flex-1">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Replace All
+            </Button>
+            <Button onClick={() => handleImport('append', geojsonData)} disabled={status === 'importing'} variant="outline" className="flex-1">
+              <Plus className="w-4 h-4 mr-2" />
+              Append
+            </Button>
+          </div>
+
+          <div className="border-t pt-4 space-y-3">
+            <p className="text-sm font-medium">Or upload a GeoJSON file (e.g. Beitbridge export)</p>
+            <input type="file" accept=".json,.geojson" onChange={handleFileUpload} className="text-sm" />
+            {fileData && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">{fileName}: {fileData.features?.length || 0} features</p>
+                <div className="flex gap-2">
+                  <Button onClick={() => handleImport('replace', fileData)} disabled={status === 'importing'} variant="destructive" size="sm" className="flex-1">
+                    Replace All
+                  </Button>
+                  <Button onClick={() => handleImport('append', fileData)} disabled={status === 'importing'} size="sm" className="flex-1">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Append
+                  </Button>
+                </div>
+              </div>
             )}
-          </Button>
+          </div>
+
+          {status === 'importing' && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Importing...
+            </div>
+          )}
 
           {status === 'success' && result && (
             <div className="flex items-start gap-3 p-4 rounded-lg bg-accent/10 text-accent-foreground">
