@@ -392,7 +392,7 @@ export default function RiderRideDetail() {
       </div>
 
       <div className="flex-1 overflow-y-auto overscroll-contain">
-        <div className="max-w-lg mx-auto p-4 space-y-4 pb-6">
+        <div className="max-w-lg mx-auto p-4 space-y-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
         {/* Map - Show route and driver location */}
         {isAccepted && ride.pickup_lat && (
           <Card className="overflow-hidden">
@@ -541,9 +541,9 @@ export default function RiderRideDetail() {
             <CardContent className="pt-4">
               {driverProfile && (
                 <div className="mb-4 p-3 bg-muted rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-12 w-12 border-2 border-primary/20">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <Avatar className="h-12 w-12 shrink-0 border-2 border-primary/20">
                         {driverProfile.avatar_url ? (
                           <AvatarImage src={driverProfile.avatar_url} alt="Driver" />
                         ) : null}
@@ -551,9 +551,9 @@ export default function RiderRideDetail() {
                           {driverProfile.gender === 'female' ? '♀' : '♂'}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <p className="font-semibold">Your Driver</p>
-                        <p className="text-sm text-muted-foreground">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold truncate">Your Driver</p>
+                        <p className="text-sm text-muted-foreground truncate">
                           {driverProfile.vehicle_make} {driverProfile.vehicle_model} • {driverProfile.plate_number}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
@@ -570,7 +570,7 @@ export default function RiderRideDetail() {
                       </div>
                     </div>
                     {driverProfile.gender && (
-                      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                      <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
                         {driverProfile.gender === 'female' ? '♀ Female' : '♂ Male'}
                       </span>
                     )}
