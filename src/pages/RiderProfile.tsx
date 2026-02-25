@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowLeft, User, CreditCard, Calendar, Gift, Settings, LogOut, Shield, Car, Bell } from 'lucide-react';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useDriverStatus } from '@/hooks/useDriverStatus';
+import { ArrowLeft, User, CreditCard, Calendar, Gift, Settings, LogOut, Shield, Car, Bell, ShieldCheck, BadgeCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
 import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
@@ -11,6 +14,8 @@ import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
 
 export default function RiderProfile() {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useUserRole();
+  const { isApproved: isApprovedDriver } = useDriverStatus();
   const navigate = useNavigate();
   const location = useLocation();
   const isMapp = location.pathname.startsWith('/mapp');
@@ -47,6 +52,26 @@ export default function RiderProfile() {
             <h1 className="text-xl font-bold text-foreground truncate">{userName}</h1>
             {userEmail && <p className="text-sm text-muted-foreground truncate">{userEmail}</p>}
             {userPhone && <p className="text-sm text-muted-foreground">{userPhone}</p>}
+            <div className="flex items-center gap-2 mt-2">
+              {isAdmin && (
+                <Badge
+                  className="bg-primary/15 text-primary border-primary/30 cursor-pointer hover:bg-primary/25"
+                  onClick={() => navigate(`${prefix}/admin`)}
+                >
+                  <ShieldCheck className="w-3 h-3 mr-1" />
+                  Admin
+                </Badge>
+              )}
+              {isApprovedDriver && (
+                <Badge
+                  className="bg-accent/15 text-accent-foreground border-accent/30 cursor-pointer hover:bg-accent/25"
+                  onClick={() => navigate(`${prefix}/driver`)}
+                >
+                  <Car className="w-3 h-3 mr-1" />
+                  Driver
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </div>
