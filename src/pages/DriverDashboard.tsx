@@ -426,9 +426,9 @@ export default function DriverDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-[100dvh] bg-background">
       {/* Header with Wallet */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border p-4">
+      <div className="shrink-0 bg-background/95 backdrop-blur border-b border-border px-4 py-3 z-10">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <Button variant="ghost" size="icon" onClick={() => nav(-1)}>
             <ArrowLeft className="h-5 w-5" />
@@ -452,7 +452,8 @@ export default function DriverDashboard() {
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+      <div className="max-w-lg mx-auto p-4 space-y-4 pb-6">
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-card rounded-2xl border border-border p-3 text-center">
@@ -765,6 +766,7 @@ export default function DriverDashboard() {
         <DriverFeedback />
 
         {error && <p className="text-sm text-destructive text-center">{error}</p>}
+        </div>
       </div>
 
       {/* Deposit Modal */}
