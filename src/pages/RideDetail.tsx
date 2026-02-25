@@ -43,9 +43,9 @@ function SettlementInfo({ tripId }: { tripId: string }) {
 
   if (settlement) {
     return (
-      <div className="mt-2 px-3 py-2 bg-muted rounded-xl text-sm text-muted-foreground space-y-1">
-        <p>✅ Sent to platform account: <span className="font-semibold text-foreground">98855</span> (demo)</p>
-        <p>Status: <span className="font-semibold text-foreground">{settlement.status}</span> • {new Date(settlement.created_at).toLocaleString()}</p>
+      <div className="mt-2 px-3 py-2 bg-primary/10 rounded-xl text-sm text-primary font-semibold space-y-1">
+        <p>✅ Trip completed</p>
+        <p className="text-xs text-muted-foreground">Settled • {new Date(settlement.created_at).toLocaleString()}</p>
       </div>
     );
   }
@@ -360,9 +360,9 @@ export default function RideDetail() {
   const pendingOffers = offers.filter((o) => o.status === "pending");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex flex-col h-[100dvh] bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border px-4 py-3">
+      <div className="shrink-0 bg-background/95 backdrop-blur border-b border-border px-4 py-3 z-20">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <div>
             <h1 className="font-black text-lg text-foreground">Ride</h1>
@@ -379,13 +379,14 @@ export default function RideDetail() {
         </div>
       </div>
 
+      <div className="flex-1 overflow-y-auto overscroll-contain">
       {/* Map */}
-      <div className="w-full h-[45vh] min-h-[260px] max-h-[420px] relative">
+      <div className="w-full h-[40vh] min-h-[220px] max-h-[360px] relative">
         <div id="koloi-ride-map" className="w-full h-full" />
       </div>
 
       {/* Ride info card */}
-      <div className="max-w-lg mx-auto p-4 space-y-4">
+      <div className="max-w-lg mx-auto p-4 space-y-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
         <div className="bg-card rounded-2xl border border-border p-4">
           <div className="space-y-1 mb-3">
             <p className="text-sm text-muted-foreground">
@@ -472,6 +473,7 @@ export default function RideDetail() {
             </div>
           </div>
         )}
+      </div>
       </div>
 
       {/* Offers Modal */}
