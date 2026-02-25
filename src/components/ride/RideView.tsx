@@ -417,46 +417,67 @@ export default function RideView() {
           {/* Grabber */}
           <div className="grabber w-11 h-[5px] rounded-full bg-black/15 mx-auto mb-3" />
 
-          {/* Location Inputs */}
-          <div className="inputs grid gap-[10px] mb-3">
-            {/* Pickup Row */}
-            <button
-              type="button"
-              onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
-              className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
-            >
-              <span className={cn('dot w-2.5 h-2.5 rounded-full shrink-0', pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400')} />
-              <span className={cn('text-base font-medium truncate', pickupLocation ? 'text-foreground' : 'text-muted-foreground')}>
-                {pickupLocation?.name || 'From where?'}
-              </span>
-              {pickupLocation && (
-                <span onClick={e => { e.stopPropagation(); setPickupLocation(null); }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
-                  <X className="w-4 h-4 text-muted-foreground" />
+          {/* Location Inputs - compact summary when locations selected */}
+          {(pickupLocation || dropoffLocation) && !activeField && (
+            <div className="inputs grid gap-[10px] mb-3">
+              <button
+                type="button"
+                onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
+                className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
+              >
+                <span className={cn('dot w-2.5 h-2.5 rounded-full shrink-0', pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400')} />
+                <span className={cn('text-base font-medium truncate', pickupLocation ? 'text-foreground' : 'text-muted-foreground')}>
+                  {pickupLocation?.name || 'From where?'}
                 </span>
-              )}
-            </button>
-
-            {/* Dropoff Row */}
-            <button
-              type="button"
-              onClick={() => { setActiveField('dropoff'); setSearchQuery(''); }}
-              className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
-            >
-              <span className={cn('dot w-2.5 h-2.5 rounded-full shrink-0', dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400')} />
-              <span className={cn('text-base font-medium truncate', dropoffLocation ? 'text-foreground' : 'text-muted-foreground')}>
-                {dropoffLocation?.name || 'Where to?'}
-              </span>
-              {dropoffLocation && (
-                <span onClick={e => { e.stopPropagation(); setDropoffLocation(null); }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
-                  <X className="w-4 h-4 text-muted-foreground" />
+                {pickupLocation && (
+                  <span onClick={e => { e.stopPropagation(); setPickupLocation(null); }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </span>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setActiveField('dropoff'); setSearchQuery(''); }}
+                className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
+              >
+                <span className={cn('dot w-2.5 h-2.5 rounded-full shrink-0', dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400')} />
+                <span className={cn('text-base font-medium truncate', dropoffLocation ? 'text-foreground' : 'text-muted-foreground')}>
+                  {dropoffLocation?.name || 'Where to?'}
                 </span>
-              )}
-            </button>
-          </div>
+                {dropoffLocation && (
+                  <span onClick={e => { e.stopPropagation(); setDropoffLocation(null); }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
 
-          {/* Fare Display & Request Button */}
+          {/* Main controls — always visible when not searching */}
           {!activeField && (
             <div className="space-y-3">
+              {/* Location inputs when nothing selected yet */}
+              {!pickupLocation && !dropoffLocation && (
+                <div className="inputs grid gap-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
+                    className="input grid grid-cols-[22px_1fr] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
+                  >
+                    <span className="dot w-2.5 h-2.5 rounded-full shrink-0 bg-koloi-gray-400" />
+                    <span className="text-base font-medium text-muted-foreground">From where?</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setActiveField('dropoff'); setSearchQuery(''); }}
+                    className="input grid grid-cols-[22px_1fr] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
+                  >
+                    <span className="dot w-2.5 h-2.5 rounded-full shrink-0 bg-koloi-gray-400" />
+                    <span className="text-base font-medium text-muted-foreground">Where to?</span>
+                  </button>
+                </div>
+              )}
+
               {/* Passenger Count Selector */}
               <div className="flex items-center justify-between bg-koloi-gray-100 rounded-2xl p-3">
                 <div>
@@ -515,32 +536,42 @@ export default function RideView() {
                 />
               )}
 
-              <Button
-                onClick={handleRequestRide}
-                disabled={!canRequestRide}
-                className={cn(
-                  'w-full h-14 text-base font-bold rounded-2xl transition-all gap-2',
-                  canRequestRide
-                    ? 'bg-accent text-accent-foreground hover:brightness-105 shadow-koloi-md'
-                    : 'bg-koloi-gray-300 text-muted-foreground'
-                )}
-              >
-                {isRequesting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Finding drivers...
-                  </>
-                ) : !user ? (
-                  'Sign in to request'
-                ) : canRequestRide ? (
-                  <>
-                    {scheduledAt ? 'Schedule Ride' : 'Request Ride'}
-                    <ArrowRight className="w-5 h-5" />
-                  </>
-                ) : (
-                  'Select locations'
-                )}
-              </Button>
+              {/* Select locations / Request button */}
+              {!pickupLocation || !dropoffLocation ? (
+                <Button
+                  onClick={() => { setActiveField(pickupLocation ? 'dropoff' : 'pickup'); setSearchQuery(''); }}
+                  className="w-full h-14 text-base font-bold rounded-2xl bg-koloi-gray-300 text-muted-foreground"
+                >
+                  Select locations
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleRequestRide}
+                  disabled={!canRequestRide}
+                  className={cn(
+                    'w-full h-14 text-base font-bold rounded-2xl transition-all gap-2',
+                    canRequestRide
+                      ? 'bg-accent text-accent-foreground hover:brightness-105 shadow-koloi-md'
+                      : 'bg-koloi-gray-300 text-muted-foreground'
+                  )}
+                >
+                  {isRequesting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Finding drivers...
+                    </>
+                  ) : !user ? (
+                    'Sign in to request'
+                  ) : canRequestRide ? (
+                    <>
+                      {scheduledAt ? 'Schedule Ride' : 'Request Ride'}
+                      <ArrowRight className="w-5 h-5" />
+                    </>
+                  ) : (
+                    'Select locations'
+                  )}
+                </Button>
+              )}
 
               {/* Referral share */}
               {user && <ReferralShare />}
