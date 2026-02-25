@@ -21,11 +21,7 @@ import KoloiLogo from '@/components/KoloiLogo';
 import QuickPickChips from './QuickPickChips';
 import EmergencyButton from './EmergencyButton';
 import ProximityFilter from './ProximityFilter';
-import ScheduleRide from './ScheduleRide';
-import PaymentMethodSelector, { type PaymentMethod } from './PaymentMethodSelector';
 import PromoCodeInput from './PromoCodeInput';
-import ReferralShare from './ReferralShare';
-import { Input } from '@/components/ui/input';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
 
 interface SelectedLocation {
@@ -63,9 +59,8 @@ export default function RideView() {
 
   // Passenger count
   const [passengerCount, setPassengerCount] = useState(1);
-  // Schedule & payment
-  const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  // Payment & schedule (defaults — configurable in profile)
+  const [paymentMethod] = useState<string>('cash');
   const [promoDiscount, setPromoDiscount] = useState<number | null>(null);
   const [promoId, setPromoId] = useState<string | null>(null);
 
@@ -278,7 +273,7 @@ export default function RideView() {
         fare: Math.max(5, finalFare),
         route_polyline: routeData?.geometry || null,
         passenger_count: passengerCount,
-        scheduled_at: scheduledAt?.toISOString() || undefined,
+        scheduled_at: undefined,
         payment_method: paymentMethod,
       });
       if (!result.ok) throw new Error(result.error);
@@ -344,7 +339,7 @@ export default function RideView() {
         <KoloiLogo variant="light" size="sm" />
         <div className="flex items-center gap-2">
           <EmergencyButton />
-          <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-white/10 text-primary-foreground hover:bg-white/20" onClick={() => user ? navigate('/dashboard') : setAuthModalOpen(true)}>
+          <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-white/10 text-primary-foreground hover:bg-white/20" onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)}>
             <User className="w-5 h-5" />
           </Button>
         </div>
@@ -503,12 +498,6 @@ export default function RideView() {
                 </div>
               </div>
 
-              {/* Payment Method */}
-              <PaymentMethodSelector selected={paymentMethod} onSelect={setPaymentMethod} />
-
-              {/* Schedule for later */}
-              <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
-
               {fareEstimate && (
                 <div className="pt-1">
                   <div className="flex items-baseline gap-2">
@@ -521,7 +510,6 @@ export default function RideView() {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {fareEstimate.distanceKm.toFixed(1)} km • {fareEstimate.durationMinutes} min
-                    {scheduledAt && ' • Scheduled'}
                   </p>
                 </div>
               )}
@@ -536,45 +524,33 @@ export default function RideView() {
                 />
               )}
 
-              {/* Select locations / Request button */}
-              {!pickupLocation || !dropoffLocation ? (
-                <Button
-                  onClick={() => { setActiveField(pickupLocation ? 'dropoff' : 'pickup'); setSearchQuery(''); }}
-                  className="w-full h-14 text-base font-bold rounded-2xl bg-koloi-gray-300 text-muted-foreground"
-                >
-                  Select locations
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleRequestRide}
-                  disabled={!canRequestRide}
-                  className={cn(
-                    'w-full h-14 text-base font-bold rounded-2xl transition-all gap-2',
-                    canRequestRide
-                      ? 'bg-accent text-accent-foreground hover:brightness-105 shadow-koloi-md'
-                      : 'bg-koloi-gray-300 text-muted-foreground'
-                  )}
-                >
-                  {isRequesting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Finding drivers...
-                    </>
-                  ) : !user ? (
-                    'Sign in to request'
-                  ) : canRequestRide ? (
-                    <>
-                      {scheduledAt ? 'Schedule Ride' : 'Request Ride'}
-                      <ArrowRight className="w-5 h-5" />
-                    </>
-                  ) : (
-                    'Select locations'
-                  )}
-                </Button>
-              )}
-
-              {/* Referral share */}
-              {user && <ReferralShare />}
+              {/* Request button */}
+              <Button
+                onClick={handleRequestRide}
+                disabled={!canRequestRide}
+                className={cn(
+                  'w-full h-14 text-base font-bold rounded-2xl transition-all gap-2',
+                  canRequestRide
+                    ? 'bg-accent text-accent-foreground hover:brightness-105 shadow-koloi-md'
+                    : 'bg-koloi-gray-300 text-muted-foreground'
+                )}
+              >
+                {isRequesting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Finding drivers...
+                  </>
+                ) : !user ? (
+                  'Sign in to request'
+                ) : canRequestRide ? (
+                  <>
+                    Request Ride
+                    <ArrowRight className="w-5 h-5" />
+                  </>
+                ) : (
+                  'Select locations'
+                )}
+              </Button>
 
               {/* inDrive-style: negotiate fare with drivers */}
               <button

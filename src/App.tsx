@@ -15,6 +15,7 @@ import DriverApplication from "./pages/DriverApplication";
 import Auth from "./pages/Auth";
 import Signup from "./pages/Signup";
 import AppDashboard from "./pages/AppDashboard";
+import RiderProfile from "./pages/RiderProfile";
 import PilotTest from "./pages/PilotTest";
 import DriverWalletPage from "./pages/DriverWalletPage";
 import DriverDepositPage from "./pages/DriverDepositPage";
@@ -64,6 +65,7 @@ const App = () => (
               <Route path="/login" element={<Auth />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/dashboard" element={<AppDashboard />} />
+              <Route path="/profile" element={<RiderProfile />} />
               <Route path="/app" element={<AppDashboard />} />
               <Route path="/drive" element={<DriverApplication />} />
               <Route path="/pilot-test" element={<PilotTest />} />
