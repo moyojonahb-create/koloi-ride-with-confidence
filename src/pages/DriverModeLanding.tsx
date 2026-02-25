@@ -1,0 +1,128 @@
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useDriverStatus } from '@/hooks/useDriverStatus';
+import { Button } from '@/components/ui/button';
+import { Clock, DollarSign, Percent, Car, ChevronRight } from 'lucide-react';
+import KoloiLogo from '@/components/KoloiLogo';
+import { useState } from 'react';
+import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
+
+const benefits = [
+  { icon: Clock, text: 'Flexible hours' },
+  { icon: DollarSign, text: 'Your prices' },
+  { icon: Percent, text: 'Low service payments' },
+];
+
+const features = [
+  { icon: DollarSign, text: 'Offer your fare' },
+  { icon: Percent, text: 'Keep more with low service fees' },
+  { icon: Clock, text: 'Choose requests and your schedule' },
+];
+
+export default function DriverModeLanding() {
+  const { user } = useAuth();
+  const { isApproved, isDriver } = useDriverStatus();
+  const navigate = useNavigate();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
+
+  const handleDriverAction = () => {
+    if (!user) {
+      setAuthMode('signup');
+      setAuthOpen(true);
+      return;
+    }
+    if (isApproved) {
+      navigate('/driver');
+    } else if (isDriver) {
+      navigate('/drive'); // application status
+    } else {
+      navigate('/drive'); // start application
+    }
+  };
+
+  return (
+    <div className="min-h-[100dvh] bg-background flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
+          ← Back
+        </button>
+        <KoloiLogo size="sm" />
+        <div className="w-12" />
+      </div>
+
+      <div className="flex-1 px-5 py-6 flex flex-col">
+        {/* Hero card */}
+        <div className="rounded-3xl bg-primary p-6 mb-6">
+          <h2 className="text-2xl font-bold text-primary-foreground mb-4">Get income with us</h2>
+          <div className="space-y-2">
+            {benefits.map((b) => (
+              <div key={b.text} className="flex items-center gap-3 text-primary-foreground/90">
+                <b.icon className="w-4 h-4" />
+                <span className="text-sm font-medium">{b.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Driver CTA card */}
+        <button
+          onClick={handleDriverAction}
+          className="flex items-center gap-4 p-5 rounded-2xl bg-muted/50 hover:bg-muted transition-colors mb-6"
+        >
+          <Car className="w-8 h-8 text-foreground" />
+          <span className="text-lg font-semibold text-foreground flex-1 text-left">Driver</span>
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+        </button>
+
+        {/* Features list */}
+        <div className="space-y-6 mb-auto">
+          {features.map((f) => (
+            <div key={f.text} className="flex items-center gap-4">
+              <div className="p-2 rounded-xl bg-accent/20">
+                <f.icon className="w-5 h-5 text-accent" />
+              </div>
+              <span className="text-foreground font-medium">{f.text}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom actions */}
+        <div className="mt-8 space-y-3">
+          <Button
+            onClick={handleDriverAction}
+            className="w-full h-14 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-lg font-semibold"
+          >
+            Register
+          </Button>
+
+          {!user && (
+            <>
+              <Button
+                variant="outline"
+                className="w-full h-14 rounded-full text-lg font-medium"
+                onClick={() => { setAuthMode('login'); setAuthOpen(true); }}
+              >
+                I already have an account
+              </Button>
+              <button
+                onClick={() => navigate('/ride')}
+                className="w-full text-center text-muted-foreground hover:text-foreground text-sm py-2"
+              >
+                Go to passenger mode
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      <AuthModalWrapper
+        isOpen={authOpen}
+        onClose={() => setAuthOpen(false)}
+        mode={authMode}
+        onSwitchMode={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
+      />
+    </div>
+  );
+}

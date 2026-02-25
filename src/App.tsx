@@ -19,6 +19,8 @@ import RiderProfile from "./pages/RiderProfile";
 import PilotTest from "./pages/PilotTest";
 import DriverWalletPage from "./pages/DriverWalletPage";
 import DriverDepositPage from "./pages/DriverDepositPage";
+import SafetyPage from "./pages/SafetyPage";
+import DriverModeLanding from "./pages/DriverModeLanding";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -68,6 +70,8 @@ const App = () => (
               <Route path="/profile" element={<RiderProfile />} />
               <Route path="/app" element={<AppDashboard />} />
               <Route path="/drive" element={<DriverApplication />} />
+              <Route path="/driver-mode" element={<DriverModeLanding />} />
+              <Route path="/safety" element={<SafetyPage />} />
               <Route path="/pilot-test" element={<PilotTest />} />
               <Route path="/drivers/wallet" element={<DriverWalletPage />} />
               <Route path="/drivers/deposit" element={<DriverDepositPage />} />
