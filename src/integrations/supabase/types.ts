@@ -285,10 +285,12 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          earning_notifications: boolean
           gender: string | null
           id: string
           is_online: boolean | null
           plate_number: string | null
+          preferred_service_area: string
           rating_avg: number | null
           status: string
           total_trips: number | null
@@ -303,10 +305,12 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          earning_notifications?: boolean
           gender?: string | null
           id?: string
           is_online?: boolean | null
           plate_number?: string | null
+          preferred_service_area?: string
           rating_avg?: number | null
           status?: string
           total_trips?: number | null
@@ -321,10 +325,12 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          earning_notifications?: boolean
           gender?: string | null
           id?: string
           is_online?: boolean | null
           plate_number?: string | null
+          preferred_service_area?: string
           rating_avg?: number | null
           status?: string
           total_trips?: number | null
@@ -1126,6 +1132,36 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          id: string
+          notifications_enabled: boolean
+          promo_notifications: boolean
+          ride_update_notifications: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notifications_enabled?: boolean
+          promo_notifications?: boolean
+          ride_update_notifications?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notifications_enabled?: boolean
+          promo_notifications?: boolean
+          ride_update_notifications?: boolean
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

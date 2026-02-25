@@ -46,6 +46,7 @@ import TransactionsSheet from "@/components/wallet/TransactionsSheet";
 import { RideCommunication } from "@/components/ride/RideCommunication";
 import DriverAvatarUpload from "@/components/driver/DriverAvatarUpload";
 import DriverFeedback from "@/components/driver/DriverFeedback";
+import DriverSettingsPanel from "@/components/settings/DriverSettingsPanel";
 
 type Ride = {
   id: string;
@@ -752,6 +753,16 @@ export default function DriverDashboard() {
             </div>
           </div>
         )}
+
+        {/* Driver Settings */}
+        <div>
+          <p className="font-semibold text-sm mb-3 text-muted-foreground uppercase tracking-wider">Settings</p>
+          <DriverSettingsPanel
+            driverId={profile.id}
+            initialArea={(profile as any).preferred_service_area || 'both'}
+            initialEarningNotif={(profile as any).earning_notifications ?? true}
+          />
+        </div>
 
         {/* Suggestions & Complaints */}
         <DriverFeedback />
