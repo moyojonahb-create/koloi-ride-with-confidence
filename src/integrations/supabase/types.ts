@@ -52,6 +52,44 @@ export type Database = {
           },
         ]
       }
+      cancellation_fees: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          reason: string | null
+          ride_id: string
+          user_id: string
+          waived: boolean
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          reason?: string | null
+          ride_id: string
+          user_id: string
+          waived?: boolean
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          reason?: string | null
+          ride_id?: string
+          user_id?: string
+          waived?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cancellation_fees_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deposit_requests: {
         Row: {
           admin_note: string | null
@@ -685,6 +723,7 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          referral_code: string | null
           updated_at: string
           user_id: string
         }
@@ -694,6 +733,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          referral_code?: string | null
           updated_at?: string
           user_id: string
         }
@@ -703,8 +743,126 @@ export type Database = {
           full_name?: string | null
           id?: string
           phone?: string | null
+          referral_code?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          current_uses: number
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_fare: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_fare?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_fare?: number | null
+        }
+        Relationships: []
+      }
+      promo_usage: {
+        Row: {
+          created_at: string
+          discount_amount: number
+          id: string
+          promo_id: string
+          ride_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discount_amount: number
+          id?: string
+          promo_id: string
+          ride_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discount_amount?: number
+          id?: string
+          promo_id?: string
+          ride_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_usage_promo_id_fkey"
+            columns: ["promo_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promo_usage_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          bonus_amount: number
+          completed_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          bonus_amount?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          bonus_amount?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string
+          referrer_id?: string
+          status?: string
         }
         Relationships: []
       }
@@ -795,10 +953,12 @@ export type Database = {
           fare: number
           id: string
           passenger_count: number
+          payment_method: string
           pickup_address: string
           pickup_lat: number
           pickup_lon: number
           route_polyline: string | null
+          scheduled_at: string | null
           status: string
           updated_at: string
           user_id: string
@@ -816,10 +976,12 @@ export type Database = {
           fare: number
           id?: string
           passenger_count?: number
+          payment_method?: string
           pickup_address: string
           pickup_lat: number
           pickup_lon: number
           route_polyline?: string | null
+          scheduled_at?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -837,10 +999,12 @@ export type Database = {
           fare?: number
           id?: string
           passenger_count?: number
+          payment_method?: string
           pickup_address?: string
           pickup_lat?: number
           pickup_lon?: number
           route_polyline?: string | null
+          scheduled_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string

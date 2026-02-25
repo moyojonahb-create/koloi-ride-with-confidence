@@ -14,6 +14,8 @@ type RequestRideInput = {
   vehicle_type?: string;
   route_polyline?: string | null;
   passenger_count?: number;
+  scheduled_at?: string;
+  payment_method?: string;
 };
 
 export async function requestRide(input: RequestRideInput) {
@@ -53,24 +55,30 @@ export async function requestRide(input: RequestRideInput) {
   }
 
   // 3) Insert ride - user_id must match auth.uid() for RLS
+  const insertPayload: Record<string, any> = {
+    user_id: user.id,
+    status: input.scheduled_at ? "scheduled" : "pending",
+    pickup_address,
+    dropoff_address,
+    fare,
+    distance_km,
+    duration_minutes,
+    pickup_lat: input.pickup_lat,
+    pickup_lon: input.pickup_lng,
+    dropoff_lat: input.dropoff_lat,
+    dropoff_lon: input.dropoff_lng,
+    vehicle_type: input.vehicle_type ?? "economy",
+    route_polyline: input.route_polyline ?? null,
+    passenger_count: input.passenger_count ?? 1,
+    payment_method: input.payment_method ?? "cash",
+  };
+  if (input.scheduled_at) {
+    insertPayload.scheduled_at = input.scheduled_at;
+  }
+
   const { data, error } = await supabase
     .from("rides")
-    .insert({
-      user_id: user.id,
-      status: "pending",
-      pickup_address,
-      dropoff_address,
-      fare,
-      distance_km,
-      duration_minutes,
-      pickup_lat: input.pickup_lat,
-      pickup_lon: input.pickup_lng,
-      dropoff_lat: input.dropoff_lat,
-      dropoff_lon: input.dropoff_lng,
-      vehicle_type: input.vehicle_type ?? "economy",
-      route_polyline: input.route_polyline ?? null,
-      passenger_count: input.passenger_count ?? 1,
-    })
+    .insert(insertPayload as any)
     .select("*")
     .single();
 

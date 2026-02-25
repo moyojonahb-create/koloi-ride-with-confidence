@@ -21,6 +21,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock, Star } from "lucide-react";
 import DriverETABanner from "@/components/ride/DriverETABanner";
+import CancellationPolicy from "@/components/ride/CancellationPolicy";
 import EmergencyButton from "@/components/ride/EmergencyButton";
 import DriverRatingModal from "@/components/ride/DriverRatingModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -522,6 +523,15 @@ export default function RiderRideDetail() {
               </Button>
             </CardContent>
           </Card>
+        )}
+
+        {/* Cancellation with fee policy */}
+        {ride.status !== "completed" && ride.status !== "cancelled" && ride.status !== "expired" && (
+          <CancellationPolicy
+            rideId={ride.id}
+            rideStatus={ride.status}
+            onCancelled={() => nav("/ride")}
+          />
         )}
 
         {/* Communication Section - Only show if accepted */}
