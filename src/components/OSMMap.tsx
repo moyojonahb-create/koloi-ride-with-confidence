@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, forwardRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
@@ -122,7 +122,7 @@ const allTownsBounds: L.LatLngBoundsExpression = (() => {
   return [[south - 0.5, west - 0.5], [north + 0.5, east + 0.5]] as L.LatLngBoundsExpression;
 })();
 
-export default function OSMMap({
+const OSMMap = forwardRef<HTMLDivElement, OSMMapProps>(function OSMMap({
   center = DEFAULT_CENTER,
   zoom = 14,
   pickup,
@@ -133,7 +133,7 @@ export default function OSMMap({
   className = '',
   height = '400px',
   showRecenterButton = true,
-}: OSMMapProps) {
+}, _ref) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const pickupMarkerRef = useRef<L.Marker | null>(null);
@@ -440,7 +440,9 @@ export default function OSMMap({
       )}
     </div>
   );
-}
+});
+
+export default OSMMap;
 
 // Decode Google/OSRM polyline format
 function decodePolyline(encoded: string): [number, number][] {
