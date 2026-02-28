@@ -307,6 +307,23 @@
   border-radius: 6px !important;
 }
 
+/* Map loading shimmer */
+@keyframes mapShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.map-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted-foreground) / 0.08) 40%,
+    hsl(var(--muted)) 80%
+  );
+  background-size: 200% 100%;
+  animation: mapShimmer 1.8s ease-in-out infinite;
+}
+
 /* Leaflet container must have dimensions */
 .leaflet-container {
   width: 100%;
