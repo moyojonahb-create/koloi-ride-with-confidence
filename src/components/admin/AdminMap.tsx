@@ -253,9 +253,8 @@
    return (
      <div className={cn('relative rounded-xl overflow-hidden bg-muted', className)} style={{ height, minHeight: '300px' }}>
        {mapState === 'loading' && (
-         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-muted">
-           <Skeleton className="absolute inset-0" />
-           <div className="relative z-10 flex flex-col items-center gap-3">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center map-shimmer">
+            <div className="relative z-10 flex flex-col items-center gap-3">
              <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
              <p className="text-sm font-medium text-muted-foreground">Loading map...</p>
            </div>
