@@ -3,10 +3,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SplashScreen from "@/components/SplashScreen";
+import PageTransition from "@/components/PageTransition";
 import Index from "./pages/Index";
 import Ride from "./pages/Ride";
 import RiderRideDetail from "./pages/RiderRideDetail";
@@ -50,6 +52,84 @@ import MappAdminGuard from "./components/mapp/MappAdminGuard";
 
 const queryClient = new QueryClient();
 
+const AnimatedRoutes = () => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        {/* ── Existing web routes ── */}
+        <Route path="/" element={<PageTransition><Index /></PageTransition>} />
+        <Route path="/ride" element={<PageTransition><Ride /></PageTransition>} />
+        <Route path="/ride/:rideId" element={<PageTransition><RiderRideDetail /></PageTransition>} />
+        <Route path="/ride-detail/:rideId" element={<PageTransition><RideDetail /></PageTransition>} />
+        <Route path="/driver" element={<PageTransition><DriverDashboard /></PageTransition>} />
+        <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
+        <Route path="/dashboard" element={<PageTransition><AppDashboard /></PageTransition>} />
+        <Route path="/profile" element={<PageTransition><RiderProfile /></PageTransition>} />
+        <Route path="/app" element={<PageTransition><AppDashboard /></PageTransition>} />
+        <Route path="/drive" element={<PageTransition><DriverApplication /></PageTransition>} />
+        <Route path="/driver-mode" element={<PageTransition><DriverModeLanding /></PageTransition>} />
+        <Route path="/safety" element={<PageTransition><SafetyPage /></PageTransition>} />
+        <Route path="/pilot-test" element={<PageTransition><PilotTest /></PageTransition>} />
+        <Route path="/drivers/wallet" element={<PageTransition><DriverWalletPage /></PageTransition>} />
+        <Route path="/drivers/deposit" element={<PageTransition><DriverDepositPage /></PageTransition>} />
+        
+        {/* Admin Routes */}
+        <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />
+        <Route path="/admin/drivers" element={<PageTransition><AdminDrivers /></PageTransition>} />
+        <Route path="/admin/drivers/map" element={<PageTransition><AdminDriversMap /></PageTransition>} />
+        <Route path="/admin/drivers/:driverId" element={<PageTransition><AdminDriverDetail /></PageTransition>} />
+        <Route path="/admin/trips" element={<PageTransition><AdminTrips /></PageTransition>} />
+        <Route path="/admin/landmarks" element={<PageTransition><AdminLandmarks /></PageTransition>} />
+        <Route path="/admin/reports" element={<PageTransition><AdminReports /></PageTransition>} />
+        <Route path="/admin/settings" element={<PageTransition><AdminSettings /></PageTransition>} />
+        <Route path="/admin/import-osm" element={<PageTransition><ImportOsmPlaces /></PageTransition>} />
+        <Route path="/admin/rate" element={<PageTransition><AdminRatePage /></PageTransition>} />
+        <Route path="/admin/deposits" element={<PageTransition><AdminDepositsPage /></PageTransition>} />
+        <Route path="/admin/ledger" element={<PageTransition><AdminLedger /></PageTransition>} />
+
+        {/* Negotiate / inDrive-style */}
+        <Route path="/negotiate/request" element={<PageTransition><RiderRequestScreen /></PageTransition>} />
+        <Route path="/negotiate/offers/:requestId" element={<PageTransition><RiderOffersScreen /></PageTransition>} />
+        <Route path="/negotiate/driver" element={<PageTransition><DriverRequestsScreen /></PageTransition>} />
+
+        {/* ── /mapp – Mobile App Shell for Median.co ── */}
+        <Route path="/mapp" element={<MappRedirect />} />
+        <Route path="/mapp/login" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/mapp/signup" element={<PageTransition><Signup /></PageTransition>} />
+
+        <Route element={<MappLayout />}>
+          {/* Rider routes (auth required) */}
+          <Route path="/mapp/ride" element={<MappAuthGuard><PageTransition><Ride /></PageTransition></MappAuthGuard>} />
+          <Route path="/mapp/ride/:rideId" element={<MappAuthGuard><PageTransition><RiderRideDetail /></PageTransition></MappAuthGuard>} />
+          <Route path="/mapp/negotiate/request" element={<MappAuthGuard><PageTransition><RiderRequestScreen /></PageTransition></MappAuthGuard>} />
+          <Route path="/mapp/negotiate/offers/:requestId" element={<MappAuthGuard><PageTransition><RiderOffersScreen /></PageTransition></MappAuthGuard>} />
+
+          {/* Driver routes */}
+          <Route path="/mapp/driver" element={<MappAuthGuard><MappDriverGuard><PageTransition><DriverDashboard /></PageTransition></MappDriverGuard></MappAuthGuard>} />
+          <Route path="/mapp/drivers/wallet" element={<MappAuthGuard><MappDriverGuard><PageTransition><DriverWalletPage /></PageTransition></MappDriverGuard></MappAuthGuard>} />
+          <Route path="/mapp/drivers/deposit" element={<MappAuthGuard><MappDriverGuard><PageTransition><DriverDepositPage /></PageTransition></MappDriverGuard></MappAuthGuard>} />
+
+          {/* New pages */}
+          <Route path="/mapp/safety" element={<MappAuthGuard><PageTransition><SafetyPage /></PageTransition></MappAuthGuard>} />
+          <Route path="/mapp/driver-mode" element={<PageTransition><DriverModeLanding /></PageTransition>} />
+          <Route path="/mapp/drive" element={<MappAuthGuard><PageTransition><DriverApplication /></PageTransition></MappAuthGuard>} />
+          <Route path="/mapp/profile" element={<MappAuthGuard><PageTransition><RiderProfile /></PageTransition></MappAuthGuard>} />
+
+          {/* Admin */}
+          <Route path="/mapp/admin" element={<MappAuthGuard><MappAdminGuard><PageTransition><AdminDashboard /></PageTransition></MappAdminGuard></MappAuthGuard>} />
+        </Route>
+        
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
 const App = () => {
   const [splashDone, setSplashDone] = useState(false);
   const handleSplashComplete = useCallback(() => setSplashDone(true), []);
@@ -63,75 +143,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <Routes>
-              {/* ── Existing web routes ── */}
-              <Route path="/" element={<Index />} />
-              <Route path="/ride" element={<Ride />} />
-              <Route path="/ride/:rideId" element={<RiderRideDetail />} />
-              <Route path="/ride-detail/:rideId" element={<RideDetail />} />
-              <Route path="/driver" element={<DriverDashboard />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/login" element={<Auth />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/dashboard" element={<AppDashboard />} />
-              <Route path="/profile" element={<RiderProfile />} />
-              <Route path="/app" element={<AppDashboard />} />
-              <Route path="/drive" element={<DriverApplication />} />
-              <Route path="/driver-mode" element={<DriverModeLanding />} />
-              <Route path="/safety" element={<SafetyPage />} />
-              <Route path="/pilot-test" element={<PilotTest />} />
-              <Route path="/drivers/wallet" element={<DriverWalletPage />} />
-              <Route path="/drivers/deposit" element={<DriverDepositPage />} />
-              
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/drivers" element={<AdminDrivers />} />
-              <Route path="/admin/drivers/map" element={<AdminDriversMap />} />
-              <Route path="/admin/drivers/:driverId" element={<AdminDriverDetail />} />
-              <Route path="/admin/trips" element={<AdminTrips />} />
-              <Route path="/admin/landmarks" element={<AdminLandmarks />} />
-              <Route path="/admin/reports" element={<AdminReports />} />
-              <Route path="/admin/settings" element={<AdminSettings />} />
-              <Route path="/admin/import-osm" element={<ImportOsmPlaces />} />
-              <Route path="/admin/rate" element={<AdminRatePage />} />
-              <Route path="/admin/deposits" element={<AdminDepositsPage />} />
-              <Route path="/admin/ledger" element={<AdminLedger />} />
-
-              {/* Negotiate / inDrive-style */}
-              <Route path="/negotiate/request" element={<RiderRequestScreen />} />
-              <Route path="/negotiate/offers/:requestId" element={<RiderOffersScreen />} />
-              <Route path="/negotiate/driver" element={<DriverRequestsScreen />} />
-
-              {/* ── /mapp – Mobile App Shell for Median.co ── */}
-              <Route path="/mapp" element={<MappRedirect />} />
-              <Route path="/mapp/login" element={<Auth />} />
-              <Route path="/mapp/signup" element={<Signup />} />
-
-              <Route element={<MappLayout />}>
-                {/* Rider routes (auth required) */}
-                <Route path="/mapp/ride" element={<MappAuthGuard><Ride /></MappAuthGuard>} />
-                <Route path="/mapp/ride/:rideId" element={<MappAuthGuard><RiderRideDetail /></MappAuthGuard>} />
-                <Route path="/mapp/negotiate/request" element={<MappAuthGuard><RiderRequestScreen /></MappAuthGuard>} />
-                <Route path="/mapp/negotiate/offers/:requestId" element={<MappAuthGuard><RiderOffersScreen /></MappAuthGuard>} />
-
-                {/* Driver routes */}
-                <Route path="/mapp/driver" element={<MappAuthGuard><MappDriverGuard><DriverDashboard /></MappDriverGuard></MappAuthGuard>} />
-                <Route path="/mapp/drivers/wallet" element={<MappAuthGuard><MappDriverGuard><DriverWalletPage /></MappDriverGuard></MappAuthGuard>} />
-                <Route path="/mapp/drivers/deposit" element={<MappAuthGuard><MappDriverGuard><DriverDepositPage /></MappDriverGuard></MappAuthGuard>} />
-
-                {/* New pages */}
-                <Route path="/mapp/safety" element={<MappAuthGuard><SafetyPage /></MappAuthGuard>} />
-                <Route path="/mapp/driver-mode" element={<DriverModeLanding />} />
-                <Route path="/mapp/drive" element={<MappAuthGuard><DriverApplication /></MappAuthGuard>} />
-                <Route path="/mapp/profile" element={<MappAuthGuard><RiderProfile /></MappAuthGuard>} />
-
-                {/* Admin */}
-                <Route path="/mapp/admin" element={<MappAuthGuard><MappAdminGuard><AdminDashboard /></MappAdminGuard></MappAuthGuard>} />
-              </Route>
-              
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AnimatedRoutes />
           </BrowserRouter>
         </ErrorBoundary>
       </TooltipProvider>
