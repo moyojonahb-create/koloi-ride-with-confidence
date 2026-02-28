@@ -428,18 +428,18 @@ export default function DriverDashboard() {
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
       {/* Header with Wallet */}
-      <div className="shrink-0 bg-background/95 backdrop-blur border-b border-border px-4 py-3 z-10">
+      <div className="shrink-0 bg-background/95 backdrop-blur-lg border-b border-border/60 px-5 py-3.5 z-10">
         <div className="flex items-center justify-between max-w-lg mx-auto">
-          <Button variant="ghost" size="icon" onClick={() => nav(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => nav(-1)} className="w-11 h-11 rounded-2xl active:scale-90 transition-all">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="font-black text-lg">Driver Dashboard</h1>
-          <div className="flex items-center gap-2">
+          <h1 className="font-extrabold text-lg tracking-tight">Driver Dashboard</h1>
+          <div className="flex items-center gap-2.5">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setTransactionsOpen(true)}
-              className="text-muted-foreground"
+              className="w-11 h-11 rounded-2xl text-muted-foreground active:scale-90 transition-all"
             >
               <History className="h-5 w-5" />
             </Button>
@@ -453,23 +453,23 @@ export default function DriverDashboard() {
       </div>
 
       <div className="flex-1 overflow-y-auto overscroll-contain">
-      <div className="max-w-lg mx-auto p-4 space-y-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
+      <div className="max-w-lg mx-auto p-5 space-y-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-card rounded-2xl border border-border p-3 text-center">
-            <Star className="h-5 w-5 mx-auto text-amber-500 mb-1" />
-            <p className="text-xl font-black">{profile.rating_avg?.toFixed(1) || '—'}</p>
-            <p className="text-[10px] text-muted-foreground font-medium">Rating</p>
+        <div className="grid grid-cols-3 gap-3 animate-fade-in">
+          <div className="native-card text-center">
+            <Star className="h-5 w-5 mx-auto text-amber-500 mb-1.5" />
+            <p className="text-xl font-extrabold tabular-nums">{profile.rating_avg?.toFixed(1) || '—'}</p>
+            <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Rating</p>
           </div>
-          <div className="bg-card rounded-2xl border border-border p-3 text-center">
-            <TrendingUp className="h-5 w-5 mx-auto text-primary mb-1" />
-            <p className="text-xl font-black">{profile.total_trips || 0}</p>
-            <p className="text-[10px] text-muted-foreground font-medium">Total Trips</p>
+          <div className="native-card text-center">
+            <TrendingUp className="h-5 w-5 mx-auto text-primary mb-1.5" />
+            <p className="text-xl font-extrabold tabular-nums">{profile.total_trips || 0}</p>
+            <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Total Trips</p>
           </div>
-          <div className="bg-card rounded-2xl border border-border p-3 text-center">
-            <Zap className="h-5 w-5 mx-auto text-emerald-500 mb-1" />
-            <p className="text-xl font-black">${balance.toFixed(2)}</p>
-            <p className="text-[10px] text-muted-foreground font-medium">Wallet</p>
+          <div className="native-card text-center">
+            <Zap className="h-5 w-5 mx-auto text-emerald-500 mb-1.5" />
+            <p className="text-xl font-extrabold tabular-nums">${balance.toFixed(2)}</p>
+            <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Wallet</p>
           </div>
         </div>
         {/* Trial Banner */}

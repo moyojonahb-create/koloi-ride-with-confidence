@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Koloi Design System - Uber-inspired minimalist e-hailing platform */
+/* Koloi Design System - Native mobile-first e-hailing platform */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 @layer base {
   :root {
@@ -132,26 +132,42 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
 
   html {
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    letter-spacing: -0.011em;
+  }
+
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* Better text rendering for headings */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.025em;
+    font-weight: 700;
   }
 }
 
 @layer components {
   /* Koloi specific component styles */
   .koloi-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    @apply max-w-7xl mx-auto px-5 sm:px-6 lg:px-8;
   }
 
   .koloi-card {
-    @apply bg-card rounded-2xl shadow-[var(--shadow-card)] p-6 transition-shadow duration-300 hover:shadow-[var(--shadow-lg)];
+    @apply bg-card rounded-2xl shadow-[var(--shadow-card)] p-5 transition-shadow duration-200 hover:shadow-[var(--shadow-lg)];
   }
 
   .koloi-card-glass {
@@ -159,51 +175,61 @@
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
-    @apply rounded-2xl p-6;
+    @apply rounded-2xl p-5;
   }
 
   .koloi-input {
-    @apply w-full h-14 px-5 bg-koloi-gray-100 border-0 rounded-2xl text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:bg-background transition-all duration-300;
+    @apply w-full h-[52px] px-4 bg-koloi-gray-100 border-0 rounded-2xl text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:bg-background transition-all duration-200;
   }
 
   .koloi-btn-primary {
-    @apply h-14 px-8 bg-primary text-primary-foreground font-semibold rounded-full hover:brightness-105 hover:shadow-[var(--shadow-md)] active:scale-[0.97] transition-all duration-200;
+    @apply h-[52px] px-8 bg-primary text-primary-foreground font-semibold rounded-full hover:brightness-105 hover:shadow-[var(--shadow-md)] active:scale-[0.97] transition-all duration-150;
   }
 
   .koloi-btn-secondary {
-    @apply h-12 px-6 bg-secondary text-secondary-foreground font-medium rounded-full hover:brightness-98 hover:shadow-[var(--shadow-sm)] active:scale-[0.97] transition-all duration-200;
+    @apply h-12 px-6 bg-secondary text-secondary-foreground font-medium rounded-full hover:brightness-98 hover:shadow-[var(--shadow-sm)] active:scale-[0.97] transition-all duration-150;
   }
 
   .koloi-btn-accent {
-    @apply h-14 px-8 bg-accent text-accent-foreground font-bold rounded-full hover:brightness-105 hover:shadow-[var(--shadow-glow)] active:scale-[0.97] transition-all duration-200;
+    @apply h-[52px] px-8 bg-accent text-accent-foreground font-bold rounded-full hover:brightness-105 hover:shadow-[var(--shadow-glow)] active:scale-[0.97] transition-all duration-150;
   }
 
   .koloi-link {
-    @apply text-foreground font-medium hover:text-muted-foreground transition-colors duration-200;
+    @apply text-foreground font-medium hover:text-muted-foreground transition-colors duration-150;
   }
 
   .koloi-link-nav {
-    @apply text-sm font-medium text-foreground hover:bg-koloi-gray-100 px-5 py-2.5 rounded-full transition-all duration-200;
+    @apply text-[15px] font-medium text-foreground hover:bg-koloi-gray-100 px-5 py-3 rounded-full transition-all duration-150;
   }
 
   /* Stat cards with hover lift */
   .koloi-stat-card {
-    @apply bg-primary-foreground/10 rounded-2xl p-6 text-center transition-all duration-300 hover:bg-primary-foreground/15 hover:-translate-y-1;
+    @apply bg-primary-foreground/10 rounded-2xl p-5 text-center transition-all duration-200 hover:bg-primary-foreground/15 hover:-translate-y-0.5;
   }
 
   /* Feature cards with icon badges */
   .koloi-feature-card {
-    @apply bg-card rounded-2xl p-6 shadow-[var(--shadow-sm)] transition-all duration-300 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5;
+    @apply bg-card rounded-2xl p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5;
   }
 
   /* Pill badges */
   .koloi-badge {
-    @apply inline-flex items-center gap-2 px-4 py-1.5 bg-accent/10 text-accent rounded-full text-sm font-medium;
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-semibold;
   }
 
   /* Icon containers */
   .koloi-icon-box {
-    @apply w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-200;
+    @apply w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-150;
+  }
+
+  /* Native card with subtle border + active press */
+  .native-card {
+    @apply bg-card rounded-2xl border border-border/60 p-4 transition-all duration-150 active:scale-[0.98];
+  }
+
+  /* Section spacing for native feel */
+  .section-gap {
+    @apply space-y-5;
   }
 }
 
@@ -213,30 +239,31 @@
   }
 
   .animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.25s ease-out;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.4s ease-out;
+    animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   .animate-slide-down {
-    animation: slideDown 0.3s ease-out;
+    animation: slideDown 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  /* Native spring-feel animation */
+  .animate-spring {
+    animation: springIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   @keyframes slideUp {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(16px);
     }
     to {
       opacity: 1;
@@ -247,11 +274,26 @@
   @keyframes slideDown {
     from {
       opacity: 0;
-      transform: translateY(-10px);
+      transform: translateY(-8px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes springIn {
+    from {
+      opacity: 0;
+      transform: scale(0.92) translateY(8px);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.02) translateY(-2px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
     }
   }
 }
@@ -285,7 +327,7 @@
 /* Leaflet popup styles */
 .landmark-popup .leaflet-popup-content-wrapper {
   padding: 0;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -299,12 +341,12 @@
 
 /* Custom Leaflet map controls */
 .leaflet-control-layers {
-  border-radius: 8px !important;
+  border-radius: 12px !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
 }
 
 .leaflet-control-zoom a {
-  border-radius: 6px !important;
+  border-radius: 8px !important;
 }
 
 /* Map loading shimmer */

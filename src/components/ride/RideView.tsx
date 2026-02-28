@@ -332,14 +332,14 @@ export default function RideView() {
       <InstallPromptBanner />
 
       {/* Header — fixed, content scrolls beneath */}
-      <header className="topbar shrink-0 flex items-center justify-between h-14 px-[calc(var(--pad,14px)+env(safe-area-inset-left))] pr-[calc(var(--pad,14px)+env(safe-area-inset-right))] pt-[env(safe-area-inset-top)] pb-2 bg-primary z-30">
-        <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-white/10 text-primary-foreground hover:bg-white/20">
+      <header className="topbar shrink-0 flex items-center justify-between h-[56px] px-[calc(var(--pad,14px)+env(safe-area-inset-left))] pr-[calc(var(--pad,14px)+env(safe-area-inset-right))] pt-[env(safe-area-inset-top)] pb-2 bg-primary z-30">
+        <Button variant="ghost" size="icon" className="w-11 h-11 rounded-2xl bg-white/10 text-primary-foreground hover:bg-white/20 active:scale-95 transition-all">
           <Menu className="w-5 h-5" />
         </Button>
         <KoloiLogo variant="light" size="sm" />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <EmergencyButton />
-          <Button variant="ghost" size="icon" className="w-10 h-10 rounded-xl bg-white/10 text-primary-foreground hover:bg-white/20" onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)}>
+          <Button variant="ghost" size="icon" className="w-11 h-11 rounded-2xl bg-white/10 text-primary-foreground hover:bg-white/20 active:scale-95 transition-all" onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)}>
             <User className="w-5 h-5" />
           </Button>
         </div>
@@ -407,10 +407,10 @@ export default function RideView() {
 
         {/* Bottom Sheet — compact, always visible */}
         <section
-          className="sheet absolute left-[var(--pad,14px)] right-[var(--pad,14px)] bottom-[calc(var(--pad,14px)+env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-[10px] rounded-[26px] p-[14px] shadow-[0_18px_40px_rgba(0,0,0,0.18)] z-30"
+          className="sheet absolute left-[var(--pad,14px)] right-[var(--pad,14px)] bottom-[calc(var(--pad,14px)+env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-xl rounded-[28px] p-4 shadow-[0_-4px_32px_rgba(0,0,0,0.12),0_18px_40px_rgba(0,0,0,0.18)] z-30 animate-slide-up"
         >
           {/* Grabber */}
-          <div className="grabber w-11 h-[5px] rounded-full bg-black/15 mx-auto mb-3" />
+          <div className="grabber w-10 h-[5px] rounded-full bg-black/12 mx-auto mb-3.5" />
 
           {/* Location Inputs - compact summary when locations selected */}
           {(pickupLocation || dropoffLocation) && !activeField && (
@@ -418,14 +418,14 @@ export default function RideView() {
               <button
                 type="button"
                 onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
-                className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
+                className="input grid grid-cols-[24px_1fr_auto] items-center bg-white rounded-2xl py-3.5 px-4 border border-black/[0.06] cursor-pointer hover:bg-koloi-gray-100/60 active:scale-[0.98] transition-all w-full text-left"
               >
-                <span className={cn('dot w-2.5 h-2.5 rounded-full shrink-0', pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400')} />
-                <span className={cn('text-base font-medium truncate', pickupLocation ? 'text-foreground' : 'text-muted-foreground')}>
+                <span className={cn('dot w-3 h-3 rounded-full shrink-0', pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400')} />
+                <span className={cn('text-[15px] font-semibold truncate', pickupLocation ? 'text-foreground' : 'text-muted-foreground')}>
                   {pickupLocation?.name || 'From where?'}
                 </span>
                 {pickupLocation && (
-                  <span onClick={e => { e.stopPropagation(); setPickupLocation(null); }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
+                  <span onClick={e => { e.stopPropagation(); setPickupLocation(null); }} className="p-2 -mr-1 hover:bg-koloi-gray-200 rounded-full transition-colors">
                     <X className="w-4 h-4 text-muted-foreground" />
                   </span>
                 )}
@@ -433,14 +433,14 @@ export default function RideView() {
               <button
                 type="button"
                 onClick={() => { setActiveField('dropoff'); setSearchQuery(''); }}
-                className="input grid grid-cols-[22px_1fr_auto] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
+                className="input grid grid-cols-[24px_1fr_auto] items-center bg-white rounded-2xl py-3.5 px-4 border border-black/[0.06] cursor-pointer hover:bg-koloi-gray-100/60 active:scale-[0.98] transition-all w-full text-left"
               >
-                <span className={cn('dot w-2.5 h-2.5 rounded-full shrink-0', dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400')} />
-                <span className={cn('text-base font-medium truncate', dropoffLocation ? 'text-foreground' : 'text-muted-foreground')}>
+                <span className={cn('dot w-3 h-3 rounded-full shrink-0', dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400')} />
+                <span className={cn('text-[15px] font-semibold truncate', dropoffLocation ? 'text-foreground' : 'text-muted-foreground')}>
                   {dropoffLocation?.name || 'Where to?'}
                 </span>
                 {dropoffLocation && (
-                  <span onClick={e => { e.stopPropagation(); setDropoffLocation(null); }} className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors">
+                  <span onClick={e => { e.stopPropagation(); setDropoffLocation(null); }} className="p-2 -mr-1 hover:bg-koloi-gray-200 rounded-full transition-colors">
                     <X className="w-4 h-4 text-muted-foreground" />
                   </span>
                 )}
@@ -457,41 +457,41 @@ export default function RideView() {
                   <button
                     type="button"
                     onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
-                    className="input grid grid-cols-[22px_1fr] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
+                    className="input grid grid-cols-[24px_1fr] items-center bg-white rounded-2xl py-3.5 px-4 border border-black/[0.06] cursor-pointer hover:bg-koloi-gray-100/60 active:scale-[0.98] transition-all w-full text-left"
                   >
-                    <span className="dot w-2.5 h-2.5 rounded-full shrink-0 bg-koloi-gray-400" />
-                    <span className="text-base font-medium text-muted-foreground">From where?</span>
+                    <span className="dot w-3 h-3 rounded-full shrink-0 bg-koloi-gray-400" />
+                    <span className="text-[15px] font-semibold text-muted-foreground">From where?</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => { setActiveField('dropoff'); setSearchQuery(''); }}
-                    className="input grid grid-cols-[22px_1fr] items-center bg-white rounded-2xl py-3 px-3 border border-black/5 cursor-pointer hover:bg-koloi-gray-100/50 transition-colors w-full text-left"
+                    className="input grid grid-cols-[24px_1fr] items-center bg-white rounded-2xl py-3.5 px-4 border border-black/[0.06] cursor-pointer hover:bg-koloi-gray-100/60 active:scale-[0.98] transition-all w-full text-left"
                   >
-                    <span className="dot w-2.5 h-2.5 rounded-full shrink-0 bg-koloi-gray-400" />
-                    <span className="text-base font-medium text-muted-foreground">Where to?</span>
+                    <span className="dot w-3 h-3 rounded-full shrink-0 bg-koloi-gray-400" />
+                    <span className="text-[15px] font-semibold text-muted-foreground">Where to?</span>
                   </button>
                 </div>
               )}
 
               {/* Passenger Count Selector */}
-              <div className="flex items-center justify-between bg-koloi-gray-100 rounded-2xl p-3">
+              <div className="flex items-center justify-between bg-koloi-gray-100 rounded-2xl p-4">
                 <div>
-                  <p className="text-sm font-semibold text-foreground">Passengers</p>
-                  <p className="text-xs text-muted-foreground">How many are riding?</p>
+                  <p className="text-[15px] font-semibold text-foreground">Passengers</p>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">How many are riding?</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <button
                     onClick={() => setPassengerCount(c => Math.max(1, c - 1))}
                     disabled={passengerCount <= 1}
-                    className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center text-lg font-bold text-foreground disabled:opacity-30 transition-opacity"
+                    className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center text-lg font-bold text-foreground disabled:opacity-30 active:scale-90 transition-all"
                   >
                     −
                   </button>
-                  <span className="w-8 text-center text-lg font-bold text-foreground">{passengerCount}</span>
+                  <span className="w-8 text-center text-xl font-extrabold text-foreground tabular-nums">{passengerCount}</span>
                   <button
                     onClick={() => setPassengerCount(c => Math.min(10, c + 1))}
                     disabled={passengerCount >= 10}
-                    className="w-9 h-9 rounded-full bg-background border border-border flex items-center justify-center text-lg font-bold text-foreground disabled:opacity-30 transition-opacity"
+                    className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center text-lg font-bold text-foreground disabled:opacity-30 active:scale-90 transition-all"
                   >
                     +
                   </button>
@@ -529,9 +529,9 @@ export default function RideView() {
                 onClick={handleRequestRide}
                 disabled={!canRequestRide}
                 className={cn(
-                  'w-full h-14 text-base font-bold rounded-2xl transition-all gap-2',
+                  'w-full h-[52px] text-[15px] font-bold rounded-2xl transition-all gap-2 active:scale-[0.97]',
                   canRequestRide
-                    ? 'bg-accent text-accent-foreground hover:brightness-105 shadow-koloi-md'
+                    ? 'bg-accent text-accent-foreground hover:brightness-105 shadow-[var(--shadow-glow)]'
                     : 'bg-koloi-gray-300 text-muted-foreground'
                 )}
               >
@@ -565,24 +565,24 @@ export default function RideView() {
 
         {/* ══ inDrive-style Full-Screen Search Overlay ══ */}
         {activeField && (
-          <div className="absolute inset-0 z-40 flex flex-col bg-background" style={{ animation: 'slideUp 0.25s ease' }}>
+          <div className="absolute inset-0 z-40 flex flex-col bg-background animate-slide-up">
             {/* Search header */}
-            <div className="flex items-center gap-3 px-4 bg-background border-b border-border" style={{ paddingTop: `calc(env(safe-area-inset-top) + 12px)`, paddingBottom: '12px' }}>
+            <div className="flex items-center gap-3 px-4 bg-background border-b border-border/60" style={{ paddingTop: `calc(env(safe-area-inset-top) + 14px)`, paddingBottom: '14px' }}>
               <button
                 onClick={() => { setActiveField(null); setSearchQuery(''); setNominatimResults([]); }}
-                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors shrink-0"
+                className="w-11 h-11 flex items-center justify-center rounded-2xl hover:bg-muted active:scale-90 transition-all shrink-0"
               >
                 <X className="w-5 h-5 text-foreground" />
               </button>
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
                 <input
                   autoFocus
                   type="text"
                   placeholder={activeField === 'pickup' ? 'Search pickup location...' : 'Search destination...'}
                   value={searchQuery}
                   onChange={e => handleSearchChange(e.target.value)}
-                  className="w-full h-11 pl-10 pr-4 bg-muted rounded-xl text-base font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent border-0"
+                  className="w-full h-12 pl-11 pr-4 bg-muted rounded-2xl text-[15px] font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent border-0"
                 />
               </div>
             </div>
@@ -594,9 +594,9 @@ export default function RideView() {
                 <button
                   onClick={handleUseMyLocation}
                   disabled={gpsState.status === 'loading'}
-                  className="w-full flex items-center gap-4 px-4 py-4 hover:bg-muted transition-colors border-b border-border text-left"
+                  className="w-full flex items-center gap-4 px-5 py-4 hover:bg-muted active:bg-muted/80 transition-colors border-b border-border/60 text-left"
                 >
-                  <div className="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
                     {gpsState.status === 'loading' ? (
                       <Loader2 className="w-5 h-5 animate-spin text-accent" />
                     ) : (
