@@ -37,6 +37,11 @@ const DISTANCE_BANDS: { minKm: number; maxKm: number; fare: number }[] = [
 // ═══════════════════════════════════════════════════════════
 // COMMISSION TIERS
 // ═══════════════════════════════════════════════════════════
+/** Round any amount to the nearest R5 */
+export function roundToR5(amount: number): number {
+  return Math.round(amount / 5) * 5 || 5; // minimum R5
+}
+
 export function calculateCommission(fare: number): number {
   if (fare === 15) return 3;
   if (fare < 50) return 6;
@@ -185,9 +190,10 @@ export function calculateKoloiFare(
   if (!inService) {
     const dist = routedDistanceKm ?? distanceKm(pickup, dropoff);
     const fare = getFareFromDistanceBand(dist);
+    const roundedFare = roundToR5(fare);
     return {
-      priceR: fare,
-      commission: calculateCommission(fare),
+      priceR: roundedFare,
+      commission: calculateCommission(roundedFare),
       reason: 'Out of service area',
       multiplier: 1.0,
       isOutsideTown: true,
@@ -222,7 +228,8 @@ export function calculateKoloiFare(
   // Distance-band pricing + optional Beitbridge surcharge
   const dist = routedDistanceKm ?? distanceKm(pickup, dropoff);
   const baseFare = getFareFromDistanceBand(dist);
-  const fare = baseFare + surcharge;
+  const rawFare = baseFare + surcharge;
+  const fare = roundToR5(rawFare);
   const commission = calculateCommission(fare);
   const cityLabel = isBeitbridgeRide ? 'Beitbridge' : 'Gwanda';
 
