@@ -62,7 +62,7 @@ const App = () => {
           {!splashDone && <SplashScreen onComplete={handleSplashComplete} />}
           <Toaster />
           <Sonner />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <Routes>
               {/* ── Existing web routes ── */}
               <Route path="/" element={<Index />} />
