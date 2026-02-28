@@ -1,7 +1,7 @@
 // Ride expiry utilities
 import { supabase } from '@/lib/supabaseClient';
 
-export const RIDE_EXPIRY_SECONDS = 30;
+export const RIDE_EXPIRY_SECONDS = 300; // 5 minutes
 
 /**
  * Check if a ride has expired based on its expires_at timestamp
