@@ -6,7 +6,7 @@ interface SplashScreenProps {
   duration?: number;
 }
 
-const SplashScreen = ({ onComplete, duration = 2800 }: SplashScreenProps) => {
+const SplashScreen = ({ onComplete, duration = 1500 }: SplashScreenProps) => {
   const [phase, setPhase] = useState<'logo-visible' | 'fade-out' | 'done'>('logo-visible');
 
   useLayoutEffect(() => {
