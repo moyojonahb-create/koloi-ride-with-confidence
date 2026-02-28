@@ -209,14 +209,17 @@ export default function OSMMap({
         [TILE_LAYERS.humanitarian.name]: L.tileLayer(TILE_LAYERS.humanitarian.url, {
           attribution: TILE_LAYERS.humanitarian.attribution,
           maxZoom: 19,
+          keepBuffer: 4,
         }),
         [TILE_LAYERS.osm.name]: L.tileLayer(TILE_LAYERS.osm.url, {
           attribution: TILE_LAYERS.osm.attribution,
           maxZoom: 19,
+          keepBuffer: 4,
         }),
         [TILE_LAYERS.france.name]: L.tileLayer(TILE_LAYERS.france.url, {
           attribution: TILE_LAYERS.france.attribution,
           maxZoom: 19,
+          keepBuffer: 4,
         }),
       };
 
@@ -224,19 +227,27 @@ export default function OSMMap({
       const defaultLayer = baseLayers[TILE_LAYERS.humanitarian.name];
       defaultLayer.addTo(map);
 
-      // Track tile loading
-      let tilesLoaded = false;
-      defaultLayer.on('load', () => {
-        console.log('[OSMMap] Tiles loaded successfully');
-        tilesLoaded = true;
+      // Track tile loading - mark ready as soon as first tiles appear
+      let ready = false;
+      const markReady = () => {
+        if (ready) return;
+        ready = true;
         setMapState('ready');
+      };
+
+      // First tile loaded = show map immediately (no need to wait for all)
+      defaultLayer.once('tileload', () => {
+        console.log('[OSMMap] First tile loaded, showing map');
+        markReady();
+      });
+
+      defaultLayer.on('load', () => {
+        console.log('[OSMMap] All tiles loaded');
+        markReady();
       });
 
       defaultLayer.on('tileerror', (e) => {
-        console.error('[OSMMap] Tile load error:', e);
-        if (!tilesLoaded) {
-          setMapState('error');
-        }
+        console.warn('[OSMMap] Tile error:', (e as any).tile?.src?.slice(-40));
       });
 
       // Add layer control
@@ -257,13 +268,10 @@ export default function OSMMap({
 
       mapInstanceRef.current = map;
 
-      // Fallback: set ready after timeout if tiles haven't loaded
+      // Fallback: show map after 2s even if no tiles loaded yet
       const timeoutId = setTimeout(() => {
-        if (mapState === 'loading') {
-          console.warn('[OSMMap] Tile load timeout, setting ready anyway');
-          setMapState('ready');
-        }
-      }, 5000);
+        markReady();
+      }, 2000);
 
       return () => {
         clearTimeout(timeoutId);
