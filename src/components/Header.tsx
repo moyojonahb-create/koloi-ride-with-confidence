@@ -24,9 +24,9 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-md border-b border-primary-foreground/10">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-xl border-b border-primary-foreground/10">
       <div className="koloi-container">
-        <nav className="flex items-center justify-between h-16 lg:h-18">
+        <nav className="flex items-center justify-between h-[60px] lg:h-[64px]">
           {/* Logo */}
           <a href="/" className="shrink-0">
             <KoloiLogo variant="light" />
@@ -38,7 +38,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
               <a
                 key={item.label}
                 href={item.href}
-                className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-5 py-2.5 rounded-full transition-all duration-200"
+                className="text-[15px] font-semibold text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-5 py-2.5 rounded-full transition-all duration-150"
               >
                 {item.label}
               </a>
@@ -47,13 +47,13 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
 
           {/* Desktop Right Side */}
           <div className="hidden lg:flex items-center gap-3">
-            <button className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-200 flex items-center gap-1.5">
+            <button className="text-[15px] font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-150 flex items-center gap-1.5">
               <Globe className="w-4 h-4" />
               <span>EN</span>
             </button>
             <a
               href="#help"
-              className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-200"
+              className="text-[15px] font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-150"
             >
               Help
             </a>
@@ -64,11 +64,11 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                 <>
                   <button
                     onClick={onLoginClick}
-                    className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-200"
+                    className="text-[15px] font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-150"
                   >
                     Log in
                   </button>
-                  <Button onClick={onSignupClick} variant="accent" size="sm">
+                  <Button onClick={onSignupClick} variant="accent" size="sm" className="font-bold">
                     Sign up
                   </Button>
                 </>
@@ -78,7 +78,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2.5 hover:bg-primary-foreground/10 text-primary-foreground rounded-full transition-colors"
+            className="lg:hidden p-3 hover:bg-primary-foreground/10 text-primary-foreground rounded-2xl active:scale-90 transition-all"
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -88,12 +88,12 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="lg:hidden py-5 border-t border-primary-foreground/10 animate-slide-down">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {navItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
-                  className="px-4 py-3.5 text-primary-foreground font-medium hover:bg-primary-foreground/10 rounded-2xl transition-colors"
+                  className="px-5 py-4 text-[15px] text-primary-foreground font-semibold hover:bg-primary-foreground/10 rounded-2xl transition-colors active:scale-[0.98]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}

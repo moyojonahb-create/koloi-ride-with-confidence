@@ -15,58 +15,51 @@ const LandingHero = ({
   return <section className="min-h-screen bg-primary flex flex-col pt-16 lg:pt-20 overflow-hidden">
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 sm:py-16">
-        {/* Logo - Large and Prominent */}
-        <div className="mb-8 sm:mb-10 animate-fade-in">
-          
-        </div>
+        {/* Logo */}
+        <div className="mb-10 animate-fade-in" />
 
         {/* Tagline with Yellow Accent */}
-        <div className="text-center mb-8 sm:mb-12 animate-slide-up">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-primary-foreground mb-4 tracking-tight">
+        <div className="text-center mb-10 animate-slide-up">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-primary-foreground mb-4 tracking-tighter">
             Get picked.{' '}
-            <span className="relative inline-block">Get moving.<span className="absolute -bottom-2 left-0 w-full h-2 bg-accent rounded-full" />
+            <span className="relative inline-block">Get moving.<span className="absolute -bottom-2 left-0 w-full h-2.5 bg-accent rounded-full" />
             </span>
           </h1>
-          <p className="text-primary-foreground/80 text-lg sm:text-xl mt-6 max-w-lg mx-auto leading-relaxed">
+          <p className="text-primary-foreground/80 text-lg sm:text-xl mt-7 max-w-md mx-auto leading-relaxed">
             Safe, reliable rides at your fingertips. Book in seconds, ride in minutes.
           </p>
         </div>
 
         {/* Phone Mockup with glow effect */}
-        <div className="relative mb-8 sm:mb-12 animate-slide-up" style={{
-        animationDelay: '0.1s'
-      }}>
-          {/* Subtle glow behind phone */}
+        <div className="relative mb-10 animate-spring" style={{ animationDelay: '0.1s' }}>
           <div className="absolute inset-0 bg-accent/20 blur-3xl rounded-full scale-75 -z-10" />
           <PhoneMockup />
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-none sm:w-auto animate-slide-up" style={{
-        animationDelay: '0.2s'
-      }}>
-          <Button onClick={() => navigate('/ride')} variant="accent" size="lg" className="shadow-koloi-glow">
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-none sm:w-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <Button onClick={() => navigate('/ride')} variant="accent" size="lg" className="shadow-[var(--shadow-glow)] h-[52px] text-[15px] font-bold active:scale-[0.97] transition-all">
             Request a Ride
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
-          <Button onClick={onGetStarted} variant="outline" size="lg" className="bg-transparent border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
+          <Button onClick={onGetStarted} variant="outline" size="lg" className="bg-transparent border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 h-[52px] text-[15px] font-bold active:scale-[0.97] transition-all">
             Sign Up Free
           </Button>
         </div>
       </div>
 
       {/* Town Selector + Trust Indicators */}
-      <div className="pb-8 px-6 space-y-4">
+      <div className="pb-10 px-6 space-y-5">
         {/* Town Selector */}
         <div className="flex justify-center">
           <Select defaultValue="gwanda">
-            <SelectTrigger className="w-56 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground rounded-full h-10 focus:ring-accent">
+            <SelectTrigger className="w-56 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground rounded-full h-11 focus:ring-accent">
               <MapPin className="w-4 h-4 mr-2 text-accent" />
               <SelectValue placeholder="Select your town" />
             </SelectTrigger>
-            <SelectContent className="bg-background border rounded-xl z-50">
+            <SelectContent className="bg-background border rounded-2xl z-50">
               {TOWNS.map((town) => (
-                <SelectItem key={town.id} value={town.id} className="cursor-pointer">
+                <SelectItem key={town.id} value={town.id} className="cursor-pointer rounded-xl">
                   {town.name}
                 </SelectItem>
               ))}
@@ -74,17 +67,17 @@ const LandingHero = ({
           </Select>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-          <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2.5 rounded-full">
             <Star className="w-4 h-4 text-accent fill-accent" />
-            <span className="text-primary-foreground/90 text-sm font-medium">Join us today</span>
+            <span className="text-primary-foreground/90 text-[13px] font-semibold">Join us today</span>
           </div>
-          <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
+          <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2.5 rounded-full">
             <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <span className="text-primary-foreground/90 text-sm font-medium">Gwanda & Beitbridge</span>
+            <span className="text-primary-foreground/90 text-[13px] font-semibold">Gwanda & Beitbridge</span>
           </div>
-          <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2 rounded-full">
-            <span className="text-primary-foreground/90 text-sm font-medium">24/7 support</span>
+          <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2.5 rounded-full">
+            <span className="text-primary-foreground/90 text-[13px] font-semibold">24/7 support</span>
           </div>
         </div>
       </div>

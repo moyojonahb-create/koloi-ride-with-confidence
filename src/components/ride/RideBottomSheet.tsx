@@ -139,31 +139,31 @@ export default function RideBottomSheet({
     <div
       ref={sheetRef}
       className={cn(
-        'fixed bottom-0 left-0 right-0 bg-background rounded-t-[2rem] shadow-koloi-xl z-40',
-        'transition-[height] border-t border-border/50',
-        isDragging ? 'duration-0' : 'duration-300 ease-out',
+        'fixed bottom-0 left-0 right-0 bg-background rounded-t-[28px] shadow-[0_-4px_32px_rgba(0,0,0,0.1)] z-40',
+        'transition-[height] border-t border-border/40',
+        isDragging ? 'duration-0' : 'duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
         className
       )}
       style={{ height: sheetHeight }}
     >
       {/* Drag Handle */}
       <div
-        className="flex flex-col items-center pt-3 pb-2 cursor-grab active:cursor-grabbing touch-none select-none"
+        className="flex flex-col items-center pt-3 pb-2.5 cursor-grab active:cursor-grabbing touch-none select-none"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
         onClick={handleHandleClick}
       >
-        <div className="w-14 h-1.5 bg-koloi-gray-300 rounded-full" />
+        <div className="w-10 h-[5px] bg-koloi-gray-300 rounded-full" />
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
         {state === 'collapsed' && collapsedContent ? (
-          <div className="px-5 pb-4">{collapsedContent}</div>
+          <div className="px-5 pb-5">{collapsedContent}</div>
         ) : (
-          <div className="h-full overflow-y-auto px-5 pb-8">
+          <div className="h-full overflow-y-auto px-5 pb-8 overscroll-contain">
             {children}
           </div>
         )}

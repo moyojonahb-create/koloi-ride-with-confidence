@@ -203,11 +203,11 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
 
   if (step === 'select') {
     return (
-      <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
+      <div className="animate-fade-in">
+        <h2 className="text-2xl font-extrabold text-foreground mb-1.5 tracking-tight">
           {mode === 'login' ? 'Welcome back' : 'Create an account'}
         </h2>
-        <p className="text-muted-foreground mb-6">
+        <p className="text-[15px] text-muted-foreground mb-8">
           {mode === 'login' 
             ? 'Log in to continue to Koloi' 
             : 'Sign up to get started with Koloi'}
@@ -216,27 +216,31 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
         <div className="space-y-3">
           <button
             onClick={() => handleMethodSelect('email')}
-            className="w-full flex items-center gap-4 p-4 border border-border rounded-xl hover:bg-secondary transition-colors text-left"
+            className="w-full flex items-center gap-4 p-4 border border-border/60 rounded-2xl hover:bg-secondary active:scale-[0.98] transition-all text-left"
           >
-            <Mail className="w-6 h-6 text-muted-foreground" />
-            <span className="font-medium">Continue with email</span>
+            <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center">
+              <Mail className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <span className="text-[15px] font-semibold">Continue with email</span>
           </button>
           <button
             onClick={() => handleMethodSelect('phone')}
-            className="w-full flex items-center gap-4 p-4 border border-border rounded-xl hover:bg-secondary transition-colors text-left"
+            className="w-full flex items-center gap-4 p-4 border border-border/60 rounded-2xl hover:bg-secondary active:scale-[0.98] transition-all text-left"
           >
-            <Phone className="w-6 h-6 text-muted-foreground" />
-            <span className="font-medium">Continue with phone</span>
+            <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center">
+              <Phone className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <span className="text-[15px] font-semibold">Continue with phone</span>
           </button>
         </div>
 
-        <div className="mt-6 text-center text-sm text-muted-foreground">
+        <div className="mt-8 text-center text-[14px] text-muted-foreground">
           {mode === 'login' ? (
             <>
               Don't have an account?{' '}
               <button 
                 onClick={onSwitchMode}
-                className="text-foreground font-medium underline underline-offset-2 hover:no-underline"
+                className="text-foreground font-semibold underline underline-offset-2 hover:no-underline"
               >
                 Sign up
               </button>
@@ -246,7 +250,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
               Already have an account?{' '}
               <button 
                 onClick={onSwitchMode}
-                className="text-foreground font-medium underline underline-offset-2 hover:no-underline"
+                className="text-foreground font-semibold underline underline-offset-2 hover:no-underline"
               >
                 Log in
               </button>
@@ -259,17 +263,17 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
 
   if (step === 'credentials' && authMethod === 'email') {
     return (
-      <form onSubmit={handleEmailSubmit}>
+      <form onSubmit={handleEmailSubmit} className="animate-fade-in">
         <button 
           type="button"
           onClick={handleBack}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-5 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
-          Back
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-[15px] font-medium">Back</span>
         </button>
 
-        <h2 className="text-2xl font-bold text-foreground mb-6">
+        <h2 className="text-2xl font-extrabold text-foreground mb-6 tracking-tight">
           {mode === 'login' ? 'Log in with email' : 'Sign up with email'}
         </h2>
 
@@ -376,10 +380,10 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
 
         <Button 
           type="submit" 
-          className="w-full mt-6 koloi-btn-primary"
+          className="w-full mt-8 koloi-btn-primary"
           disabled={loading}
         >
-          {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+          {loading && <Loader2 className="w-5 h-5 animate-spin mr-2" />}
           {mode === 'login' ? 'Log in' : 'Create account'}
         </Button>
       </form>

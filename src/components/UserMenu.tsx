@@ -43,22 +43,22 @@ const UserMenu = ({ onFavoritesClick, onHistoryClick, variant = 'default' }: Use
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
-          className={`relative h-10 w-10 rounded-full ${variant === 'light' ? 'hover:bg-primary-foreground/10' : ''}`}
+          className={`relative h-11 w-11 rounded-full active:scale-90 transition-all ${variant === 'light' ? 'hover:bg-primary-foreground/10' : ''}`}
         >
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className={variant === 'light' ? 'bg-accent text-accent-foreground' : 'bg-primary text-primary-foreground'}>
+          <Avatar className="h-11 w-11">
+            <AvatarFallback className={`text-[13px] font-bold ${variant === 'light' ? 'bg-accent text-accent-foreground' : 'bg-primary text-primary-foreground'}`}>
               {userInitials}
             </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <div className="flex items-center justify-start gap-2 p-2">
-          <div className="flex flex-col space-y-1 leading-none">
+      <DropdownMenuContent className="w-60 rounded-2xl p-1.5" align="end" forceMount>
+        <div className="flex items-center justify-start gap-3 p-3">
+          <div className="flex flex-col space-y-0.5 leading-none">
             {user?.user_metadata?.full_name && (
-              <p className="font-medium">{user.user_metadata.full_name}</p>
+              <p className="text-[15px] font-semibold">{user.user_metadata.full_name}</p>
             )}
-            <p className="w-[200px] truncate text-sm text-muted-foreground">
+            <p className="w-[200px] truncate text-[13px] text-muted-foreground">
               {user?.email || user?.phone}
             </p>
           </div>
