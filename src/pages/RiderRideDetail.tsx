@@ -17,7 +17,7 @@ import {
 } from "@/lib/offerHelpers";
 import { RideCommunication } from "@/components/ride/RideCommunication";
 import OffersModal from "@/components/OffersModal";
-import OSMMap from "@/components/OSMMap";
+import TripGoogleMap from "@/components/TripGoogleMap";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -420,15 +420,14 @@ export default function RiderRideDetail() {
       <div className="flex-1 overflow-y-auto overscroll-contain">
         <div className="max-w-lg mx-auto p-4 space-y-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
         {/* Map - Show route and driver location */}
-        {isAccepted && ride.pickup_lat && (
+        {ride.pickup_lat && (
           <Card className="overflow-hidden">
-            <OSMMap
+            <TripGoogleMap
               pickup={{ lat: ride.pickup_lat, lng: ride.pickup_lon }}
               dropoff={{ lat: ride.dropoff_lat, lng: ride.dropoff_lon }}
-              routeGeometry={ride.route_polyline}
-              driverLocation={driverLocation || undefined}
+              driverLocation={driverLocation}
+              tripStatus={ride.status}
               height="280px"
-              showRecenterButton
             />
             {/* Live ETA Banner */}
             {driverLocation && (
