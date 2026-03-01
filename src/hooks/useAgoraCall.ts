@@ -138,22 +138,41 @@ export function useAgoraCall({
     async (sid: string) => {
       try {
         setCallStatus("connecting");
-        console.log("[AgoraCall] Getting token for session:", sid);
 
-        const { data, error } = await supabase.functions.invoke("agora-token", {
-          body: { session_id: sid },
-        });
-
-        if (error || !data?.token) {
-          console.error("[AgoraCall] Failed to get Agora token:", error, data);
-          toast.error("Call failed", { description: "Could not get voice token" });
+        // Ensure we have an active session before invoking the edge function
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData?.session?.access_token) {
+          toast.error("Voice token error", { description: "No session token. Please log in again." });
+          console.error("[AgoraCall] No session token available");
           setCallStatus("error");
           setTimeout(() => setCallStatus("idle"), 3000);
           return;
         }
 
+        console.log("[AgoraCall] Invoking agora-token", sid);
+
+        const { data, error } = await supabase.functions.invoke("agora-token", {
+          body: { session_id: sid },
+        });
+
+        if (error) {
+          console.error("[AgoraCall] Voice token error:", error);
+          toast.error("Voice token error", { description: error.message || String(error) });
+          setCallStatus("error");
+          setTimeout(() => setCallStatus("idle"), 3000);
+          return;
+        }
+
+        if (!data?.token) {
+          console.error("[AgoraCall] Token response missing token:", data);
+          toast.error("Call failed", { description: "No token in response" });
+          setCallStatus("error");
+          setTimeout(() => setCallStatus("idle"), 3000);
+          return;
+        }
+
+        console.log("[AgoraCall] Token response", data);
         const { token, channelName, agoraUid, appId } = data;
-        console.log("[AgoraCall] Got token, joining channel:", channelName, "uid:", agoraUid);
 
         const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
         clientRef.current = client;
