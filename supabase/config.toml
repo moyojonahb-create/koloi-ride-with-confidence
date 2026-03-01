@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.settle-trip]
 verify_jwt = false
+
+[functions.agora-token]
+verify_jwt = false
