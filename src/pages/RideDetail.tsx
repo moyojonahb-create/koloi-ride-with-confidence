@@ -3,9 +3,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { clampTo5 } from "@/lib/koloiMoney";
 import { joinRidePresence, countDriversViewing } from "@/lib/koloiRealtime";
+import { useAgoraCall } from "@/hooks/useAgoraCall";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import NavigationCard from "@/components/driver/NavigationCard";
+import IncomingCallModal from "@/components/ride/IncomingCallModal";
+import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
+import VoiceCallButton from "@/components/ride/VoiceCallButton";
 
 function SettlementInfo({ tripId }: { tripId: string }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
@@ -123,6 +127,24 @@ export default function RideDetail() {
 
   const accepted = useMemo(() => !!ride?.driver_id, [ride]);
 
+  // Agora voice calling - driver is caller, rider is callee
+  const {
+    callStatus,
+    isMuted,
+    isSpeaker,
+    callDuration,
+    incomingCall,
+    startCall,
+    answerCall,
+    declineCall: declineIncomingCall,
+    endCall,
+    toggleMute,
+    toggleSpeaker,
+  } = useAgoraCall({
+    rideId: rideId ?? null,
+    currentUserId: userId,
+    otherUserId: ride?.user_id ?? null,
+  });
   // Auth
   useEffect(() => {
     (async () => {
@@ -362,6 +384,28 @@ export default function RideDetail() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
+      {/* Active Call Overlay */}
+      {callStatus !== "idle" && (
+        <ActiveCallOverlay
+          status={callStatus}
+          duration={callDuration}
+          isMuted={isMuted}
+          isSpeaker={isSpeaker}
+          onToggleMute={toggleMute}
+          onToggleSpeaker={toggleSpeaker}
+          onEndCall={endCall}
+          otherUserName="Rider"
+        />
+      )}
+
+      {/* Incoming Call Modal */}
+      {incomingCall && (
+        <IncomingCallModal
+          callerId={incomingCall.callerId}
+          onAnswer={answerCall}
+          onDecline={declineIncomingCall}
+        />
+      )}
       {/* Header */}
       <div className="shrink-0 bg-background/95 backdrop-blur border-b border-border px-4 py-3 z-20">
         <div className="flex items-center justify-between max-w-lg mx-auto">
@@ -427,17 +471,23 @@ export default function RideDetail() {
             <div className="mt-4 space-y-3">
               <p className="text-sm text-primary font-semibold">Driver accepted ✅ Communication unlocked</p>
               <div className="flex gap-2">
+                <VoiceCallButton
+                  onCall={startCall}
+                  disabled={callStatus !== "idle"}
+                  label="Voice Call"
+                  className="flex-1"
+                />
                 <a
                   href="tel:+263"
-                  className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-center"
+                  className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-center text-sm"
                 >
-                  📞 Call Driver
+                  📞 Phone
                 </a>
                 <button
                   onClick={() => document.getElementById("koloi-chat")?.scrollIntoView({ behavior: "smooth" })}
-                  className="flex-1 py-3 rounded-xl border border-border bg-background font-bold"
+                  className="flex-1 py-3 rounded-xl border border-border bg-background font-bold text-sm"
                 >
-                  💬 Message
+                  💬 Chat
                 </button>
               </div>
             </div>
