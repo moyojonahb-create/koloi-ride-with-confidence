@@ -52,6 +52,47 @@ export type Database = {
           },
         ]
       }
+      call_sessions: {
+        Row: {
+          callee_id: string
+          caller_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          ride_id: string | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          callee_id: string
+          caller_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          ride_id?: string | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          callee_id?: string
+          caller_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          ride_id?: string | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_sessions_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cancellation_fees: {
         Row: {
           amount: number
