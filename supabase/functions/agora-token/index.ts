@@ -90,7 +90,7 @@ serve(async (req) => {
     );
 
     return new Response(
-      JSON.stringify({ token, channelName, agoraUid, expireSeconds }),
+      JSON.stringify({ token, channelName, agoraUid, expireSeconds, appId: agoraAppId }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

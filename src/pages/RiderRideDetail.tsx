@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useRideRealtime } from "@/hooks/useRideRealtime";
 import { useDriverTracking } from "@/hooks/useDriverTracking";
+import { useAgoraCall } from "@/hooks/useAgoraCall";
 import { getSecondsRemaining, isRideExpired } from "@/lib/rideExpiry";
 import {
   fetchPendingOffers,
@@ -27,6 +28,9 @@ import EmergencyButton from "@/components/ride/EmergencyButton";
 import DriverRatingModal from "@/components/ride/DriverRatingModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds";
+import IncomingCallModal from "@/components/ride/IncomingCallModal";
+import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
+import VoiceCallButton from "@/components/ride/VoiceCallButton";
 
 type Ride = {
   id: string;
@@ -65,6 +69,25 @@ export default function RiderRideDetail() {
   const [showRating, setShowRating] = useState(false);
   const [hasRated, setHasRated] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(30);
+
+  // Agora voice calling
+  const {
+    callStatus,
+    isMuted,
+    isSpeaker,
+    callDuration,
+    incomingCall,
+    startCall,
+    answerCall,
+    declineCall: declineIncomingCall,
+    endCall,
+    toggleMute,
+    toggleSpeaker,
+  } = useAgoraCall({
+    rideId: rideId ?? null,
+    currentUserId: user?.id ?? "",
+    otherUserId: driverProfile?.user_id ?? null,
+  });
 
   const refreshRide = useCallback(async () => {
     if (!rideId) return;
@@ -349,6 +372,28 @@ export default function RiderRideDetail() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
+      {/* Active Call Overlay */}
+      {callStatus !== "idle" && (
+        <ActiveCallOverlay
+          status={callStatus}
+          duration={callDuration}
+          isMuted={isMuted}
+          isSpeaker={isSpeaker}
+          onToggleMute={toggleMute}
+          onToggleSpeaker={toggleSpeaker}
+          onEndCall={endCall}
+          otherUserName="Driver"
+        />
+      )}
+
+      {/* Incoming Call Modal */}
+      {incomingCall && (
+        <IncomingCallModal
+          callerId={incomingCall.callerId}
+          onAnswer={answerCall}
+          onDecline={declineIncomingCall}
+        />
+      )}
       {/* Header */}
       <div className="shrink-0 bg-background/95 backdrop-blur border-b border-border px-4 py-3 z-10">
         <div className="flex items-center justify-between max-w-lg mx-auto">
@@ -558,12 +603,18 @@ export default function RiderRideDetail() {
                   </div>
                   {driverPhone && (
                     <div className="flex gap-2 mt-3">
+                      <VoiceCallButton
+                        onCall={startCall}
+                        disabled={callStatus !== "idle"}
+                        label="Voice Call"
+                        className="flex-1"
+                      />
                       <a
                         href={`tel:${driverPhone}`}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold"
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm"
                       >
                         <Phone className="h-4 w-4" />
-                        Call Driver
+                        Phone
                       </a>
                       <Button
                         variant="outline"
@@ -571,7 +622,7 @@ export default function RiderRideDetail() {
                         onClick={() => setShowCommunication(!showCommunication)}
                       >
                         <MessageCircle className="h-4 w-4 mr-2" />
-                        Message
+                        Chat
                       </Button>
                     </div>
                   )}
