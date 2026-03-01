@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { clampTo5 } from "@/lib/koloiMoney";
 import { joinRidePresence, countDriversViewing } from "@/lib/koloiRealtime";
 import { useAgoraCall } from "@/hooks/useAgoraCall";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import TripGoogleMap from "@/components/TripGoogleMap";
+import { useDriverTracking } from "@/hooks/useDriverTracking";
 import NavigationCard from "@/components/driver/NavigationCard";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
@@ -122,8 +122,27 @@ export default function RideDetail() {
   const [toast, setToast] = useState<string | null>(null);
   const [showOffersModal, setShowOffersModal] = useState(false);
 
-  const mapRef = useRef<L.Map | null>(null);
-  const layerRef = useRef<L.LayerGroup | null>(null);
+  // Real-time driver tracking
+  const driverUserId = ride?.driver_id ? undefined : undefined; // will be set after load
+  // We need the driver's user_id for tracking - fetch it when ride has driver_id
+  const [driverUserIdForTracking, setDriverUserIdForTracking] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!ride?.driver_id) {
+      setDriverUserIdForTracking(null);
+      return;
+    }
+    (async () => {
+      const { data } = await supabase
+        .from("drivers")
+        .select("user_id")
+        .eq("id", ride.driver_id!)
+        .maybeSingle();
+      if (data) setDriverUserIdForTracking(data.user_id);
+    })();
+  }, [ride?.driver_id]);
+
+  const driverLocation = useDriverTracking(driverUserIdForTracking, ride?.status ?? null);
 
   const accepted = useMemo(() => !!ride?.driver_id, [ride]);
 
@@ -226,64 +245,7 @@ export default function RideDetail() {
     };
   }, [rideId]);
 
-  // Init map
-  useEffect(() => {
-    if (!ride) return;
-    if (mapRef.current) return;
-
-    const map = L.map("koloi-ride-map", { zoomControl: true }).setView([-20.94, 29.01], 14);
-    L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
-    const layer = L.layerGroup().addTo(map);
-
-    mapRef.current = map;
-    layerRef.current = layer;
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-      layerRef.current = null;
-    };
-  }, [ride]);
-
-  // Draw pickup/dropoff + route
-  useEffect(() => {
-    if (!ride || !mapRef.current || !layerRef.current) return;
-    const map = mapRef.current;
-    const layer = layerRef.current;
-    layer.clearLayers();
-
-    const pickupHas = typeof ride.pickup_lat === "number" && typeof ride.pickup_lon === "number";
-    const dropHas = typeof ride.dropoff_lat === "number" && typeof ride.dropoff_lon === "number";
-
-    if (!pickupHas && !dropHas) return;
-
-    const pts: [number, number][] = [];
-
-    if (pickupHas) {
-      const p: [number, number] = [ride.pickup_lat as number, ride.pickup_lon as number];
-      pts.push(p);
-      L.circleMarker(p, { radius: 10, weight: 2, color: "#F7C600", fillColor: "#F7C600", fillOpacity: 0.8 })
-        .bindTooltip("Pickup", { permanent: true, direction: "bottom" })
-        .addTo(layer);
-    }
-
-    if (pickupHas && dropHas) {
-      const a: [number, number] = [ride.pickup_lat as number, ride.pickup_lon as number];
-      const b: [number, number] = [ride.dropoff_lat as number, ride.dropoff_lon as number];
-      L.polyline([a, b], { weight: 5, color: "#0F2A44" }).addTo(layer);
-    }
-
-    if (dropHas) {
-      const d: [number, number] = [ride.dropoff_lat as number, ride.dropoff_lon as number];
-      pts.push(d);
-      L.circleMarker(d, { radius: 10, weight: 2, color: "#3B82F6", fillColor: "#3B82F6", fillOpacity: 0.8 })
-        .bindTooltip("Drop-off", { permanent: true, direction: "bottom" })
-        .addTo(layer);
-    }
-
-    if (pts.length === 1) map.setView(pts[0], 16);
-    else map.fitBounds(L.latLngBounds(pts), { padding: [30, 30] });
-  }, [ride]);
+  // (Map rendering handled by TripGoogleMap component)
 
   const canAcceptNow = (offer: OfferRow) => {
     const left = msLeftFromCreatedAt(offer.created_at, 10_000);
@@ -426,9 +388,15 @@ export default function RideDetail() {
 
       <div className="flex-1 overflow-y-auto overscroll-contain">
       {/* Map */}
-      <div className="w-full h-[40vh] min-h-[220px] max-h-[360px] relative">
-        <div id="koloi-ride-map" className="w-full h-full" />
-      </div>
+      {ride.pickup_lat != null && ride.dropoff_lat != null && (
+        <TripGoogleMap
+          pickup={{ lat: ride.pickup_lat, lng: ride.pickup_lon! }}
+          dropoff={{ lat: ride.dropoff_lat, lng: ride.dropoff_lon! }}
+          driverLocation={driverLocation}
+          tripStatus={ride.status ?? "pending"}
+          height="40vh"
+        />
+      )}
 
       {/* Ride info card */}
       <div className="max-w-lg mx-auto p-4 space-y-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
