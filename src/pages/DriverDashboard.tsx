@@ -36,6 +36,8 @@ import {
   Star,
   TrendingUp,
   Zap,
+  Phone,
+  PhoneCall,
 } from "lucide-react";
 import { triggerFullAlert } from "@/lib/alerts";
 import { updateDriverLocation } from "@/lib/driverLocation";
@@ -52,7 +54,10 @@ import DriverFeedback from "@/components/driver/DriverFeedback";
 import DriverSettingsPanel from "@/components/settings/DriverSettingsPanel";
 import NavigationCard from "@/components/driver/NavigationCard";
 import { openNavTo } from "@/lib/navigation";
-
+import { useAgoraCall } from "@/hooks/useAgoraCall";
+import IncomingCallModal from "@/components/ride/IncomingCallModal";
+import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
+import VoiceCallButton from "@/components/ride/VoiceCallButton";
 type Ride = {
   id: string;
   user_id: string;
@@ -96,6 +101,57 @@ export default function DriverDashboard() {
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { speak, isSupported: voiceSupported } = useVoiceNavigation({ enabled: voiceEnabled });
   const { wallet, balance, transactions, deposit, refresh: refreshWallet } = useWallet();
+
+  // Agora voice calling for active trip
+  const [callSubStatus, setCallSubStatus] = useState<string>("idle");
+  const {
+    callStatus,
+    isMuted,
+    isSpeaker,
+    callDuration,
+    incomingCall,
+    startCall,
+    answerCall,
+    declineCall: declineIncomingCall,
+    endCall,
+    toggleMute,
+    toggleSpeaker,
+  } = useAgoraCall({
+    rideId: activeTrip?.id ?? null,
+    currentUserId: user?.id ?? "",
+    otherUserId: activeTrip?.user_id ?? null,
+  });
+
+  // Debug: track realtime subscription status for calls
+  useEffect(() => {
+    if (!user?.id) {
+      setCallSubStatus("no-auth");
+      return;
+    }
+    setCallSubStatus("connecting");
+    const channel = supabase
+      .channel(`driver-call-debug-${user.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "call_sessions",
+          filter: `callee_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log("[CallDebug] Incoming call_sessions INSERT:", payload);
+        }
+      )
+      .subscribe((status) => {
+        console.log("[CallDebug] Subscription status:", status);
+        setCallSubStatus(status === "SUBSCRIBED" ? "connected" : status);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
 
   // Helper: days left in trial
   const trialDaysLeft = profile?.trial_ends_at
@@ -451,6 +507,29 @@ export default function DriverDashboard() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
+      {/* Active Call Overlay */}
+      {callStatus !== "idle" && (
+        <ActiveCallOverlay
+          status={callStatus}
+          duration={callDuration}
+          isMuted={isMuted}
+          isSpeaker={isSpeaker}
+          onToggleMute={toggleMute}
+          onToggleSpeaker={toggleSpeaker}
+          onEndCall={endCall}
+          otherUserName="Rider"
+        />
+      )}
+
+      {/* Incoming Call Modal */}
+      {incomingCall && (
+        <IncomingCallModal
+          callerId={incomingCall.callerId}
+          onAnswer={answerCall}
+          onDecline={declineIncomingCall}
+        />
+      )}
+
       {/* Header with Wallet */}
       <div className="shrink-0 bg-background/95 backdrop-blur-lg border-b border-border/60 px-5 py-3.5 z-10">
         <div className="flex items-center justify-between max-w-lg mx-auto">
@@ -478,6 +557,19 @@ export default function DriverDashboard() {
 
       <div className="flex-1 overflow-y-auto overscroll-contain">
       <div className="max-w-lg mx-auto p-5 space-y-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
+
+        {/* DEBUG PANEL (temporary) */}
+        <Card className="border-dashed border-amber-500/60 bg-amber-50/10">
+          <CardContent className="pt-3 pb-3 space-y-1">
+            <p className="text-xs font-bold text-amber-600 uppercase tracking-wider">🐛 Call Debug</p>
+            <p className="text-xs text-muted-foreground font-mono">Driver UID: <span className="text-foreground">{user?.id ?? "none"}</span></p>
+            <p className="text-xs text-muted-foreground font-mono">Active Trip ID: <span className="text-foreground">{activeTrip?.id ?? "none"}</span></p>
+            <p className="text-xs text-muted-foreground font-mono">Rider UID: <span className="text-foreground">{activeTrip?.user_id ?? "none"}</span></p>
+            <p className="text-xs text-muted-foreground font-mono">Call sub: <span className={callSubStatus === "connected" ? "text-emerald-600" : "text-amber-600"}>{callSubStatus}</span></p>
+            <p className="text-xs text-muted-foreground font-mono">Agora status: <span className="text-foreground">{callStatus}</span></p>
+            {incomingCall && <p className="text-xs text-primary font-mono font-bold">⚡ Incoming call from: {incomingCall.callerId}</p>}
+          </CardContent>
+        </Card>
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-3 animate-fade-in">
           <div className="native-card text-center">
@@ -585,6 +677,44 @@ export default function DriverDashboard() {
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   {completing ? "Completing..." : "Complete Trip (R4 fee)"}
                 </Button>
+              </CardContent>
+            </Card>
+
+            {/* Call Buttons: Data / Normal / WhatsApp */}
+            <Card>
+              <CardContent className="pt-4 space-y-3">
+                <p className="font-bold text-sm text-foreground flex items-center gap-2">
+                  <PhoneCall className="h-4 w-4" /> Contact Rider
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {/* Call (Data) — Agora in-app voice */}
+                  <VoiceCallButton
+                    onCall={startCall}
+                    disabled={callStatus !== "idle"}
+                    label="Call (Data)"
+                    className="w-full"
+                  />
+                  {/* Call (Normal) — phone dialer */}
+                  <a
+                    href={riderPhone ? `tel:${riderPhone.replace(/[^\d+]/g, "")}` : "#"}
+                    className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm text-center"
+                  >
+                    <Phone className="h-4 w-4" />
+                    Call (Normal)
+                  </a>
+                  {/* WhatsApp */}
+                  <a
+                    href={riderPhone ? `https://wa.me/${riderPhone.replace(/[^\d]/g, "")}` : "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm text-center"
+                  >
+                    💬 WhatsApp
+                  </a>
+                </div>
+                {!riderPhone && (
+                  <p className="text-xs text-muted-foreground">Rider phone not available — use Call (Data) for in-app voice.</p>
+                )}
               </CardContent>
             </Card>
 
