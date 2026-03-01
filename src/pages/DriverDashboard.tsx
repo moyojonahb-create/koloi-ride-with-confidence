@@ -50,6 +50,8 @@ import { RideCommunication } from "@/components/ride/RideCommunication";
 import DriverAvatarUpload from "@/components/driver/DriverAvatarUpload";
 import DriverFeedback from "@/components/driver/DriverFeedback";
 import DriverSettingsPanel from "@/components/settings/DriverSettingsPanel";
+import NavigationCard from "@/components/driver/NavigationCard";
+import { openNavTo } from "@/lib/navigation";
 
 type Ride = {
   id: string;
@@ -84,7 +86,8 @@ export default function DriverDashboard() {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [transactionsOpen, setTransactionsOpen] = useState(false);
-  const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number; user_id: string } | null>(null);
+  const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number; user_id: string; status: string; pickup_lat: number; pickup_lon: number; dropoff_lat: number; dropoff_lon: number } | null>(null);
+  const lastAutoNavStatus = useRef<string | null>(null);
   const [riderPhone, setRiderPhone] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
   const [isTopDriver, setIsTopDriver] = useState(false);
@@ -208,21 +211,42 @@ export default function DriverDashboard() {
       // Fetch active trip (accepted/in_progress) assigned to this driver
       const { data: activeTripData } = await supabase
         .from("rides")
-        .select("id, pickup_address, dropoff_address, fare, status, user_id")
+        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon")
         .eq("driver_id", p.id)
-        .in("status", ["accepted", "in_progress", "arrived"])
+        .in("status", ["accepted", "enroute_pickup", "in_progress", "arrived"])
         .order("updated_at", { ascending: false })
         .limit(1)
         .maybeSingle();
       
       if (activeTripData) {
+        const prevStatus = activeTrip?.status;
+        const newStatus = activeTripData.status;
+
         setActiveTrip({
           id: activeTripData.id,
           pickup_address: activeTripData.pickup_address,
           dropoff_address: activeTripData.dropoff_address,
           fare: Number(activeTripData.fare),
           user_id: activeTripData.user_id,
+          status: newStatus,
+          pickup_lat: activeTripData.pickup_lat,
+          pickup_lon: activeTripData.pickup_lon,
+          dropoff_lat: activeTripData.dropoff_lat,
+          dropoff_lon: activeTripData.dropoff_lon,
         });
+
+        // Auto-open navigation on status transitions (once per status)
+        if (lastAutoNavStatus.current !== newStatus) {
+          if (newStatus === 'enroute_pickup' || (newStatus === 'accepted' && prevStatus !== 'accepted')) {
+            toast.info("Opening Maps for voice navigation...");
+            openNavTo(activeTripData.pickup_lat, activeTripData.pickup_lon, activeTripData.id, 'pickup');
+            lastAutoNavStatus.current = newStatus;
+          } else if (newStatus === 'in_progress' && prevStatus !== 'in_progress') {
+            toast.info("Opening Maps for voice navigation...");
+            openNavTo(activeTripData.dropoff_lat, activeTripData.dropoff_lon, activeTripData.id, 'dropoff');
+            lastAutoNavStatus.current = newStatus;
+          }
+        }
         // Fetch rider phone
         const { data: riderProfile } = await supabase
           .from("profiles")
@@ -521,6 +545,19 @@ export default function DriverDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        {activeTrip && (
+          <NavigationCard
+            tripId={activeTrip.id}
+            status={activeTrip.status}
+            pickupLat={activeTrip.pickup_lat}
+            pickupLng={activeTrip.pickup_lon}
+            dropoffLat={activeTrip.dropoff_lat}
+            dropoffLng={activeTrip.dropoff_lon}
+            pickupAddress={activeTrip.pickup_address}
+            dropoffAddress={activeTrip.dropoff_address}
+          />
+        )}
 
         {/* Active Trip */}
         {activeTrip && (

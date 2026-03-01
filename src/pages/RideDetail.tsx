@@ -5,6 +5,7 @@ import { clampTo5 } from "@/lib/koloiMoney";
 import { joinRidePresence, countDriversViewing } from "@/lib/koloiRealtime";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import NavigationCard from "@/components/driver/NavigationCard";
 
 function SettlementInfo({ tripId }: { tripId: string }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
@@ -400,6 +401,20 @@ export default function RideDetail() {
           <div className="text-3xl font-black text-primary">R{clampTo5(Number(ride.fare ?? 35))}</div>
 
           {ride.status === "completed" && <SettlementInfo tripId={ride.id} />}
+
+          {/* External Maps Navigation */}
+          {ride.driver_id && ride.pickup_lat != null && ride.dropoff_lat != null && (
+            <NavigationCard
+              tripId={ride.id}
+              status={ride.status ?? 'accepted'}
+              pickupLat={ride.pickup_lat}
+              pickupLng={ride.pickup_lon!}
+              dropoffLat={ride.dropoff_lat}
+              dropoffLng={ride.dropoff_lon!}
+              pickupAddress={ride.pickup_address ?? undefined}
+              dropoffAddress={ride.dropoff_address ?? undefined}
+            />
+          )}
 
           {!accepted ? (
             <button
