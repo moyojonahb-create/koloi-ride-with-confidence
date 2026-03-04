@@ -39,7 +39,7 @@ type Props = {
   onClose: () => void;
 };
 
-const ACCEPT_WINDOW_SECONDS = 10;
+const ACCEPT_WINDOW_SECONDS = 60;
 
 function normalizePhone(phone: string) {
   return phone.replace(/[^\d+]/g, "");
@@ -329,7 +329,7 @@ export default function OffersModal({
 
         {/* Info Note */}
         <div className="mt-3 text-xs text-center text-muted-foreground">
-          Offers are valid for 10 seconds. Expired offers disappear automatically.
+          Offers are valid for 60 seconds. Expired offers disappear automatically.
         </div>
       </div>
     </div>
