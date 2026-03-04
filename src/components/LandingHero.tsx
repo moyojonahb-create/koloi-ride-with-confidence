@@ -2,7 +2,7 @@ import { ArrowRight, Star, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import PhoneMockup from '@/components/PhoneMockup';
-import koloiLogo from '@/assets/koloi-logo-official.png';
+import pickMeLogo from '@/assets/pickme-logo.png';
 import { TOWNS } from '@/lib/towns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 interface LandingHeroProps {

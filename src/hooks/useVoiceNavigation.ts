@@ -96,7 +96,7 @@ export function useVoiceNavigation(options: VoiceNavigationOptions = {}) {
   }, [speak]);
 
   const speakRiderArrival = useCallback(() => {
-    speak('Your Koloi has arrived!', true);
+    speak('Your PickMe has arrived!', true);
   }, [speak]);
 
   const stop = useCallback(() => {

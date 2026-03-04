@@ -14,7 +14,7 @@ export interface VehicleType {
 export const VEHICLE_TYPES: VehicleType[] = [
   {
     id: 'standard',
-    name: 'Koloi',
+    name: 'PickMe',
     description: 'Affordable town rides',
     icon: Car,
     eta: '3 min',
