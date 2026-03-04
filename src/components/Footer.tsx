@@ -1,5 +1,5 @@
 import { Facebook, Twitter, Instagram, Linkedin, Globe, Mail, Phone, MapPin } from 'lucide-react';
-import KoloiLogo from '@/components/KoloiLogo';
+import PickMeLogo from '@/components/PickMeLogo';
 
 const footerLinks = {
   company: [
@@ -44,7 +44,7 @@ const Footer = () => {
           {/* Logo Column */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-4 lg:mb-0">
             <a href="/" className="inline-block">
-              <KoloiLogo variant="inverted" showTagline />
+              <PickMeLogo variant="inverted" showTagline />
             </a>
           </div>
 
