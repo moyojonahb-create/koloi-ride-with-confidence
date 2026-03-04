@@ -3,8 +3,8 @@ import {
   GoogleMap,
   DirectionsRenderer,
   Marker,
-  useJsApiLoader,
-} from "@react-google-maps/api";
+  useJsApiLoader } from
+"@react-google-maps/api";
 import { useGoogleMapsKey } from "@/hooks/useGoogleMapsKey";
 import { calculateDistance } from "@/lib/driverLocation";
 import { Car, Loader2 } from "lucide-react";
@@ -44,19 +44,19 @@ const MAP_OPTIONS: google.maps.MapOptions = {
   mapTypeControl: false,
   fullscreenControl: false,
   styles: [
-    {
-      featureType: "poi",
-      stylers: [{ visibility: "off" }],
-    },
-  ],
+  {
+    featureType: "poi",
+    stylers: [{ visibility: "off" }]
+  }]
+
 };
 
 const PICKUP_ICON_URL =
-  "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+"https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
 const DROPOFF_ICON_URL =
-  "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+"https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
 const DRIVER_ICON_URL =
-  "https://maps.google.com/mapfiles/ms/icons/cabs.png";
+"https://maps.google.com/mapfiles/ms/icons/cabs.png";
 
 function getPhase(status: string): TripPhase {
   if (["accepted", "enroute_pickup"].includes(status)) return "driver_to_pickup";
@@ -77,16 +77,16 @@ function InnerMap({
   pickup,
   dropoff,
   tripStatus,
-  height,
-}: TripGoogleMapProps & { apiKey: string }) {
+  height
+}: TripGoogleMapProps & {apiKey: string;}) {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: apiKey,
-    id: "koloi-google-map",
+    id: "koloi-google-map"
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const [directions, setDirections] =
-    useState<google.maps.DirectionsResult | null>(null);
+  useState<google.maps.DirectionsResult | null>(null);
   const lastFetchPos = useRef<Coords | null>(null);
   const lastFetchTime = useRef(0);
   const lastPhase = useRef<TripPhase>("idle");
@@ -96,18 +96,18 @@ function InnerMap({
 
   // Compute origin / destination for this phase
   const origin: Coords | null =
-    phase === "driver_to_pickup"
-      ? driverLocation
-      : phase === "pickup_to_dropoff"
-      ? driverLocation ?? pickup
-      : null;
+  phase === "driver_to_pickup" ?
+  driverLocation :
+  phase === "pickup_to_dropoff" ?
+  driverLocation ?? pickup :
+  null;
 
   const destination: Coords | null =
-    phase === "driver_to_pickup"
-      ? pickup
-      : phase === "pickup_to_dropoff"
-      ? dropoff
-      : null;
+  phase === "driver_to_pickup" ?
+  pickup :
+  phase === "pickup_to_dropoff" ?
+  dropoff :
+  null;
 
   // Fetch directions with throttle
   const fetchDirections = useCallback(() => {
@@ -115,13 +115,13 @@ function InnerMap({
 
     const now = Date.now();
     const moved =
-      lastFetchPos.current == null ||
-      calculateDistance(
-        lastFetchPos.current.lat,
-        lastFetchPos.current.lng,
-        origin.lat,
-        origin.lng
-      ) >= MIN_MOVE_KM;
+    lastFetchPos.current == null ||
+    calculateDistance(
+      lastFetchPos.current.lat,
+      lastFetchPos.current.lng,
+      origin.lat,
+      origin.lng
+    ) >= MIN_MOVE_KM;
     const elapsed = now - lastFetchTime.current >= MIN_INTERVAL_MS;
     const phaseChanged = lastPhase.current !== phase;
 
@@ -132,7 +132,7 @@ function InnerMap({
       {
         origin: { lat: origin.lat, lng: origin.lng },
         destination: { lat: destination.lat, lng: destination.lng },
-        travelMode: google.maps.TravelMode.DRIVING,
+        travelMode: google.maps.TravelMode.DRIVING
       },
       (result, status) => {
         if (status === google.maps.DirectionsStatus.OK && result) {
@@ -184,72 +184,72 @@ function InnerMap({
     return (
       <div
         className="flex items-center justify-center bg-muted"
-        style={{ height: height ?? "300px" }}
-      >
+        style={{ height: height ?? "300px" }}>
+        
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+      </div>);
+
   }
 
-  return (
-    <div style={{ height: height ?? "300px" }}>
-      <GoogleMap
-        mapContainerStyle={CONTAINER_STYLE}
-        options={MAP_OPTIONS}
-        onLoad={onMapLoad}
-        zoom={14}
-        center={pickup}
-      >
-        {/* Route polyline */}
-        {directions && (
-          <DirectionsRenderer
-            directions={directions}
-            options={{
-              suppressMarkers: true,
-              polylineOptions: {
-                strokeColor: "#1a73e8",
-                strokeWeight: 5,
-                strokeOpacity: 0.85,
-              },
-            }}
-          />
-        )}
+  return;
 
-        {/* Pickup marker */}
-        <Marker
-          position={pickup}
-          icon={{
-            url: PICKUP_ICON_URL,
-            scaledSize: new google.maps.Size(40, 40),
-          }}
-          title="Pickup"
-        />
 
-        {/* Dropoff marker */}
-        <Marker
-          position={dropoff}
-          icon={{
-            url: DROPOFF_ICON_URL,
-            scaledSize: new google.maps.Size(40, 40),
-          }}
-          title="Drop-off"
-        />
 
-        {/* Driver marker (live) */}
-        {driverLocation && phase !== "idle" && (
-          <Marker
-            position={driverLocation}
-            icon={{
-              url: DRIVER_ICON_URL,
-              scaledSize: new google.maps.Size(36, 36),
-            }}
-            title="Driver"
-            zIndex={999}
-          />
-        )}
-      </GoogleMap>
-    </div>
-  );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 /* ------------------------------------------------------------------ */
@@ -263,22 +263,22 @@ export default function TripGoogleMap(props: TripGoogleMapProps) {
     return (
       <div
         className="flex items-center justify-center bg-muted rounded-xl"
-        style={{ height: props.height ?? "300px" }}
-      >
+        style={{ height: props.height ?? "300px" }}>
+        
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (error || !apiKey) {
     return (
       <div
         className="flex items-center justify-center bg-muted rounded-xl text-sm text-muted-foreground"
-        style={{ height: props.height ?? "300px" }}
-      >
+        style={{ height: props.height ?? "300px" }}>
+        
         Map unavailable
-      </div>
-    );
+      </div>);
+
   }
 
   return <InnerMap {...props} apiKey={apiKey} />;
