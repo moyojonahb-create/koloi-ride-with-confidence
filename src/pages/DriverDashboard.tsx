@@ -340,13 +340,13 @@ export default function DriverDashboard() {
 
         if (hasNewRide) {
           triggerFullAlert(
-            "🚗 NEW KOLOI RIDE REQUEST!",
+            "🚗 NEW PICKME RIDE REQUEST!",
             "⚡ A rider is looking for a driver near you - respond NOW!",
             "/driver"
           );
 
           if (voiceEnabled && voiceSupported) {
-            speak("Attention! New ride request received! Open Koloi to respond.");
+            speak("Attention! New ride request received! Open PickMe to respond.");
           }
 
           toast.info("🚗 NEW RIDE REQUEST!", {

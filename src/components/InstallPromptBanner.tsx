@@ -105,10 +105,10 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
           
           <img 
             src={koloiLogo} 
-            alt="Koloi" 
+            alt="PickMe" 
             className="w-20 h-20 mx-auto rounded-2xl object-cover shadow-lg mb-4"
           />
-          <h2 className="text-xl font-bold text-gray-900">Install Koloi</h2>
+          <h2 className="text-xl font-bold text-gray-900">Install PickMe</h2>
           <p className="text-sm text-gray-500 mt-1">Add to your home screen</p>
         </div>
 
@@ -117,7 +117,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
           {isIOS ? (
             <div className="space-y-4">
               <p className="text-gray-600 text-center text-sm">
-                Install Koloi for the best experience:
+                Install PickMe for the best experience:
               </p>
               <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
                 <div className="flex items-center gap-3">
@@ -142,7 +142,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
             </div>
           ) : (
             <p className="text-gray-600 text-center text-sm">
-              Get quick access to Koloi from your home screen for the best ride-hailing experience.
+              Get quick access to PickMe from your home screen for the best ride-hailing experience.
             </p>
           )}
         </div>

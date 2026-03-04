@@ -45,7 +45,7 @@ export function showBrowserNotification(title: string, body: string, url?: strin
       body,
       icon: "/icons/icon-192x192.png",
       badge: "/icons/icon-192x192.png",
-      tag: "koloi-alert",
+      tag: "pickme-alert",
       requireInteraction: true,
     });
     

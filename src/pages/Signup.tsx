@@ -82,7 +82,7 @@ const Signup = () => {
     setIsSubmitting(true);
     try {
       // Use email if provided, otherwise generate one from phone
-      const email = formData.email || `${formData.phone.replace(/\+/g, '')}@koloi.phone`;
+      const email = formData.email || `${formData.phone.replace(/\+/g, '')}@pickme.phone`;
       
       const { error } = await signUp(email, formData.password, formData.fullName);
       
@@ -113,7 +113,7 @@ const Signup = () => {
 
       toast({
         title: 'Account created!',
-        description: 'Welcome to Koloi.',
+        description: 'Welcome to PickMe.',
       });
       navigate(next);
     } catch (err) {
@@ -147,7 +147,7 @@ const Signup = () => {
                 <ArrowLeft className="h-5 w-5 text-foreground" />
               </Link>
               <div>
-                <h1 className="text-xl font-black text-foreground">Create your Koloi account</h1>
+                <h1 className="text-xl font-black text-foreground">Create your PickMe account</h1>
                 <p className="text-sm text-muted-foreground">Sign up to request a ride.</p>
               </div>
             </div>
@@ -269,7 +269,7 @@ const Signup = () => {
             </Form>
 
             <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
-              By continuing you agree to Koloi's basic terms of use.
+              By continuing you agree to PickMe's basic terms of use.
             </p>
 
             <p className="mt-4 text-center text-sm text-muted-foreground">

@@ -14,8 +14,8 @@ const footerLinks = {
     { label: 'Ride', href: '#ride' },
     { label: 'Drive', href: '#drive' },
     { label: 'Business', href: '#business' },
-    { label: 'Koloi Eats', href: '#' },
-    { label: 'Koloi Freight', href: '#' },
+    { label: 'PickMe Eats', href: '#' },
+    { label: 'PickMe Freight', href: '#' },
   ],
   citizenship: [
     { label: 'Safety', href: '#' },
@@ -161,7 +161,7 @@ const Footer = () => {
 
             {/* Copyright & Legal */}
             <div className="flex flex-wrap gap-4 text-sm text-primary-foreground/60">
-              <span>© 2026 Koloi. Powered by Tautona Tek</span>
+              <span>© 2026 PickMe. Powered by Tautona Tek</span>
             <a href="#" className="hover:text-primary-foreground transition-colors">
               Privacy
             </a>

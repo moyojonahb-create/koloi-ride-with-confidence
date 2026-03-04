@@ -43,7 +43,7 @@ const DriverApplication = () => {
               <div className="mx-auto p-3 rounded-full bg-accent/10 w-fit mb-4">
                 <Car className="h-8 w-8 text-accent" />
               </div>
-              <CardTitle>Become a Koloi Driver</CardTitle>
+              <CardTitle>Become a PickMe Driver</CardTitle>
               <CardDescription>Sign in or create an account to start your driver application</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

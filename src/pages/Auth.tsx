@@ -123,8 +123,8 @@ const Auth = () => {
           </CardTitle>
           <CardDescription>
             {mode === 'login' 
-              ? 'Sign in to your Koloi account' 
-              : 'Sign up to start using Koloi'
+              ? 'Sign in to your PickMe account' 
+              : 'Sign up to start using PickMe'
             }
           </CardDescription>
         </CardHeader>

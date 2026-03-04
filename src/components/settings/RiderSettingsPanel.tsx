@@ -72,7 +72,7 @@ export default function RiderSettingsPanel() {
     {
       key: 'promo_notifications' as const,
       label: 'Promos & Offers',
-      desc: 'Discounts and special offers from Koloi',
+      desc: 'Discounts and special offers from PickMe',
       icon: Megaphone,
     },
   ];

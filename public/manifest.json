@@ -1,6 +1,6 @@
 {
-  "name": "Koloi Ride",
-  "short_name": "Koloi",
+  "name": "PickMe Ride",
+  "short_name": "PickMe",
   "description": "Zimbabwe's premier e-hailing service. Request a ride, hop in, and go.",
   "start_url": "/ride",
   "scope": "/",

@@ -40,7 +40,7 @@ const SplashScreen = ({ onComplete, duration = 5000 }: SplashScreenProps) => {
     >
       <img
         src={splashLogo}
-        alt="Koloi"
+        alt="PickMe"
         className="w-36 h-auto sm:w-44 md:w-52"
       />
     </div>

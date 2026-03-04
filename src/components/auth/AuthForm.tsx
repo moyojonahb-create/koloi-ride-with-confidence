@@ -209,8 +209,8 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
         </h2>
         <p className="text-[15px] text-muted-foreground mb-8">
           {mode === 'login' 
-            ? 'Log in to continue to Koloi' 
-            : 'Sign up to get started with Koloi'}
+            ? 'Log in to continue to PickMe' 
+            : 'Sign up to get started with PickMe'}
         </p>
 
         <div className="space-y-3">
