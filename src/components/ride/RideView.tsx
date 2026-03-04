@@ -388,17 +388,120 @@ export default function RideView() {
       </header>
 
       {/* ═══ MAP ═══ */}
-      <div className="flex-1 relative min-h-[35vh]">
-        <OSMMap
-          pickup={pickupLocation}
-          dropoff={dropoffLocation}
-          routeGeometry={routeData?.geometry}
-          onMapClick={handleMapClick}
-          className="w-full h-full"
-          height="100%"
-          showRecenterButton={false}
-        />
+      return (
+  <div className="relative h-[100dvh] w-full overflow-hidden bg-white">
+    {/* ═══ MAP FULLSCREEN (behind everything) ═══ */}
+    <div className="absolute inset-0">
+      <OSMMap
+        pickup={pickupLocation}
+        dropoff={dropoffLocation}
+        routeGeometry={routeData?.geometry}
+        onMapClick={handleMapClick}
+        className="w-full h-full rounded-none"
+        height="100%"
+        showRecenterButton={false}
+      />
 
+      {/* Map floating buttons */}
+      <div className="absolute right-4 bottom-[280px] flex flex-col gap-3 z-20">
+        <button
+          onClick={handleUseMyLocation}
+          className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center active:scale-90 transition-all"
+        >
+          {gpsState.status === 'loading' ? (
+            <Loader2 className="w-5 h-5 animate-spin text-[#2563EB]" />
+          ) : (
+            <Locate className="w-5 h-5 text-[#2563EB]" />
+          )}
+        </button>
+        <button className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center active:scale-90 transition-all">
+          <Navigation className="w-5 h-5 text-[#2563EB]" />
+        </button>
+      </div>
+
+      {/* Reverse geocode loading */}
+      {reverseGeoLoading && (
+        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-30">
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
+            <Loader2 className="w-4 h-4 animate-spin text-[#2563EB]" />
+            <span className="text-sm font-medium text-gray-700">Finding address...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Route loading */}
+      {routeLoading && pickupLocation && dropoffLocation && (
+        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-30">
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
+            <Loader2 className="w-4 h-4 animate-spin text-[#2563EB]" />
+            <span className="text-sm font-medium text-gray-700">Calculating route...</span>
+          </div>
+        </div>
+      )}
+
+      {/* Map click instruction */}
+      {activeField && !reverseGeoLoading && (
+        <div className="absolute top-4 left-4 right-4 z-30">
+          <div className="bg-white/95 backdrop-blur rounded-xl px-4 py-2.5 text-sm font-medium text-center shadow-md text-gray-700">
+            📍 Tap map to set {activeField === 'pickup' ? 'pickup' : 'drop-off'}
+          </div>
+        </div>
+      )}
+    </div>
+
+    {/* ═══ HEADER (overlay, not pushing map down) ═══ */}
+    <header
+      className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between h-14 px-4 bg-white/90 backdrop-blur border-b border-gray-100"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
+      <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-all">
+        <ArrowLeft className="w-5 h-5 text-gray-800" />
+      </button>
+      <KoloiLogo size="sm" />
+      <button onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-all">
+        <User className="w-5 h-5 text-gray-800" />
+      </button>
+    </header>
+
+    {/* ═══ BOTTOM SHEET (overlay on the map) ═══ */}
+    <div
+      className={cn(
+        'absolute bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] transition-all duration-300',
+        sheetExpanded ? 'max-h-[75vh]' : 'max-h-[55vh]',
+        'overflow-y-auto'
+      )}
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}
+    >
+      {/* Grabber */}
+      <div className="sticky top-0 bg-white pt-3 pb-2 z-10 rounded-t-3xl">
+        <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto" />
+      </div>
+
+      {/* ✅ KEEP YOUR EXISTING BOTTOM SHEET CONTENT EXACTLY AS IS */}
+      <div className="px-5 pb-5 space-y-4">
+        {/* ... everything you already have for pickup/dropoff/vehicle/payment/button ... */}
+      </div>
+    </div>
+
+    {/* Modals stay the same */}
+    <OffersModal
+      isOpen={offersOpen}
+      tripId={currentRideId || ''}
+      viewing={viewingDrivers}
+      offers={offers}
+      onAcceptOffer={handleAcceptOffer}
+      onDeclineOffer={handleDeclineOffer}
+      onCancelRide={handleCancelRide}
+      onClose={() => setOffersOpen(false)}
+    />
+    <AuthModalWrapper
+      isOpen={authModalOpen}
+      onClose={() => setAuthModalOpen(false)}
+      mode={authMode}
+      onSwitchMode={() => setAuthMode(m => (m === 'login' ? 'signup' : 'login'))}
+    />
+  </div>
+);
         {/* Map floating buttons */}
         <div className="absolute right-4 bottom-4 flex flex-col gap-3 z-10">
           <button
