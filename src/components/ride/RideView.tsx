@@ -37,7 +37,7 @@ interface GPSState {
   error: string | null;
 }
 
-type VehicleTier = 'economy' | 'standard' | 'premium';
+type VehicleTier = 'standard';
 type PaymentMethod = 'cash' | 'wallet';
 
 const VEHICLE_TIERS: {
@@ -49,9 +49,7 @@ const VEHICLE_TIERS: {
   eta: string;
   multiplier: number;
 }[] = [
-  { id: 'economy', name: 'Economy', icon: Car, priceRange: 'R15 – R25', passengers: '1–3', eta: '3 min', multiplier: 1 },
-  { id: 'standard', name: 'Standard', icon: Car, priceRange: 'R25 – R40', passengers: '1–4', eta: '4 min', multiplier: 1.6 },
-  { id: 'premium', name: 'Premium', icon: Crown, priceRange: 'R40 – R60', passengers: '1–4', eta: '6 min', multiplier: 2.5 },
+  { id: 'standard', name: 'Koloi Standard', icon: Car, priceRange: 'R15 – R40', passengers: '1–4', eta: '3 min', multiplier: 1 },
 ];
 
 export default function RideView() {
@@ -76,7 +74,7 @@ export default function RideView() {
   const [reverseGeoLoading, setReverseGeoLoading] = useState(false);
 
   // Vehicle & payment
-  const [selectedTier, setSelectedTier] = useState<VehicleTier>('economy');
+  const [selectedTier, setSelectedTier] = useState<VehicleTier>('standard');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [passengerCount, setPassengerCount] = useState(1);
 
@@ -536,7 +534,7 @@ export default function RideView() {
                         <div className="flex-1 min-w-0 text-left">
                           <div className="flex items-center gap-2">
                             <p className={cn('font-bold', isSelected ? 'text-[#2563EB]' : 'text-gray-900')}>{tier.name}</p>
-                            {tier.id === 'premium' && <Zap className="w-3.5 h-3.5 text-amber-500" />}
+                            
                           </div>
                           <div className="flex items-center gap-3 text-xs text-gray-400 mt-0.5">
                             <span className="flex items-center gap-1"><Users className="w-3 h-3" />{tier.passengers}</span>
