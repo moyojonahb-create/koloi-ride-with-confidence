@@ -269,7 +269,6 @@ export default function RideView() {
     setRideStatus('driver_assigned');
     setOffersOpen(false);
     toast({ title: 'Driver accepted!', description: 'Your driver is on the way' });
-    // Simulate driver match
     setMatchedDriver({
       name: 'Sipho Ndlovu', car: 'Toyota Corolla', plate: 'ACB 2345',
       rating: 4.8, eta: 3,
@@ -303,17 +302,15 @@ export default function RideView() {
   // ──────── DRIVER MATCH SCREEN ────────
   if (matchedDriver && (rideStatus === 'driver_assigned' || rideStatus === 'driver_arriving')) {
     return (
-      <div className="flex flex-col bg-white" style={{ minHeight: '100dvh' }}>
-        {/* Header */}
-        <header className="shrink-0 flex items-center justify-between h-14 px-4 bg-white border-b border-gray-100" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-          <button onClick={handleCancelRide} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-all">
-            <ArrowLeft className="w-5 h-5 text-gray-800" />
+      <div className="flex flex-col bg-card" style={{ minHeight: '100dvh' }}>
+        <header className="shrink-0 flex items-center justify-between h-14 px-4 bg-card border-b border-border" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <button onClick={handleCancelRide} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary active:scale-95 transition-all">
+            <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <KoloiLogo size="sm" />
           <div className="w-10" />
         </header>
 
-        {/* Map with driver */}
         <div className="flex-1 relative min-h-[40vh]">
           <OSMMap
             pickup={pickupLocation}
@@ -322,48 +319,44 @@ export default function RideView() {
             className="w-full h-full"
             height="100%"
           />
-          {/* ETA overlay */}
           <div className="absolute top-4 left-4 right-4 z-10">
-            <div className="bg-white rounded-2xl shadow-lg px-4 py-3 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#2563EB]/10 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-[#2563EB]" />
+            <div className="bg-card rounded-2xl shadow-lg px-4 py-3 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Arriving in</p>
-                <p className="text-lg font-bold text-gray-900">{matchedDriver.eta} minutes</p>
+                <p className="text-sm text-muted-foreground">Arriving in</p>
+                <p className="text-lg font-bold text-foreground">{matchedDriver.eta} minutes</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Driver Card */}
-        <div className="bg-white rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] px-5 py-6" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}>
-          <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
-
+        <div className="bg-card rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] px-5 py-6" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}>
+          <div className="w-10 h-1 rounded-full bg-border mx-auto mb-5" />
           <div className="flex items-center gap-4 mb-5">
-            <div className="w-14 h-14 rounded-full bg-[#2563EB]/10 flex items-center justify-center">
-              <User className="w-7 h-7 text-[#2563EB]" />
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <User className="w-7 h-7 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-lg font-bold text-gray-900">{matchedDriver.name}</p>
-              <p className="text-sm text-gray-500">{matchedDriver.car} • {matchedDriver.plate}</p>
+              <p className="text-lg font-bold text-foreground">{matchedDriver.name}</p>
+              <p className="text-sm text-muted-foreground">{matchedDriver.car} • {matchedDriver.plate}</p>
             </div>
             <div className="flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-full">
               <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
               <span className="text-sm font-bold text-amber-700">{matchedDriver.rating}</span>
             </div>
           </div>
-
           <div className="grid grid-cols-3 gap-3">
-            <button className="flex flex-col items-center gap-2 py-3 rounded-2xl bg-[#2563EB] text-white active:scale-95 transition-all">
+            <button className="flex flex-col items-center gap-2 py-3 rounded-2xl bg-primary text-primary-foreground active:scale-95 transition-all">
               <Phone className="w-5 h-5" />
               <span className="text-xs font-semibold">Call Driver</span>
             </button>
-            <button className="flex flex-col items-center gap-2 py-3 rounded-2xl bg-gray-100 text-gray-700 active:scale-95 transition-all">
+            <button className="flex flex-col items-center gap-2 py-3 rounded-2xl bg-secondary text-foreground active:scale-95 transition-all">
               <MessageCircle className="w-5 h-5" />
               <span className="text-xs font-semibold">Message</span>
             </button>
-            <button onClick={handleCancelRide} className="flex flex-col items-center gap-2 py-3 rounded-2xl bg-red-50 text-red-600 active:scale-95 transition-all">
+            <button onClick={handleCancelRide} className="flex flex-col items-center gap-2 py-3 rounded-2xl bg-destructive/10 text-destructive active:scale-95 transition-all">
               <X className="w-5 h-5" />
               <span className="text-xs font-semibold">Cancel</span>
             </button>
@@ -375,277 +368,165 @@ export default function RideView() {
 
   // ──────── MAIN RIDE BOOKING UI ────────
   return (
-    <div className="flex flex-col bg-white" style={{ minHeight: '100dvh' }}>
-      {/* ═══ HEADER ═══ */}
-      <header className="shrink-0 flex items-center justify-between h-14 px-4 bg-white border-b border-gray-100 z-50 relative" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-all">
-          <ArrowLeft className="w-5 h-5 text-gray-800" />
-        </button>
-        <KoloiLogo size="sm" />
-        <button onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-all">
-          <User className="w-5 h-5 text-gray-800" />
-        </button>
-      </header>
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
+      {/* ═══ MAP FULLSCREEN ═══ */}
+      <div className="absolute inset-0">
+        <OSMMap
+          pickup={pickupLocation}
+          dropoff={dropoffLocation}
+          routeGeometry={routeData?.geometry}
+          onMapClick={handleMapClick}
+          className="w-full h-full rounded-none"
+          height="100%"
+          showRecenterButton={false}
+        />
 
-      {/* ═══ MAP ═══ */}
-      return (
-  <div className="relative h-[100dvh] w-full overflow-hidden bg-white">
-    {/* ═══ MAP FULLSCREEN (behind everything) ═══ */}
-    <div className="absolute inset-0">
-      <OSMMap
-        pickup={pickupLocation}
-        dropoff={dropoffLocation}
-        routeGeometry={routeData?.geometry}
-        onMapClick={handleMapClick}
-        className="w-full h-full rounded-none"
-        height="100%"
-        showRecenterButton={false}
-      />
-
-      {/* Map floating buttons */}
-      <div className="absolute right-4 bottom-[280px] flex flex-col gap-3 z-20">
-        <button
-          onClick={handleUseMyLocation}
-          className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center active:scale-90 transition-all"
-        >
-          {gpsState.status === 'loading' ? (
-            <Loader2 className="w-5 h-5 animate-spin text-[#2563EB]" />
-          ) : (
-            <Locate className="w-5 h-5 text-[#2563EB]" />
-          )}
-        </button>
-        <button className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center active:scale-90 transition-all">
-          <Navigation className="w-5 h-5 text-[#2563EB]" />
-        </button>
-      </div>
-
-      {/* Reverse geocode loading */}
-      {reverseGeoLoading && (
-        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-30">
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
-            <Loader2 className="w-4 h-4 animate-spin text-[#2563EB]" />
-            <span className="text-sm font-medium text-gray-700">Finding address...</span>
-          </div>
-        </div>
-      )}
-
-      {/* Route loading */}
-      {routeLoading && pickupLocation && dropoffLocation && (
-        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-30">
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
-            <Loader2 className="w-4 h-4 animate-spin text-[#2563EB]" />
-            <span className="text-sm font-medium text-gray-700">Calculating route...</span>
-          </div>
-        </div>
-      )}
-
-      {/* Map click instruction */}
-      {activeField && !reverseGeoLoading && (
-        <div className="absolute top-4 left-4 right-4 z-30">
-          <div className="bg-white/95 backdrop-blur rounded-xl px-4 py-2.5 text-sm font-medium text-center shadow-md text-gray-700">
-            📍 Tap map to set {activeField === 'pickup' ? 'pickup' : 'drop-off'}
-          </div>
-        </div>
-      )}
-    </div>
-
-    {/* ═══ HEADER (overlay, not pushing map down) ═══ */}
-    <header
-      className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between h-14 px-4 bg-white/90 backdrop-blur border-b border-gray-100"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
-    >
-      <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-all">
-        <ArrowLeft className="w-5 h-5 text-gray-800" />
-      </button>
-      <KoloiLogo size="sm" />
-      <button onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-all">
-        <User className="w-5 h-5 text-gray-800" />
-      </button>
-    </header>
-
-    {/* ═══ BOTTOM SHEET (overlay on the map) ═══ */}
-    <div
-      className={cn(
-        'absolute bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] transition-all duration-300',
-        sheetExpanded ? 'max-h-[75vh]' : 'max-h-[55vh]',
-        'overflow-y-auto'
-      )}
-      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}
-    >
-      {/* Grabber */}
-      <div className="sticky top-0 bg-white pt-3 pb-2 z-10 rounded-t-3xl">
-        <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto" />
-      </div>
-
-      {/* ✅ KEEP YOUR EXISTING BOTTOM SHEET CONTENT EXACTLY AS IS */}
-      <div className="px-5 pb-5 space-y-4">
-        {/* ... everything you already have for pickup/dropoff/vehicle/payment/button ... */}
-      </div>
-    </div>
-
-    {/* Modals stay the same */}
-    <OffersModal
-      isOpen={offersOpen}
-      tripId={currentRideId || ''}
-      viewing={viewingDrivers}
-      offers={offers}
-      onAcceptOffer={handleAcceptOffer}
-      onDeclineOffer={handleDeclineOffer}
-      onCancelRide={handleCancelRide}
-      onClose={() => setOffersOpen(false)}
-    />
-    <AuthModalWrapper
-      isOpen={authModalOpen}
-      onClose={() => setAuthModalOpen(false)}
-      mode={authMode}
-      onSwitchMode={() => setAuthMode(m => (m === 'login' ? 'signup' : 'login'))}
-    />
-  </div>
-);
         {/* Map floating buttons */}
-        <div className="absolute right-4 bottom-4 flex flex-col gap-3 z-10">
+        <div className="absolute right-4 bottom-[280px] flex flex-col gap-3 z-20">
           <button
             onClick={handleUseMyLocation}
-            className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center active:scale-90 transition-all"
+            className="w-12 h-12 rounded-full bg-card shadow-lg flex items-center justify-center active:scale-90 transition-all"
           >
             {gpsState.status === 'loading' ? (
-              <Loader2 className="w-5 h-5 animate-spin text-[#2563EB]" />
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
             ) : (
-              <Locate className="w-5 h-5 text-[#2563EB]" />
+              <Locate className="w-5 h-5 text-primary" />
             )}
           </button>
-          <button className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center active:scale-90 transition-all">
-            <Navigation className="w-5 h-5 text-[#2563EB]" />
+          <button className="w-12 h-12 rounded-full bg-card shadow-lg flex items-center justify-center active:scale-90 transition-all">
+            <Navigation className="w-5 h-5 text-primary" />
           </button>
         </div>
 
         {/* Reverse geocode loading */}
         {reverseGeoLoading && (
-          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-20">
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
-              <Loader2 className="w-4 h-4 animate-spin text-[#2563EB]" />
-              <span className="text-sm font-medium text-gray-700">Finding address...</span>
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-30">
+            <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-full shadow-md">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <span className="text-sm font-medium text-foreground">Finding address...</span>
             </div>
           </div>
         )}
 
         {/* Route loading */}
         {routeLoading && pickupLocation && dropoffLocation && (
-          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-20">
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
-              <Loader2 className="w-4 h-4 animate-spin text-[#2563EB]" />
-              <span className="text-sm font-medium text-gray-700">Calculating route...</span>
+          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-30">
+            <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-full shadow-md">
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <span className="text-sm font-medium text-foreground">Calculating route...</span>
             </div>
           </div>
         )}
 
         {/* Map click instruction */}
         {activeField && !reverseGeoLoading && (
-          <div className="absolute top-4 left-4 right-4 z-20">
-            <div className="bg-white/95 backdrop-blur rounded-xl px-4 py-2.5 text-sm font-medium text-center shadow-md text-gray-700">
+          <div className="absolute top-4 left-4 right-4 z-30">
+            <div className="bg-card/95 backdrop-blur rounded-xl px-4 py-2.5 text-sm font-medium text-center shadow-md text-foreground">
               📍 Tap map to set {activeField === 'pickup' ? 'pickup' : 'drop-off'}
             </div>
           </div>
         )}
       </div>
 
+      {/* ═══ HEADER ═══ */}
+      <header
+        className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between h-14 px-4 bg-card/90 backdrop-blur border-b border-border"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
+        <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary active:scale-95 transition-all">
+          <ArrowLeft className="w-5 h-5 text-foreground" />
+        </button>
+        <KoloiLogo size="sm" />
+        <button onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary active:scale-95 transition-all">
+          <User className="w-5 h-5 text-foreground" />
+        </button>
+      </header>
+
       {/* ═══ BOTTOM SHEET PANEL ═══ */}
       <div
         className={cn(
-          'bg-white rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] relative z-30 transition-all duration-300',
+          'absolute bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] transition-all duration-300',
           sheetExpanded ? 'max-h-[75vh] overflow-y-auto' : 'max-h-[55vh] overflow-y-auto'
         )}
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}
       >
-        {/* Grabber */}
-        <div className="sticky top-0 bg-white pt-3 pb-2 z-10 rounded-t-3xl">
-          <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto" />
+        <div className="sticky top-0 bg-card pt-3 pb-2 z-10 rounded-t-3xl">
+          <div className="w-10 h-1 rounded-full bg-border mx-auto" />
         </div>
 
         <div className="px-5 pb-5 space-y-4">
-          {/* ── Pickup Location ── */}
+          {/* Pickup */}
           <button
             onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
-            className="w-full flex items-center gap-3 p-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 active:scale-[0.98] transition-all text-left"
+            className="w-full flex items-center gap-3 p-3.5 bg-secondary rounded-2xl hover:bg-secondary/80 active:scale-[0.98] transition-all text-left"
           >
-            <div className="w-10 h-10 rounded-full bg-[#2563EB]/10 flex items-center justify-center shrink-0">
-              <MapPin className="w-5 h-5 text-[#2563EB]" />
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <MapPin className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-400 font-medium">PICKUP</p>
-              <p className={cn('text-[15px] font-semibold truncate', pickupLocation ? 'text-gray-900' : 'text-gray-400')}>
+              <p className="text-xs text-muted-foreground font-medium">PICKUP</p>
+              <p className={cn('text-[15px] font-semibold truncate', pickupLocation ? 'text-foreground' : 'text-muted-foreground')}>
                 {pickupLocation?.name || 'Where from?'}
               </p>
             </div>
             {pickupLocation && (
-              <span onClick={e => { e.stopPropagation(); setPickupLocation(null); }} className="p-1.5 hover:bg-gray-200 rounded-full transition-colors">
-                <X className="w-4 h-4 text-gray-400" />
+              <span onClick={e => { e.stopPropagation(); setPickupLocation(null); }} className="p-1.5 hover:bg-muted rounded-full transition-colors">
+                <X className="w-4 h-4 text-muted-foreground" />
               </span>
             )}
           </button>
 
-          {/* ── Dropoff Location ── */}
+          {/* Dropoff */}
           <button
             onClick={() => { setActiveField('dropoff'); setSearchQuery(''); }}
-            className="w-full flex items-center gap-3 p-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 active:scale-[0.98] transition-all text-left"
+            className="w-full flex items-center gap-3 p-3.5 bg-secondary rounded-2xl hover:bg-secondary/80 active:scale-[0.98] transition-all text-left"
           >
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
               <MapPin className="w-5 h-5 text-green-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-400 font-medium">DROP-OFF</p>
-              <p className={cn('text-[15px] font-semibold truncate', dropoffLocation ? 'text-gray-900' : 'text-gray-400')}>
+              <p className="text-xs text-muted-foreground font-medium">DROP-OFF</p>
+              <p className={cn('text-[15px] font-semibold truncate', dropoffLocation ? 'text-foreground' : 'text-muted-foreground')}>
                 {dropoffLocation?.name || 'Where to?'}
               </p>
             </div>
             {dropoffLocation && (
-              <span onClick={e => { e.stopPropagation(); setDropoffLocation(null); }} className="p-1.5 hover:bg-gray-200 rounded-full transition-colors">
-                <X className="w-4 h-4 text-gray-400" />
+              <span onClick={e => { e.stopPropagation(); setDropoffLocation(null); }} className="p-1.5 hover:bg-muted rounded-full transition-colors">
+                <X className="w-4 h-4 text-muted-foreground" />
               </span>
             )}
           </button>
 
-          {/* ── Vehicle Options ── */}
+          {/* Vehicle & Payment & Button */}
           {pickupLocation && dropoffLocation && (
             <>
               <div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Choose your ride</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Your ride</p>
                 <div className="space-y-2">
                   {VEHICLE_TIERS.map(tier => {
                     const Icon = tier.icon;
                     const isSelected = selectedTier === tier.id;
-                    const tierFare = fareEstimate
-                      ? `R${Math.round(fareEstimate.fareR * (tier.multiplier / VEHICLE_TIERS.find(t => t.id === selectedTier)!.multiplier))}`
-                      : tier.priceRange;
                     return (
                       <button
                         key={tier.id}
                         onClick={() => setSelectedTier(tier.id)}
                         className={cn(
                           'w-full flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all active:scale-[0.98]',
-                          isSelected
-                            ? 'border-[#2563EB] bg-[#2563EB]/5'
-                            : 'border-transparent bg-gray-50 hover:bg-gray-100'
+                          isSelected ? 'border-primary bg-primary/5' : 'border-transparent bg-secondary hover:bg-secondary/80'
                         )}
                       >
-                        <div className={cn(
-                          'w-12 h-12 rounded-2xl flex items-center justify-center shrink-0',
-                          isSelected ? 'bg-[#2563EB]' : 'bg-gray-200'
-                        )}>
-                          <Icon className={cn('w-6 h-6', isSelected ? 'text-white' : 'text-gray-500')} />
+                        <div className={cn('w-12 h-12 rounded-2xl flex items-center justify-center shrink-0', isSelected ? 'bg-primary' : 'bg-muted')}>
+                          <Icon className={cn('w-6 h-6', isSelected ? 'text-primary-foreground' : 'text-muted-foreground')} />
                         </div>
                         <div className="flex-1 min-w-0 text-left">
-                          <div className="flex items-center gap-2">
-                            <p className={cn('font-bold', isSelected ? 'text-[#2563EB]' : 'text-gray-900')}>{tier.name}</p>
-                            
-                          </div>
-                          <div className="flex items-center gap-3 text-xs text-gray-400 mt-0.5">
+                          <p className={cn('font-bold', isSelected ? 'text-primary' : 'text-foreground')}>{tier.name}</p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                             <span className="flex items-center gap-1"><Users className="w-3 h-3" />{tier.passengers}</span>
                             <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{tier.eta}</span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={cn('text-lg font-bold', isSelected ? 'text-[#2563EB]' : 'text-gray-900')}>
+                          <p className={cn('text-lg font-bold', isSelected ? 'text-primary' : 'text-foreground')}>
                             {fareEstimate ? `R${fareEstimate.fareR}` : tier.priceRange}
                           </p>
                         </div>
@@ -655,53 +536,46 @@ export default function RideView() {
                 </div>
               </div>
 
-              {/* ── Payment Method ── */}
+              {/* Payment Method */}
               <div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Payment method</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Payment method</p>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setPaymentMethod('cash')}
                     className={cn(
                       'flex-1 flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all active:scale-[0.98]',
-                      paymentMethod === 'cash'
-                        ? 'border-[#2563EB] bg-[#2563EB]/5'
-                        : 'border-transparent bg-gray-50'
+                      paymentMethod === 'cash' ? 'border-primary bg-primary/5' : 'border-transparent bg-secondary'
                     )}
                   >
-                    <Banknote className={cn('w-5 h-5', paymentMethod === 'cash' ? 'text-[#2563EB]' : 'text-gray-400')} />
-                    <span className={cn('font-semibold text-sm', paymentMethod === 'cash' ? 'text-[#2563EB]' : 'text-gray-700')}>Cash</span>
+                    <Banknote className={cn('w-5 h-5', paymentMethod === 'cash' ? 'text-primary' : 'text-muted-foreground')} />
+                    <span className={cn('font-semibold text-sm', paymentMethod === 'cash' ? 'text-primary' : 'text-foreground')}>Cash</span>
                   </button>
                   <button
                     onClick={() => setPaymentMethod('wallet')}
                     className={cn(
                       'flex-1 flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all active:scale-[0.98]',
-                      paymentMethod === 'wallet'
-                        ? 'border-[#2563EB] bg-[#2563EB]/5'
-                        : 'border-transparent bg-gray-50'
+                      paymentMethod === 'wallet' ? 'border-primary bg-primary/5' : 'border-transparent bg-secondary'
                     )}
                   >
-                    <Wallet className={cn('w-5 h-5', paymentMethod === 'wallet' ? 'text-[#2563EB]' : 'text-gray-400')} />
-                    <span className={cn('font-semibold text-sm', paymentMethod === 'wallet' ? 'text-[#2563EB]' : 'text-gray-700')}>Wallet</span>
+                    <Wallet className={cn('w-5 h-5', paymentMethod === 'wallet' ? 'text-primary' : 'text-muted-foreground')} />
+                    <span className={cn('font-semibold text-sm', paymentMethod === 'wallet' ? 'text-primary' : 'text-foreground')}>Wallet</span>
                   </button>
                 </div>
               </div>
 
-              {/* ── FIND DRIVER Button ── */}
+              {/* FIND DRIVER */}
               <Button
                 onClick={handleRequestRide}
                 disabled={!canRequestRide}
                 className={cn(
                   'w-full h-[60px] text-base font-bold rounded-2xl transition-all gap-2 active:scale-[0.97]',
                   canRequestRide
-                    ? 'bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-[0_4px_14px_rgba(37,99,235,0.4)]'
-                    : 'bg-gray-200 text-gray-400'
+                    ? 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_14px_hsl(var(--primary)/0.4)]'
+                    : 'bg-muted text-muted-foreground'
                 )}
               >
                 {isRequesting ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Finding drivers...
-                  </>
+                  <><Loader2 className="w-5 h-5 animate-spin" /> Finding drivers...</>
                 ) : !user ? (
                   'Sign in to continue'
                 ) : canRequestRide ? (
@@ -711,10 +585,10 @@ export default function RideView() {
                 )}
               </Button>
 
-              {/* ── Negotiate ── */}
+              {/* Negotiate */}
               <button
                 onClick={() => user ? navigate('/negotiate/request') : setAuthModalOpen(true)}
-                className="w-full flex items-center justify-center gap-1 text-sm text-gray-400 py-2 hover:text-[#2563EB] transition-colors"
+                className="w-full flex items-center justify-center gap-1 text-sm text-muted-foreground py-2 hover:text-primary transition-colors"
               >
                 Prefer to negotiate the price?
                 <ChevronRight className="w-4 h-4" />
@@ -722,10 +596,9 @@ export default function RideView() {
             </>
           )}
 
-          {/* When no locations selected yet */}
           {(!pickupLocation || !dropoffLocation) && (
             <div className="text-center py-4">
-              <p className="text-sm text-gray-400">Select pickup and destination to see ride options</p>
+              <p className="text-sm text-muted-foreground">Select pickup and destination to see ride options</p>
             </div>
           )}
         </div>
@@ -733,47 +606,44 @@ export default function RideView() {
 
       {/* ══ Full-Screen Search Overlay ══ */}
       {activeField && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-white animate-slide-up">
-          {/* Search header */}
-          <div className="flex items-center gap-3 px-4 bg-white border-b border-gray-100" style={{ paddingTop: `calc(env(safe-area-inset-top) + 14px)`, paddingBottom: '14px' }}>
+        <div className="fixed inset-0 z-[60] flex flex-col bg-card animate-slide-up">
+          <div className="flex items-center gap-3 px-4 bg-card border-b border-border" style={{ paddingTop: `calc(env(safe-area-inset-top) + 14px)`, paddingBottom: '14px' }}>
             <button
               onClick={() => { setActiveField(null); setSearchQuery(''); setNominatimResults([]); }}
-              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-90 transition-all shrink-0"
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-secondary active:scale-90 transition-all shrink-0"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-800" />
+              <ArrowLeft className="w-5 h-5 text-foreground" />
             </button>
             <div className="flex-1 relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
               <input
                 autoFocus
                 type="text"
                 placeholder={activeField === 'pickup' ? 'Search pickup location...' : 'Search destination...'}
                 value={searchQuery}
                 onChange={e => handleSearchChange(e.target.value)}
-                className="w-full h-12 pl-11 pr-4 bg-gray-50 rounded-2xl text-[16px] font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 border-0"
+                className="w-full h-12 pl-11 pr-4 bg-secondary rounded-2xl text-[16px] font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 border-0"
               />
             </div>
           </div>
 
-          {/* Results */}
           <div className="flex-1 overflow-y-auto">
-            {/* My Location — pickup only */}
             {activeField === 'pickup' && (
               <button
                 onClick={handleUseMyLocation}
                 disabled={gpsState.status === 'loading'}
-                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-gray-50 active:bg-gray-100 transition-colors border-b border-gray-50 text-left"
+                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-secondary active:bg-muted transition-colors border-b border-border/50 text-left"
               >
-                <div className="w-11 h-11 rounded-full bg-[#2563EB]/10 flex items-center justify-center shrink-0">
+                <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   {gpsState.status === 'loading' ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-[#2563EB]" />
+                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
                   ) : (
-                    <Crosshair className="w-5 h-5 text-[#2563EB]" />
+                    <Crosshair className="w-5 h-5 text-primary" />
                   )}
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">Use my current location</p>
-                  <p className="text-sm text-gray-400">Find pickup point automatically</p>
+                  <p className="font-semibold text-foreground">Use my current location</p>
+                  <p className="text-sm text-muted-foreground">Find pickup point automatically</p>
                 </div>
               </button>
             )}
@@ -782,18 +652,16 @@ export default function RideView() {
               <p className="text-sm text-amber-600 bg-amber-50 mx-4 my-3 p-3 rounded-xl">{gpsState.error}</p>
             )}
 
-            {/* Proximity Filter */}
             {gpsState.coords && (
               <div className="px-4 pt-3 pb-1">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Nearby places</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Nearby places</p>
                 <ProximityFilter selected={proximityRadius} onSelect={setProximityRadius} />
               </div>
             )}
 
-            {/* Quick Picks */}
             {!searchQuery.trim() && (
               <div className="px-4 pt-4 pb-2">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Popular places</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Popular places</p>
                 <QuickPickChips
                   onSelect={handleQuickPickSelect}
                   selectedName={activeField === 'pickup' ? pickupLocation?.name : dropoffLocation?.name}
@@ -801,18 +669,17 @@ export default function RideView() {
               </div>
             )}
 
-            {/* Search results */}
             {(searchQuery.trim() || proximityRadius !== null) && (
               <>
                 <div className="px-4 pt-4 pb-1">
-                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     {searchQuery.trim() ? 'Results' : `Within ${proximityRadius}km`}
                   </p>
                 </div>
 
                 {landmarksLoading ? (
                   <div className="flex items-center justify-center py-12">
-                    <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
                   </div>
                 ) : (
                   <>
@@ -820,27 +687,27 @@ export default function RideView() {
                       <button
                         key={landmark.id}
                         onClick={() => handleLandmarkSelect(landmark)}
-                        className="w-full flex items-center gap-4 px-4 py-4 hover:bg-gray-50 transition-colors border-b border-gray-50 text-left"
+                        className="w-full flex items-center gap-4 px-4 py-4 hover:bg-secondary transition-colors border-b border-border/50 text-left"
                       >
-                        <div className="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                          <MapPin className="w-5 h-5 text-gray-400" />
+                        <div className="w-11 h-11 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                          <MapPin className="w-5 h-5 text-muted-foreground" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-gray-900 truncate">{landmark.name}</p>
-                          <p className="text-sm text-gray-400 capitalize">{landmark.category}</p>
+                          <p className="font-semibold text-foreground truncate">{landmark.name}</p>
+                          <p className="text-sm text-muted-foreground capitalize">{landmark.category}</p>
                         </div>
                       </button>
                     ))}
 
                     {landmarks.length === 0 && !nominatimLoading && !showNominatimFallback && searchQuery.trim() && (
-                      <div className="text-center py-12 text-gray-400">
+                      <div className="text-center py-12 text-muted-foreground">
                         <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
                         <p className="text-sm">No results for "{searchQuery}"</p>
                       </div>
                     )}
 
                     {nominatimLoading && (
-                      <div className="flex items-center justify-center gap-2 py-4 text-gray-400">
+                      <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground">
                         <Loader2 className="w-4 h-4 animate-spin" />
                         <span className="text-sm">Searching more places...</span>
                       </div>
@@ -848,24 +715,23 @@ export default function RideView() {
                   </>
                 )}
 
-                {/* Nominatim fallback */}
                 {(showNominatimFallback || (landmarks.length > 0 && nominatimResults.length > 0)) && (
                   <>
-                    <div className="px-4 py-2 bg-[#2563EB]/5 border-t border-gray-100">
-                      <p className="text-xs font-bold text-[#2563EB] uppercase tracking-wider">📍 More places</p>
+                    <div className="px-4 py-2 bg-primary/5 border-t border-border">
+                      <p className="text-xs font-bold text-primary uppercase tracking-wider">📍 More places</p>
                     </div>
                     {nominatimResults.map((result, index) => (
                       <button
                         key={`nom-${index}`}
                         onClick={() => handleNominatimSelect(result)}
-                        className="w-full flex items-center gap-4 px-4 py-4 hover:bg-gray-50 transition-colors border-b border-gray-50 text-left"
+                        className="w-full flex items-center gap-4 px-4 py-4 hover:bg-secondary transition-colors border-b border-border/50 text-left"
                       >
-                        <div className="w-11 h-11 rounded-full bg-[#2563EB]/10 flex items-center justify-center shrink-0">
-                          <Navigation className="w-5 h-5 text-[#2563EB]" />
+                        <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <Navigation className="w-5 h-5 text-primary" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-gray-900 truncate">{result.name}</p>
-                          <p className="text-sm text-gray-400 truncate">{result.displayName}</p>
+                          <p className="font-semibold text-foreground truncate">{result.name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
                         </div>
                       </button>
                     ))}
