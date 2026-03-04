@@ -1,5 +1,4 @@
-import koloiLogoFull from '@/assets/koloi-logo-full.png';
-import koloiIcon from '@/assets/koloi-icon.png';
+import pickMeLogo from '@/assets/pickme-logo.png';
 
 interface KoloiLogoProps {
   className?: string;
@@ -33,17 +32,14 @@ const KoloiLogo = ({
     xl: 'h-20'
   };
 
-  // Use icon for small sizes or when explicitly requested
-  const useIcon = iconOnly || size === 'sm';
-  const logoSrc = useIcon ? koloiIcon : koloiLogoFull;
-  const sizeClass = useIcon ? iconSizeClasses[size] : fullLogoSizeClasses[size];
+  const sizeClass = iconOnly ? iconSizeClasses[size] : fullLogoSizeClasses[size];
   
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <img 
-        src={logoSrc} 
-        alt="Koloi" 
-        className={`${sizeClass} ${useIcon ? 'rounded-full object-cover' : 'w-auto object-contain'}`}
+        src={pickMeLogo} 
+        alt="PickMe" 
+        className={`${sizeClass} w-auto object-contain`}
       />
       
       {showTagline && (
