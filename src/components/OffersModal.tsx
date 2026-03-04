@@ -39,7 +39,7 @@ type Props = {
   onClose: () => void;
 };
 
-const ACCEPT_WINDOW_SECONDS = 200;
+const ACCEPT_WINDOW_SECONDS = 180;
 
 function normalizePhone(phone: string) {
   return phone.replace(/[^\d+]/g, "");
