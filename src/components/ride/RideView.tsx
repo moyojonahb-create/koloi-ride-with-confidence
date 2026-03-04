@@ -10,18 +10,19 @@ import { nominatimSearchGwanda, nominatimReverse } from '@/lib/geo';
 import { cachePlaceFromNominatim } from '@/lib/placeCache';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Loader2, MapPin, Navigation, Crosshair, ArrowRight, Menu, User, X, Search } from 'lucide-react';
+import {
+  Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
+  Car, Star, Phone, MessageCircle, Clock, Users, ChevronRight, Locate,
+  Banknote, Wallet, Crown, Zap
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import OSMMap from '@/components/OSMMap';
 import RideStatusBanner, { type RideStatus } from './RideStatusBanner';
 import OffersModal, { type DriverViewing, type DriverOffer } from '@/components/OffersModal';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
-import InstallPromptBanner from '@/components/InstallPromptBanner';
 import KoloiLogo from '@/components/KoloiLogo';
 import QuickPickChips from './QuickPickChips';
-import EmergencyButton from './EmergencyButton';
 import ProximityFilter from './ProximityFilter';
-import PromoCodeInput from './PromoCodeInput';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
 
 interface SelectedLocation {
@@ -35,6 +36,23 @@ interface GPSState {
   coords: { lat: number; lng: number } | null;
   error: string | null;
 }
+
+type VehicleTier = 'economy' | 'standard' | 'premium';
+type PaymentMethod = 'cash' | 'wallet';
+
+const VEHICLE_TIERS: {
+  id: VehicleTier;
+  name: string;
+  icon: typeof Car;
+  priceRange: string;
+  passengers: string;
+  eta: string;
+  multiplier: number;
+}[] = [
+  { id: 'economy', name: 'Economy', icon: Car, priceRange: 'R15 – R25', passengers: '1–3', eta: '3 min', multiplier: 1 },
+  { id: 'standard', name: 'Standard', icon: Car, priceRange: 'R25 – R40', passengers: '1–4', eta: '4 min', multiplier: 1.6 },
+  { id: 'premium', name: 'Premium', icon: Crown, priceRange: 'R40 – R60', passengers: '1–4', eta: '6 min', multiplier: 2.5 },
+];
 
 export default function RideView() {
   const { user, loading: authLoading } = useAuth();
@@ -57,17 +75,20 @@ export default function RideView() {
   const [nominatimLoading, setNominatimLoading] = useState(false);
   const [reverseGeoLoading, setReverseGeoLoading] = useState(false);
 
-  // Passenger count
+  // Vehicle & payment
+  const [selectedTier, setSelectedTier] = useState<VehicleTier>('economy');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [passengerCount, setPassengerCount] = useState(1);
-  // Payment & schedule (defaults — configurable in profile)
-  const [paymentMethod] = useState<string>('cash');
-  const [promoDiscount, setPromoDiscount] = useState<number | null>(null);
-  const [promoId, setPromoId] = useState<string | null>(null);
 
   // Ride state
   const [rideStatus, setRideStatus] = useState<RideStatus>('idle');
   const [isRequesting, setIsRequesting] = useState(false);
   const [currentRideId, setCurrentRideId] = useState<string | null>(null);
+
+  // Driver match state
+  const [matchedDriver, setMatchedDriver] = useState<{
+    name: string; car: string; plate: string; rating: number; avatar?: string; eta: number;
+  } | null>(null);
 
   // Offers modal
   const [offersOpen, setOffersOpen] = useState(false);
@@ -77,6 +98,9 @@ export default function RideView() {
   // Auth modal
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+
+  // Bottom sheet state
+  const [sheetExpanded, setSheetExpanded] = useState(false);
 
   // Search landmarks with proximity filter
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({
@@ -92,8 +116,14 @@ export default function RideView() {
     if (rebook) {
       if (rebook.pickup) setPickupLocation(rebook.pickup);
       if (rebook.dropoff) setDropoffLocation(rebook.dropoff);
-      // Clear state so refresh doesn't re-apply
       window.history.replaceState({}, '');
+    }
+  }, []);
+
+  // Auto-get GPS on mount
+  useEffect(() => {
+    if (gpsState.status === 'idle' && navigator.geolocation) {
+      handleUseMyLocation();
     }
   }, []);
 
@@ -111,13 +141,14 @@ export default function RideView() {
     const baseFare = pricingSettings.base_fare;
     const perKmRate = pricingSettings.per_km_rate;
     const minFare = pricingSettings.min_fare;
-    let fare = baseFare + distanceKm * perKmRate;
+    const tier = VEHICLE_TIERS.find(t => t.id === selectedTier)!;
+    let fare = (baseFare + distanceKm * perKmRate) * tier.multiplier;
     fare = Math.max(fare, minFare);
-    return { fareR: Math.round(fare * 100) / 100, distanceKm, durationMinutes };
-  }, [routeData, pricingSettings]);
+    return { fareR: Math.round(fare), distanceKm, durationMinutes };
+  }, [routeData, pricingSettings, selectedTier]);
   const fareEstimate = calculateFare();
 
-  // Handle GPS location - ALWAYS set name to "My location"
+  // Handle GPS location
   const handleUseMyLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setGpsState({ status: 'unavailable', coords: null, error: 'Geolocation not supported' });
@@ -142,16 +173,9 @@ export default function RideView() {
 
   // Handle landmark selection
   const handleLandmarkSelect = (landmark: Landmark) => {
-    const location: SelectedLocation = {
-      name: landmark.name,
-      lat: landmark.latitude,
-      lng: landmark.longitude,
-    };
-    if (activeField === 'pickup') {
-      setPickupLocation(location);
-    } else {
-      setDropoffLocation(location);
-    }
+    const loc: SelectedLocation = { name: landmark.name, lat: landmark.latitude, lng: landmark.longitude };
+    if (activeField === 'pickup') setPickupLocation(loc);
+    else setDropoffLocation(loc);
     setActiveField(null);
     setSearchQuery('');
     setNominatimResults([]);
@@ -159,12 +183,9 @@ export default function RideView() {
 
   // Handle Nominatim result selection
   const handleNominatimSelect = (result: { name: string; lat: number; lng: number }) => {
-    const location: SelectedLocation = { name: result.name, lat: result.lat, lng: result.lng };
-    if (activeField === 'pickup') {
-      setPickupLocation(location);
-    } else {
-      setDropoffLocation(location);
-    }
+    const loc: SelectedLocation = { name: result.name, lat: result.lat, lng: result.lng };
+    if (activeField === 'pickup') setPickupLocation(loc);
+    else setDropoffLocation(loc);
     setActiveField(null);
     setSearchQuery('');
     setNominatimResults([]);
@@ -172,128 +193,89 @@ export default function RideView() {
 
   // Handle quick pick
   const handleQuickPickSelect = (pick: { name: string; lat: number; lng: number }) => {
-    const location: SelectedLocation = { name: pick.name, lat: pick.lat, lng: pick.lng };
-    if (activeField === 'pickup') {
-      setPickupLocation(location);
-      setActiveField(null);
-    } else if (activeField === 'dropoff') {
-      setDropoffLocation(location);
-      setActiveField(null);
-    }
+    const loc: SelectedLocation = { name: pick.name, lat: pick.lat, lng: pick.lng };
+    if (activeField === 'pickup') setPickupLocation(loc);
+    else if (activeField === 'dropoff') setDropoffLocation(loc);
+    setActiveField(null);
   };
 
-  // Nominatim fallback search — triggered when landmark search returns no results
+  // Nominatim fallback search
   const handleNominatimSearch = useCallback(async (query: string) => {
-    if (query.trim().length < 3) {
-      setNominatimResults([]);
-      return;
-    }
+    if (query.trim().length < 3) { setNominatimResults([]); return; }
     setNominatimLoading(true);
     try {
       const results = await nominatimSearchGwanda(query.trim());
       const mapped = results.map(r => ({
         name: r.name || r.display_name.split(',')[0],
-        lat: Number(r.lat),
-        lng: Number(r.lon),
+        lat: Number(r.lat), lng: Number(r.lon),
         displayName: r.display_name,
       }));
       setNominatimResults(mapped);
-      // Cache results in background
-      for (const r of results) {
-        cachePlaceFromNominatim(r).catch(() => {});
-      }
-    } catch {
-      setNominatimResults([]);
-    } finally {
-      setNominatimLoading(false);
-    }
+      for (const r of results) cachePlaceFromNominatim(r).catch(() => {});
+    } catch { setNominatimResults([]); } finally { setNominatimLoading(false); }
   }, []);
 
-  // Handle map click — reverse geocode via Nominatim
+  // Handle map click
   const handleMapClick = useCallback(async (coords: { lat: number; lng: number }) => {
     if (!activeField) return;
     setReverseGeoLoading(true);
     try {
       const result = await nominatimReverse(coords.lat, coords.lng);
       const name = result?.name || result?.display_name?.split(',')[0] || `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`;
-      const location: SelectedLocation = { name, lat: coords.lat, lng: coords.lng };
-
-      if (activeField === 'pickup') {
-        setPickupLocation(location);
-        setActiveField('dropoff');
-      } else {
-        setDropoffLocation(location);
-        setActiveField(null);
-      }
-
-      // Cache in background
-      if (result) {
-        cachePlaceFromNominatim(result).catch(() => {});
-      }
+      const loc: SelectedLocation = { name, lat: coords.lat, lng: coords.lng };
+      if (activeField === 'pickup') { setPickupLocation(loc); setActiveField('dropoff'); }
+      else { setDropoffLocation(loc); setActiveField(null); }
+      if (result) cachePlaceFromNominatim(result).catch(() => {});
     } catch {
-      // Fallback: use raw coordinates
       const fallbackName = `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`;
-      const location: SelectedLocation = { name: fallbackName, lat: coords.lat, lng: coords.lng };
-      if (activeField === 'pickup') {
-        setPickupLocation(location);
-        setActiveField('dropoff');
-      } else {
-        setDropoffLocation(location);
-        setActiveField(null);
-      }
-    } finally {
-      setReverseGeoLoading(false);
-    }
+      const loc: SelectedLocation = { name: fallbackName, lat: coords.lat, lng: coords.lng };
+      if (activeField === 'pickup') { setPickupLocation(loc); setActiveField('dropoff'); }
+      else { setDropoffLocation(loc); setActiveField(null); }
+    } finally { setReverseGeoLoading(false); }
   }, [activeField]);
 
   // Request ride
   const handleRequestRide = async () => {
-    if (!user) {
-      setAuthMode('login');
-      setAuthModalOpen(true);
-      return;
-    }
+    if (!user) { setAuthMode('login'); setAuthModalOpen(true); return; }
     if (!pickupLocation || !dropoffLocation || !fareEstimate) {
-      toast({ title: 'Select pickup and destination', variant: 'destructive' });
-      return;
+      toast({ title: 'Select pickup and destination', variant: 'destructive' }); return;
     }
     setIsRequesting(true);
     setRideStatus('searching');
     try {
-      const finalFare = promoDiscount ? fareEstimate.fareR - promoDiscount : fareEstimate.fareR;
       const result = await requestRide({
         pickup_address: pickupLocation.name,
-        pickup_lat: pickupLocation.lat,
-        pickup_lng: pickupLocation.lng,
+        pickup_lat: pickupLocation.lat, pickup_lng: pickupLocation.lng,
         dropoff_address: dropoffLocation.name,
-        dropoff_lat: dropoffLocation.lat,
-        dropoff_lng: dropoffLocation.lng,
+        dropoff_lat: dropoffLocation.lat, dropoff_lng: dropoffLocation.lng,
         distance_km: fareEstimate.distanceKm,
         duration_minutes: fareEstimate.durationMinutes,
-        fare: Math.max(5, finalFare),
+        fare: Math.max(5, fareEstimate.fareR),
         route_polyline: routeData?.geometry || null,
         passenger_count: passengerCount,
-        scheduled_at: undefined,
         payment_method: paymentMethod,
+        vehicle_type: selectedTier,
       });
       if (!result.ok) throw new Error(result.error);
-      const data = result.ride;
-      setCurrentRideId(data.id);
+      setCurrentRideId(result.ride.id);
       toast({ title: 'Ride requested!', description: 'Looking for nearby drivers...' });
-      navigate(`/ride/${data.id}`);
+      navigate(`/ride/${result.ride.id}`);
     } catch (error: any) {
       toast({ title: 'Failed to request ride', description: error.message, variant: 'destructive' });
       setRideStatus('idle');
-    } finally {
-      setIsRequesting(false);
-    }
+    } finally { setIsRequesting(false); }
   };
 
-  // Accept/Decline offer handlers
+  // Offer handlers
   const handleAcceptOffer = async (offerId: string) => {
     setRideStatus('driver_assigned');
     setOffersOpen(false);
     toast({ title: 'Driver accepted!', description: 'Your driver is on the way' });
+    // Simulate driver match
+    setMatchedDriver({
+      name: 'Sipho Ndlovu', car: 'Toyota Corolla', plate: 'ACB 2345',
+      rating: 4.8, eta: 3,
+    });
     setTimeout(() => setRideStatus('driver_arriving'), 2000);
   };
   const handleDeclineOffer = async (offerId: string) => {
@@ -301,238 +283,317 @@ export default function RideView() {
     if (offers.length <= 1) setRideStatus('searching');
   };
   const handleCancelRide = async () => {
-    if (currentRideId) {
-      await supabase.from('rides').update({ status: 'cancelled' }).eq('id', currentRideId);
-    }
+    if (currentRideId) await supabase.from('rides').update({ status: 'cancelled' }).eq('id', currentRideId);
     setRideStatus('idle');
     setCurrentRideId(null);
     setOffers([]);
     setViewingDrivers([]);
+    setMatchedDriver(null);
     toast({ title: 'Ride cancelled' });
   };
 
-  // Search handler with Nominatim fallback
+  // Search handler
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    // Trigger Nominatim search when query is long enough (runs alongside landmark search)
-    if (value.trim().length >= 3) {
-      handleNominatimSearch(value);
-    } else {
-      setNominatimResults([]);
-    }
+    if (value.trim().length >= 3) handleNominatimSearch(value);
+    else setNominatimResults([]);
   };
 
   const canRequestRide = pickupLocation && dropoffLocation && fareEstimate && !isRequesting;
-
-  // Combine landmark results + nominatim results (deduped)
   const showNominatimFallback = searchQuery.trim().length >= 3 && landmarks.length === 0 && nominatimResults.length > 0;
 
-  return (
-    <div className="rider-screen bg-primary flex flex-col" style={{ minHeight: '100dvh' }}>
-      <InstallPromptBanner />
+  // ──────── DRIVER MATCH SCREEN ────────
+  if (matchedDriver && (rideStatus === 'driver_assigned' || rideStatus === 'driver_arriving')) {
+    return (
+      <div className="flex flex-col bg-white" style={{ minHeight: '100dvh' }}>
+        {/* Header */}
+        <header className="shrink-0 flex items-center justify-between h-14 px-4 bg-white border-b border-gray-100" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <button onClick={handleCancelRide} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-all">
+            <ArrowLeft className="w-5 h-5 text-gray-800" />
+          </button>
+          <KoloiLogo size="sm" />
+          <div className="w-10" />
+        </header>
 
-      {/* Header — fixed, content scrolls beneath */}
-      <header className="topbar shrink-0 flex items-center justify-between h-[56px] px-[calc(var(--pad,14px)+env(safe-area-inset-left))] pr-[calc(var(--pad,14px)+env(safe-area-inset-right))] pt-[env(safe-area-inset-top)] pb-2 bg-primary z-30">
-        <Button variant="ghost" size="icon" className="w-11 h-11 rounded-2xl bg-white/10 text-primary-foreground hover:bg-white/20 active:scale-95 transition-all">
-          <Menu className="w-5 h-5" />
-        </Button>
-        <KoloiLogo variant="light" size="sm" />
-        <div className="flex items-center gap-2.5">
-          <EmergencyButton />
-          <Button variant="ghost" size="icon" className="w-11 h-11 rounded-2xl bg-white/10 text-primary-foreground hover:bg-white/20 active:scale-95 transition-all" onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)}>
-            <User className="w-5 h-5" />
-          </Button>
-        </div>
-      </header>
-
-      {/* Status Banner */}
-      {rideStatus !== 'idle' && (
-        <div className="shrink-0 px-4 pb-2">
-          <RideStatusBanner status={rideStatus} offersCount={offers.length} />
-        </div>
-      )}
-
-      {/* Main Content — scrollable below fixed header */}
-      <main className="map-area relative flex-1 min-h-0 overflow-y-auto p-[var(--pad,14px)] pb-[calc(var(--pad,14px)+env(safe-area-inset-bottom))]">
-        {/* Map Container */}
-        <div
-          id="map-container"
-          className="absolute rounded-[22px] overflow-hidden bg-koloi-gray-200"
-          style={{
-            top: 'var(--pad, 14px)',
-            left: 'var(--pad, 14px)',
-            right: 'var(--pad, 14px)',
-            bottom: 'var(--pad, 14px)',
-          }}
-        >
+        {/* Map with driver */}
+        <div className="flex-1 relative min-h-[40vh]">
           <OSMMap
             pickup={pickupLocation}
             dropoff={dropoffLocation}
             routeGeometry={routeData?.geometry}
-            onMapClick={handleMapClick}
             className="w-full h-full"
             height="100%"
-            showRecenterButton
           />
+          {/* ETA overlay */}
+          <div className="absolute top-4 left-4 right-4 z-10">
+            <div className="bg-white rounded-2xl shadow-lg px-4 py-3 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#2563EB]/10 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-[#2563EB]" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Arriving in</p>
+                <p className="text-lg font-bold text-gray-900">{matchedDriver.eta} minutes</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Reverse geocode loading overlay */}
+        {/* Driver Card */}
+        <div className="bg-white rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] px-5 py-6" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}>
+          <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-5" />
+
+          <div className="flex items-center gap-4 mb-5">
+            <div className="w-14 h-14 rounded-full bg-[#2563EB]/10 flex items-center justify-center">
+              <User className="w-7 h-7 text-[#2563EB]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-lg font-bold text-gray-900">{matchedDriver.name}</p>
+              <p className="text-sm text-gray-500">{matchedDriver.car} • {matchedDriver.plate}</p>
+            </div>
+            <div className="flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-full">
+              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+              <span className="text-sm font-bold text-amber-700">{matchedDriver.rating}</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <button className="flex flex-col items-center gap-2 py-3 rounded-2xl bg-[#2563EB] text-white active:scale-95 transition-all">
+              <Phone className="w-5 h-5" />
+              <span className="text-xs font-semibold">Call Driver</span>
+            </button>
+            <button className="flex flex-col items-center gap-2 py-3 rounded-2xl bg-gray-100 text-gray-700 active:scale-95 transition-all">
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-xs font-semibold">Message</span>
+            </button>
+            <button onClick={handleCancelRide} className="flex flex-col items-center gap-2 py-3 rounded-2xl bg-red-50 text-red-600 active:scale-95 transition-all">
+              <X className="w-5 h-5" />
+              <span className="text-xs font-semibold">Cancel</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ──────── MAIN RIDE BOOKING UI ────────
+  return (
+    <div className="flex flex-col bg-white" style={{ minHeight: '100dvh' }}>
+      {/* ═══ HEADER ═══ */}
+      <header className="shrink-0 flex items-center justify-between h-14 px-4 bg-white border-b border-gray-100 z-50 relative" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-all">
+          <ArrowLeft className="w-5 h-5 text-gray-800" />
+        </button>
+        <KoloiLogo size="sm" />
+        <button onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-95 transition-all">
+          <User className="w-5 h-5 text-gray-800" />
+        </button>
+      </header>
+
+      {/* ═══ MAP ═══ */}
+      <div className="flex-1 relative min-h-[35vh]">
+        <OSMMap
+          pickup={pickupLocation}
+          dropoff={dropoffLocation}
+          routeGeometry={routeData?.geometry}
+          onMapClick={handleMapClick}
+          className="w-full h-full"
+          height="100%"
+          showRecenterButton={false}
+        />
+
+        {/* Map floating buttons */}
+        <div className="absolute right-4 bottom-4 flex flex-col gap-3 z-10">
+          <button
+            onClick={handleUseMyLocation}
+            className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center active:scale-90 transition-all"
+          >
+            {gpsState.status === 'loading' ? (
+              <Loader2 className="w-5 h-5 animate-spin text-[#2563EB]" />
+            ) : (
+              <Locate className="w-5 h-5 text-[#2563EB]" />
+            )}
+          </button>
+          <button className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center active:scale-90 transition-all">
+            <Navigation className="w-5 h-5 text-[#2563EB]" />
+          </button>
+        </div>
+
+        {/* Reverse geocode loading */}
         {reverseGeoLoading && (
-          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-20">
-            <div className="flex items-center gap-2 bg-background px-4 py-2 rounded-full shadow-koloi-sm">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm font-medium">Finding address...</span>
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-20">
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
+              <Loader2 className="w-4 h-4 animate-spin text-[#2563EB]" />
+              <span className="text-sm font-medium text-gray-700">Finding address...</span>
             </div>
           </div>
         )}
 
-        {/* Route loading overlay */}
+        {/* Route loading */}
         {routeLoading && pickupLocation && dropoffLocation && (
-          <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-20">
-            <div className="flex items-center gap-2 bg-background px-4 py-2 rounded-full shadow-koloi-sm">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm font-medium">Calculating route...</span>
+          <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-20">
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-md">
+              <Loader2 className="w-4 h-4 animate-spin text-[#2563EB]" />
+              <span className="text-sm font-medium text-gray-700">Calculating route...</span>
             </div>
           </div>
         )}
 
         {/* Map click instruction */}
         {activeField && !reverseGeoLoading && (
-          <div className="absolute top-[calc(var(--pad,14px)+8px)] left-[calc(var(--pad,14px)+8px)] right-[calc(var(--pad,14px)+8px)] z-20">
-            <div className="bg-background/90 backdrop-blur-sm rounded-xl px-4 py-2.5 text-sm font-medium text-center shadow-koloi-sm">
+          <div className="absolute top-4 left-4 right-4 z-20">
+            <div className="bg-white/95 backdrop-blur rounded-xl px-4 py-2.5 text-sm font-medium text-center shadow-md text-gray-700">
               📍 Tap map to set {activeField === 'pickup' ? 'pickup' : 'drop-off'}
             </div>
           </div>
         )}
+      </div>
 
-        {/* Bottom Sheet — compact, always visible */}
-        <section
-          className="sheet absolute left-[var(--pad,14px)] right-[var(--pad,14px)] bottom-[calc(var(--pad,14px)+env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-xl rounded-[28px] p-4 shadow-[0_-4px_32px_rgba(0,0,0,0.12),0_18px_40px_rgba(0,0,0,0.18)] z-30 animate-slide-up"
-        >
-          {/* Grabber */}
-          <div className="grabber w-10 h-[5px] rounded-full bg-black/12 mx-auto mb-3.5" />
+      {/* ═══ BOTTOM SHEET PANEL ═══ */}
+      <div
+        className={cn(
+          'bg-white rounded-t-3xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] relative z-30 transition-all duration-300',
+          sheetExpanded ? 'max-h-[75vh] overflow-y-auto' : 'max-h-[55vh] overflow-y-auto'
+        )}
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}
+      >
+        {/* Grabber */}
+        <div className="sticky top-0 bg-white pt-3 pb-2 z-10 rounded-t-3xl">
+          <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto" />
+        </div>
 
-          {/* Location Inputs - compact summary when locations selected */}
-          {(pickupLocation || dropoffLocation) && !activeField && (
-            <div className="inputs grid gap-[10px] mb-3">
-              <button
-                type="button"
-                onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
-                className="input grid grid-cols-[24px_1fr_auto] items-center bg-white rounded-2xl py-3.5 px-4 border border-black/[0.06] cursor-pointer hover:bg-koloi-gray-100/60 active:scale-[0.98] transition-all w-full text-left"
-              >
-                <span className={cn('dot w-3 h-3 rounded-full shrink-0', pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400')} />
-                <span className={cn('text-[15px] font-semibold truncate', pickupLocation ? 'text-foreground' : 'text-muted-foreground')}>
-                  {pickupLocation?.name || 'From where?'}
-                </span>
-                {pickupLocation && (
-                  <span onClick={e => { e.stopPropagation(); setPickupLocation(null); }} className="p-2 -mr-1 hover:bg-koloi-gray-200 rounded-full transition-colors">
-                    <X className="w-4 h-4 text-muted-foreground" />
-                  </span>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => { setActiveField('dropoff'); setSearchQuery(''); }}
-                className="input grid grid-cols-[24px_1fr_auto] items-center bg-white rounded-2xl py-3.5 px-4 border border-black/[0.06] cursor-pointer hover:bg-koloi-gray-100/60 active:scale-[0.98] transition-all w-full text-left"
-              >
-                <span className={cn('dot w-3 h-3 rounded-full shrink-0', dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400')} />
-                <span className={cn('text-[15px] font-semibold truncate', dropoffLocation ? 'text-foreground' : 'text-muted-foreground')}>
-                  {dropoffLocation?.name || 'Where to?'}
-                </span>
-                {dropoffLocation && (
-                  <span onClick={e => { e.stopPropagation(); setDropoffLocation(null); }} className="p-2 -mr-1 hover:bg-koloi-gray-200 rounded-full transition-colors">
-                    <X className="w-4 h-4 text-muted-foreground" />
-                  </span>
-                )}
-              </button>
+        <div className="px-5 pb-5 space-y-4">
+          {/* ── Pickup Location ── */}
+          <button
+            onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
+            className="w-full flex items-center gap-3 p-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 active:scale-[0.98] transition-all text-left"
+          >
+            <div className="w-10 h-10 rounded-full bg-[#2563EB]/10 flex items-center justify-center shrink-0">
+              <MapPin className="w-5 h-5 text-[#2563EB]" />
             </div>
-          )}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-400 font-medium">PICKUP</p>
+              <p className={cn('text-[15px] font-semibold truncate', pickupLocation ? 'text-gray-900' : 'text-gray-400')}>
+                {pickupLocation?.name || 'Where from?'}
+              </p>
+            </div>
+            {pickupLocation && (
+              <span onClick={e => { e.stopPropagation(); setPickupLocation(null); }} className="p-1.5 hover:bg-gray-200 rounded-full transition-colors">
+                <X className="w-4 h-4 text-gray-400" />
+              </span>
+            )}
+          </button>
 
-          {/* Main controls — always visible when not searching */}
-          {!activeField && (
-            <div className="space-y-3">
-              {/* Location inputs when nothing selected yet */}
-              {!pickupLocation && !dropoffLocation && (
-                <div className="inputs grid gap-[10px]">
-                  <button
-                    type="button"
-                    onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
-                    className="input grid grid-cols-[24px_1fr] items-center bg-white rounded-2xl py-3.5 px-4 border border-black/[0.06] cursor-pointer hover:bg-koloi-gray-100/60 active:scale-[0.98] transition-all w-full text-left"
-                  >
-                    <span className="dot w-3 h-3 rounded-full shrink-0 bg-koloi-gray-400" />
-                    <span className="text-[15px] font-semibold text-muted-foreground">From where?</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setActiveField('dropoff'); setSearchQuery(''); }}
-                    className="input grid grid-cols-[24px_1fr] items-center bg-white rounded-2xl py-3.5 px-4 border border-black/[0.06] cursor-pointer hover:bg-koloi-gray-100/60 active:scale-[0.98] transition-all w-full text-left"
-                  >
-                    <span className="dot w-3 h-3 rounded-full shrink-0 bg-koloi-gray-400" />
-                    <span className="text-[15px] font-semibold text-muted-foreground">Where to?</span>
-                  </button>
-                </div>
-              )}
+          {/* ── Dropoff Location ── */}
+          <button
+            onClick={() => { setActiveField('dropoff'); setSearchQuery(''); }}
+            className="w-full flex items-center gap-3 p-3.5 bg-gray-50 rounded-2xl hover:bg-gray-100 active:scale-[0.98] transition-all text-left"
+          >
+            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+              <MapPin className="w-5 h-5 text-green-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-400 font-medium">DROP-OFF</p>
+              <p className={cn('text-[15px] font-semibold truncate', dropoffLocation ? 'text-gray-900' : 'text-gray-400')}>
+                {dropoffLocation?.name || 'Where to?'}
+              </p>
+            </div>
+            {dropoffLocation && (
+              <span onClick={e => { e.stopPropagation(); setDropoffLocation(null); }} className="p-1.5 hover:bg-gray-200 rounded-full transition-colors">
+                <X className="w-4 h-4 text-gray-400" />
+              </span>
+            )}
+          </button>
 
-              {/* Passenger Count Selector */}
-              <div className="flex items-center justify-between bg-koloi-gray-100 rounded-2xl p-4">
-                <div>
-                  <p className="text-[15px] font-semibold text-foreground">Passengers</p>
-                  <p className="text-[13px] text-muted-foreground mt-0.5">How many are riding?</p>
+          {/* ── Vehicle Options ── */}
+          {pickupLocation && dropoffLocation && (
+            <>
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Choose your ride</p>
+                <div className="space-y-2">
+                  {VEHICLE_TIERS.map(tier => {
+                    const Icon = tier.icon;
+                    const isSelected = selectedTier === tier.id;
+                    const tierFare = fareEstimate
+                      ? `R${Math.round(fareEstimate.fareR * (tier.multiplier / VEHICLE_TIERS.find(t => t.id === selectedTier)!.multiplier))}`
+                      : tier.priceRange;
+                    return (
+                      <button
+                        key={tier.id}
+                        onClick={() => setSelectedTier(tier.id)}
+                        className={cn(
+                          'w-full flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all active:scale-[0.98]',
+                          isSelected
+                            ? 'border-[#2563EB] bg-[#2563EB]/5'
+                            : 'border-transparent bg-gray-50 hover:bg-gray-100'
+                        )}
+                      >
+                        <div className={cn(
+                          'w-12 h-12 rounded-2xl flex items-center justify-center shrink-0',
+                          isSelected ? 'bg-[#2563EB]' : 'bg-gray-200'
+                        )}>
+                          <Icon className={cn('w-6 h-6', isSelected ? 'text-white' : 'text-gray-500')} />
+                        </div>
+                        <div className="flex-1 min-w-0 text-left">
+                          <div className="flex items-center gap-2">
+                            <p className={cn('font-bold', isSelected ? 'text-[#2563EB]' : 'text-gray-900')}>{tier.name}</p>
+                            {tier.id === 'premium' && <Zap className="w-3.5 h-3.5 text-amber-500" />}
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-gray-400 mt-0.5">
+                            <span className="flex items-center gap-1"><Users className="w-3 h-3" />{tier.passengers}</span>
+                            <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{tier.eta}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className={cn('text-lg font-bold', isSelected ? 'text-[#2563EB]' : 'text-gray-900')}>
+                            {fareEstimate ? `R${fareEstimate.fareR}` : tier.priceRange}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className="flex items-center gap-3">
+              </div>
+
+              {/* ── Payment Method ── */}
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Payment method</p>
+                <div className="flex gap-3">
                   <button
-                    onClick={() => setPassengerCount(c => Math.max(1, c - 1))}
-                    disabled={passengerCount <= 1}
-                    className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center text-lg font-bold text-foreground disabled:opacity-30 active:scale-90 transition-all"
+                    onClick={() => setPaymentMethod('cash')}
+                    className={cn(
+                      'flex-1 flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all active:scale-[0.98]',
+                      paymentMethod === 'cash'
+                        ? 'border-[#2563EB] bg-[#2563EB]/5'
+                        : 'border-transparent bg-gray-50'
+                    )}
                   >
-                    −
+                    <Banknote className={cn('w-5 h-5', paymentMethod === 'cash' ? 'text-[#2563EB]' : 'text-gray-400')} />
+                    <span className={cn('font-semibold text-sm', paymentMethod === 'cash' ? 'text-[#2563EB]' : 'text-gray-700')}>Cash</span>
                   </button>
-                  <span className="w-8 text-center text-xl font-extrabold text-foreground tabular-nums">{passengerCount}</span>
                   <button
-                    onClick={() => setPassengerCount(c => Math.min(10, c + 1))}
-                    disabled={passengerCount >= 10}
-                    className="w-10 h-10 rounded-full bg-background border border-border flex items-center justify-center text-lg font-bold text-foreground disabled:opacity-30 active:scale-90 transition-all"
+                    onClick={() => setPaymentMethod('wallet')}
+                    className={cn(
+                      'flex-1 flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all active:scale-[0.98]',
+                      paymentMethod === 'wallet'
+                        ? 'border-[#2563EB] bg-[#2563EB]/5'
+                        : 'border-transparent bg-gray-50'
+                    )}
                   >
-                    +
+                    <Wallet className={cn('w-5 h-5', paymentMethod === 'wallet' ? 'text-[#2563EB]' : 'text-gray-400')} />
+                    <span className={cn('font-semibold text-sm', paymentMethod === 'wallet' ? 'text-[#2563EB]' : 'text-gray-700')}>Wallet</span>
                   </button>
                 </div>
               </div>
 
-              {fareEstimate && (
-                <div className="pt-1">
-                  <div className="flex items-baseline gap-2">
-                    <p className="text-3xl font-bold text-foreground">
-                      R{promoDiscount ? (fareEstimate.fareR - promoDiscount).toFixed(0) : fareEstimate.fareR.toFixed(0)}
-                    </p>
-                    {promoDiscount && (
-                      <p className="text-lg text-muted-foreground line-through">R{fareEstimate.fareR.toFixed(0)}</p>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {fareEstimate.distanceKm.toFixed(1)} km • {fareEstimate.durationMinutes} min
-                  </p>
-                </div>
-              )}
-
-              {/* Promo Code */}
-              {fareEstimate && (
-                <PromoCodeInput
-                  fare={fareEstimate.fareR}
-                  appliedDiscount={promoDiscount}
-                  onApply={(discount, id) => { setPromoDiscount(discount); setPromoId(id); }}
-                  onRemove={() => { setPromoDiscount(null); setPromoId(null); }}
-                />
-              )}
-
-              {/* Request button */}
+              {/* ── FIND DRIVER Button ── */}
               <Button
                 onClick={handleRequestRide}
                 disabled={!canRequestRide}
                 className={cn(
-                  'w-full h-[52px] text-[15px] font-bold rounded-2xl transition-all gap-2 active:scale-[0.97]',
+                  'w-full h-[60px] text-base font-bold rounded-2xl transition-all gap-2 active:scale-[0.97]',
                   canRequestRide
-                    ? 'bg-accent text-accent-foreground hover:brightness-105 shadow-[var(--shadow-glow)]'
-                    : 'bg-koloi-gray-300 text-muted-foreground'
+                    ? 'bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-[0_4px_14px_rgba(37,99,235,0.4)]'
+                    : 'bg-gray-200 text-gray-400'
                 )}
               >
                 {isRequesting ? (
@@ -541,174 +602,179 @@ export default function RideView() {
                     Finding drivers...
                   </>
                 ) : !user ? (
-                  'Sign in to request'
+                  'Sign in to continue'
                 ) : canRequestRide ? (
-                  <>
-                    Request Ride
-                    <ArrowRight className="w-5 h-5" />
-                  </>
+                  'FIND DRIVER'
                 ) : (
                   'Select locations'
                 )}
               </Button>
 
-              {/* inDrive-style: negotiate fare with drivers */}
+              {/* ── Negotiate ── */}
               <button
                 onClick={() => user ? navigate('/negotiate/request') : setAuthModalOpen(true)}
-                className="w-full text-center text-sm text-muted-foreground underline underline-offset-2 py-1 hover:text-foreground transition-colors"
+                className="w-full flex items-center justify-center gap-1 text-sm text-gray-400 py-2 hover:text-[#2563EB] transition-colors"
               >
-                Prefer to negotiate the price? →
+                Prefer to negotiate the price?
+                <ChevronRight className="w-4 h-4" />
               </button>
+            </>
+          )}
+
+          {/* When no locations selected yet */}
+          {(!pickupLocation || !dropoffLocation) && (
+            <div className="text-center py-4">
+              <p className="text-sm text-gray-400">Select pickup and destination to see ride options</p>
             </div>
           )}
-        </section>
+        </div>
+      </div>
 
-        {/* ══ inDrive-style Full-Screen Search Overlay ══ */}
-        {activeField && (
-          <div className="absolute inset-0 z-40 flex flex-col bg-background animate-slide-up">
-            {/* Search header */}
-            <div className="flex items-center gap-3 px-4 bg-background border-b border-border/60" style={{ paddingTop: `calc(env(safe-area-inset-top) + 14px)`, paddingBottom: '14px' }}>
-              <button
-                onClick={() => { setActiveField(null); setSearchQuery(''); setNominatimResults([]); }}
-                className="w-11 h-11 flex items-center justify-center rounded-2xl hover:bg-muted active:scale-90 transition-all shrink-0"
-              >
-                <X className="w-5 h-5 text-foreground" />
-              </button>
-              <div className="flex-1 relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
-                <input
-                  autoFocus
-                  type="text"
-                  placeholder={activeField === 'pickup' ? 'Search pickup location...' : 'Search destination...'}
-                  value={searchQuery}
-                  onChange={e => handleSearchChange(e.target.value)}
-                  className="w-full h-12 pl-11 pr-4 bg-muted rounded-2xl text-[15px] font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent border-0"
-                />
-              </div>
-            </div>
-
-            {/* Scrollable results */}
-            <div className="flex-1 overflow-y-auto">
-              {/* My Location — pickup only */}
-              {activeField === 'pickup' && (
-                <button
-                  onClick={handleUseMyLocation}
-                  disabled={gpsState.status === 'loading'}
-                  className="w-full flex items-center gap-4 px-5 py-4 hover:bg-muted active:bg-muted/80 transition-colors border-b border-border/60 text-left"
-                >
-                  <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                    {gpsState.status === 'loading' ? (
-                      <Loader2 className="w-5 h-5 animate-spin text-accent" />
-                    ) : (
-                      <Crosshair className="w-5 h-5 text-accent" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">Use my current location</p>
-                    <p className="text-sm text-muted-foreground">Find pickup point automatically</p>
-                  </div>
-                </button>
-              )}
-
-              {gpsState.error && (
-                <p className="text-sm text-amber-600 bg-amber-50 mx-4 my-3 p-3 rounded-xl">{gpsState.error}</p>
-              )}
-
-              {/* Proximity Filter */}
-              {gpsState.coords && (
-                <div className="px-4 pt-3 pb-1">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Nearby places</p>
-                  <ProximityFilter selected={proximityRadius} onSelect={setProximityRadius} />
-                </div>
-              )}
-
-              {/* Quick Picks — shown when no search query */}
-              {!searchQuery.trim() && (
-                <div className="px-4 pt-4 pb-2">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Popular places</p>
-                  <QuickPickChips
-                    onSelect={handleQuickPickSelect}
-                    selectedName={activeField === 'pickup' ? pickupLocation?.name : dropoffLocation?.name}
-                  />
-                </div>
-              )}
-
-              {/* Search / proximity results */}
-              {(searchQuery.trim() || proximityRadius !== null) && (
-                <>
-                  <div className="px-4 pt-4 pb-1">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      {searchQuery.trim() ? 'Results' : `Within ${proximityRadius}km`}
-                    </p>
-                  </div>
-
-                  {landmarksLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="w-6 h-6 animate-spin text-accent" />
-                    </div>
-                  ) : (
-                    <>
-                      {landmarks.map((landmark) => (
-                        <button
-                          key={landmark.id}
-                          onClick={() => handleLandmarkSelect(landmark)}
-                          className="w-full flex items-center gap-4 px-4 py-4 hover:bg-muted transition-colors border-b border-border/50 text-left"
-                        >
-                          <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center shrink-0">
-                            <MapPin className="w-5 h-5 text-muted-foreground" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="font-semibold text-foreground truncate">{landmark.name}</p>
-                            <p className="text-sm text-muted-foreground capitalize">{landmark.category}</p>
-                          </div>
-                        </button>
-                      ))}
-
-                      {landmarks.length === 0 && !nominatimLoading && !showNominatimFallback && searchQuery.trim() && (
-                        <div className="text-center py-12 text-muted-foreground">
-                          <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                          <p className="text-sm">No results for "{searchQuery}"</p>
-                        </div>
-                      )}
-
-                      {nominatimLoading && (
-                        <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span className="text-sm">Searching more places...</span>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* Nominatim / OSM results */}
-                  {(showNominatimFallback || (landmarks.length > 0 && nominatimResults.length > 0)) && (
-                    <>
-                      <div className="px-4 py-2 bg-accent/5 border-t border-border">
-                        <p className="text-xs font-semibold text-accent uppercase tracking-wider">📍 More places in Gwanda</p>
-                      </div>
-                      {nominatimResults.map((result, index) => (
-                        <button
-                          key={`nom-${index}`}
-                          onClick={() => handleNominatimSelect(result)}
-                          className="w-full flex items-center gap-4 px-4 py-4 hover:bg-muted transition-colors border-b border-border/50 text-left"
-                        >
-                          <div className="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                            <Navigation className="w-5 h-5 text-accent" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="font-semibold text-foreground truncate">{result.name}</p>
-                            <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
-                          </div>
-                        </button>
-                      ))}
-                    </>
-                  )}
-                </>
-              )}
+      {/* ══ Full-Screen Search Overlay ══ */}
+      {activeField && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-white animate-slide-up">
+          {/* Search header */}
+          <div className="flex items-center gap-3 px-4 bg-white border-b border-gray-100" style={{ paddingTop: `calc(env(safe-area-inset-top) + 14px)`, paddingBottom: '14px' }}>
+            <button
+              onClick={() => { setActiveField(null); setSearchQuery(''); setNominatimResults([]); }}
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:scale-90 transition-all shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5 text-gray-800" />
+            </button>
+            <div className="flex-1 relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+              <input
+                autoFocus
+                type="text"
+                placeholder={activeField === 'pickup' ? 'Search pickup location...' : 'Search destination...'}
+                value={searchQuery}
+                onChange={e => handleSearchChange(e.target.value)}
+                className="w-full h-12 pl-11 pr-4 bg-gray-50 rounded-2xl text-[16px] font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563EB]/30 border-0"
+              />
             </div>
           </div>
-        )}
-      </main>
+
+          {/* Results */}
+          <div className="flex-1 overflow-y-auto">
+            {/* My Location — pickup only */}
+            {activeField === 'pickup' && (
+              <button
+                onClick={handleUseMyLocation}
+                disabled={gpsState.status === 'loading'}
+                className="w-full flex items-center gap-4 px-5 py-4 hover:bg-gray-50 active:bg-gray-100 transition-colors border-b border-gray-50 text-left"
+              >
+                <div className="w-11 h-11 rounded-full bg-[#2563EB]/10 flex items-center justify-center shrink-0">
+                  {gpsState.status === 'loading' ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-[#2563EB]" />
+                  ) : (
+                    <Crosshair className="w-5 h-5 text-[#2563EB]" />
+                  )}
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900">Use my current location</p>
+                  <p className="text-sm text-gray-400">Find pickup point automatically</p>
+                </div>
+              </button>
+            )}
+
+            {gpsState.error && (
+              <p className="text-sm text-amber-600 bg-amber-50 mx-4 my-3 p-3 rounded-xl">{gpsState.error}</p>
+            )}
+
+            {/* Proximity Filter */}
+            {gpsState.coords && (
+              <div className="px-4 pt-3 pb-1">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Nearby places</p>
+                <ProximityFilter selected={proximityRadius} onSelect={setProximityRadius} />
+              </div>
+            )}
+
+            {/* Quick Picks */}
+            {!searchQuery.trim() && (
+              <div className="px-4 pt-4 pb-2">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Popular places</p>
+                <QuickPickChips
+                  onSelect={handleQuickPickSelect}
+                  selectedName={activeField === 'pickup' ? pickupLocation?.name : dropoffLocation?.name}
+                />
+              </div>
+            )}
+
+            {/* Search results */}
+            {(searchQuery.trim() || proximityRadius !== null) && (
+              <>
+                <div className="px-4 pt-4 pb-1">
+                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    {searchQuery.trim() ? 'Results' : `Within ${proximityRadius}km`}
+                  </p>
+                </div>
+
+                {landmarksLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-6 h-6 animate-spin text-[#2563EB]" />
+                  </div>
+                ) : (
+                  <>
+                    {landmarks.map((landmark) => (
+                      <button
+                        key={landmark.id}
+                        onClick={() => handleLandmarkSelect(landmark)}
+                        className="w-full flex items-center gap-4 px-4 py-4 hover:bg-gray-50 transition-colors border-b border-gray-50 text-left"
+                      >
+                        <div className="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                          <MapPin className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-gray-900 truncate">{landmark.name}</p>
+                          <p className="text-sm text-gray-400 capitalize">{landmark.category}</p>
+                        </div>
+                      </button>
+                    ))}
+
+                    {landmarks.length === 0 && !nominatimLoading && !showNominatimFallback && searchQuery.trim() && (
+                      <div className="text-center py-12 text-gray-400">
+                        <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                        <p className="text-sm">No results for "{searchQuery}"</p>
+                      </div>
+                    )}
+
+                    {nominatimLoading && (
+                      <div className="flex items-center justify-center gap-2 py-4 text-gray-400">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Searching more places...</span>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Nominatim fallback */}
+                {(showNominatimFallback || (landmarks.length > 0 && nominatimResults.length > 0)) && (
+                  <>
+                    <div className="px-4 py-2 bg-[#2563EB]/5 border-t border-gray-100">
+                      <p className="text-xs font-bold text-[#2563EB] uppercase tracking-wider">📍 More places</p>
+                    </div>
+                    {nominatimResults.map((result, index) => (
+                      <button
+                        key={`nom-${index}`}
+                        onClick={() => handleNominatimSelect(result)}
+                        className="w-full flex items-center gap-4 px-4 py-4 hover:bg-gray-50 transition-colors border-b border-gray-50 text-left"
+                      >
+                        <div className="w-11 h-11 rounded-full bg-[#2563EB]/10 flex items-center justify-center shrink-0">
+                          <Navigation className="w-5 h-5 text-[#2563EB]" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-gray-900 truncate">{result.name}</p>
+                          <p className="text-sm text-gray-400 truncate">{result.displayName}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Modals */}
       <OffersModal
