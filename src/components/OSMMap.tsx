@@ -385,8 +385,8 @@ const OSMMap = forwardRef<HTMLDivElement, OSMMapProps>(function OSMMap({
 
   return (
     <div 
-      className={cn('relative rounded-xl overflow-hidden bg-koloi-gray-200', className)} 
-      style={{ height, minHeight: '260px' }}
+      className={cn('relative overflow-hidden bg-koloi-gray-200', className)} 
+      style={{ height, minHeight: height === '100%' ? undefined : '260px' }}
     >
       {/* Loading State */}
       {mapState === 'loading' && (
