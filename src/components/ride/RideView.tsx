@@ -408,6 +408,9 @@ export default function RideView() {
           </div>
         )}
 
+        {/* Top gradient overlay for header readability */}
+        <div className="absolute top-0 left-0 right-0 h-28 z-10 pointer-events-none bg-gradient-to-b from-background/80 via-background/40 to-transparent" />
+
         {/* Route loading */}
         {routeLoading && pickupLocation && dropoffLocation && (
           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center z-30">
