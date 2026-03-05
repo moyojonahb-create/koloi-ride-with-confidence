@@ -26,6 +26,9 @@ export default defineConfig(({ mode }) => ({
     'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(
       process.env.VITE_SUPABASE_PUBLISHABLE_KEY || FALLBACK_SUPABASE_KEY
     ),
+    'import.meta.env.VITE_GOOGLE_MAPS_API_KEY': JSON.stringify(
+      process.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyD2Psg8nBZJsremwudQ1d7Jk39asQ_v-Cg'
+    ),
   },
   resolve: {
     alias: {

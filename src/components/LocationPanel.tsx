@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLandmarks, formatDistance, type Landmark } from '@/hooks/useLandmarks';
 import { cn } from '@/lib/utils';
-import OSMMap from '@/components/OSMMap';
+import MapGoogle from '@/components/MapGoogle';
 import { LandmarkChips } from '@/components/LandmarkChips';
 import ArrivalIndicator from '@/components/ArrivalIndicator';
 
@@ -188,7 +188,7 @@ const LocationPanel = ({
     <div className={cn("bg-card rounded-xl border border-border overflow-hidden flex flex-col", className)}>
       {/* Map Section */}
       <div className="relative flex-shrink-0">
-        <OSMMap
+        <MapGoogle
           pickup={pickupLocation}
           dropoff={dropoffLocation}
           routeGeometry={routeGeometry}

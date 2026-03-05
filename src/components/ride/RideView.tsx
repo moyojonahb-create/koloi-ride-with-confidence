@@ -6,7 +6,7 @@ import { usePricingSettings } from '@/hooks/usePricingSettings';
 import { useLandmarks } from '@/hooks/useLandmarks';
 import { supabase } from '@/lib/supabaseClient';
 import { requestRide } from '@/lib/requestRide';
-import { nominatimSearchGwanda, nominatimReverse } from '@/lib/geo';
+import { searchZW, reverseZW } from '@/lib/geo_osm';
 import { cachePlaceFromNominatim } from '@/lib/placeCache';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ import {
   Banknote, Wallet, Crown, Zap } from
 'lucide-react';
 import { cn } from '@/lib/utils';
-import OSMMap from '@/components/OSMMap';
+import MapGoogle from '@/components/MapGoogle';
 import RideStatusBanner, { type RideStatus } from './RideStatusBanner';
 import OffersModal, { type DriverViewing, type DriverOffer } from '@/components/OffersModal';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
@@ -202,7 +202,7 @@ export default function RideView() {
     if (query.trim().length < 3) {setNominatimResults([]);return;}
     setNominatimLoading(true);
     try {
-      const results = await nominatimSearchGwanda(query.trim());
+      const results = await searchZW(query.trim());
       const mapped = results.map((r) => ({
         name: r.name || r.display_name.split(',')[0],
         lat: Number(r.lat), lng: Number(r.lon),
@@ -218,7 +218,7 @@ export default function RideView() {
     if (!activeField) return;
     setReverseGeoLoading(true);
     try {
-      const result = await nominatimReverse(coords.lat, coords.lng);
+      const result = await reverseZW(coords.lat, coords.lng);
       const name = result?.name || result?.display_name?.split(',')[0] || `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`;
       const loc: SelectedLocation = { name, lat: coords.lat, lng: coords.lng };
       if (activeField === 'pickup') {setPickupLocation(loc);setActiveField('dropoff');} else
@@ -312,7 +312,7 @@ export default function RideView() {
         </header>
 
         <div className="flex-1 relative min-h-[40vh]">
-          <OSMMap
+          <MapGoogle
             pickup={pickupLocation}
             dropoff={dropoffLocation}
             routeGeometry={routeData?.geometry}
@@ -371,14 +371,13 @@ export default function RideView() {
     <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
       {/* ═══ MAP FULLSCREEN ═══ */}
       <div className="absolute inset-0">
-        <OSMMap
+        <MapGoogle
           pickup={pickupLocation}
           dropoff={dropoffLocation}
           routeGeometry={routeData?.geometry}
           onMapClick={handleMapClick}
-          className="w-full h-full rounded-none"
-          height="100%"
-          showRecenterButton={false} />
+          className="w-full h-full"
+          height="100%" />
         
 
         {/* Map floating buttons */}

@@ -22,7 +22,7 @@ import { Coordinates } from '@/lib/osrm';
 import { useDriverSimulation, decodePolylineToPoints } from '@/hooks/useDriverSimulation';
 import { useOSRMRoute } from '@/hooks/useOSRMRoute';
 import DriverNavigationView from './DriverNavigationView';
-import OSMMap from '@/components/OSMMap';
+import MapGoogle from '@/components/MapGoogle';
 import ArrivalIndicator from '@/components/ArrivalIndicator';
 import { useArrivalDetection } from '@/hooks/useArrivalDetection';
 
@@ -201,7 +201,7 @@ export default function PilotTestingMode({ className }: PilotTestingModeProps) {
         {/* Map View */}
         <Card>
           <CardContent className="p-0">
-            <OSMMap
+            <MapGoogle
               pickup={tripPhase === 'to_pickup' ? activeScenario.pickup : activeScenario.pickup}
               dropoff={tripPhase === 'to_pickup' ? null : activeScenario.dropoff}
               driverLocation={simulatedLocation}
