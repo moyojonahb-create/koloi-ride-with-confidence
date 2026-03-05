@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
   Car, Star, Phone, MessageCircle, Clock, Users, ChevronRight, Locate,
-  Banknote, Wallet, Crown, Zap } from
+  Banknote, Wallet, Crown, Zap, CarFront } from
 'lucide-react';
 import { cn } from '@/lib/utils';
 import MapGoogle from '@/components/MapGoogle';
@@ -513,8 +513,8 @@ export default function RideView() {
                         isSelected ? 'border-primary bg-primary/5' : 'border-transparent bg-secondary hover:bg-secondary/80'
                       )}>
                       
-                        <div className={cn('w-12 h-12 rounded-2xl flex items-center justify-center shrink-0', isSelected ? 'bg-primary' : 'bg-muted')}>
-                          <Icon className={cn('w-6 h-6', isSelected ? 'text-primary-foreground' : 'text-muted-foreground')} />
+                        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 bg-primary", isSelected ? 'bg-primary' : 'bg-muted')}>
+                          <CarFront className={cn("w-6 h-6 bg-koloi-yellow", isSelected ? 'text-primary-foreground' : 'text-muted-foreground')} />
                         </div>
                         <div className="flex-1 min-w-0 text-left">
                           <p className={cn('font-bold', isSelected ? 'text-primary' : 'text-foreground')}>{tier.name}</p>
