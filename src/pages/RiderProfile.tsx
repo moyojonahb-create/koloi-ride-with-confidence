@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
-import { ArrowLeft, User, CreditCard, Calendar, Gift, Settings, LogOut, Shield, Car, Bell, ShieldCheck, BadgeCheck } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Calendar, Gift, Settings, LogOut, Shield, Car, Bell, ShieldCheck, BadgeCheck, CarFront } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
@@ -53,24 +53,24 @@ export default function RiderProfile() {
             {userEmail && <p className="text-sm text-muted-foreground truncate">{userEmail}</p>}
             {userPhone && <p className="text-sm text-muted-foreground">{userPhone}</p>}
             <div className="flex items-center gap-2 mt-2">
-              {isAdmin && (
-                <Badge
-                  className="bg-primary/15 text-primary border-primary/30 cursor-pointer hover:bg-primary/25"
-                  onClick={() => navigate(`${prefix}/admin`)}
-                >
-                  <ShieldCheck className="w-3 h-3 mr-1" />
+              {isAdmin &&
+              <Badge
+                className="bg-primary/15 text-primary border-primary/30 cursor-pointer hover:bg-primary/25"
+                onClick={() => navigate(`${prefix}/admin`)}>
+                
+                  <ShieldCheck className="w-3 h-3 mr-1 bg-yellow-400" />
                   Admin
                 </Badge>
-              )}
-              {isApprovedDriver && (
-                <Badge
-                  className="bg-accent/15 text-accent-foreground border-accent/30 cursor-pointer hover:bg-accent/25"
-                  onClick={() => navigate(`${prefix}/driver`)}
-                >
-                  <Car className="w-3 h-3 mr-1" />
+              }
+              {isApprovedDriver &&
+              <Badge
+                className="bg-accent/15 text-accent-foreground border-accent/30 cursor-pointer hover:bg-accent/25"
+                onClick={() => navigate(`${prefix}/driver`)}>
+                
+                  <CarFront className="w-3 h-3 mr-1 bg-yellow-300" />
                   Driver
                 </Badge>
-              )}
+              }
             </div>
           </div>
         </div>
@@ -118,29 +118,29 @@ export default function RiderProfile() {
         <section className="space-y-2">
           <button
             onClick={() => navigate(`${prefix}/ride`)}
-            className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left"
-          >
+            className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left">
+            
             <Settings className="w-5 h-5 text-muted-foreground" />
             <span className="font-medium text-foreground">Request a Ride</span>
           </button>
           <button
             onClick={() => navigate(`${prefix}/negotiate/request`)}
-            className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left"
-          >
+            className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left">
+            
             <Settings className="w-5 h-5 text-muted-foreground" />
             <span className="font-medium text-foreground">Negotiate a Price</span>
           </button>
           <button
             onClick={() => navigate(`${prefix}/safety`)}
-            className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left"
-          >
+            className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left">
+            
             <Shield className="w-5 h-5 text-muted-foreground" />
             <span className="font-medium text-foreground">Safety</span>
           </button>
           <button
             onClick={() => navigate(`${prefix}/driver-mode`)}
-            className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left"
-          >
+            className="w-full flex items-center gap-3 p-4 bg-card rounded-2xl border border-border hover:bg-muted transition-colors text-left">
+            
             <Car className="w-5 h-5 text-muted-foreground" />
             <span className="font-medium text-foreground">Driver Mode</span>
           </button>
@@ -152,6 +152,6 @@ export default function RiderProfile() {
           Sign Out
         </Button>
       </div>
-    </div>
-  );
+    </div>);
+
 }
