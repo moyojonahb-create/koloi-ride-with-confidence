@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { GoogleMap } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import { Button } from "@/components/ui/button";
 import ZWPlacesAutocomplete from "@/components/ZWPlacesAutocomplete";
+import { Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useRiderLocationGate } from "@/hooks/useRiderLocationGate";
+import { useGoogleMapsKey } from "@/hooks/useGoogleMapsKey";
 
 type LatLng = { lat: number; lng: number };
 
@@ -25,7 +27,7 @@ function fitPickupDropoff(map: google.maps.Map, pickup: LatLng, dropoff: LatLng)
   map.fitBounds(bounds, 80);
 }
 
-export default function Ride() {
+function RideContent() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isRequesting, setIsRequesting] = useState(false);
@@ -198,4 +200,36 @@ export default function Ride() {
       </div>
     </div>
   );
+}
+
+export default function Ride() {
+  const { apiKey } = useGoogleMapsKey();
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: apiKey || "",
+    id: "koloi-maps-loader"
+  });
+
+  if (!apiKey) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full bg-gray-100">
+        <div className="text-center">
+          <p className="text-red-600 font-semibold">Google Maps API key not configured</p>
+          <p className="text-sm text-gray-600 mt-2">Please set up your Google Maps API key</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full bg-gray-100">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-600" />
+          <p className="text-gray-600">Loading map...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <RideContent />;
 }
