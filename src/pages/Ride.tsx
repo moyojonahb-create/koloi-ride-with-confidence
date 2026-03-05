@@ -205,7 +205,7 @@ function RideContent() {
 export default function Ride() {
   const { apiKey, loading, error } = useGoogleMapsKey();
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: apiKey || "AIzaSyDemjH0P5pQ5W4qJW2-S7wAI5IxVGUHWrU", // Demo key
+    googleMapsApiKey: apiKey || "AIzaSyD2Psg8nBZJsremwudQ1d7Jk39asQ_v-Cg",
     id: "koloi-maps-loader"
   });
 
