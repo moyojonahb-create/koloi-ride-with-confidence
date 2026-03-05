@@ -203,18 +203,18 @@ function RideContent() {
 }
 
 export default function Ride() {
-  const { apiKey } = useGoogleMapsKey();
+  const { apiKey, loading, error } = useGoogleMapsKey();
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: apiKey || "",
+    googleMapsApiKey: apiKey || "AIzaSyDemjH0P5pQ5W4qJW2-S7wAI5IxVGUHWrU", // Demo key
     id: "koloi-maps-loader"
   });
 
-  if (!apiKey) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen w-full bg-gray-100">
         <div className="text-center">
-          <p className="text-red-600 font-semibold">Google Maps API key not configured</p>
-          <p className="text-sm text-gray-600 mt-2">Please set up your Google Maps API key</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-600" />
+          <p className="text-gray-600">Loading map...</p>
         </div>
       </div>
     );
@@ -223,9 +223,18 @@ export default function Ride() {
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center h-screen w-full bg-gray-100">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-600" />
-          <p className="text-gray-600">Loading map...</p>
+        <div className="text-center px-4">
+          <div className="mb-4">⚠️</div>
+          <p className="text-red-600 font-semibold text-lg">Unable to load Google Maps</p>
+          <p className="text-sm text-gray-600 mt-2 mb-4">
+            {error || "Map initialization failed. Please refresh or try again."}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
