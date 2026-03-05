@@ -102,7 +102,7 @@ export function useOpenRidesRealtime(onUpdate: () => void) {
  * Hook for subscribing to new ride requests (INSERT only) - for driver notifications
  * Calls onNewRide only for newly inserted pending rides that haven't expired
  */
-export function useRealtimeRideRequests(onNewRide: (ride: any) => void) {
+export function useRealtimeRideRequests(onNewRide: (ride: unknown) => void) {
   const onNewRideRef = useRef(onNewRide);
   onNewRideRef.current = onNewRide;
 
@@ -145,7 +145,7 @@ export function useRealtimeRideRequests(onNewRide: (ride: any) => void) {
  * Hook for subscribing to offers on a specific ride (INSERT only) - for rider notifications
  * Calls onOffer when a new offer is submitted for this ride
  */
-export function useRealtimeOffers(rideId: string | null, onOffer: (offer: any) => void) {
+export function useRealtimeOffers(rideId: string | null, onOffer: (offer: unknown) => void) {
   const onOfferRef = useRef(onOffer);
   onOfferRef.current = onOffer;
 
@@ -184,7 +184,7 @@ export function useRealtimeOffers(rideId: string | null, onOffer: (offer: any) =
  * Hook for subscribing to ride status changes (UPDATE only) - for both rider and driver
  * Calls onUpdate when the ride record is updated (status change, driver assignment, etc.)
  */
-export function useRealtimeRideStatus(rideId: string | null, onUpdate: (ride: any) => void) {
+export function useRealtimeRideStatus(rideId: string | null, onUpdate: (ride: unknown) => void) {
   const onUpdateRef = useRef(onUpdate);
   onUpdateRef.current = onUpdate;
 

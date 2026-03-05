@@ -23,7 +23,7 @@ export default function DriverSettingsPanel({ driverId, initialArea = 'both', in
   const [area, setArea] = useState(initialArea);
   const [earningNotif, setEarningNotif] = useState(initialEarningNotif);
 
-  const updateField = async (field: string, value: any) => {
+  const updateField = async (field: string, value: unknown) => {
     if (!user) return;
     const { error } = await supabase
       .from('drivers')

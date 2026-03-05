@@ -55,7 +55,7 @@ export async function requestRide(input: RequestRideInput) {
   }
 
   // 3) Insert ride - user_id must match auth.uid() for RLS
-  const insertPayload: Record<string, any> = {
+  const insertPayload: Record<string, unknown> = {
     user_id: user.id,
     status: input.scheduled_at ? "scheduled" : "pending",
     pickup_address,
@@ -78,7 +78,7 @@ export async function requestRide(input: RequestRideInput) {
 
   const { data, error } = await supabase
     .from("rides")
-    .insert(insertPayload as any)
+    .insert(insertPayload as unknown)
     .select("*")
     .single();
 

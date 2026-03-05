@@ -2,7 +2,7 @@
 import { supabase } from "@/lib/supabaseClient";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
-type PresenceState = Record<string, any[]>;
+type PresenceState = Record<string, unknown[]>;
 
 export async function joinRidePresence(
   rideId: string,

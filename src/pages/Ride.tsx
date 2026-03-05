@@ -1,11 +1,7 @@
-import RideView from "@/components/ride/RideView";
-
-export default function Ride() {
-  return <RideView />;
-}
 import { useState } from "react";
 import { GoogleMap } from "@react-google-maps/api";
 import { Button } from "@/components/ui/button";
+import ZWPlacesAutocomplete from "@/components/ZWPlacesAutocomplete";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,8 +14,25 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useRiderLocationGate } from "@/hooks/useRiderLocationGate";
 
-export default function RidePage() {
+type LatLng = { lat: number; lng: number };
+
+const FALLBACK_CENTER: LatLng = { lat: -17.8292, lng: 31.0522 }; // Harare
+
+function fitPickupDropoff(map: google.maps.Map, pickup: LatLng, dropoff: LatLng) {
+  const bounds = new google.maps.LatLngBounds();
+  bounds.extend(pickup);
+  bounds.extend(dropoff);
+  map.fitBounds(bounds, 80);
+}
+
+export default function Ride() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
+
+  const [pickup, setPickup] = useState<LatLng | null>(null);
+  const [dropoff, setDropoff] = useState<LatLng | null>(null);
+
+  const [pickupAddress, setPickupAddress] = useState("");
+  const [dropoffAddress, setDropoffAddress] = useState("");
 
   const {
     detectedCity,
@@ -35,14 +48,20 @@ export default function RidePage() {
       <GoogleMap
         onLoad={(m) => setMap(m)}
         mapContainerStyle={{ width: "100%", height: "100%" }}
-        center={{ lat: -17.8292, lng: 31.0522 }} // fallback
-        zoom={12}
-        options={{ disableDefaultUI: true, zoomControl: true }}
+        center={pickup ?? FALLBACK_CENTER}
+        zoom={pickup ? 16 : 12}
+        options={{
+          disableDefaultUI: true,
+          zoomControl: true,
+          clickableIcons: false,
+          minZoom: 12,
+          maxZoom: 19,
+        }}
       >
-        {/* markers */}
+        {/* markers can be added later */}
       </GoogleMap>
 
-      {/* Location confirmation */}
+      {/* Confirm location modal */}
       <AlertDialog open={isConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -50,28 +69,60 @@ export default function RidePage() {
               Are you in {detectedCity ?? "this area"}?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {detectedAddress ?? "We detected your location from GPS. Confirm to continue."}
+              {detectedAddress ??
+                "We detected your location from GPS. Confirm to continue."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={changeLocation}>
-              No, change
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={confirmLocation}>
-              Yes, continue
-            </AlertDialogAction>
+            <AlertDialogCancel onClick={changeLocation}>No, change</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmLocation}>Yes, continue</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Request button disabled until confirmed */}
+      {/* Bottom sheet UI */}
       <div className="absolute bottom-4 left-0 right-0 px-4">
-        <div className="mx-auto max-w-[520px] rounded-3xl bg-white shadow-2xl p-4">
+        <div className="mx-auto max-w-[520px] rounded-3xl bg-white shadow-2xl p-4 space-y-3">
+          <ZWPlacesAutocomplete
+            placeholder="Pickup location"
+            defaultValue={pickupAddress}
+            onPick={(p) => {
+              const nextPickup = { lat: p.lat, lng: p.lng };
+              setPickup(nextPickup);
+              setPickupAddress(p.label);
+
+              map?.setCenter(nextPickup);
+              map?.setZoom(16);
+
+              if (dropoff && map) {
+                fitPickupDropoff(map, nextPickup, dropoff);
+              }
+            }}
+          />
+
+          <ZWPlacesAutocomplete
+            placeholder="Where to?"
+            defaultValue={dropoffAddress}
+            onPick={(p) => {
+              const nextDropoff = { lat: p.lat, lng: p.lng };
+              setDropoff(nextDropoff);
+              setDropoffAddress(p.label);
+
+              map?.setCenter(nextDropoff);
+              map?.setZoom(16);
+
+              if (pickup && map) {
+                fitPickupDropoff(map, pickup, nextDropoff);
+              }
+            }}
+          />
+
           <Button className="w-full h-14 rounded-full" disabled={!canRequest}>
             Request Ride
           </Button>
+
           {!canRequest && (
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Confirm your location to start requesting.
             </p>
           )}

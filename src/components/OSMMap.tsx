@@ -13,7 +13,7 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 // Fix Leaflet's default icon paths
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete ((L.Icon.Default.prototype as unknown as Record<string, unknown>))._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
   iconUrl: markerIcon,
@@ -247,7 +247,7 @@ const OSMMap = forwardRef<HTMLDivElement, OSMMapProps>(function OSMMap({
       });
 
       defaultLayer.on('tileerror', (e) => {
-        console.warn('[OSMMap] Tile error:', (e as any).tile?.src?.slice(-40));
+        console.warn('[OSMMap] Tile error:', (e as unknown as Record<string, unknown>).tile?.src?.slice(-40));
       });
 
       // Add layer control

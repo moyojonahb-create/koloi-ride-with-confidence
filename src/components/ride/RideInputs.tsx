@@ -82,9 +82,9 @@ export default function RideInputs({
 
   const clearLocation = (field: 'pickup' | 'dropoff') => {
     if (field === 'pickup') {
-      onPickupSelect(null as any);
+      onPickupSelect(null);
     } else {
-      onDropoffSelect(null as any);
+      onDropoffSelect(null);
     }
     setActiveField(field);
   };

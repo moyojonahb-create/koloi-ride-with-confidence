@@ -7,10 +7,10 @@ const FALLBACK_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJz
 // Polyfill import.meta.env if values are missing
 if (typeof import.meta.env !== 'undefined') {
   if (!import.meta.env.VITE_SUPABASE_URL) {
-    (import.meta.env as any).VITE_SUPABASE_URL = FALLBACK_SUPABASE_URL;
+    (import.meta.env as unknown).VITE_SUPABASE_URL = FALLBACK_SUPABASE_URL;
   }
   if (!import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
-    (import.meta.env as any).VITE_SUPABASE_PUBLISHABLE_KEY = FALLBACK_SUPABASE_KEY;
+    (import.meta.env as unknown).VITE_SUPABASE_PUBLISHABLE_KEY = FALLBACK_SUPABASE_KEY;
   }
 }
 

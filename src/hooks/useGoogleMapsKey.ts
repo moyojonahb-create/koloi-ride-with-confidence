@@ -29,7 +29,7 @@ export function useGoogleMapsKey() {
         }
         cachedKey = data.apiKey;
         setApiKey(data.apiKey);
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (!cancelled) setError(e.message);
       } finally {
         if (!cancelled) setLoading(false);

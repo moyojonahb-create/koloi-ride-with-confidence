@@ -110,7 +110,7 @@ export default function RideView() {
 
   // Handle rebook from ride history
   useEffect(() => {
-    const rebook = (location.state as any)?.rebook;
+    const rebook = (location.state as unknown as Record<string, unknown>)?.rebook;
     if (rebook) {
       if (rebook.pickup) setPickupLocation(rebook.pickup);
       if (rebook.dropoff) setDropoffLocation(rebook.dropoff);
@@ -258,7 +258,7 @@ export default function RideView() {
       setCurrentRideId(result.ride.id);
       toast({ title: 'Ride requested!', description: 'Looking for nearby drivers...' });
       navigate(`/ride/${result.ride.id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({ title: 'Failed to request ride', description: error.message, variant: 'destructive' });
       setRideStatus('idle');
     } finally {setIsRequesting(false);}

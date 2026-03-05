@@ -67,7 +67,7 @@ export function useAgoraCall({
           filter: `callee_id=eq.${currentUserId}`,
         },
         (payload) => {
-          const session = payload.new as any;
+          const session = payload.new as unknown;
           console.log("[AgoraCall] INSERT received:", session.status, session.id);
           if (session.status === "ringing" && callStatusRef.current === "idle") {
             setIncomingCall({
@@ -85,7 +85,7 @@ export function useAgoraCall({
           table: "call_sessions",
         },
         (payload) => {
-          const session = payload.new as any;
+          const session = payload.new as unknown;
           const isParticipant =
             session.caller_id === currentUserId ||
             session.callee_id === currentUserId;
@@ -245,7 +245,7 @@ export function useAgoraCall({
       // sessionIdRef is updated via useEffect sync
       // Now waiting for callee to answer (realtime UPDATE will trigger joinChannel)
       toast.info("Calling rider...", { description: "Waiting for answer" });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[AgoraCall] Failed to start call:", err);
       toast.error("Call failed", { description: err.message });
       setCallStatus("error");
@@ -266,7 +266,7 @@ export function useAgoraCall({
       setSessionId(incomingCall.sessionId);
       setIncomingCall(null);
       await joinChannel(incomingCall.sessionId);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[AgoraCall] Failed to answer call:", err);
       toast.error("Failed to answer", { description: err.message });
       setCallStatus("error");
@@ -296,8 +296,9 @@ export function useAgoraCall({
           .from("call_sessions")
           .update({ status: "ended", ended_at: new Date().toISOString() })
           .eq("id", sid);
-      } catch {}
-    }
+      } catch (err) {
+        console.warn('Failed to end call session:', err);
+      }    }
     await cleanup();
     setCallStatus("ended");
     setSessionId(null);

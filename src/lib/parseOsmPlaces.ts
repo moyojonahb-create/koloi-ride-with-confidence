@@ -11,7 +11,7 @@ export interface OsmPlace {
 }
 
 // Map OSM tags to our categories
-const getCategoryFromProperties = (props: Record<string, any>): string | null => {
+const getCategoryFromProperties = (props: Record<string, unknown>): string | null => {
   // Priority order for category detection
   if (props.amenity) {
     const amenityMap: Record<string, string> = {
@@ -92,7 +92,7 @@ const getCategoryFromProperties = (props: Record<string, any>): string | null =>
 };
 
 // Extract keywords from the place name and properties
-const extractKeywords = (name: string, props: Record<string, any>): string[] => {
+const extractKeywords = (name: string, props: Record<string, unknown>): string[] => {
   const keywords: string[] = [];
   
   // Add name parts as keywords
@@ -110,7 +110,7 @@ const extractKeywords = (name: string, props: Record<string, any>): string[] => 
   return [...new Set(keywords)].slice(0, 10);
 };
 
-export const parseOsmGeoJson = (geojson: any): OsmPlace[] => {
+export const parseOsmGeoJson = (geojson: unknown): OsmPlace[] => {
   const places: OsmPlace[] = [];
   const seenNames = new Set<string>();
 

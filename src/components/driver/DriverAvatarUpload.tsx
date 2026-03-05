@@ -62,8 +62,9 @@ export default function DriverAvatarUpload({ currentAvatarUrl, gender, onUploade
       setPreviewUrl(publicUrl);
       onUploaded(publicUrl);
       toast.success("Profile photo updated!");
-    } catch (err: any) {
-      toast.error("Upload failed", { description: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast.error("Upload failed", { description: message });
     } finally {
       setUploading(false);
     }

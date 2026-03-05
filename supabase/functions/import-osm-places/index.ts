@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 // Map OSM tags to our categories
-const getCategoryFromProperties = (props: Record<string, any>): string | null => {
+const getCategoryFromProperties = (props: Record<string, unknown>): string | null => {
   if (props.amenity) {
     const amenityMap: Record<string, string> = {
       school: 'School',
@@ -95,18 +95,18 @@ const getCategoryFromProperties = (props: Record<string, any>): string | null =>
 };
 
 // Extract keywords from the place name and properties
-const extractKeywords = (name: string, props: Record<string, any>): string[] => {
+const extractKeywords = (name: string, props: Record<string, unknown>): string[] => {
   const keywords: string[] = [];
   
-  const nameParts = name.toLowerCase().split(/[\s,\-&]+/).filter((p: string) => p.length > 2);
+  const nameParts = name.toLowerCase().split(/[\s,\-&]+/).filter(p => p.length > 2);
   keywords.push(...nameParts);
 
-  if (props.amenity) keywords.push(props.amenity);
-  if (props.shop) keywords.push(props.shop);
-  if (props.tourism) keywords.push(props.tourism);
-  if (props.religion) keywords.push(props.religion);
-  if (props.product) keywords.push(props.product);
-  if (props.operator) keywords.push(...props.operator.toLowerCase().split(/\s+/));
+  if (typeof props.amenity === 'string') keywords.push(props.amenity);
+  if (typeof props.shop === 'string') keywords.push(props.shop);
+  if (typeof props.tourism === 'string') keywords.push(props.tourism);
+  if (typeof props.religion === 'string') keywords.push(props.religion);
+  if (typeof props.product === 'string') keywords.push(props.product);
+  if (typeof props.operator === 'string') keywords.push(...props.operator.toLowerCase().split(/\s+/));
 
   return [...new Set(keywords)].slice(0, 10);
 };
@@ -167,7 +167,7 @@ serve(async (req) => {
       });
     }
 
-    const places: any[] = [];
+    const places: unknown[] = [];
     const seenNames = new Set<string>();
 
     for (const feature of geojson.features) {
@@ -248,10 +248,11 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Import error:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

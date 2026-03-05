@@ -205,8 +205,9 @@ export default function DriverRegistrationWizard({ onSuccess, onClose }: DriverR
 
       toast({ title: 'Application submitted!', description: 'Your documents are being reviewed.' });
       onSuccess();
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to submit', variant: 'destructive' });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to submit';
+      toast({ title: 'Error', description: message, variant: 'destructive' });
       setShowProcessing(false);
     } finally {
       setIsSubmitting(false);

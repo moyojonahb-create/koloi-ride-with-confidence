@@ -33,7 +33,7 @@ export default function DriverRatingModal({
 
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("driver_ratings" as any).insert({
+      const { error } = await supabase.from("driver_ratings").insert({
         ride_id: rideId,
         rider_id: riderId,
         driver_id: driverId,
@@ -45,12 +45,13 @@ export default function DriverRatingModal({
 
       toast.success("Thanks for rating your driver!");
       onClose();
-    } catch (e: any) {
+    } catch (e: unknown) {
       if (e.message?.includes("duplicate") || e.message?.includes("unique")) {
         toast.info("You've already rated this ride");
         onClose();
       } else {
-        toast.error("Failed to submit rating", { description: e.message });
+        const message = e instanceof Error ? e.message : 'Unknown error';
+        toast.error("Failed to submit rating", { description: message });
       }
     } finally {
       setSubmitting(false);

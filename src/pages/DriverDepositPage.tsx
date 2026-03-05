@@ -49,7 +49,7 @@ export default function DriverDepositPage() {
       setRef("");
       setFile(null);
       navigate("/drivers/wallet");
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error(e.message || "Failed to submit deposit request.");
     } finally {
       setBusy(false);

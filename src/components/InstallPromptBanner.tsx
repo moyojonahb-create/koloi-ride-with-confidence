@@ -21,7 +21,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
   useEffect(() => {
     // Check if already installed (standalone mode)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-      (window.navigator as any).standalone === true;
+      ((window.navigator as unknown as Record<string, unknown>).standalone === true);
     
     if (isStandalone) {
       setIsInstalled(true);

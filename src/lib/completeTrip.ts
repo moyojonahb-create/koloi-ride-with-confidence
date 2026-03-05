@@ -28,5 +28,5 @@ export async function settleTrip(tripId: string) {
   });
 
   if (res.error) throw res.error;
-  return res.data as { ok: boolean; alreadySettled?: boolean; settlement?: any };
+  return res.data as { ok: boolean; alreadySettled?: boolean; settlement?: unknown };
 }

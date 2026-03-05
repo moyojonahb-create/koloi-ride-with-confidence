@@ -24,7 +24,7 @@ export default function PromoCodeInput({ fare, onApply, onRemove, appliedDiscoun
     setChecking(true);
     try {
       const { data: promoRaw, error } = await supabase
-        .from("promo_codes" as any)
+        .from("promo_codes")
         .select("*")
         .eq("code", code.trim().toUpperCase())
         .eq("is_active", true)
@@ -36,7 +36,7 @@ export default function PromoCodeInput({ fare, onApply, onRemove, appliedDiscoun
         return;
       }
 
-      const promo = promoRaw as any;
+      const promo = promoRaw;
 
       // Check expiry
       if (promo.expires_at && new Date(promo.expires_at) < new Date()) {
@@ -58,7 +58,7 @@ export default function PromoCodeInput({ fare, onApply, onRemove, appliedDiscoun
 
       // Check if user already used it
       const { data: existing } = await supabase
-        .from("promo_usage" as any)
+        .from("promo_usage")
         .select("id")
         .eq("promo_id", promo.id)
         .eq("user_id", user.id)
@@ -79,8 +79,9 @@ export default function PromoCodeInput({ fare, onApply, onRemove, appliedDiscoun
 
       onApply(discount, promo.id);
       toast.success(`Promo applied! R${discount} off`);
-    } catch (e: any) {
-      toast.error("Failed to apply promo", { description: e.message });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Unknown error';
+      toast.error("Failed to apply promo", { description: message });
     } finally {
       setChecking(false);
     }

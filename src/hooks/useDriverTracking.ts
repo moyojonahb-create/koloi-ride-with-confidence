@@ -15,7 +15,7 @@ export function useDriverTracking(
   rideStatus: string | null
 ): DriverPosition | null {
   const [position, setPosition] = useState<DriverPosition | null>(null);
-  const channelRef = useRef<any>(null);
+  const channelRef = useRef<unknown>(null);
 
   const isActive = driverUserId && ["accepted", "in_progress", "arrived"].includes(rideStatus ?? "");
 
@@ -58,7 +58,7 @@ export function useDriverTracking(
           filter: `user_id=eq.${driverUserId}`,
         },
         (payload) => {
-          const { latitude, longitude } = payload.new as any;
+          const { latitude, longitude } = payload.new as unknown;
           if (typeof latitude === "number" && typeof longitude === "number") {
             setPosition({ lat: latitude, lng: longitude });
           }

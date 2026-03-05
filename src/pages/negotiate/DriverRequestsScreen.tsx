@@ -31,7 +31,7 @@ export default function DriverRequestsScreen() {
 
     // Check if top driver
     if (user) {
-      const { data: topStatus } = await supabase.rpc("is_top_driver" as any, { _user_id: user.id });
+      const { data: topStatus } = await supabase.rpc("is_top_driver" as unknown, { _user_id: user.id });
       setIsTopDriver(!!topStatus);
     }
 

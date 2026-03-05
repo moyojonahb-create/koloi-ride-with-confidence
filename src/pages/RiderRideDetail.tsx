@@ -58,7 +58,7 @@ export default function RiderRideDetail() {
   const [ride, setRide] = useState<Ride | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [driversById, setDriversById] = useState<Record<string, DriverProfile>>({});
-  const [driverProfile, setDriverProfile] = useState<any>(null);
+  const [driverProfile, setDriverProfile] = useState<unknown>(null);
   const [driverPhone, setDriverPhone] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -148,7 +148,7 @@ export default function RiderRideDetail() {
             setDriverPhone(profileData.phone);
           }
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         console.warn("Error fetching driver details:", e.message);
       }
     }
@@ -178,7 +178,7 @@ export default function RiderRideDetail() {
       const ids = [...new Set(list.map((o) => o.driver_id))];
       const map = await fetchDriversByIds(ids);
       setDriversById(map);
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Failed to fetch offers:", e);
     }
   }, [rideId, lastOfferCount]);
@@ -252,7 +252,7 @@ export default function RiderRideDetail() {
 
       setRide({ ...ride, fare: clampedFare });
       toast.success(`Fare updated to R${clampedFare}`);
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error("Failed to update fare", { description: e.message });
     } finally {
       setUpdatingFare(false);
@@ -272,7 +272,7 @@ export default function RiderRideDetail() {
         description: "You can now contact your driver"
       });
       await refreshRide();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.message);
       toast.error("Failed to accept offer", { description: e.message });
     }
@@ -283,7 +283,7 @@ export default function RiderRideDetail() {
       await declineOffer(offerId);
       toast.info("Offer declined");
       await refreshOffers();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error("Failed to decline offer", { description: e.message });
     }
   };
@@ -298,7 +298,7 @@ export default function RiderRideDetail() {
 
       toast.info("Ride cancelled");
       nav("/ride");
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error("Failed to cancel ride", { description: e.message });
     }
   };
@@ -320,7 +320,7 @@ export default function RiderRideDetail() {
 
   const modalOffers = offers.map((o) => {
     const d = driversById[o.driver_id];
-    const driverFullName = (d as any)?.full_name;
+    const driverFullName = (d as unknown)?.full_name;
     return {
       driverId: o.driver_id,
       name: d?.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model}` : "Driver",
@@ -339,8 +339,8 @@ export default function RiderRideDetail() {
       vehicleModel: d?.vehicle_model || undefined,
       gender: d?.gender || null,
       avatarUrl: d?.avatar_url || null,
-      ratingAvg: (d as any)?.rating_avg || null,
-      totalTrips: (d as any)?.total_trips || null
+      ratingAvg: (d as unknown)?.rating_avg || null,
+      totalTrips: (d as unknown)?.total_trips || null
     };
   });
 

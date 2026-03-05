@@ -26,7 +26,7 @@ export default function ReferralShare() {
       }
 
       const { count } = await supabase
-        .from("referrals" as any)
+        .from("referrals")
         .select("*", { count: "exact", head: true })
         .eq("referrer_id", user.id);
 

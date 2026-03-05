@@ -48,7 +48,7 @@ export const useWallet = () => {
       setError(null);
       
       // Try to fetch existing wallet
-      let { data: walletData, error: walletError } = await supabase
+      const { data: walletData, error: walletError } = await supabase
         .from('wallets')
         .select('*')
         .eq('user_id', user.id)
@@ -82,7 +82,7 @@ export const useWallet = () => {
         if (txError) throw txError;
         setTransactions(txData || []);
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.message);
     } finally {
       setLoading(false);
@@ -117,7 +117,7 @@ export const useWallet = () => {
 
       await fetchWallet();
       return { error: null };
-    } catch (e: any) {
+    } catch (e: unknown) {
       return { error: e.message };
     }
   };
@@ -149,7 +149,7 @@ export const useWallet = () => {
 
       await fetchWallet();
       return { error: null };
-    } catch (e: any) {
+    } catch (e: unknown) {
       return { error: e.message };
     }
   };
@@ -202,7 +202,7 @@ export const useAdminEarnings = () => {
       
       setTotalEarnings(totals.total);
       setTotalPlatformFees(totals.fees);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setError(e.message);
     } finally {
       setLoading(false);

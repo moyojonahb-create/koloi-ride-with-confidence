@@ -80,7 +80,7 @@ const DocumentUpload = ({ driverId }: DocumentUploadProps) => {
         description: 'Your document has been submitted for review.',
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast({
         title: 'Upload failed',
         description: error.message || 'Failed to upload document',

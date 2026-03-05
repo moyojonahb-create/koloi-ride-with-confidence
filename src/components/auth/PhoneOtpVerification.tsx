@@ -48,11 +48,12 @@ const PhoneOtpVerification = ({ phone, onVerified, onBack }: PhoneOtpVerificatio
         description: `A verification code has been sent to ${phone}`,
       });
       setCountdown(60); // 60 second cooldown
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error sending OTP:', err);
+      const message = err instanceof Error ? err.message : 'Please try again';
       toast({
         title: 'Failed to send code',
-        description: err.message || 'Please try again',
+        description: message,
         variant: 'destructive',
       });
     } finally {
@@ -98,11 +99,12 @@ const PhoneOtpVerification = ({ phone, onVerified, onBack }: PhoneOtpVerificatio
       setTimeout(() => {
         onVerified();
       }, 1000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error verifying OTP:', err);
+      const message = err instanceof Error ? err.message : 'Please try again';
       toast({
         title: 'Verification failed',
-        description: err.message || 'Please try again',
+        description: message,
         variant: 'destructive',
       });
       setOtp('');

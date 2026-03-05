@@ -5,7 +5,7 @@
 export function playAlert(): void {
   try {
     // Create an oscillator-based alert sound
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioCtx = new (window.AudioContext || (window as unknown).webkitAudioContext)();
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
     

@@ -8,7 +8,7 @@ import geojsonData from '@/data/gwanda-osm-places.json';
 export default function ImportOsmPlaces() {
   const [status, setStatus] = useState<'idle' | 'importing' | 'success' | 'error'>('idle');
   const [result, setResult] = useState<{ imported?: number; message?: string; error?: string } | null>(null);
-  const [fileData, setFileData] = useState<any>(null);
+  const [fileData, setFileData] = useState<unknown>(null);
   const [fileName, setFileName] = useState<string>('');
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +27,7 @@ export default function ImportOsmPlaces() {
     reader.readAsText(file);
   };
 
-  const handleImport = async (mode: 'replace' | 'append', data: any) => {
+  const handleImport = async (mode: 'replace' | 'append', data: unknown) => {
     setStatus('importing');
     setResult(null);
 
@@ -39,7 +39,7 @@ export default function ImportOsmPlaces() {
       if (error) throw error;
       setStatus('success');
       setResult(res);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus('error');
       setResult({ error: err.message || 'Import failed' });
     }
@@ -59,7 +59,7 @@ export default function ImportOsmPlaces() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Built-in dataset: {(geojsonData as any).features?.length || 0} Gwanda places from the OSM export.
+            Built-in dataset: {(geojsonData as unknown).features?.length || 0} Gwanda places from the OSM export.
           </p>
 
           <div className="flex gap-2">

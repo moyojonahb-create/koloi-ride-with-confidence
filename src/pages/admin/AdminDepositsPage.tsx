@@ -52,7 +52,7 @@ function AdminDepositsPageInner() {
       p_note: "Approved after EcoCash confirmation",
     });
     if (error) { toast.error(error.message); return; }
-    if (!(data as any)?.ok) { toast.error("Approval failed"); return; }
+    if (!(data as unknown)?.ok) { toast.error("Approval failed"); return; }
     toast.success("Deposit approved and credited!");
     await load();
   };

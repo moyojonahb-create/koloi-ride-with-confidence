@@ -72,10 +72,11 @@ const DriverApplicationForm = ({ onSuccess }: DriverApplicationFormProps) => {
         description: 'Your driver application has been received. Please upload your documents to complete the process.',
       });
       onSuccess();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to submit application';
       toast({
         title: 'Error',
-        description: error.message || 'Failed to submit application',
+        description: message,
         variant: 'destructive',
       });
     } finally {

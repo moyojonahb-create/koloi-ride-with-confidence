@@ -29,7 +29,7 @@ let audioContext: AudioContext | null = null;
 
 function getAudioContext(): AudioContext {
   if (!audioContext) {
-    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    audioContext = new (window.AudioContext || (window as unknown).webkitAudioContext)();
   }
   // Resume if suspended (needed for mobile)
   if (audioContext.state === 'suspended') {
@@ -73,7 +73,7 @@ export function playNotificationSound(type: NotificationType): void {
     const duration = durations[type];
     const volume = volumes[type];
     
-    let currentTime = ctx.currentTime;
+    const currentTime = ctx.currentTime;
     const noteGap = duration / 1000 + 0.02; // Small gap between notes
     
     freqs.forEach((freq, i) => {
@@ -102,7 +102,7 @@ export function playUrgentAlert(): void {
     
     // Repeating urgent pattern - like an alarm
     const pattern = [880, 1047, 880, 1047, 880, 1047, 880, 1047, 1318];
-    let currentTime = ctx.currentTime;
+    const currentTime = ctx.currentTime;
     
     pattern.forEach((freq, i) => {
       playTone(freq, duration, currentTime + i * 0.22, volume, 'square');

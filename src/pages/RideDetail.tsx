@@ -40,7 +40,7 @@ function SettlementInfo({ tripId }: { tripId: string }) {
         .eq("trip_id", tripId)
         .maybeSingle();
       setSettlement(data);
-    } catch {}
+    } catch (err: unknown) { console.warn("Settlement fetch failed:", err); }
     setSettling(false);
   };
 
@@ -196,7 +196,7 @@ export default function RideDetail() {
         .order("created_at", { ascending: true });
       if (mErr) throw new Error(mErr.message);
       setMessages((m as MessageRow[]) || []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setToast(e?.message || "Failed to load ride.");
     } finally {
       setLoading(false);
@@ -231,11 +231,11 @@ export default function RideDetail() {
   useEffect(() => {
     if (!rideId) return;
 
-    let pres: any;
+    let pres: unknown;
     (async () => {
       pres = await joinRidePresence(rideId, { role: "rider", name: "rider" });
       pres.on("presence", { event: "sync" }, () => {
-        const state = pres.presenceState() as Record<string, any[]>;
+        const state = pres.presenceState() as Record<string, unknown[]>;
         setDriversViewing(countDriversViewing(state));
       });
     })();
@@ -282,7 +282,7 @@ export default function RideDetail() {
 
       setToast("Driver accepted ✅ You can now call or message.");
       setShowOffersModal(false);
-    } catch (e: any) {
+    } catch (e: unknown) {
       setToast(e?.message || "Failed to accept offer.");
     } finally {
       setAcceptingOfferId(null);
@@ -299,7 +299,7 @@ export default function RideDetail() {
       });
       if (error) throw new Error(error.message);
       setMsgText("");
-    } catch (e: any) {
+    } catch (e: unknown) {
       setToast(e?.message || "Message failed.");
     }
   };

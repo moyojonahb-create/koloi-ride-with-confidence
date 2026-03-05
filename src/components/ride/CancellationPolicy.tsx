@@ -29,8 +29,9 @@ export default function CancellationPolicy({ rideId, rideStatus, onCancelled }: 
 
       toast.info("Ride cancelled");
       onCancelled();
-    } catch (e: any) {
-      toast.error("Failed to cancel", { description: e.message });
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Unknown error';
+      toast.error("Failed to cancel", { description: message });
     } finally {
       setCancelling(false);
       setShowConfirm(false);
