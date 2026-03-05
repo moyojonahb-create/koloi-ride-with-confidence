@@ -13,8 +13,8 @@ import {
   declineOffer,
   clampTo5,
   type Offer,
-  type DriverProfile,
-} from "@/lib/offerHelpers";
+  type DriverProfile } from
+"@/lib/offerHelpers";
 import { RideCommunication } from "@/components/ride/RideCommunication";
 import OffersModal from "@/components/OffersModal";
 import TripGoogleMap from "@/components/TripGoogleMap";
@@ -51,7 +51,7 @@ type Ride = {
 };
 
 export default function RiderRideDetail() {
-  const { rideId } = useParams<{ rideId: string }>();
+  const { rideId } = useParams<{rideId: string;}>();
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
@@ -82,11 +82,11 @@ export default function RiderRideDetail() {
     declineCall: declineIncomingCall,
     endCall,
     toggleMute,
-    toggleSpeaker,
+    toggleSpeaker
   } = useAgoraCall({
     rideId: rideId ?? null,
     currentUserId: user?.id ?? "",
-    otherUserId: driverProfile?.user_id ?? null,
+    otherUserId: driverProfile?.user_id ?? null
   });
 
   const refreshRide = useCallback(async () => {
@@ -110,10 +110,10 @@ export default function RiderRideDetail() {
         if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
           new Notification("🎉 Driver Accepted!", {
             body: "Your ride has been confirmed. You can now contact your driver.",
-            icon: "/icons/icon-192x192.png",
+            icon: "/icons/icon-192x192.png"
           });
         }
-      } catch (_) { /* Notification API not available */ }
+      } catch (_) {/* Notification API not available */}
     }
 
     // Show rating modal when ride completes
@@ -124,11 +124,11 @@ export default function RiderRideDetail() {
     if (data.driver_id && (data.status === "accepted" || data.status === "in_progress" || data.status === "arrived")) {
       try {
         // First get the driver record
-        const { data: driverData, error: driverErr } = await supabase
-          .from("drivers")
-          .select("*")
-          .eq("id", data.driver_id)
-          .maybeSingle();
+        const { data: driverData, error: driverErr } = await supabase.
+        from("drivers").
+        select("*").
+        eq("id", data.driver_id).
+        maybeSingle();
 
         if (driverErr) {
           console.warn("Failed to fetch driver:", driverErr.message);
@@ -138,11 +138,11 @@ export default function RiderRideDetail() {
           setDriverProfile(driverData);
 
           // Now fetch the profile separately using the driver's user_id
-          const { data: profileData } = await supabase
-            .from("profiles")
-            .select("full_name, phone")
-            .eq("user_id", driverData.user_id)
-            .maybeSingle();
+          const { data: profileData } = await supabase.
+          from("profiles").
+          select("full_name, phone").
+          eq("user_id", driverData.user_id).
+          maybeSingle();
 
           if (profileData?.phone) {
             setDriverPhone(profileData.phone);
@@ -167,10 +167,10 @@ export default function RiderRideDetail() {
           if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
             new Notification("New Driver Offer!", {
               body: "A driver has made an offer on your ride request.",
-              icon: "/icons/icon-192x192.png",
+              icon: "/icons/icon-192x192.png"
             });
           }
-        } catch (_) { /* Notification API not available */ }
+        } catch (_) {/* Notification API not available */}
       }
       setLastOfferCount(list.length);
       setOffers(list);
@@ -186,7 +186,7 @@ export default function RiderRideDetail() {
   // Realtime subscriptions
   useRideRealtime(rideId ?? null, {
     onRideChange: refreshRide,
-    onOfferChange: refreshOffers,
+    onOfferChange: refreshOffers
   });
 
   // Request notification permission
@@ -195,7 +195,7 @@ export default function RiderRideDetail() {
       if (typeof globalThis.Notification !== "undefined" && Notification.permission === "default") {
         Notification.requestPermission();
       }
-    } catch (_) { /* Notification API not available */ }
+    } catch (_) {/* Notification API not available */}
   }, []);
 
   // Real-time driver tracking via Supabase Realtime
@@ -215,7 +215,7 @@ export default function RiderRideDetail() {
       // Auto-navigate back if expired
       if (secs <= 0 && ride.status === "pending") {
         toast.info("Ride request expired", {
-          description: "Your request timed out. Please try again.",
+          description: "Your request timed out. Please try again."
         });
         nav("/ride");
       }
@@ -269,7 +269,7 @@ export default function RiderRideDetail() {
       setModalOpen(false);
       playAcceptedSound();
       toast.success("Driver accepted!", {
-        description: "You can now contact your driver",
+        description: "You can now contact your driver"
       });
       await refreshRide();
     } catch (e: any) {
@@ -310,11 +310,11 @@ export default function RiderRideDetail() {
       driverId: o.driver_id,
       name: d?.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model}` : "Driver",
       phone: "+263", // Placeholder - actual phone hidden until accepted
-      vehicleType: (d?.vehicle_type as "Car" | "Taxi" | "Motorbike") || "Car",
+      vehicleType: d?.vehicle_type as "Car" | "Taxi" | "Motorbike" || "Car",
       plateNumber: d?.plate_number || "—",
       languages: ["English"],
       distanceKm: 0,
-      etaMinutes: o.eta_minutes || 10,
+      etaMinutes: o.eta_minutes || 10
     };
   });
 
@@ -325,7 +325,7 @@ export default function RiderRideDetail() {
       driverId: o.driver_id,
       name: d?.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model}` : "Driver",
       phone: "+263", // Placeholder until accepted
-      vehicleType: (d?.vehicle_type as "Car" | "Taxi" | "Motorbike") || "Car",
+      vehicleType: d?.vehicle_type as "Car" | "Taxi" | "Motorbike" || "Car",
       plateNumber: d?.plate_number || "—",
       languages: ["English"],
       distanceKm: 0,
@@ -340,7 +340,7 @@ export default function RiderRideDetail() {
       gender: d?.gender || null,
       avatarUrl: d?.avatar_url || null,
       ratingAvg: (d as any)?.rating_avg || null,
-      totalTrips: (d as any)?.total_trips || null,
+      totalTrips: (d as any)?.total_trips || null
     };
   });
 
@@ -348,8 +348,8 @@ export default function RiderRideDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse text-muted-foreground">Loading…</div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (!ride) {
@@ -363,8 +363,8 @@ export default function RiderRideDetail() {
             <p className="text-muted-foreground">Ride not found.</p>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   const isAccepted = ["accepted", "in_progress", "arrived"].includes(ride.status);
@@ -373,27 +373,27 @@ export default function RiderRideDetail() {
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
       {/* Active Call Overlay */}
-      {callStatus !== "idle" && (
-        <ActiveCallOverlay
-          status={callStatus}
-          duration={callDuration}
-          isMuted={isMuted}
-          isSpeaker={isSpeaker}
-          onToggleMute={toggleMute}
-          onToggleSpeaker={toggleSpeaker}
-          onEndCall={endCall}
-          otherUserName="Driver"
-        />
-      )}
+      {callStatus !== "idle" &&
+      <ActiveCallOverlay
+        status={callStatus}
+        duration={callDuration}
+        isMuted={isMuted}
+        isSpeaker={isSpeaker}
+        onToggleMute={toggleMute}
+        onToggleSpeaker={toggleSpeaker}
+        onEndCall={endCall}
+        otherUserName="Driver" />
+
+      }
 
       {/* Incoming Call Modal */}
-      {incomingCall && (
-        <IncomingCallModal
-          callerId={incomingCall.callerId}
-          onAnswer={answerCall}
-          onDecline={declineIncomingCall}
-        />
-      )}
+      {incomingCall &&
+      <IncomingCallModal
+        callerId={incomingCall.callerId}
+        onAnswer={answerCall}
+        onDecline={declineIncomingCall} />
+
+      }
       {/* Header */}
       <div className="shrink-0 bg-background/95 backdrop-blur border-b border-border px-4 py-3 z-10">
         <div className="flex items-center justify-between max-w-lg mx-auto">
@@ -402,16 +402,16 @@ export default function RiderRideDetail() {
           </Button>
           <h1 className="font-black text-lg">Your Ride</h1>
           <div className="flex items-center gap-1">
-            {isAccepted && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowCommunication(!showCommunication)}
-                className="relative"
-              >
+            {isAccepted &&
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowCommunication(!showCommunication)}
+              className="relative">
+              
                 <MessageCircle className="h-5 w-5" />
               </Button>
-            )}
+            }
             <EmergencyButton />
           </div>
         </div>
@@ -420,28 +420,28 @@ export default function RiderRideDetail() {
       <div className="flex-1 overflow-y-auto overscroll-contain">
         <div className="max-w-lg mx-auto p-4 space-y-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
         {/* Map - Show route and driver location */}
-        {ride.pickup_lat && (
+        {ride.pickup_lat &&
           <Card className="overflow-hidden">
             <TripGoogleMap
               pickup={{ lat: ride.pickup_lat, lng: ride.pickup_lon }}
               dropoff={{ lat: ride.dropoff_lat, lng: ride.dropoff_lon }}
               driverLocation={driverLocation}
               tripStatus={ride.status}
-              height="280px"
-            />
+              height="280px" />
+            
             {/* Live ETA Banner */}
-            {driverLocation && (
-              <DriverETABanner
-                driverLocation={driverLocation}
-                pickupLat={ride.pickup_lat}
-                pickupLng={ride.pickup_lon}
-                dropoffLat={ride.dropoff_lat}
-                dropoffLng={ride.dropoff_lon}
-                rideStatus={ride.status}
-              />
-            )}
+            {driverLocation &&
+            <DriverETABanner
+              driverLocation={driverLocation}
+              pickupLat={ride.pickup_lat}
+              pickupLng={ride.pickup_lon}
+              dropoffLat={ride.dropoff_lat}
+              dropoffLng={ride.dropoff_lon}
+              rideStatus={ride.status} />
+
+            }
           </Card>
-        )}
+          }
 
         {/* Ride Details */}
         <Card>
@@ -450,7 +450,7 @@ export default function RiderRideDetail() {
               <div className="flex flex-col items-center">
                 <MapPin className="h-4 w-4 text-primary" />
                 <div className="w-0.5 h-6 bg-border" />
-                <Navigation className="h-4 w-4 text-destructive" />
+                <Navigation className="h-4 w-4 text-destructive bg-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold truncate">{ride.pickup_address}</p>
@@ -458,24 +458,24 @@ export default function RiderRideDetail() {
               </div>
             </div>
 
-            {ride.status === "completed" && (
+            {ride.status === "completed" &&
               <div className="mt-3 px-3 py-2 bg-primary/10 rounded-xl text-sm text-primary font-semibold">
                 Trip completed
               </div>
-            )}
+              }
 
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
               <div>
                 <p className="text-sm text-muted-foreground">Your offer</p>
-                {isPending ? (
+                {isPending ?
                   <div className="flex items-center gap-2 mt-1">
                     <Button
                       variant="outline"
                       size="icon"
                       className="h-8 w-8"
                       onClick={() => updateFare(ride.fare - 5)}
-                      disabled={updatingFare || ride.fare <= 10}
-                    >
+                      disabled={updatingFare || ride.fare <= 10}>
+                      
                       <Minus className="h-4 w-4" />
                     </Button>
                     <span className="font-black text-xl min-w-[60px] text-center">R{ride.fare}</span>
@@ -484,14 +484,14 @@ export default function RiderRideDetail() {
                       size="icon"
                       className="h-8 w-8"
                       onClick={() => updateFare(ride.fare + 5)}
-                      disabled={updatingFare}
-                    >
+                      disabled={updatingFare}>
+                      
                       <Plus className="h-4 w-4" />
                     </Button>
-                  </div>
-                ) : (
+                  </div> :
+
                   <p className="font-black text-xl">R{ride.fare}</p>
-                )}
+                  }
               </div>
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Status</p>
@@ -502,7 +502,7 @@ export default function RiderRideDetail() {
         </Card>
 
         {/* Expiry Countdown - Only for pending rides */}
-        {isPending && ride.expires_at && (
+        {isPending && ride.expires_at &&
           <Card className={secondsLeft <= 10 ? "border-destructive" : "border-primary"}>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between mb-2">
@@ -517,18 +517,18 @@ export default function RiderRideDetail() {
               <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-200 ease-linear ${secondsLeft <= 10 ? 'bg-destructive' : 'bg-primary'}`}
-                  style={{ width: `${Math.min(100, (secondsLeft / 30) * 100)}%` }}
-                />
+                  style={{ width: `${Math.min(100, secondsLeft / 30 * 100)}%` }} />
+                
               </div>
               <p className="text-xs text-muted-foreground mt-2 text-center">
                 Your request will expire automatically when the timer runs out
               </p>
             </CardContent>
           </Card>
-        )}
+          }
 
         {/* Offers Section - Only show if not accepted */}
-        {!isAccepted && (
+        {!isAccepted &&
           <Card>
             <CardContent className="pt-4">
               <div className="flex items-center justify-between">
@@ -542,36 +542,36 @@ export default function RiderRideDetail() {
               <Button
                 className="w-full mt-4 bg-primary hover:bg-primary/90"
                 onClick={() => setModalOpen(true)}
-                disabled={offers.length === 0}
-              >
+                disabled={offers.length === 0}>
+                
                 <Eye className="h-4 w-4 mr-2" />
                 View Offers ({offers.length})
               </Button>
             </CardContent>
           </Card>
-        )}
+          }
 
         {/* Cancellation with fee policy */}
-        {ride.status !== "completed" && ride.status !== "cancelled" && ride.status !== "expired" && (
+        {ride.status !== "completed" && ride.status !== "cancelled" && ride.status !== "expired" &&
           <CancellationPolicy
             rideId={ride.id}
             rideStatus={ride.status}
-            onCancelled={() => nav("/ride")}
-          />
-        )}
+            onCancelled={() => nav("/ride")} />
+
+          }
 
         {/* Communication Section - Only show if accepted */}
-        {isAccepted && user && (
+        {isAccepted && user &&
           <Card>
             <CardContent className="pt-4">
-              {driverProfile && (
-                <div className="mb-4 p-3 bg-muted rounded-lg">
+              {driverProfile &&
+              <div className="mb-4 p-3 bg-muted rounded-lg">
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <Avatar className="h-12 w-12 shrink-0 border-2 border-primary/20">
-                        {driverProfile.avatar_url ? (
-                          <AvatarImage src={driverProfile.avatar_url} alt="Driver" />
-                        ) : null}
+                        {driverProfile.avatar_url ?
+                      <AvatarImage src={driverProfile.avatar_url} alt="Driver" /> :
+                      null}
                         <AvatarFallback className={`text-sm font-bold ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
                           {driverProfile.gender === 'female' ? '♀' : '♂'}
                         </AvatarFallback>
@@ -582,81 +582,81 @@ export default function RiderRideDetail() {
                           {driverProfile.vehicle_make} {driverProfile.vehicle_model} • {driverProfile.plate_number}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          {driverProfile.rating_avg > 0 && (
-                            <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">
+                          {driverProfile.rating_avg > 0 &&
+                        <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">
                               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                               {Number(driverProfile.rating_avg).toFixed(1)}
                             </span>
-                          )}
+                        }
                           <span className="text-xs text-muted-foreground">
                             {driverProfile.total_trips || 0} trips
                           </span>
                         </div>
                       </div>
                     </div>
-                    {driverProfile.gender && (
-                      <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                    {driverProfile.gender &&
+                  <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
                         {driverProfile.gender === 'female' ? '♀ Female' : '♂ Male'}
                       </span>
-                    )}
+                  }
                   </div>
-                  {driverPhone && (
-                    <div className="flex gap-2 mt-3">
+                  {driverPhone &&
+                <div className="flex gap-2 mt-3">
                       <VoiceCallButton
-                        onCall={startCall}
-                        disabled={callStatus !== "idle"}
-                        label="Voice Call"
-                        className="flex-1"
-                      />
+                    onCall={startCall}
+                    disabled={callStatus !== "idle"}
+                    label="Voice Call"
+                    className="flex-1" />
+                  
                       <a
-                        href={`tel:${driverPhone}`}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm"
-                      >
+                    href={`tel:${driverPhone}`}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm">
+                    
                         <Phone className="h-4 w-4" />
                         Phone
                       </a>
                       <Button
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => setShowCommunication(!showCommunication)}
-                      >
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setShowCommunication(!showCommunication)}>
+                    
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Chat
                       </Button>
                     </div>
-                  )}
+                }
                   {driverPhone && <p className="text-xs text-muted-foreground mt-2 text-center">📞 {driverPhone}</p>}
                 </div>
-              )}
+              }
 
-              {showCommunication && (
-                <RideCommunication
-                  rideId={ride.id}
-                  currentUserId={user.id}
-                  otherUserPhone={driverPhone}
-                  riderId={ride.user_id}
-                />
-              )}
+              {showCommunication &&
+              <RideCommunication
+                rideId={ride.id}
+                currentUserId={user.id}
+                otherUserPhone={driverPhone}
+                riderId={ride.user_id} />
+
+              }
             </CardContent>
           </Card>
-        )}
+          }
 
         {/* Offers Modal */}
         <OffersModal
-          isOpen={modalOpen}
-          tripId={ride.id}
-          viewing={modalViewing}
-          offers={modalOffers}
-          onAcceptOffer={handleAcceptOffer}
-          onDeclineOffer={handleDeclineOffer}
-          onCancelRide={handleCancelRide}
-          onClose={() => setModalOpen(false)}
-        />
+            isOpen={modalOpen}
+            tripId={ride.id}
+            viewing={modalViewing}
+            offers={modalOffers}
+            onAcceptOffer={handleAcceptOffer}
+            onDeclineOffer={handleDeclineOffer}
+            onCancelRide={handleCancelRide}
+            onClose={() => setModalOpen(false)} />
+          
 
         {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
         {/* Rating Modal - shown after ride completion */}
-        {showRating && ride.driver_id && user && (
+        {showRating && ride.driver_id && user &&
           <DriverRatingModal
             rideId={ride.id}
             driverId={ride.driver_id}
@@ -665,24 +665,24 @@ export default function RiderRideDetail() {
             onClose={() => {
               setShowRating(false);
               setHasRated(true);
-            }}
-          />
-        )}
+            }} />
+
+          }
 
         {/* Show rate button for completed rides that haven't been rated */}
-        {ride.status === "completed" && !hasRated && !showRating && ride.driver_id && user && (
+        {ride.status === "completed" && !hasRated && !showRating && ride.driver_id && user &&
           <div className="pt-2 pb-4">
             <Button
               className="w-full gap-2"
-              onClick={() => setShowRating(true)}
-            >
+              onClick={() => setShowRating(true)}>
+              
               <Star className="h-4 w-4" />
               Rate Your Driver
             </Button>
           </div>
-        )}
+          }
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
