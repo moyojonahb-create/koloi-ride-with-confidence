@@ -1,6 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// Type definitions for Deno globals
+declare const Deno: {
+  env: {
+    get(key: string): string | undefined;
+  };
+};
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -8,7 +15,7 @@ const corsHeaders = {
 
 // Map OSM tags to our categories
 const getCategoryFromProperties = (props: Record<string, unknown>): string | null => {
-  if (props.amenity) {
+  if (typeof props.amenity === 'string') {
     const amenityMap: Record<string, string> = {
       school: 'School',
       hospital: 'Hospital',
@@ -35,7 +42,7 @@ const getCategoryFromProperties = (props: Record<string, unknown>): string | nul
     return amenityMap[props.amenity] || 'Amenity';
   }
 
-  if (props.shop) {
+  if (typeof props.shop === 'string') {
     const shopMap: Record<string, string> = {
       supermarket: 'Supermarket',
       mall: 'Shopping',
@@ -51,7 +58,7 @@ const getCategoryFromProperties = (props: Record<string, unknown>): string | nul
     return shopMap[props.shop] || 'Shop';
   }
 
-  if (props.tourism) {
+  if (typeof props.tourism === 'string') {
     const tourismMap: Record<string, string> = {
       hotel: 'Hotel',
       guest_house: 'Hotel',
@@ -62,8 +69,8 @@ const getCategoryFromProperties = (props: Record<string, unknown>): string | nul
     return tourismMap[props.tourism] || 'Tourism';
   }
 
-  if (props.office) {
-    if (props.office === 'government' || props.government) return 'Government';
+  if (typeof props.office === 'string') {
+    if (props.office === 'government' || props.government === 'yes') return 'Government';
     if (props.office === 'educational_institution') return 'Education';
     return 'Office';
   }
@@ -71,23 +78,24 @@ const getCategoryFromProperties = (props: Record<string, unknown>): string | nul
   // Education tag without amenity
   if (props.education === 'yes') return 'School';
   
-  if (props.healthcare || props.medical) return 'Healthcare';
+  if (props.healthcare === 'yes' || props.medical === 'yes') return 'Healthcare';
   if (props.leisure === 'park') return 'Park';
   if (props.leisure === 'fitness_centre') return 'Fitness';
-  if (props.leisure === 'sports_centre' || props.sport) return 'Sports';
+  if (props.leisure === 'sports_centre' || props.sport === 'yes') return 'Sports';
   if (props.landuse === 'commercial') return 'Commercial';
   if (props.landuse === 'industrial' || props.man_made === 'works') return 'Industrial';
-  if (props.highway && ['bus_stop', 'taxi'].includes(props.highway)) return 'Transport';
-  if (props.craft) return 'Services';
+  if (typeof props.highway === 'string' && ['bus_stop', 'taxi'].includes(props.highway)) return 'Transport';
+  if (typeof props.craft === 'string') return 'Services';
   
   // Named buildings with name but no other tags - include as Landmark
-  if (props.building && props.name) return 'Landmark';
+  if (typeof props.building === 'string' && props.building === 'yes' && typeof props.name === 'string') return 'Landmark';
+  if (typeof props.building === 'string' && props.building !== 'yes' && typeof props.name === 'string') return 'Landmark';
   
   // Named places without specific tags
-  if (props.place) return 'Area';
+  if (typeof props.place === 'string') return 'Area';
 
   // Skip routes, boundaries, and non-POI features
-  if (props.route || props.boundary || props.highway || (props.building === 'yes' && !props.name)) {
+  if (typeof props.route === 'string' || typeof props.boundary === 'string' || typeof props.highway === 'string' || (typeof props.building === 'string' && props.building === 'yes' && !props.name)) {
     return null;
   }
 
@@ -108,7 +116,8 @@ const extractKeywords = (name: string, props: Record<string, unknown>): string[]
   if (typeof props.product === 'string') keywords.push(props.product);
   if (typeof props.operator === 'string') keywords.push(...props.operator.toLowerCase().split(/\s+/));
 
-  return [...new Set(keywords)].slice(0, 10);
+  const uniqueKeywords = Array.from(new Set(keywords)).slice(0, 10);
+  return uniqueKeywords;
 };
 
 serve(async (req) => {
