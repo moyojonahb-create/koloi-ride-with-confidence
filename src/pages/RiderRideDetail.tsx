@@ -545,7 +545,7 @@ export default function RiderRideDetail() {
                 disabled={offers.length === 0}>
                 
                 <Eye className="h-4 w-4 mr-2" />
-                View Offers ({offers.length})
+                Click To View Offers ({offers.length})
               </Button>
             </CardContent>
           </Card>
