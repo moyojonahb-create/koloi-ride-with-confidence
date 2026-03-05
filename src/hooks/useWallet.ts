@@ -48,7 +48,7 @@ export const useWallet = () => {
       setError(null);
       
       // Try to fetch existing wallet
-      const { data: walletData, error: walletError } = await supabase
+      let { data: walletData, error: walletError } = await supabase
         .from('wallets')
         .select('*')
         .eq('user_id', user.id)
