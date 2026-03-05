@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { useLandmarks, type Landmark } from '@/hooks/useLandmarks';
 import { useOSRMRoute } from '@/hooks/useOSRMRoute';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
-import { nominatimSearchGwanda } from '@/lib/geo';
+import { searchZW } from '@/lib/geo_osm';
 import { cachePlaceFromNominatim } from '@/lib/placeCache';
 import QuickPickChips from '@/components/ride/QuickPickChips';
 import ProximityFilter from '@/components/ride/ProximityFilter';
@@ -138,7 +138,7 @@ export default function RiderRequestScreen() {
     if (value.trim().length >= 3) {
       setNominatimLoading(true);
       try {
-        const results = await nominatimSearchGwanda(value.trim());
+        const results = await searchZW(value.trim());
         setNominatimResults(results.map(r => ({
           name: r.name || r.display_name.split(',')[0],
           lat: Number(r.lat),
