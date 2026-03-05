@@ -448,7 +448,7 @@ export default function RiderRideDetail() {
           <CardContent className="pt-4">
             <div className="flex items-start gap-3">
               <div className="flex flex-col items-center">
-                <MapPin className="h-4 w-4 text-primary" />
+                <MapPin className="h-4 w-4 text-primary bg-destructive-foreground" />
                 <div className="w-0.5 h-6 bg-border" />
                 <Navigation className="h-4 w-4 text-destructive bg-primary-foreground" />
               </div>
@@ -495,7 +495,7 @@ export default function RiderRideDetail() {
               </div>
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Status</p>
-                <p className="font-semibold capitalize">{ride.status}</p>
+                <p className="font-semibold capitalize text-sidebar-primary">{ride.status}</p>
               </div>
             </div>
           </CardContent>
@@ -545,7 +545,7 @@ export default function RiderRideDetail() {
                 disabled={offers.length === 0}>
                 
                 <Eye className="h-4 w-4 mr-2" />
-                Click To View Offers ({offers.length})
+                View Offers ({offers.length})
               </Button>
             </CardContent>
           </Card>
