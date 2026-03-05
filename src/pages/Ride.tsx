@@ -27,6 +27,8 @@ function fitPickupDropoff(map: google.maps.Map, pickup: LatLng, dropoff: LatLng)
 
 export default function Ride() {
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isRequesting, setIsRequesting] = useState(false);
 
   const [pickup, setPickup] = useState<LatLng | null>(null);
   const [dropoff, setDropoff] = useState<LatLng | null>(null);
@@ -43,23 +45,75 @@ export default function Ride() {
     changeLocation,
   } = useRiderLocationGate(map, { streetZoom: 16, followRider: false });
 
+  const handleRequestRide = async () => {
+    try {
+      setError(null);
+      
+      if (!pickup || !dropoff) {
+        setError("Please select both pickup and dropoff locations");
+        return;
+      }
+
+      setIsRequesting(true);
+      // TODO: Implement actual ride request logic
+      console.log("Requesting ride from", pickup, "to", dropoff);
+      alert("Ride request submitted!");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to request ride";
+      setError(message);
+      console.error("Ride request error:", err);
+    } finally {
+      setIsRequesting(false);
+    }
+  };
+
   return (
-    <div className="relative h-screen w-full">
-      <GoogleMap
-        onLoad={(m) => setMap(m)}
-        mapContainerStyle={{ width: "100%", height: "100%" }}
-        center={pickup ?? FALLBACK_CENTER}
-        zoom={pickup ? 16 : 12}
-        options={{
-          disableDefaultUI: true,
-          zoomControl: true,
-          clickableIcons: false,
-          minZoom: 12,
-          maxZoom: 19,
-        }}
-      >
-        {/* markers can be added later */}
-      </GoogleMap>
+    <div className="relative h-screen w-full bg-gray-100">
+      {error && (
+        <div className="absolute top-4 left-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-20">
+          {error}
+          <button
+            onClick={() => setError(null)}
+            className="ml-4 text-red-700 font-bold"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {map ? (
+        <GoogleMap
+          onLoad={(m) => setMap(m)}
+          mapContainerStyle={{ width: "100%", height: "100%" }}
+          center={pickup ?? FALLBACK_CENTER}
+          zoom={pickup ? 16 : 12}
+          options={{
+            disableDefaultUI: true,
+            zoomControl: true,
+            clickableIcons: false,
+            minZoom: 12,
+            maxZoom: 19,
+          }}
+        >
+          {/* markers can be added later */}
+        </GoogleMap>
+      ) : (
+        <GoogleMap
+          onLoad={(m) => setMap(m)}
+          mapContainerStyle={{ width: "100%", height: "100%" }}
+          center={FALLBACK_CENTER}
+          zoom={12}
+          options={{
+            disableDefaultUI: true,
+            zoomControl: true,
+            clickableIcons: false,
+            minZoom: 12,
+            maxZoom: 19,
+          }}
+        >
+          {/* markers can be added later */}
+        </GoogleMap>
+      )}
 
       {/* Confirm location modal */}
       <AlertDialog open={isConfirmOpen}>
@@ -117,13 +171,27 @@ export default function Ride() {
             }}
           />
 
-          <Button className="w-full h-14 rounded-full" disabled={!canRequest}>
-            Request Ride
+          <Button
+            className="w-full h-14 rounded-full"
+            disabled={!pickup || !dropoff || isRequesting || !canRequest}
+            onClick={handleRequestRide}
+          >
+            {isRequesting ? "Requesting..." : "Request Ride"}
           </Button>
 
-          {!canRequest && (
-            <p className="text-xs text-muted-foreground">
-              Confirm your location to start requesting.
+          {!pickup && (
+            <p className="text-xs text-yellow-600 bg-yellow-50 p-2 rounded">
+              Select a pickup location to start
+            </p>
+          )}
+          {!dropoff && pickup && (
+            <p className="text-xs text-yellow-600 bg-yellow-50 p-2 rounded">
+              Select a dropoff location
+            </p>
+          )}
+          {pickup && dropoff && !canRequest && (
+            <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+              Confirm your location to request a ride
             </p>
           )}
         </div>
