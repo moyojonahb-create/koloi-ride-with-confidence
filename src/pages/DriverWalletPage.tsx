@@ -59,7 +59,7 @@ export default function DriverWalletPage() {
         .limit(20);
       if (!dep.error) setDeposits(dep.data ?? []);
     } catch (e: unknown) {
-      setMsg(e.message || "Failed to load wallet");
+      setMsg((e as Error).message || "Failed to load wallet");
     } finally {
       setLoading(false);
     }

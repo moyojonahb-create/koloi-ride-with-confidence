@@ -49,7 +49,7 @@ const VEHICLE_TIERS: {
   eta: string;
   multiplier: number;
 }[] = [
-{ id: 'standard', name: 'Koloi Standard', icon: Car, priceRange: 'R15 – R40', passengers: '1–4', eta: '3 min', multiplier: 1 }];
+{ id: 'standard', name: 'Voyex Standard', icon: Car, priceRange: 'R15 – R40', passengers: '1–4', eta: '3 min', multiplier: 1 }];
 
 
 export default function RideView() {

@@ -20,11 +20,11 @@ function AdminRatePageInner() {
 
       const { data, error } = await supabase.rpc("admin_set_fx_rate", { p_zar_per_usd: rate });
       if (error) throw error;
-      if (!(data as unknown)?.ok) throw new Error("Failed to save rate");
+      if (!(data as Record<string, unknown>)?.ok) throw new Error("Failed to save rate");
 
       toast.success(`Saved: $1 = ${rate} ZAR`);
     } catch (e: unknown) {
-      toast.error(e.message);
+      toast.error((e as Error).message);
     } finally {
       setBusy(false);
     }

@@ -300,7 +300,7 @@ export default function RideDetail() {
       if (error) throw new Error(error.message);
       setMsgText("");
     } catch (e: unknown) {
-      setToast(e?.message || "Message failed.");
+      setToast((e as Error)?.message || "Message failed.");
     }
   };
 

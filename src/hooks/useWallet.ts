@@ -150,7 +150,7 @@ export const useWallet = () => {
       await fetchWallet();
       return { error: null };
     } catch (e: unknown) {
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   };
 

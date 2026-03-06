@@ -661,7 +661,7 @@ export default function RiderRideDetail() {
             rideId={ride.id}
             driverId={ride.driver_id}
             riderId={user.id}
-            driverName={driverProfile ? `${driverProfile.vehicle_make || ''} Driver`.trim() : undefined}
+            driverName={driverProfile ? `${(driverProfile as Record<string, unknown>).vehicle_make || ''} Driver`.trim() : undefined}
             onClose={() => {
               setShowRating(false);
               setHasRated(true);
