@@ -141,7 +141,7 @@ const AdminDashboard = () => {
       setTotalDrivers(driverCount || 0);
       setTodayTrips(todayCount || 0);
     } catch (e: unknown) {
-      setError(e?.message || 'Failed to load dashboard data');
+      setError((e as Error)?.message || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
