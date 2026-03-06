@@ -455,7 +455,7 @@ export default function DriverDashboard() {
       refreshWallet();
       refresh();
     } catch (e: unknown) {
-      toast.error("Failed to complete trip", { description: e.message });
+      toast.error("Failed to complete trip", { description: (e as Error).message });
     } finally {
       setCompleting(false);
     }
