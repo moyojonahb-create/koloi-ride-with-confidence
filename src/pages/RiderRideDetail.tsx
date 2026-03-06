@@ -579,7 +579,7 @@ export default function RiderRideDetail() {
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold truncate">Your Driver</p>
                         <p className="text-sm text-muted-foreground truncate">
-                          {(driverProfile as Record<string, unknown>).vehicle_make} {(driverProfile as Record<string, unknown>).vehicle_model} • {(driverProfile as Record<string, unknown>).plate_number}
+                          {String((driverProfile as Record<string, unknown>).vehicle_make || '')} {String((driverProfile as Record<string, unknown>).vehicle_model || '')} • {String((driverProfile as Record<string, unknown>).plate_number || '')}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           {((driverProfile as Record<string, unknown>).rating_avg as number) > 0 &&
