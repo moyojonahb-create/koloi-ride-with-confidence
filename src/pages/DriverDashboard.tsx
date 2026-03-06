@@ -361,7 +361,7 @@ export default function DriverDashboard() {
 
       setLoading(false);
     } catch (e: unknown) {
-      setError(e.message);
+      setError((e as Error).message);
       setLoading(false);
     }
   }, [voiceEnabled, voiceSupported, speak]);
