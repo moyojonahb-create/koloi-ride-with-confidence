@@ -316,7 +316,7 @@ export default function DriverDashboard() {
       }
 
       // Check if top driver for priority access
-      const { data: topStatus } = await supabase.rpc("is_top_driver" as unknown, { _user_id: user!.id });
+      const { data: topStatus } = await supabase.rpc("is_top_driver", { _user_id: user!.id });
       setIsTopDriver(!!topStatus);
 
       // Only fetch rides if driver is online
