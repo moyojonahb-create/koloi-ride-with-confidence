@@ -110,10 +110,10 @@ export default function RideView() {
 
   // Handle rebook from ride history
   useEffect(() => {
-    const rebook = (location.state as unknown as Record<string, unknown>)?.rebook;
+    const rebook = (location.state as Record<string, unknown>)?.rebook as Record<string, unknown> | undefined;
     if (rebook) {
-      if (rebook.pickup) setPickupLocation(rebook.pickup);
-      if (rebook.dropoff) setDropoffLocation(rebook.dropoff);
+      if (rebook.pickup) setPickupLocation(rebook.pickup as SelectedLocation);
+      if (rebook.dropoff) setDropoffLocation(rebook.dropoff as SelectedLocation);
       window.history.replaceState({}, '');
     }
   }, []);
