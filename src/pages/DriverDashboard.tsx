@@ -445,11 +445,11 @@ export default function DriverDashboard() {
     setCompleting(true);
     try {
       const result = await completeTrip(activeTrip.id);
-      if (!(result as unknown)?.ok) {
-        throw new Error((result as unknown)?.reason || "Failed to complete trip");
+      if (!(result as Record<string, unknown>)?.ok) {
+        throw new Error(((result as Record<string, unknown>)?.reason as string) || "Failed to complete trip");
       }
       toast.success("Trip completed!", {
-        description: `R4 fee charged (≈$${(result as unknown)?.fee_usd ?? "?"})`,
+        description: `R4 fee charged (≈$${(result as Record<string, unknown>)?.fee_usd ?? "?"})`,
       });
       setActiveTrip(null);
       refreshWallet();
