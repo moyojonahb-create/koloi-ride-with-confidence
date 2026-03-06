@@ -1,4 +1,4 @@
-// Koloi realtime presence utilities
+// Voyex realtime presence utilities
 import { supabase } from "@/lib/supabaseClient";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
@@ -29,7 +29,7 @@ export function countDriversViewing(state: PresenceState): number {
   let count = 0;
   Object.values(state || {}).forEach((arr) => {
     arr.forEach((m) => {
-      if (m?.role === "driver") count += 1;
+      if ((m as Record<string, unknown>)?.role === "driver") count += 1;
     });
   });
   return count;

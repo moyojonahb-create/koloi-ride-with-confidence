@@ -1,4 +1,4 @@
-import pickMeLogo from '@/assets/pickme-logo.png';
+import voyexLogo from '@/assets/voyex-logo.png';
 
 interface KoloiLogoProps {
   className?: string;
@@ -17,7 +17,6 @@ const KoloiLogo = ({
 }: KoloiLogoProps) => {
   const isLight = variant === 'inverted' || variant === 'light';
   
-  // Size configurations for icon-only vs full logo
   const iconSizeClasses = {
     sm: 'h-7 w-7',
     md: 'h-9 w-9',
@@ -37,14 +36,14 @@ const KoloiLogo = ({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <img 
-        src={pickMeLogo} 
-        alt="PickMe" 
+        src={voyexLogo} 
+        alt="Voyex" 
         className={`${sizeClass} w-auto object-contain`}
       />
       
       {showTagline && (
         <span className={`text-xs ${isLight ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-          Get picked. Get moving.
+          Your ride, your way.
         </span>
       )}
     </div>

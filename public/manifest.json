@@ -1,29 +1,29 @@
 {
-  "name": "PickMe Ride",
-  "short_name": "PickMe",
-  "description": "Zimbabwe's premier e-hailing service. Request a ride, hop in, and go.",
+  "name": "Voyex Ride",
+  "short_name": "Voyex",
+  "description": "Zimbabwe's premier ride-hailing service. Request a ride anywhere in Zimbabwe.",
   "start_url": "/ride",
   "scope": "/",
   "display": "standalone",
-   "background_color": "#0b3b78",
-   "theme_color": "#0b3b78",
+  "background_color": "#0B3D91",
+  "theme_color": "#0B3D91",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icons/koloi-logo.png",
+      "src": "/icons/voyex-logo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icons/koloi-logo.png",
+      "src": "/icons/voyex-logo.png",
       "sizes": "512x512",
       "type": "image/png"
-     },
-     {
-       "src": "/icons/koloi-logo.png",
-       "sizes": "512x512",
-       "type": "image/png",
-       "purpose": "maskable"
+    },
+    {
+      "src": "/icons/voyex-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": ["transportation", "travel"],
