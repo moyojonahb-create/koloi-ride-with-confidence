@@ -67,12 +67,12 @@ export function useAgoraCall({
           filter: `callee_id=eq.${currentUserId}`,
         },
         (payload) => {
-          const session = payload.new as unknown;
+          const session = payload.new as Record<string, unknown>;
           console.log("[AgoraCall] INSERT received:", session.status, session.id);
           if (session.status === "ringing" && callStatusRef.current === "idle") {
             setIncomingCall({
-              sessionId: session.id,
-              callerId: session.caller_id,
+              sessionId: session.id as string,
+              callerId: session.caller_id as string,
             });
           }
         }
