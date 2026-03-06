@@ -41,7 +41,7 @@ export default function ImportOsmPlaces() {
       setResult(res);
     } catch (err: unknown) {
       setStatus('error');
-      setResult({ error: err.message || 'Import failed' });
+      setResult({ error: (err as Error).message || 'Import failed' });
     }
   };
 
