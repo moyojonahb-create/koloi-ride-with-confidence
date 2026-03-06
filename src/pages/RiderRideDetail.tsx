@@ -320,7 +320,7 @@ export default function RiderRideDetail() {
 
   const modalOffers = offers.map((o) => {
     const d = driversById[o.driver_id];
-    const driverFullName = (d as Record<string, unknown>)?.full_name;
+    const driverFullName = (d as Record<string, unknown>)?.full_name as string | undefined;
     return {
       driverId: o.driver_id,
       name: d?.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model}` : "Driver",
