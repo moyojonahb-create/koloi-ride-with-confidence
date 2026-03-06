@@ -273,8 +273,8 @@ export default function RiderRideDetail() {
       });
       await refreshRide();
     } catch (e: unknown) {
-      setError(e.message);
-      toast.error("Failed to accept offer", { description: e.message });
+      setError((e as Error).message);
+      toast.error("Failed to accept offer", { description: (e as Error).message });
     }
   };
 
