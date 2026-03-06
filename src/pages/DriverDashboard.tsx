@@ -433,8 +433,8 @@ export default function DriverDashboard() {
       toast.success("Offer sent!", { description: `R${offerPrice} for ${eta} min ETA` });
       setSelectedRide(null);
     } catch (e: unknown) {
-      setError(e.message);
-      toast.error("Failed to send offer", { description: e.message });
+      setError((e as Error).message);
+      toast.error("Failed to send offer", { description: (e as Error).message });
     } finally {
       setSubmitting(false);
     }
