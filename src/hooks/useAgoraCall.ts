@@ -247,7 +247,7 @@ export function useAgoraCall({
       toast.info("Calling rider...", { description: "Waiting for answer" });
     } catch (err: unknown) {
       console.error("[AgoraCall] Failed to start call:", err);
-      toast.error("Call failed", { description: err.message });
+      toast.error("Call failed", { description: (err as Error).message });
       setCallStatus("error");
       setTimeout(() => setCallStatus("idle"), 2000);
     }
