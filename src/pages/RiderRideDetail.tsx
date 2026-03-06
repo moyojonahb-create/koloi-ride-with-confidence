@@ -149,7 +149,7 @@ export default function RiderRideDetail() {
           }
         }
       } catch (e: unknown) {
-        console.warn("Error fetching driver details:", e.message);
+        console.warn("Error fetching driver details:", (e as Error).message);
       }
     }
   }, [rideId, ride?.status]);
