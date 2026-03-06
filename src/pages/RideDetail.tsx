@@ -231,11 +231,11 @@ export default function RideDetail() {
   useEffect(() => {
     if (!rideId) return;
 
-    let pres: unknown;
+    let pres: RealtimeChannel | null = null;
     (async () => {
       pres = await joinRidePresence(rideId, { role: "rider", name: "rider" });
       pres.on("presence", { event: "sync" }, () => {
-        const state = pres.presenceState() as Record<string, unknown[]>;
+        const state = pres!.presenceState() as Record<string, unknown[]>;
         setDriversViewing(countDriversViewing(state));
       });
     })();
