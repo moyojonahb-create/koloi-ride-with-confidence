@@ -85,7 +85,7 @@ export function useAgoraCall({
           table: "call_sessions",
         },
         (payload) => {
-          const session = payload.new as unknown;
+          const session = payload.new as Record<string, unknown>;
           const isParticipant =
             session.caller_id === currentUserId ||
             session.callee_id === currentUserId;
@@ -94,7 +94,7 @@ export function useAgoraCall({
           console.log("[AgoraCall] UPDATE received:", session.status, session.id, "my sessionId:", sessionIdRef.current);
 
           if (session.status === "ended" || session.status === "declined") {
-            if (session.id === sessionIdRef.current || session.id === incomingCallRef.current?.sessionId) {
+            if (session.id === sessionIdRef.current || (session.id as string) === incomingCallRef.current?.sessionId) {
               cleanup();
               setCallStatus("ended");
               setIncomingCall(null);
@@ -103,7 +103,7 @@ export function useAgoraCall({
           }
           if (session.status === "answered" && session.id === sessionIdRef.current) {
             console.log("[AgoraCall] Other party answered, joining channel...");
-            joinChannel(session.id);
+            joinChannel(session.id as string);
           }
         }
       )
