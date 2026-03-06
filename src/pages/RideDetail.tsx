@@ -231,7 +231,7 @@ export default function RideDetail() {
   useEffect(() => {
     if (!rideId) return;
 
-    let pres: RealtimeChannel | null = null;
+    let pres: import("@supabase/supabase-js").RealtimeChannel | null = null;
     (async () => {
       pres = await joinRidePresence(rideId, { role: "rider", name: "rider" });
       pres.on("presence", { event: "sync" }, () => {

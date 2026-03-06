@@ -78,7 +78,7 @@ export default function ImportOsmPlaces() {
             <input type="file" accept=".json,.geojson" onChange={handleFileUpload} className="text-sm" />
             {fileData && (
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">{fileName}: {(fileData as Record<string, unknown[]>).features?.length || 0} features</p>
+                <p className="text-xs text-muted-foreground">{fileName}: {((fileData as unknown as Record<string, unknown[]>).features)?.length || 0} features</p>
                 <div className="flex gap-2">
                   <Button onClick={() => handleImport('replace', fileData)} disabled={status === 'importing'} variant="destructive" size="sm" className="flex-1">
                     Replace All

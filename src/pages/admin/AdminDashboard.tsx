@@ -204,10 +204,10 @@ const AdminDashboard = () => {
   const mapRides = useMemo(() => 
     activeRides.map(r => ({
       id: r.id,
-      pickupLat: (r as Record<string, unknown>).pickup_lat as number,
-      pickupLng: (r as Record<string, unknown>).pickup_lon as number,
-      dropoffLat: (r as Record<string, unknown>).dropoff_lat as number,
-      dropoffLng: (r as Record<string, unknown>).dropoff_lon as number,
+      pickupLat: (r as unknown as Record<string, unknown>).pickup_lat as number,
+      pickupLng: (r as unknown as Record<string, unknown>).pickup_lon as number,
+      dropoffLat: (r as unknown as Record<string, unknown>).dropoff_lat as number,
+      dropoffLng: (r as unknown as Record<string, unknown>).dropoff_lon as number,
       status: r.status,
       pickupAddress: r.pickup_address,
       dropoffAddress: r.dropoff_address,

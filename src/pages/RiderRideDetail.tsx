@@ -589,7 +589,7 @@ export default function RiderRideDetail() {
                             </span>
                         }
                           <span className="text-xs text-muted-foreground">
-                            {(driverProfile as Record<string, unknown>).total_trips || 0} trips
+                            {String((driverProfile as Record<string, unknown>).total_trips || 0)} trips
                           </span>
                         </div>
                       </div>
