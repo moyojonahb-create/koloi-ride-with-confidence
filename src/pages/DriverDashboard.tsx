@@ -924,8 +924,8 @@ export default function DriverDashboard() {
           <p className="font-semibold text-sm mb-3 text-muted-foreground uppercase tracking-wider">Settings</p>
           <DriverSettingsPanel
             driverId={profile.id}
-            initialArea={(profile as unknown).preferred_service_area || 'both'}
-            initialEarningNotif={(profile as unknown).earning_notifications ?? true}
+            initialArea={(profile as Record<string, unknown>).preferred_service_area as string || 'both'}
+            initialEarningNotif={(profile as Record<string, unknown>).earning_notifications as boolean ?? true}
           />
         </div>
 

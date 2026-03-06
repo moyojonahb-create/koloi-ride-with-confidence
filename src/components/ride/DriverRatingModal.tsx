@@ -46,7 +46,7 @@ export default function DriverRatingModal({
       toast.success("Thanks for rating your driver!");
       onClose();
     } catch (e: unknown) {
-      if (e.message?.includes("duplicate") || e.message?.includes("unique")) {
+      if ((e as Error).message?.includes("duplicate") || (e as Error).message?.includes("unique")) {
         toast.info("You've already rated this ride");
         onClose();
       } else {

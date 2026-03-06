@@ -259,7 +259,7 @@ export default function RideView() {
       toast({ title: 'Ride requested!', description: 'Looking for nearby drivers...' });
       navigate(`/ride/${result.ride.id}`);
     } catch (error: unknown) {
-      toast({ title: 'Failed to request ride', description: error.message, variant: 'destructive' });
+      toast({ title: 'Failed to request ride', description: (error as Error).message, variant: 'destructive' });
       setRideStatus('idle');
     } finally {setIsRequesting(false);}
   };

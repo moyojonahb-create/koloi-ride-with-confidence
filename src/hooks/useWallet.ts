@@ -203,7 +203,7 @@ export const useAdminEarnings = () => {
       setTotalEarnings(totals.total);
       setTotalPlatformFees(totals.fees);
     } catch (e: unknown) {
-      setError(e.message);
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }

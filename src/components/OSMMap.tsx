@@ -247,7 +247,7 @@ const OSMMap = forwardRef<HTMLDivElement, OSMMapProps>(function OSMMap({
       });
 
       defaultLayer.on('tileerror', (e) => {
-        console.warn('[OSMMap] Tile error:', (e as unknown as Record<string, unknown>).tile?.src?.slice(-40));
+        console.warn('[OSMMap] Tile error:', ((e as Record<string, unknown>).tile as Record<string, string>)?.src?.slice(-40));
       });
 
       // Add layer control

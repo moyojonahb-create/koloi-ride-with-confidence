@@ -268,7 +268,7 @@ export function useAgoraCall({
       await joinChannel(incomingCall.sessionId);
     } catch (err: unknown) {
       console.error("[AgoraCall] Failed to answer call:", err);
-      toast.error("Failed to answer", { description: err.message });
+      toast.error("Failed to answer", { description: (err as Error).message });
       setCallStatus("error");
     }
   }, [incomingCall, joinChannel]);
