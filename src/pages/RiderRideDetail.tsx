@@ -200,7 +200,7 @@ export default function RiderRideDetail() {
 
   // Real-time driver tracking via Supabase Realtime
   const driverLocation = useDriverTracking(
-    driverProfile?.user_id ?? null,
+    (driverProfile as Record<string, unknown>)?.user_id as string ?? null,
     ride?.status ?? null
   );
 
