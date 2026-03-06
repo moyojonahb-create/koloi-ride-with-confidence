@@ -59,7 +59,7 @@ export default function ImportOsmPlaces() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Built-in dataset: {(geojsonData as unknown).features?.length || 0} Gwanda places from the OSM export.
+            Built-in dataset: {(geojsonData as Record<string, unknown[]>).features?.length || 0} Gwanda places from the OSM export.
           </p>
 
           <div className="flex gap-2">
