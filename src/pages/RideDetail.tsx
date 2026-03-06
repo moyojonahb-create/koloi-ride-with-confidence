@@ -197,7 +197,7 @@ export default function RideDetail() {
       if (mErr) throw new Error(mErr.message);
       setMessages((m as MessageRow[]) || []);
     } catch (e: unknown) {
-      setToast(e?.message || "Failed to load ride.");
+      setToast((e as Error)?.message || "Failed to load ride.");
     } finally {
       setLoading(false);
     }
