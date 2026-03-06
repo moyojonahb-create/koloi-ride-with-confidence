@@ -283,7 +283,7 @@ export default function RideDetail() {
       setToast("Driver accepted ✅ You can now call or message.");
       setShowOffersModal(false);
     } catch (e: unknown) {
-      setToast(e?.message || "Failed to accept offer.");
+      setToast((e as Error)?.message || "Failed to accept offer.");
     } finally {
       setAcceptingOfferId(null);
     }
