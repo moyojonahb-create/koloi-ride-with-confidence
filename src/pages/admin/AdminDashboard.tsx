@@ -141,7 +141,7 @@ const AdminDashboard = () => {
       setTotalDrivers(driverCount || 0);
       setTodayTrips(todayCount || 0);
     } catch (e: unknown) {
-      setError(e?.message || 'Failed to load dashboard data');
+      setError((e as Error)?.message || 'Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
@@ -204,10 +204,10 @@ const AdminDashboard = () => {
   const mapRides = useMemo(() => 
     activeRides.map(r => ({
       id: r.id,
-      pickupLat: (r as unknown).pickup_lat,
-      pickupLng: (r as unknown).pickup_lon,
-      dropoffLat: (r as unknown).dropoff_lat,
-      dropoffLng: (r as unknown).dropoff_lon,
+      pickupLat: (r as unknown as Record<string, unknown>).pickup_lat as number,
+      pickupLng: (r as unknown as Record<string, unknown>).pickup_lon as number,
+      dropoffLat: (r as unknown as Record<string, unknown>).dropoff_lat as number,
+      dropoffLng: (r as unknown as Record<string, unknown>).dropoff_lon as number,
       status: r.status,
       pickupAddress: r.pickup_address,
       dropoffAddress: r.dropoff_address,

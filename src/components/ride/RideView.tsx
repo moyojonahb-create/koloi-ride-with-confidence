@@ -49,7 +49,7 @@ const VEHICLE_TIERS: {
   eta: string;
   multiplier: number;
 }[] = [
-{ id: 'standard', name: 'Koloi Standard', icon: Car, priceRange: 'R15 – R40', passengers: '1–4', eta: '3 min', multiplier: 1 }];
+{ id: 'standard', name: 'Voyex Standard', icon: Car, priceRange: 'R15 – R40', passengers: '1–4', eta: '3 min', multiplier: 1 }];
 
 
 export default function RideView() {
@@ -110,10 +110,10 @@ export default function RideView() {
 
   // Handle rebook from ride history
   useEffect(() => {
-    const rebook = (location.state as unknown as Record<string, unknown>)?.rebook;
+    const rebook = (location.state as Record<string, unknown>)?.rebook as Record<string, unknown> | undefined;
     if (rebook) {
-      if (rebook.pickup) setPickupLocation(rebook.pickup);
-      if (rebook.dropoff) setDropoffLocation(rebook.dropoff);
+      if (rebook.pickup) setPickupLocation(rebook.pickup as SelectedLocation);
+      if (rebook.dropoff) setDropoffLocation(rebook.dropoff as SelectedLocation);
       window.history.replaceState({}, '');
     }
   }, []);
@@ -259,7 +259,7 @@ export default function RideView() {
       toast({ title: 'Ride requested!', description: 'Looking for nearby drivers...' });
       navigate(`/ride/${result.ride.id}`);
     } catch (error: unknown) {
-      toast({ title: 'Failed to request ride', description: error.message, variant: 'destructive' });
+      toast({ title: 'Failed to request ride', description: (error as Error).message, variant: 'destructive' });
       setRideStatus('idle');
     } finally {setIsRequesting(false);}
   };

@@ -50,7 +50,7 @@ export default function DriverDepositPage() {
       setFile(null);
       navigate("/drivers/wallet");
     } catch (e: unknown) {
-      toast.error(e.message || "Failed to submit deposit request.");
+      toast.error((e as Error).message || "Failed to submit deposit request.");
     } finally {
       setBusy(false);
     }

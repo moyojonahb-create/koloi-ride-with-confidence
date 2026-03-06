@@ -1,11 +1,10 @@
 /**
- * Alert utilities for ride notifications (inDrive-style)
+ * Alert utilities for ride notifications
  */
 
 export function playAlert(): void {
   try {
-    // Create an oscillator-based alert sound
-    const audioCtx = new (window.AudioContext || (window as unknown).webkitAudioContext)();
+    const audioCtx = new (window.AudioContext || (window as unknown as Record<string, typeof AudioContext>).webkitAudioContext)();
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
     
@@ -18,7 +17,6 @@ export function playAlert(): void {
     
     oscillator.start();
     
-    // Create alert pattern
     setTimeout(() => { oscillator.frequency.value = 1100; }, 150);
     setTimeout(() => { oscillator.frequency.value = 880; }, 300);
     setTimeout(() => { oscillator.frequency.value = 1100; }, 450);
@@ -43,9 +41,9 @@ export function showBrowserNotification(title: string, body: string, url?: strin
     if (Notification.permission !== "granted") return;
     const notification = new Notification(title, {
       body,
-      icon: "/icons/icon-192x192.png",
-      badge: "/icons/icon-192x192.png",
-      tag: "pickme-alert",
+      icon: "/icons/voyex-logo.png",
+      badge: "/icons/voyex-logo.png",
+      tag: "voyex-alert",
       requireInteraction: true,
     });
     

@@ -3,39 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>PickMe - Get picked. Get moving.</title>
-    <meta name="description" content="PickMe is Zimbabwe's premier e-hailing service. Request a ride, hop in, and go. Drive when you want, earn what you need." />
-    <meta name="author" content="PickMe Technologies" />
+    <title>Voyex - Your ride, your way.</title>
+    <meta name="description" content="Voyex is Zimbabwe's premier ride-hailing service. Request a ride anywhere in Zimbabwe." />
+    <meta name="author" content="Voyex Technologies" />
 
     <!-- PWA Meta Tags -->
-     <meta name="theme-color" content="#0b3b78" />
+    <meta name="theme-color" content="#0B3D91" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="PickMe" />
+    <meta name="apple-mobile-web-app-title" content="Voyex" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="application-name" content="PickMe" />
-     <meta name="msapplication-TileColor" content="#0b3b78" />
+    <meta name="application-name" content="Voyex" />
+    <meta name="msapplication-TileColor" content="#0B3D91" />
     <meta name="msapplication-tap-highlight" content="no" />
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
 
     <!-- Favicon and Icons -->
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/icons/koloi-logo.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/koloi-logo.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/koloi-logo.png" />
-    <link rel="apple-touch-icon" sizes="167x167" href="/icons/koloi-logo.png" />
+    <link rel="icon" type="image/png" href="/icons/voyex-logo.png" />
+    <link rel="apple-touch-icon" href="/icons/voyex-logo.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/voyex-logo.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/voyex-logo.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/voyex-logo.png" />
 
     <!-- Open Graph / Social -->
-    <meta property="og:title" content="PickMe - Get picked. Get moving." />
-    <meta property="og:description" content="Zimbabwe's premier e-hailing service. Request a ride, hop in, and go." />
+    <meta property="og:title" content="Voyex - Your ride, your way." />
+    <meta property="og:description" content="Zimbabwe's premier ride-hailing service. Request a ride anywhere in Zimbabwe." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@pickmeapp" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:site" content="@voyexapp" />
 
     <!-- Leaflet CSS for OpenStreetMap -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -47,37 +45,33 @@
         --sar: env(safe-area-inset-right);
         --sab: env(safe-area-inset-bottom);
         --sal: env(safe-area-inset-left);
-         --navH: 56px;
-         --pad: 14px;
+        --navH: 56px;
+        --pad: 14px;
       }
       .safe-area-top { padding-top: env(safe-area-inset-top); }
       .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
        
-       /* Ensure app fills entire screen on mobile */
-       html, body, #root {
-         height: 100%;
-         min-height: 100vh;
-         min-height: 100dvh;
-         overflow-x: hidden;
-       }
+      html, body, #root {
+        height: 100%;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-x: hidden;
+      }
        
-       /* Push content below the phone status bar / notch */
-       #root {
-         padding-top: env(safe-area-inset-top, 12px);
-       }
+      #root {
+        padding-top: env(safe-area-inset-top, 12px);
+      }
        
-       /* Prevent text/icons from being clipped on small screens */
-       * {
-         -webkit-box-sizing: border-box;
-         box-sizing: border-box;
-       }
+      * {
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+      }
        
-       /* Ensure text wraps and never overflows containers */
-       p, span, h1, h2, h3, h4, h5, h6, label, a, button {
-         overflow-wrap: break-word;
-         word-wrap: break-word;
-         word-break: break-word;
-       }
+      p, span, h1, h2, h3, h4, h5, h6, label, a, button {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
+      }
     </style>
   </head>
 

@@ -67,12 +67,12 @@ export function useAgoraCall({
           filter: `callee_id=eq.${currentUserId}`,
         },
         (payload) => {
-          const session = payload.new as unknown;
+          const session = payload.new as Record<string, unknown>;
           console.log("[AgoraCall] INSERT received:", session.status, session.id);
           if (session.status === "ringing" && callStatusRef.current === "idle") {
             setIncomingCall({
-              sessionId: session.id,
-              callerId: session.caller_id,
+              sessionId: session.id as string,
+              callerId: session.caller_id as string,
             });
           }
         }
@@ -85,7 +85,7 @@ export function useAgoraCall({
           table: "call_sessions",
         },
         (payload) => {
-          const session = payload.new as unknown;
+          const session = payload.new as Record<string, unknown>;
           const isParticipant =
             session.caller_id === currentUserId ||
             session.callee_id === currentUserId;
@@ -94,7 +94,7 @@ export function useAgoraCall({
           console.log("[AgoraCall] UPDATE received:", session.status, session.id, "my sessionId:", sessionIdRef.current);
 
           if (session.status === "ended" || session.status === "declined") {
-            if (session.id === sessionIdRef.current || session.id === incomingCallRef.current?.sessionId) {
+            if (session.id === sessionIdRef.current || (session.id as string) === incomingCallRef.current?.sessionId) {
               cleanup();
               setCallStatus("ended");
               setIncomingCall(null);
@@ -103,7 +103,7 @@ export function useAgoraCall({
           }
           if (session.status === "answered" && session.id === sessionIdRef.current) {
             console.log("[AgoraCall] Other party answered, joining channel...");
-            joinChannel(session.id);
+            joinChannel(session.id as string);
           }
         }
       )
@@ -247,7 +247,7 @@ export function useAgoraCall({
       toast.info("Calling rider...", { description: "Waiting for answer" });
     } catch (err: unknown) {
       console.error("[AgoraCall] Failed to start call:", err);
-      toast.error("Call failed", { description: err.message });
+      toast.error("Call failed", { description: (err as Error).message });
       setCallStatus("error");
       setTimeout(() => setCallStatus("idle"), 2000);
     }
@@ -268,7 +268,7 @@ export function useAgoraCall({
       await joinChannel(incomingCall.sessionId);
     } catch (err: unknown) {
       console.error("[AgoraCall] Failed to answer call:", err);
-      toast.error("Failed to answer", { description: err.message });
+      toast.error("Failed to answer", { description: (err as Error).message });
       setCallStatus("error");
     }
   }, [incomingCall, joinChannel]);

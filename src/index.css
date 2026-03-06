@@ -4,35 +4,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Koloi Design System - Native mobile-first e-hailing platform */
+/* Voyex Design System - Native mobile-first ride-hailing platform */
 
 @layer base {
   :root {
-    /* Core brand colors - Deep Blue & Yellow system */
-    --background: 0 0% 100%;
-    --foreground: 215 25% 15%;
+    /* Core brand: Primary #0B3D91, Secondary #FFC107, Accent #111111, Background #F5F7FA */
+    --background: 216 33% 97%;
+    --foreground: 0 0% 7%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 0 0% 7%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 0 0% 7%;
 
-    /* Primary - Deep Blue for Koloi brand */
-    --primary: 215 80% 25%;
+    /* Primary - Voyex Blue #0B3D91 */
+    --primary: 215 85% 31%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - Light surfaces */
-    --secondary: 215 20% 96%;
-    --secondary-foreground: 215 25% 15%;
+    --secondary: 216 33% 95%;
+    --secondary-foreground: 0 0% 7%;
 
     /* Muted elements */
-    --muted: 215 20% 96%;
-    --muted-foreground: 215 15% 50%;
+    --muted: 216 20% 94%;
+    --muted-foreground: 215 10% 50%;
 
-    /* Accent - Yellow/Gold for highlights */
+    /* Accent - Gold #FFC107 */
     --accent: 45 100% 51%;
-    --accent-foreground: 215 25% 15%;
+    --accent-foreground: 0 0% 7%;
 
     /* Destructive */
     --destructive: 0 84% 60%;
@@ -41,39 +41,39 @@
     /* Borders and inputs */
     --border: 215 20% 90%;
     --input: 215 20% 90%;
-    --ring: 215 80% 25%;
+    --ring: 215 85% 31%;
 
     --radius: 0.75rem;
 
     /* Sidebar */
-    --sidebar-background: 215 80% 25%;
+    --sidebar-background: 215 85% 31%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 45 100% 51%;
-    --sidebar-primary-foreground: 215 25% 15%;
-    --sidebar-accent: 215 70% 35%;
+    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-accent: 215 70% 40%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 215 70% 30%;
+    --sidebar-border: 215 70% 35%;
     --sidebar-ring: 45 100% 51%;
 
-    /* Custom Koloi tokens - Production Blue/Yellow palette */
-    --koloi-blue: 215 80% 25%;
-    --koloi-blue-dark: 215 85% 18%;
-    --koloi-blue-light: 215 60% 45%;
+    /* Custom Voyex tokens */
+    --koloi-blue: 215 85% 31%;
+    --koloi-blue-dark: 215 90% 22%;
+    --koloi-blue-light: 215 60% 50%;
     --koloi-yellow: 45 100% 51%;
     --koloi-yellow-light: 45 100% 70%;
     --koloi-white: 0 0% 100%;
-    --koloi-dark: 215 25% 10%;
-    --koloi-gray-100: 215 20% 98%;
-    --koloi-gray-200: 215 20% 96%;
+    --koloi-dark: 0 0% 7%;
+    --koloi-gray-100: 216 33% 98%;
+    --koloi-gray-200: 216 33% 95%;
     --koloi-gray-300: 215 20% 90%;
     --koloi-gray-400: 215 15% 75%;
-    --koloi-gray-500: 215 15% 55%;
-    --koloi-gray-600: 215 15% 45%;
-    --koloi-gray-700: 215 20% 30%;
-    --koloi-gray-800: 215 25% 20%;
-    --koloi-gray-900: 215 25% 10%;
+    --koloi-gray-500: 215 10% 55%;
+    --koloi-gray-600: 215 10% 45%;
+    --koloi-gray-700: 215 15% 30%;
+    --koloi-gray-800: 215 20% 20%;
+    --koloi-gray-900: 0 0% 7%;
 
-    /* Modern Shadows - softer, more diffused */
+    /* Shadows */
     --shadow-xs: 0 1px 2px 0 hsl(215 25% 0% / 0.03);
     --shadow-sm: 0 2px 4px -1px hsl(215 25% 0% / 0.06), 0 1px 2px -1px hsl(215 25% 0% / 0.04);
     --shadow-md: 0 6px 16px -4px hsl(215 25% 0% / 0.08), 0 2px 6px -2px hsl(215 25% 0% / 0.05);
@@ -90,41 +90,41 @@
   }
 
   .dark {
-    --background: 215 85% 12%;
+    --background: 215 85% 10%;
     --foreground: 0 0% 98%;
 
-    --card: 215 80% 18%;
+    --card: 215 80% 16%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 215 80% 18%;
+    --popover: 215 80% 16%;
     --popover-foreground: 0 0% 98%;
 
     --primary: 45 100% 51%;
-    --primary-foreground: 215 25% 10%;
+    --primary-foreground: 0 0% 7%;
 
-    --secondary: 215 70% 22%;
+    --secondary: 215 70% 20%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 215 70% 22%;
+    --muted: 215 70% 20%;
     --muted-foreground: 215 20% 70%;
 
     --accent: 45 100% 51%;
-    --accent-foreground: 215 25% 10%;
+    --accent-foreground: 0 0% 7%;
 
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 215 70% 25%;
-    --input: 215 70% 25%;
+    --border: 215 70% 22%;
+    --input: 215 70% 22%;
     --ring: 45 100% 51%;
 
-    --sidebar-background: 215 85% 10%;
+    --sidebar-background: 215 85% 8%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 45 100% 51%;
-    --sidebar-primary-foreground: 215 25% 10%;
-    --sidebar-accent: 215 80% 18%;
+    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-accent: 215 80% 16%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 215 80% 18%;
+    --sidebar-border: 215 80% 16%;
     --sidebar-ring: 45 100% 51%;
   }
 }
@@ -148,12 +148,10 @@
     letter-spacing: -0.011em;
   }
 
-  /* Prevent iOS zoom on input focus */
   input, select, textarea {
     font-size: 16px !important;
   }
 
-  /* Better text rendering for headings */
   h1, h2, h3, h4 {
     letter-spacing: -0.025em;
     font-weight: 700;
@@ -161,7 +159,6 @@
 }
 
 @layer components {
-  /* Koloi specific component styles */
   .koloi-container {
     @apply max-w-7xl mx-auto px-5 sm:px-6 lg:px-8;
   }
@@ -202,32 +199,26 @@
     @apply text-[15px] font-medium text-foreground hover:bg-koloi-gray-100 px-5 py-3 rounded-full transition-all duration-150;
   }
 
-  /* Stat cards with hover lift */
   .koloi-stat-card {
     @apply bg-primary-foreground/10 rounded-2xl p-5 text-center transition-all duration-200 hover:bg-primary-foreground/15 hover:-translate-y-0.5;
   }
 
-  /* Feature cards with icon badges */
   .koloi-feature-card {
     @apply bg-card rounded-2xl p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5;
   }
 
-  /* Pill badges */
   .koloi-badge {
     @apply inline-flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-semibold;
   }
 
-  /* Icon containers */
   .koloi-icon-box {
     @apply w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-150;
   }
 
-  /* Native card with subtle border + active press */
   .native-card {
     @apply bg-card rounded-2xl border border-border/60 p-4 transition-all duration-150 active:scale-[0.98];
   }
 
-  /* Section spacing for native feel */
   .section-gap {
     @apply space-y-5;
   }
@@ -250,7 +241,6 @@
     animation: slideDown 0.25s cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-  /* Native spring-feel animation */
   .animate-spring {
     animation: springIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -261,49 +251,26 @@
   }
 
   @keyframes slideUp {
-    from {
-      opacity: 0;
-      transform: translateY(16px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes springIn {
-    from {
-      opacity: 0;
-      transform: scale(0.92) translateY(8px);
-    }
-    60% {
-      opacity: 1;
-      transform: scale(1.02) translateY(-2px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
+    from { opacity: 0; transform: scale(0.92) translateY(8px); }
+    60% { opacity: 1; transform: scale(1.02) translateY(-2px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
 }
 
-/* Safe area bottom padding for mobile app shell */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Leaflet custom markers */
 .custom-marker {
   background: transparent !important;
   border: none !important;
@@ -324,7 +291,6 @@
   50% { transform: scale(1.1); opacity: 0.9; }
 }
 
-/* Leaflet popup styles */
 .landmark-popup .leaflet-popup-content-wrapper {
   padding: 0;
   border-radius: 12px;
@@ -339,7 +305,6 @@
   background: white;
 }
 
-/* Custom Leaflet map controls */
 .leaflet-control-layers {
   border-radius: 12px !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
@@ -349,7 +314,6 @@
   border-radius: 8px !important;
 }
 
-/* Map loading shimmer */
 @keyframes mapShimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -366,7 +330,6 @@
   animation: mapShimmer 1.8s ease-in-out infinite;
 }
 
-/* Leaflet container must have dimensions */
 .leaflet-container {
   width: 100%;
   height: 100%;

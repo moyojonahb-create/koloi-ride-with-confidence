@@ -30,7 +30,7 @@ export function useGoogleMapsKey() {
         cachedKey = data.apiKey;
         setApiKey(data.apiKey);
       } catch (e: unknown) {
-        if (!cancelled) setError(e.message);
+        if (!cancelled) setError((e as Error).message);
       } finally {
         if (!cancelled) setLoading(false);
       }

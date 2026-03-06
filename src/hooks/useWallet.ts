@@ -83,7 +83,7 @@ export const useWallet = () => {
         setTransactions(txData || []);
       }
     } catch (e: unknown) {
-      setError(e.message);
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,7 @@ export const useWallet = () => {
       await fetchWallet();
       return { error: null };
     } catch (e: unknown) {
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   };
 
@@ -150,7 +150,7 @@ export const useWallet = () => {
       await fetchWallet();
       return { error: null };
     } catch (e: unknown) {
-      return { error: e.message };
+      return { error: (e as Error).message };
     }
   };
 
@@ -203,7 +203,7 @@ export const useAdminEarnings = () => {
       setTotalEarnings(totals.total);
       setTotalPlatformFees(totals.fees);
     } catch (e: unknown) {
-      setError(e.message);
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }

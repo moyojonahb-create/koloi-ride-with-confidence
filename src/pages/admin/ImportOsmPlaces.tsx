@@ -41,7 +41,7 @@ export default function ImportOsmPlaces() {
       setResult(res);
     } catch (err: unknown) {
       setStatus('error');
-      setResult({ error: err.message || 'Import failed' });
+      setResult({ error: (err as Error).message || 'Import failed' });
     }
   };
 
@@ -59,7 +59,7 @@ export default function ImportOsmPlaces() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Built-in dataset: {(geojsonData as unknown).features?.length || 0} Gwanda places from the OSM export.
+            Built-in dataset: {((geojsonData as unknown as Record<string, unknown[]>).features)?.length || 0} Gwanda places from the OSM export.
           </p>
 
           <div className="flex gap-2">
@@ -78,7 +78,7 @@ export default function ImportOsmPlaces() {
             <input type="file" accept=".json,.geojson" onChange={handleFileUpload} className="text-sm" />
             {fileData && (
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">{fileName}: {fileData.features?.length || 0} features</p>
+                <p className="text-xs text-muted-foreground">{fileName}: {((fileData as unknown as Record<string, unknown[]>).features)?.length || 0} features</p>
                 <div className="flex gap-2">
                   <Button onClick={() => handleImport('replace', fileData)} disabled={status === 'importing'} variant="destructive" size="sm" className="flex-1">
                     Replace All

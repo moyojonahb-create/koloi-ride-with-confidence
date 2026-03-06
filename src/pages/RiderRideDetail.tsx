@@ -86,7 +86,7 @@ export default function RiderRideDetail() {
   } = useAgoraCall({
     rideId: rideId ?? null,
     currentUserId: user?.id ?? "",
-    otherUserId: driverProfile?.user_id ?? null
+    otherUserId: (driverProfile as Record<string, unknown>)?.user_id as string ?? null
   });
 
   const refreshRide = useCallback(async () => {
@@ -149,7 +149,7 @@ export default function RiderRideDetail() {
           }
         }
       } catch (e: unknown) {
-        console.warn("Error fetching driver details:", e.message);
+        console.warn("Error fetching driver details:", (e as Error).message);
       }
     }
   }, [rideId, ride?.status]);
@@ -200,7 +200,7 @@ export default function RiderRideDetail() {
 
   // Real-time driver tracking via Supabase Realtime
   const driverLocation = useDriverTracking(
-    driverProfile?.user_id ?? null,
+    (driverProfile as Record<string, unknown>)?.user_id as string ?? null,
     ride?.status ?? null
   );
 
@@ -253,7 +253,7 @@ export default function RiderRideDetail() {
       setRide({ ...ride, fare: clampedFare });
       toast.success(`Fare updated to R${clampedFare}`);
     } catch (e: unknown) {
-      toast.error("Failed to update fare", { description: e.message });
+      toast.error("Failed to update fare", { description: (e as Error).message });
     } finally {
       setUpdatingFare(false);
     }
@@ -273,8 +273,8 @@ export default function RiderRideDetail() {
       });
       await refreshRide();
     } catch (e: unknown) {
-      setError(e.message);
-      toast.error("Failed to accept offer", { description: e.message });
+      setError((e as Error).message);
+      toast.error("Failed to accept offer", { description: (e as Error).message });
     }
   };
 
@@ -284,7 +284,7 @@ export default function RiderRideDetail() {
       toast.info("Offer declined");
       await refreshOffers();
     } catch (e: unknown) {
-      toast.error("Failed to decline offer", { description: e.message });
+      toast.error("Failed to decline offer", { description: (e as Error).message });
     }
   };
 
@@ -299,7 +299,7 @@ export default function RiderRideDetail() {
       toast.info("Ride cancelled");
       nav("/ride");
     } catch (e: unknown) {
-      toast.error("Failed to cancel ride", { description: e.message });
+      toast.error("Failed to cancel ride", { description: (e as Error).message });
     }
   };
 
@@ -320,7 +320,7 @@ export default function RiderRideDetail() {
 
   const modalOffers = offers.map((o) => {
     const d = driversById[o.driver_id];
-    const driverFullName = (d as unknown)?.full_name;
+    const driverFullName = (d as Record<string, unknown>)?.full_name as string | undefined;
     return {
       driverId: o.driver_id,
       name: d?.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model}` : "Driver",
@@ -339,8 +339,8 @@ export default function RiderRideDetail() {
       vehicleModel: d?.vehicle_model || undefined,
       gender: d?.gender || null,
       avatarUrl: d?.avatar_url || null,
-      ratingAvg: (d as unknown)?.rating_avg || null,
-      totalTrips: (d as unknown)?.total_trips || null
+      ratingAvg: (d as Record<string, unknown>)?.rating_avg as number || null,
+      totalTrips: (d as Record<string, unknown>)?.total_trips as number || null
     };
   });
 
@@ -569,34 +569,34 @@ export default function RiderRideDetail() {
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <Avatar className="h-12 w-12 shrink-0 border-2 border-primary/20">
-                        {driverProfile.avatar_url ?
-                      <AvatarImage src={driverProfile.avatar_url} alt="Driver" /> :
+                        {(driverProfile as Record<string, unknown>).avatar_url ?
+                      <AvatarImage src={(driverProfile as Record<string, unknown>).avatar_url as string} alt="Driver" /> :
                       null}
-                        <AvatarFallback className={`text-sm font-bold ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
-                          {driverProfile.gender === 'female' ? '♀' : '♂'}
+                        <AvatarFallback className={`text-sm font-bold ${(driverProfile as Record<string, unknown>).gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {(driverProfile as Record<string, unknown>).gender === 'female' ? '♀' : '♂'}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold truncate">Your Driver</p>
                         <p className="text-sm text-muted-foreground truncate">
-                          {driverProfile.vehicle_make} {driverProfile.vehicle_model} • {driverProfile.plate_number}
+                          {String((driverProfile as Record<string, unknown>).vehicle_make || '')} {String((driverProfile as Record<string, unknown>).vehicle_model || '')} • {String((driverProfile as Record<string, unknown>).plate_number || '')}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          {driverProfile.rating_avg > 0 &&
+                          {((driverProfile as Record<string, unknown>).rating_avg as number) > 0 &&
                         <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">
                               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              {Number(driverProfile.rating_avg).toFixed(1)}
+                              {Number((driverProfile as Record<string, unknown>).rating_avg).toFixed(1)}
                             </span>
                         }
                           <span className="text-xs text-muted-foreground">
-                            {driverProfile.total_trips || 0} trips
+                            {String((driverProfile as Record<string, unknown>).total_trips || 0)} trips
                           </span>
                         </div>
                       </div>
                     </div>
-                    {driverProfile.gender &&
-                  <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
-                        {driverProfile.gender === 'female' ? '♀ Female' : '♂ Male'}
+                    {(driverProfile as Record<string, unknown>).gender &&
+                  <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${(driverProfile as Record<string, unknown>).gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                        {(driverProfile as Record<string, unknown>).gender === 'female' ? '♀ Female' : '♂ Male'}
                       </span>
                   }
                   </div>
@@ -661,7 +661,7 @@ export default function RiderRideDetail() {
             rideId={ride.id}
             driverId={ride.driver_id}
             riderId={user.id}
-            driverName={driverProfile ? `${driverProfile.vehicle_make || ''} Driver`.trim() : undefined}
+            driverName={driverProfile ? `${(driverProfile as Record<string, unknown>).vehicle_make || ''} Driver`.trim() : undefined}
             onClose={() => {
               setShowRating(false);
               setHasRated(true);

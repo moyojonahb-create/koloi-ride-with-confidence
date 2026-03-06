@@ -239,7 +239,7 @@ export default function DriverDashboard() {
         setRides([]);
       }
     } catch (e: unknown) {
-      toast.error("Failed to update status", { description: e.message });
+      toast.error("Failed to update status", { description: (e as Error).message });
     } finally {
       setTogglingOnline(false);
     }
@@ -316,7 +316,7 @@ export default function DriverDashboard() {
       }
 
       // Check if top driver for priority access
-      const { data: topStatus } = await supabase.rpc("is_top_driver" as unknown, { _user_id: user!.id });
+      const { data: topStatus } = await supabase.rpc("is_top_driver", { _user_id: user!.id });
       setIsTopDriver(!!topStatus);
 
       // Only fetch rides if driver is online
@@ -361,7 +361,7 @@ export default function DriverDashboard() {
 
       setLoading(false);
     } catch (e: unknown) {
-      setError(e.message);
+      setError((e as Error).message);
       setLoading(false);
     }
   }, [voiceEnabled, voiceSupported, speak]);
@@ -433,8 +433,8 @@ export default function DriverDashboard() {
       toast.success("Offer sent!", { description: `R${offerPrice} for ${eta} min ETA` });
       setSelectedRide(null);
     } catch (e: unknown) {
-      setError(e.message);
-      toast.error("Failed to send offer", { description: e.message });
+      setError((e as Error).message);
+      toast.error("Failed to send offer", { description: (e as Error).message });
     } finally {
       setSubmitting(false);
     }
@@ -445,17 +445,17 @@ export default function DriverDashboard() {
     setCompleting(true);
     try {
       const result = await completeTrip(activeTrip.id);
-      if (!(result as unknown)?.ok) {
-        throw new Error((result as unknown)?.reason || "Failed to complete trip");
+      if (!(result as Record<string, unknown>)?.ok) {
+        throw new Error(((result as Record<string, unknown>)?.reason as string) || "Failed to complete trip");
       }
       toast.success("Trip completed!", {
-        description: `R4 fee charged (≈$${(result as unknown)?.fee_usd ?? "?"})`,
+        description: `R4 fee charged (≈$${(result as Record<string, unknown>)?.fee_usd ?? "?"})`,
       });
       setActiveTrip(null);
       refreshWallet();
       refresh();
     } catch (e: unknown) {
-      toast.error("Failed to complete trip", { description: e.message });
+      toast.error("Failed to complete trip", { description: (e as Error).message });
     } finally {
       setCompleting(false);
     }
@@ -924,8 +924,8 @@ export default function DriverDashboard() {
           <p className="font-semibold text-sm mb-3 text-muted-foreground uppercase tracking-wider">Settings</p>
           <DriverSettingsPanel
             driverId={profile.id}
-            initialArea={(profile as unknown).preferred_service_area || 'both'}
-            initialEarningNotif={(profile as unknown).earning_notifications ?? true}
+            initialArea={(profile as Record<string, unknown>).preferred_service_area as string || 'both'}
+            initialEarningNotif={(profile as Record<string, unknown>).earning_notifications as boolean ?? true}
           />
         </div>
 

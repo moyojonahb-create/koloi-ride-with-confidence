@@ -1,25 +1,21 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface DriverPosition {
   lat: number;
   lng: number;
 }
 
-/**
- * Real-time driver location tracking using Supabase Realtime.
- * Falls back to polling every 5s if realtime fails.
- */
 export function useDriverTracking(
   driverUserId: string | null,
   rideStatus: string | null
 ): DriverPosition | null {
   const [position, setPosition] = useState<DriverPosition | null>(null);
-  const channelRef = useRef<unknown>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
 
   const isActive = driverUserId && ["accepted", "in_progress", "arrived"].includes(rideStatus ?? "");
 
-  // Initial fetch
   useEffect(() => {
     if (!isActive || !driverUserId) {
       setPosition(null);
@@ -42,7 +38,6 @@ export function useDriverTracking(
     fetchInitial();
   }, [driverUserId, isActive]);
 
-  // Realtime subscription
   useEffect(() => {
     if (!isActive || !driverUserId) return;
 
@@ -58,7 +53,9 @@ export function useDriverTracking(
           filter: `user_id=eq.${driverUserId}`,
         },
         (payload) => {
-          const { latitude, longitude } = payload.new as unknown;
+          const row = payload.new as Record<string, unknown>;
+          const latitude = row.latitude as number;
+          const longitude = row.longitude as number;
           if (typeof latitude === "number" && typeof longitude === "number") {
             setPosition({ lat: latitude, lng: longitude });
           }
@@ -68,7 +65,6 @@ export function useDriverTracking(
 
     channelRef.current = channel;
 
-    // Fallback polling every 8s in case realtime misses
     const poll = setInterval(async () => {
       const { data } = await supabase
         .from("live_locations")
