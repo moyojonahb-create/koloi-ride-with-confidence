@@ -253,7 +253,7 @@ export default function RiderRideDetail() {
       setRide({ ...ride, fare: clampedFare });
       toast.success(`Fare updated to R${clampedFare}`);
     } catch (e: unknown) {
-      toast.error("Failed to update fare", { description: e.message });
+      toast.error("Failed to update fare", { description: (e as Error).message });
     } finally {
       setUpdatingFare(false);
     }
