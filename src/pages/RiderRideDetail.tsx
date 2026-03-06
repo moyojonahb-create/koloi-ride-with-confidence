@@ -569,34 +569,34 @@ export default function RiderRideDetail() {
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <Avatar className="h-12 w-12 shrink-0 border-2 border-primary/20">
-                        {driverProfile.avatar_url ?
-                      <AvatarImage src={driverProfile.avatar_url} alt="Driver" /> :
+                        {(driverProfile as Record<string, unknown>).avatar_url ?
+                      <AvatarImage src={(driverProfile as Record<string, unknown>).avatar_url as string} alt="Driver" /> :
                       null}
-                        <AvatarFallback className={`text-sm font-bold ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
-                          {driverProfile.gender === 'female' ? '♀' : '♂'}
+                        <AvatarFallback className={`text-sm font-bold ${(driverProfile as Record<string, unknown>).gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {(driverProfile as Record<string, unknown>).gender === 'female' ? '♀' : '♂'}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold truncate">Your Driver</p>
                         <p className="text-sm text-muted-foreground truncate">
-                          {driverProfile.vehicle_make} {driverProfile.vehicle_model} • {driverProfile.plate_number}
+                          {(driverProfile as Record<string, unknown>).vehicle_make} {(driverProfile as Record<string, unknown>).vehicle_model} • {(driverProfile as Record<string, unknown>).plate_number}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
-                          {driverProfile.rating_avg > 0 &&
+                          {((driverProfile as Record<string, unknown>).rating_avg as number) > 0 &&
                         <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">
                               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              {Number(driverProfile.rating_avg).toFixed(1)}
+                              {Number((driverProfile as Record<string, unknown>).rating_avg).toFixed(1)}
                             </span>
                         }
                           <span className="text-xs text-muted-foreground">
-                            {driverProfile.total_trips || 0} trips
+                            {(driverProfile as Record<string, unknown>).total_trips || 0} trips
                           </span>
                         </div>
                       </div>
                     </div>
-                    {driverProfile.gender &&
-                  <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${driverProfile.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
-                        {driverProfile.gender === 'female' ? '♀ Female' : '♂ Male'}
+                    {(driverProfile as Record<string, unknown>).gender &&
+                  <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${(driverProfile as Record<string, unknown>).gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                        {(driverProfile as Record<string, unknown>).gender === 'female' ? '♀ Female' : '♂ Male'}
                       </span>
                   }
                   </div>
