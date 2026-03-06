@@ -239,7 +239,7 @@ export default function DriverDashboard() {
         setRides([]);
       }
     } catch (e: unknown) {
-      toast.error("Failed to update status", { description: e.message });
+      toast.error("Failed to update status", { description: (e as Error).message });
     } finally {
       setTogglingOnline(false);
     }
