@@ -83,7 +83,7 @@ export const useWallet = () => {
         setTransactions(txData || []);
       }
     } catch (e: unknown) {
-      setError(e.message);
+      setError((e as Error).message);
     } finally {
       setLoading(false);
     }
