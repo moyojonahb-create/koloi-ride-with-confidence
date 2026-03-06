@@ -299,7 +299,7 @@ export default function RiderRideDetail() {
       toast.info("Ride cancelled");
       nav("/ride");
     } catch (e: unknown) {
-      toast.error("Failed to cancel ride", { description: e.message });
+      toast.error("Failed to cancel ride", { description: (e as Error).message });
     }
   };
 
