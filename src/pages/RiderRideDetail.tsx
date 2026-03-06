@@ -284,7 +284,7 @@ export default function RiderRideDetail() {
       toast.info("Offer declined");
       await refreshOffers();
     } catch (e: unknown) {
-      toast.error("Failed to decline offer", { description: e.message });
+      toast.error("Failed to decline offer", { description: (e as Error).message });
     }
   };
 
