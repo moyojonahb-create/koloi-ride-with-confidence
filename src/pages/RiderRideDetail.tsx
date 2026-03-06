@@ -339,8 +339,8 @@ export default function RiderRideDetail() {
       vehicleModel: d?.vehicle_model || undefined,
       gender: d?.gender || null,
       avatarUrl: d?.avatar_url || null,
-      ratingAvg: (d as unknown)?.rating_avg || null,
-      totalTrips: (d as unknown)?.total_trips || null
+      ratingAvg: (d as Record<string, unknown>)?.rating_avg || null,
+      totalTrips: (d as Record<string, unknown>)?.total_trips || null
     };
   });
 
