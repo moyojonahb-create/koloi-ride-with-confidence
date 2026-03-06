@@ -86,7 +86,7 @@ export default function RiderRideDetail() {
   } = useAgoraCall({
     rideId: rideId ?? null,
     currentUserId: user?.id ?? "",
-    otherUserId: driverProfile?.user_id ?? null
+    otherUserId: (driverProfile as Record<string, unknown>)?.user_id as string ?? null
   });
 
   const refreshRide = useCallback(async () => {
