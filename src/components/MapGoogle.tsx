@@ -75,10 +75,11 @@ function MapGoogle({
   defaultCenter,
   defaultZoom = 13,
 }: MapGoogleProps) {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
+  const { apiKey: fetchedKey, loading: keyLoading, error: keyError } = useGoogleMapsKey();
 
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: apiKey || '',
+    googleMapsApiKey: fetchedKey || '',
+    id: 'koloi-google-map',
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
