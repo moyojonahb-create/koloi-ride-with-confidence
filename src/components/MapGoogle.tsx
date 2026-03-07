@@ -66,6 +66,7 @@ function InnerMapGoogle({
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: apiKey,
     id: GOOGLE_MAPS_LOADER_ID,
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
