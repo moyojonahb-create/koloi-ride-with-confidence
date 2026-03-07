@@ -762,6 +762,37 @@ export default function RideView() {
               )}
                   </>
             }
+
+                {/* Google Places Suggestions */}
+                {googleSuggestions.length > 0 && searchQuery.trim().length >= 2 &&
+            <>
+                    <div className="px-4 py-2 bg-accent/30 border-t border-border">
+                      <p className="text-xs font-bold text-foreground uppercase tracking-wider">🌍 Streets & Places</p>
+                    </div>
+                    {googleSuggestions.map((suggestion) =>
+              <button
+                key={suggestion.placeId}
+                onClick={() => handleGooglePlaceSelect(suggestion)}
+                className="w-full flex items-center gap-4 px-4 py-4 hover:bg-secondary transition-colors border-b border-border/50 text-left">
+                
+                        <div className="w-11 h-11 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                          <Search className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-foreground truncate">{suggestion.name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{suggestion.description}</p>
+                        </div>
+                      </button>
+              )}
+                  </>
+            }
+
+                {googleLoading && !googleSuggestions.length &&
+            <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Searching streets & places...</span>
+                  </div>
+            }
               </>
           }
           </div>
