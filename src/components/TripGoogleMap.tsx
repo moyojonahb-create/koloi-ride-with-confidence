@@ -81,7 +81,8 @@ function InnerMap({
 }: TripGoogleMapProps & {apiKey: string;}) {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: apiKey,
-    id: "koloi-google-map"
+    id: "koloi-google-map",
+    libraries: ['places'] as ("places")[],
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);

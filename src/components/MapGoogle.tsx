@@ -27,6 +27,7 @@ interface MapGoogleProps {
 const ZW_CENTER: Coords = { lat: -19.015, lng: 29.155 };
 const containerStyle = { width: '100%', height: '100%' };
 const GOOGLE_MAPS_LOADER_ID = 'koloi-google-map';
+const GOOGLE_MAPS_LIBRARIES: ("places")[] = ['places'];
 
 const mapOptions: google.maps.MapOptions = {
   disableDefaultUI: true,
@@ -65,6 +66,7 @@ function InnerMapGoogle({
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: apiKey,
     id: GOOGLE_MAPS_LOADER_ID,
+    libraries: GOOGLE_MAPS_LIBRARIES,
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);

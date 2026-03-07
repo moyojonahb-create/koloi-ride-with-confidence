@@ -9,6 +9,7 @@ import { requestRide } from '@/lib/requestRide';
 import { searchZW, reverseZW } from '@/lib/geo_osm';
 import { cachePlaceFromNominatim } from '@/lib/placeCache';
 import { useToast } from '@/hooks/use-toast';
+import { useGooglePlacesAutocomplete } from '@/hooks/useGooglePlacesAutocomplete';
 import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
@@ -107,6 +108,15 @@ export default function RideView() {
     userLocation: gpsState.coords,
     radiusKm: proximityRadius
   });
+
+  // Google Places Autocomplete
+  const {
+    suggestions: googleSuggestions,
+    loading: googleLoading,
+    search: searchGoogle,
+    getPlaceDetails,
+    clear: clearGoogleSuggestions,
+  } = useGooglePlacesAutocomplete();
 
   // Handle rebook from ride history
   useEffect(() => {
@@ -289,17 +299,34 @@ export default function RideView() {
     toast({ title: 'Ride cancelled' });
   };
 
-  // Search handler
+  // Search handler - triggers both local landmarks, Nominatim and Google Places
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    if (value.trim().length >= 3) handleNominatimSearch(value);else
+    if (value.trim().length >= 3) {
+      handleNominatimSearch(value);
+      searchGoogle(value);
+    } else {
+      setNominatimResults([]);
+      clearGoogleSuggestions();
+    }
+  };
+
+  // Handle Google Places suggestion selection
+  const handleGooglePlaceSelect = async (suggestion: { placeId: string; name: string }) => {
+    const details = await getPlaceDetails(suggestion.placeId);
+    if (!details) return;
+    const loc: SelectedLocation = { name: suggestion.name, lat: details.lat, lng: details.lng };
+    if (activeField === 'pickup') setPickupLocation(loc); else setDropoffLocation(loc);
+    setActiveField(null);
+    setSearchQuery('');
     setNominatimResults([]);
+    clearGoogleSuggestions();
   };
 
   const canRequestRide = pickupLocation && dropoffLocation && fareEstimate && !isRequesting;
   const showNominatimFallback = searchQuery.trim().length >= 3 && landmarks.length === 0 && nominatimResults.length > 0;
 
-  // ──────── DRIVER MATCH SCREEN ────────
+
   if (matchedDriver && (rideStatus === 'driver_assigned' || rideStatus === 'driver_arriving')) {
     return (
       <div className="flex flex-col bg-card" style={{ minHeight: '100dvh' }}>
@@ -734,6 +761,37 @@ export default function RideView() {
                       </button>
               )}
                   </>
+            }
+
+                {/* Google Places Suggestions */}
+                {googleSuggestions.length > 0 && searchQuery.trim().length >= 2 &&
+            <>
+                    <div className="px-4 py-2 bg-accent/30 border-t border-border">
+                      <p className="text-xs font-bold text-foreground uppercase tracking-wider">🌍 Streets & Places</p>
+                    </div>
+                    {googleSuggestions.map((suggestion) =>
+              <button
+                key={suggestion.placeId}
+                onClick={() => handleGooglePlaceSelect(suggestion)}
+                className="w-full flex items-center gap-4 px-4 py-4 hover:bg-secondary transition-colors border-b border-border/50 text-left">
+                
+                        <div className="w-11 h-11 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
+                          <Search className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-foreground truncate">{suggestion.name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{suggestion.description}</p>
+                        </div>
+                      </button>
+              )}
+                  </>
+            }
+
+                {googleLoading && !googleSuggestions.length &&
+            <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Searching streets & places...</span>
+                  </div>
             }
               </>
           }
