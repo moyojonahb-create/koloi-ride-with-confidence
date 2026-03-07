@@ -142,6 +142,7 @@ function MapGoogle({
           <p className="text-sm text-muted-foreground">Please log in to access the map.</p>
         </div>
       </div>
+    );
   }
 
   // ── Load error ──
