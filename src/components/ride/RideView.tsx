@@ -323,7 +323,10 @@ export default function RideView() {
     clearGoogleSuggestions();
   };
 
-  // ──────── DRIVER MATCH SCREEN ────────
+  const canRequestRide = pickupLocation && dropoffLocation && fareEstimate && !isRequesting;
+  const showNominatimFallback = searchQuery.trim().length >= 3 && landmarks.length === 0 && nominatimResults.length > 0;
+
+
   if (matchedDriver && (rideStatus === 'driver_assigned' || rideStatus === 'driver_arriving')) {
     return (
       <div className="flex flex-col bg-card" style={{ minHeight: '100dvh' }}>
