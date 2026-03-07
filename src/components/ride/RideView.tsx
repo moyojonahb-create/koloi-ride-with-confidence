@@ -299,15 +299,29 @@ export default function RideView() {
     toast({ title: 'Ride cancelled' });
   };
 
-  // Search handler
+  // Search handler - triggers both local landmarks, Nominatim and Google Places
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    if (value.trim().length >= 3) handleNominatimSearch(value);else
-    setNominatimResults([]);
+    if (value.trim().length >= 3) {
+      handleNominatimSearch(value);
+      searchGoogle(value);
+    } else {
+      setNominatimResults([]);
+      clearGoogleSuggestions();
+    }
   };
 
-  const canRequestRide = pickupLocation && dropoffLocation && fareEstimate && !isRequesting;
-  const showNominatimFallback = searchQuery.trim().length >= 3 && landmarks.length === 0 && nominatimResults.length > 0;
+  // Handle Google Places suggestion selection
+  const handleGooglePlaceSelect = async (suggestion: { placeId: string; name: string }) => {
+    const details = await getPlaceDetails(suggestion.placeId);
+    if (!details) return;
+    const loc: SelectedLocation = { name: suggestion.name, lat: details.lat, lng: details.lng };
+    if (activeField === 'pickup') setPickupLocation(loc); else setDropoffLocation(loc);
+    setActiveField(null);
+    setSearchQuery('');
+    setNominatimResults([]);
+    clearGoogleSuggestions();
+  };
 
   // ──────── DRIVER MATCH SCREEN ────────
   if (matchedDriver && (rideStatus === 'driver_assigned' || rideStatus === 'driver_arriving')) {
