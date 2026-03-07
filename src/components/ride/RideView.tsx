@@ -9,6 +9,7 @@ import { requestRide } from '@/lib/requestRide';
 import { searchZW, reverseZW } from '@/lib/geo_osm';
 import { cachePlaceFromNominatim } from '@/lib/placeCache';
 import { useToast } from '@/hooks/use-toast';
+import { useGooglePlacesAutocomplete } from '@/hooks/useGooglePlacesAutocomplete';
 import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
