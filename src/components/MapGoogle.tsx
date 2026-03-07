@@ -124,15 +124,25 @@ function MapGoogle({
     onMapClick({ lat: e.latLng.lat(), lng: e.latLng.lng() });
   }, [onMapClick]);
 
-  // ── Missing API key ──
-  if (!apiKey) {
+  // ── Loading API key ──
+  if (keyLoading) {
+    return (
+      <div className={`flex items-center justify-center bg-muted animate-pulse ${className}`} style={{ height, minHeight: 260 }}>
+        <p className="text-muted-foreground text-sm">Loading map…</p>
+      </div>
+    );
+  }
+
+  if (keyError || !fetchedKey) {
     return (
       <div className={`flex items-center justify-center bg-muted ${className}`} style={{ height, minHeight: 260 }}>
         <div className="text-center p-6 space-y-3">
           <AlertTriangle className="w-10 h-10 mx-auto text-destructive" />
-          <p className="font-semibold text-foreground">Google Maps API key missing</p>
-          <p className="text-sm text-muted-foreground">
-            Set <code className="bg-secondary px-1.5 py-0.5 rounded text-xs">VITE_GOOGLE_MAPS_API_KEY</code> to enable the map.
+          <p className="font-semibold text-foreground">Google Maps unavailable</p>
+          <p className="text-sm text-muted-foreground">Please log in to access the map.</p>
+        </div>
+      </div>
+    );
           </p>
         </div>
       </div>
