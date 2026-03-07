@@ -109,6 +109,15 @@ export default function RideView() {
     radiusKm: proximityRadius
   });
 
+  // Google Places Autocomplete
+  const {
+    suggestions: googleSuggestions,
+    loading: googleLoading,
+    search: searchGoogle,
+    getPlaceDetails,
+    clear: clearGoogleSuggestions,
+  } = useGooglePlacesAutocomplete();
+
   // Handle rebook from ride history
   useEffect(() => {
     const rebook = (location.state as Record<string, unknown>)?.rebook as Record<string, unknown> | undefined;
