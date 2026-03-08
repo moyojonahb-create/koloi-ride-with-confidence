@@ -207,7 +207,7 @@ const Signup = () => {
                           type="tel"
                           inputMode="tel"
                           placeholder="+263 77 123 4567" 
-                          className="h-12 rounded-2xl border-border/10 bg-white"
+                          className="h-12 rounded-2xl border-border bg-background text-foreground"
                           {...field} 
                         />
                       </FormControl>
