@@ -237,33 +237,33 @@ export default function RideView() {
 
         {/* Driver card bottom */}
         <div className="absolute bottom-0 left-0 right-0 z-50">
-          <div className="glass-card-heavy rounded-t-[28px] px-5 pt-5 pb-6" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
-            <div className="w-10 h-1 rounded-full bg-foreground/10 mx-auto mb-5" />
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center ring-2 ring-primary/20" style={{ background: 'var(--gradient-primary)' }}>
-                <User className="w-8 h-8 text-primary-foreground" />
+          <div className="glass-card-heavy rounded-t-[24px] px-4 pt-4 pb-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+            <div className="w-10 h-1 rounded-full bg-foreground/10 mx-auto mb-4" />
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center ring-2 ring-primary/20 shrink-0" style={{ background: 'var(--gradient-primary)' }}>
+                <User className="w-7 h-7 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-lg font-semibold font-display text-foreground">{matchedDriver.name}</p>
-                <p className="text-sm text-muted-foreground">{matchedDriver.car} · {matchedDriver.plate}</p>
+                <p className="text-base font-semibold font-display text-foreground truncate">{matchedDriver.name}</p>
+                <p className="text-sm text-muted-foreground truncate">{matchedDriver.car} · {matchedDriver.plate}</p>
               </div>
-              <div className="flex items-center gap-1.5 glass-card rounded-full px-3.5 py-2 glass-glow-yellow">
-                <Star className="w-4 h-4 text-accent fill-accent" />
+              <div className="flex items-center gap-1 glass-card rounded-full px-3 py-1.5 glass-glow-yellow shrink-0">
+                <Star className="w-3.5 h-3.5 text-accent fill-accent" />
                 <span className="text-sm font-bold text-foreground">{matchedDriver.rating}</span>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              <button className="flex flex-col items-center gap-2 py-4 rounded-2xl active:scale-95 transition-all" style={{ background: 'var(--gradient-primary)' }}>
+            <div className="grid grid-cols-3 gap-2">
+              <button className="flex flex-col items-center gap-1.5 py-3 rounded-2xl active:scale-95 transition-all" style={{ background: 'var(--gradient-primary)' }}>
                 <Phone className="w-5 h-5 text-primary-foreground" />
-                <span className="text-xs font-medium text-primary-foreground">Call</span>
+                <span className="text-[11px] font-medium text-primary-foreground">Call</span>
               </button>
-              <button className="flex flex-col items-center gap-2 py-4 rounded-2xl glass-card active:scale-95 transition-all">
+              <button className="flex flex-col items-center gap-1.5 py-3 rounded-2xl glass-card active:scale-95 transition-all">
                 <MessageCircle className="w-5 h-5 text-primary" />
-                <span className="text-xs font-medium text-foreground">Message</span>
+                <span className="text-[11px] font-medium text-foreground">Message</span>
               </button>
-              <button onClick={handleCancelRide} className="flex flex-col items-center gap-2 py-4 rounded-2xl bg-destructive/8 active:scale-95 transition-all">
+              <button onClick={handleCancelRide} className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-destructive/8 active:scale-95 transition-all">
                 <X className="w-5 h-5 text-destructive" />
-                <span className="text-xs font-medium text-destructive">Cancel</span>
+                <span className="text-[11px] font-medium text-destructive">Cancel</span>
               </button>
             </div>
           </div>
