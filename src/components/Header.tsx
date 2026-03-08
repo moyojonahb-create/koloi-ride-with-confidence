@@ -24,7 +24,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-xl border-b border-primary-foreground/10">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-border/40 shadow-sm">
       <div className="koloi-container">
         <nav className="flex items-center justify-between h-[60px] lg:h-[64px]">
           {/* Logo */}
