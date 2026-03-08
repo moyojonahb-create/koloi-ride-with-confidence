@@ -10,6 +10,8 @@ import { searchZW, reverseZW } from '@/lib/geo_osm';
 import { cachePlaceFromNominatim } from '@/lib/placeCache';
 import { useToast } from '@/hooks/use-toast';
 import { useGooglePlacesAutocomplete } from '@/hooks/useGooglePlacesAutocomplete';
+import { useTownPricing, calculateRecommendedFare, formatFare } from '@/hooks/useTownPricing';
+import NegotiationCard from './NegotiationCard';
 import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
@@ -71,6 +73,7 @@ export default function RideView() {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const [selectedTown, setSelectedTown] = useState<TownConfig>(DEFAULT_TOWN);
+  const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 15, userLocation: gpsState.coords, radiusKm: proximityRadius });
   const { suggestions: googleSuggestions, loading: googleLoading, search: searchGoogle, getPlaceDetails, clear: clearGoogleSuggestions } = useGooglePlacesAutocomplete();
@@ -96,12 +99,10 @@ export default function RideView() {
   );
 
   const calculateFare = useCallback(() => {
-    if (!routeData?.distanceKm || !pricingSettings) return null;
-    const tier = VEHICLE_TIERS.find(t => t.id === selectedTier)!;
-    let fare = (pricingSettings.base_fare + routeData.distanceKm * pricingSettings.per_km_rate) * tier.multiplier;
-    fare = Math.max(fare, pricingSettings.min_fare);
-    return { fareR: Math.round(fare), distanceKm: routeData.distanceKm, durationMinutes: routeData.durationMinutes };
-  }, [routeData, pricingSettings, selectedTier]);
+    if (!routeData?.distanceKm) return null;
+    const rec = calculateRecommendedFare(townPricing, routeData.distanceKm, routeData.durationMinutes);
+    return { fareR: rec.recommended, distanceKm: routeData.distanceKm, durationMinutes: routeData.durationMinutes, currencySymbol: rec.currencySymbol, currencyCode: rec.currencyCode };
+  }, [routeData, townPricing]);
   const fareEstimate = calculateFare();
 
   // ── handlers ──
@@ -158,17 +159,24 @@ export default function RideView() {
     } finally { setReverseGeoLoading(false); }
   }, [activeField]);
 
-  const handleRequestRide = async () => {
+  const handleSendOffer = async (customFare: number) => {
     if (!user) { setAuthMode('login'); setAuthModalOpen(true); return; }
     if (!pickupLocation || !dropoffLocation || !fareEstimate) { toast({ title: 'Select pickup and destination', variant: 'destructive' }); return; }
     setIsRequesting(true); setRideStatus('searching');
     try {
-      const result = await requestRide({ pickup_address: pickupLocation.name, pickup_lat: pickupLocation.lat, pickup_lng: pickupLocation.lng, dropoff_address: dropoffLocation.name, dropoff_lat: dropoffLocation.lat, dropoff_lng: dropoffLocation.lng, distance_km: fareEstimate.distanceKm, duration_minutes: fareEstimate.durationMinutes, fare: Math.max(5, fareEstimate.fareR), route_polyline: routeData?.geometry || null, passenger_count: passengerCount, payment_method: paymentMethod, vehicle_type: selectedTier });
+      const result = await requestRide({
+        pickup_address: pickupLocation.name, pickup_lat: pickupLocation.lat, pickup_lng: pickupLocation.lng,
+        dropoff_address: dropoffLocation.name, dropoff_lat: dropoffLocation.lat, dropoff_lng: dropoffLocation.lng,
+        distance_km: fareEstimate.distanceKm, duration_minutes: fareEstimate.durationMinutes,
+        fare: customFare,
+        route_polyline: routeData?.geometry || null, passenger_count: passengerCount,
+        payment_method: paymentMethod, vehicle_type: selectedTier,
+      });
       if (!result.ok) throw new Error(result.error);
       setCurrentRideId(result.ride.id);
-      toast({ title: 'Ride requested!', description: 'Looking for nearby drivers...' });
+      toast({ title: 'Offer sent!', description: `${fareEstimate.currencySymbol}${customFare} — waiting for drivers…` });
       navigate(`/ride/${result.ride.id}`);
-    } catch (error: unknown) { toast({ title: 'Failed to request ride', description: (error as Error).message, variant: 'destructive' }); setRideStatus('idle'); } finally { setIsRequesting(false); }
+    } catch (error: unknown) { toast({ title: 'Failed to send offer', description: (error as Error).message, variant: 'destructive' }); setRideStatus('idle'); } finally { setIsRequesting(false); }
   };
 
   const handleAcceptOffer = async (offerId: string) => { setRideStatus('driver_assigned'); setOffersOpen(false); toast({ title: 'Driver accepted!' }); setMatchedDriver({ name: 'Sipho Ndlovu', car: 'Toyota Corolla', plate: 'ACB 2345', rating: 4.8, eta: 3 }); setTimeout(() => setRideStatus('driver_arriving'), 2000); };
@@ -384,44 +392,17 @@ export default function RideView() {
             )}
           </button>
 
-          {/* ── Ride options ── */}
-          {pickupLocation && dropoffLocation && (
+          {/* ── Negotiation Card (inDrive-style) ── */}
+          {pickupLocation && dropoffLocation && fareEstimate && (
             <>
-              {/* Tier selection */}
-              <div>
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Your ride</p>
-                <div className="space-y-2.5">
-                  {VEHICLE_TIERS.map(tier => {
-                    const isSelected = selectedTier === tier.id;
-                    return (
-                      <button
-                        key={tier.id}
-                        onClick={() => setSelectedTier(tier.id)}
-                        className={cn(
-                          'w-full flex items-center gap-3.5 p-4 rounded-[18px] transition-all active:scale-[0.98] glass-card',
-                          isSelected ? 'glass-glow-blue ring-1 ring-primary/25' : ''
-                        )}
-                      >
-                        <div className={cn("w-13 h-13 rounded-2xl flex items-center justify-center shrink-0", isSelected ? '' : 'bg-muted')} style={isSelected ? { background: 'var(--gradient-primary)', width: 52, height: 52 } : { width: 52, height: 52 }}>
-                          <CarFront className={cn("w-6 h-6", isSelected ? 'text-primary-foreground' : 'text-muted-foreground')} />
-                        </div>
-                        <div className="flex-1 min-w-0 text-left">
-                          <p className={cn('text-[16px] font-medium font-display', isSelected ? 'text-primary' : 'text-foreground')}>{tier.name}</p>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                            <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{tier.passengers}</span>
-                            <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{tier.eta}</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className={cn('text-xl font-bold font-display', isSelected ? 'text-primary' : 'text-foreground')}>
-                            {fareEstimate ? `R${fareEstimate.fareR}` : tier.priceRange}
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              {/* Negotiation Card */}
+              <NegotiationCard
+                pricing={townPricing}
+                distanceKm={fareEstimate.distanceKm}
+                durationMinutes={fareEstimate.durationMinutes}
+                onSendOffer={(fare) => handleSendOffer(fare)}
+                isSubmitting={isRequesting}
+              />
 
               {/* Payment Method */}
               <div>
@@ -442,28 +423,6 @@ export default function RideView() {
                   ))}
                 </div>
               </div>
-
-              {/* CTA — Confirm Ride */}
-              <Button
-                onClick={handleRequestRide}
-                disabled={!canRequestRide}
-                className={cn(
-                  'w-full h-[56px] text-[16px] font-medium rounded-2xl transition-all gap-2 active:scale-[0.97]',
-                  canRequestRide
-                    ? 'bg-accent hover:bg-accent/90 text-accent-foreground shadow-[0_4px_24px_hsl(45_100%_51%/0.35)]'
-                    : 'bg-muted text-muted-foreground'
-                )}
-              >
-                {isRequesting ? <><Loader2 className="w-5 h-5 animate-spin" /> Finding drivers…</> : !user ? 'Sign in to continue' : canRequestRide ? 'Confirm Ride' : 'Select locations'}
-              </Button>
-
-              {/* Negotiate */}
-              <button
-                onClick={() => user ? navigate('/negotiate/request') : setAuthModalOpen(true)}
-                className="w-full flex items-center justify-center gap-2 text-sm font-medium py-3.5 rounded-[18px] glass-card text-primary hover:text-primary/80 transition-colors active:scale-[0.98]"
-              >
-                <Zap className="w-4 h-4" /> Send Offer — Negotiate Price <ChevronRight className="w-4 h-4" />
-              </button>
 
               {/* Cancel */}
               {rideStatus !== 'idle' && (

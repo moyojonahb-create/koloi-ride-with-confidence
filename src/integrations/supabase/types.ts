@@ -590,6 +590,7 @@ export type Database = {
       }
       offers: {
         Row: {
+          counter_offer: number | null
           created_at: string
           driver_id: string
           eta_minutes: number | null
@@ -600,6 +601,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          counter_offer?: number | null
           created_at?: string
           driver_id: string
           eta_minutes?: number | null
@@ -610,6 +612,7 @@ export type Database = {
           status?: string
         }
         Update: {
+          counter_offer?: number | null
           created_at?: string
           driver_id?: string
           eta_minutes?: number | null
@@ -1007,6 +1010,7 @@ export type Database = {
           route_polyline: string | null
           scheduled_at: string | null
           status: string
+          town_id: string | null
           updated_at: string
           user_id: string
           vehicle_type: string
@@ -1030,6 +1034,7 @@ export type Database = {
           route_polyline?: string | null
           scheduled_at?: string | null
           status?: string
+          town_id?: string | null
           updated_at?: string
           user_id: string
           vehicle_type?: string
@@ -1053,6 +1058,7 @@ export type Database = {
           route_polyline?: string | null
           scheduled_at?: string | null
           status?: string
+          town_id?: string | null
           updated_at?: string
           user_id?: string
           vehicle_type?: string
@@ -1118,6 +1124,66 @@ export type Database = {
           entity_type?: string | null
           event_type?: string
           id?: string
+        }
+        Relationships: []
+      }
+      town_pricing: {
+        Row: {
+          base_fare: number
+          created_at: string
+          currency_code: string
+          currency_symbol: string
+          demand_multiplier: number
+          id: string
+          is_negotiation_enabled: boolean
+          minimum_fare: number
+          night_multiplier: number
+          offer_ceiling: number
+          offer_floor: number
+          per_km_rate: number
+          short_trip_fare: number
+          short_trip_km: number
+          town_id: string
+          town_name: string
+          updated_at: string
+        }
+        Insert: {
+          base_fare?: number
+          created_at?: string
+          currency_code?: string
+          currency_symbol?: string
+          demand_multiplier?: number
+          id?: string
+          is_negotiation_enabled?: boolean
+          minimum_fare?: number
+          night_multiplier?: number
+          offer_ceiling?: number
+          offer_floor?: number
+          per_km_rate?: number
+          short_trip_fare?: number
+          short_trip_km?: number
+          town_id: string
+          town_name: string
+          updated_at?: string
+        }
+        Update: {
+          base_fare?: number
+          created_at?: string
+          currency_code?: string
+          currency_symbol?: string
+          demand_multiplier?: number
+          id?: string
+          is_negotiation_enabled?: boolean
+          minimum_fare?: number
+          night_multiplier?: number
+          offer_ceiling?: number
+          offer_floor?: number
+          per_km_rate?: number
+          short_trip_fare?: number
+          short_trip_km?: number
+          town_id?: string
+          town_name?: string
+          updated_at?: string
         }
         Relationships: []
       }
