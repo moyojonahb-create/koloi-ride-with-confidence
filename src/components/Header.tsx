@@ -59,7 +59,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
             </a>
             {!loading &&
               (user ? (
-                <UserMenu onFavoritesClick={onFavoritesClick} onHistoryClick={onHistoryClick} variant="light" />
+                <UserMenu onFavoritesClick={onFavoritesClick} onHistoryClick={onHistoryClick} />
               ) : (
                 <>
                   <button
