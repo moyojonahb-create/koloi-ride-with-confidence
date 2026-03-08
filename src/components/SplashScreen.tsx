@@ -134,11 +134,11 @@ const SplashScreen = ({ onComplete, duration = 6000 }: SplashScreenProps) => {
                 src={voyexLogo}
                 alt="Voyex"
                 style={{
-                  width: 130,
-                  height: 130,
+                  width: 140,
+                  height: 140,
                   objectFit: 'contain',
-                  borderRadius: '50%',
                 }}
+              />
               />
             </div>
           </div>
