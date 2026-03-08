@@ -87,7 +87,8 @@ export default {
         '4xl': '2rem',
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        sans: ['Sora', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        display: ['Space Grotesk', 'Sora', 'sans-serif'],
       },
       boxShadow: {
         'koloi-xs': 'var(--shadow-xs)',

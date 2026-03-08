@@ -1,137 +1,132 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Voyex Design System - Native mobile-first ride-hailing platform */
+/* Voyex Design System — Tesla glass × Uber map-first */
 
 @layer base {
   :root {
-    /* Core brand: Primary #0B3D91, Secondary #FFC107, Accent #111111, Background #F5F7FA */
-    --background: 216 33% 97%;
-    --foreground: 0 0% 7%;
+    /* ─── Core palette (HSL) ─── */
+    --background: 225 27% 97%;
+    --foreground: 0 0% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --popover-foreground: 0 0% 10%;
 
-    /* Primary - Voyex Blue #0B3D91 */
-    --primary: 215 85% 31%;
+    /* Primary — Voyex blue gradient anchor #0B3C8A */
+    --primary: 217 85% 29%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Light surfaces */
-    --secondary: 216 33% 95%;
-    --secondary-foreground: 0 0% 7%;
+    /* Primary light end #2F80ED */
+    --primary-light: 213 83% 56%;
 
-    /* Muted elements */
-    --muted: 216 20% 94%;
-    --muted-foreground: 215 10% 50%;
+    --secondary: 225 27% 95%;
+    --secondary-foreground: 0 0% 10%;
 
-    /* Accent - Gold #FFC107 */
+    --muted: 225 20% 94%;
+    --muted-foreground: 217 12% 50%;
+
+    /* Accent — Gold #FFC107 */
     --accent: 45 100% 51%;
-    --accent-foreground: 0 0% 7%;
+    --accent-foreground: 0 0% 10%;
 
-    /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders and inputs */
-    --border: 215 20% 90%;
-    --input: 215 20% 90%;
-    --ring: 215 85% 31%;
+    --border: 217 20% 90%;
+    --input: 217 20% 90%;
+    --ring: 217 85% 29%;
 
     --radius: 0.75rem;
 
     /* Sidebar */
-    --sidebar-background: 215 85% 31%;
+    --sidebar-background: 217 85% 29%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 45 100% 51%;
-    --sidebar-primary-foreground: 0 0% 7%;
-    --sidebar-accent: 215 70% 40%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 217 70% 40%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 215 70% 35%;
+    --sidebar-border: 217 70% 35%;
     --sidebar-ring: 45 100% 51%;
 
-    /* Custom Voyex tokens */
-    --koloi-blue: 215 85% 31%;
-    --koloi-blue-dark: 215 90% 22%;
-    --koloi-blue-light: 215 60% 50%;
+    /* Koloi legacy tokens */
+    --koloi-blue: 217 85% 29%;
+    --koloi-blue-dark: 217 90% 22%;
+    --koloi-blue-light: 213 83% 56%;
     --koloi-yellow: 45 100% 51%;
     --koloi-yellow-light: 45 100% 70%;
     --koloi-white: 0 0% 100%;
-    --koloi-dark: 0 0% 7%;
-    --koloi-gray-100: 216 33% 98%;
-    --koloi-gray-200: 216 33% 95%;
-    --koloi-gray-300: 215 20% 90%;
-    --koloi-gray-400: 215 15% 75%;
-    --koloi-gray-500: 215 10% 55%;
-    --koloi-gray-600: 215 10% 45%;
-    --koloi-gray-700: 215 15% 30%;
-    --koloi-gray-800: 215 20% 20%;
-    --koloi-gray-900: 0 0% 7%;
+    --koloi-dark: 0 0% 10%;
+    --koloi-gray-100: 225 27% 98%;
+    --koloi-gray-200: 225 27% 95%;
+    --koloi-gray-300: 217 20% 90%;
+    --koloi-gray-400: 217 15% 75%;
+    --koloi-gray-500: 217 10% 55%;
+    --koloi-gray-600: 217 10% 45%;
+    --koloi-gray-700: 217 15% 30%;
+    --koloi-gray-800: 217 20% 20%;
+    --koloi-gray-900: 0 0% 10%;
 
-    /* Shadows */
-    --shadow-xs: 0 1px 2px 0 hsl(215 25% 0% / 0.03);
-    --shadow-sm: 0 2px 4px -1px hsl(215 25% 0% / 0.06), 0 1px 2px -1px hsl(215 25% 0% / 0.04);
-    --shadow-md: 0 6px 16px -4px hsl(215 25% 0% / 0.08), 0 2px 6px -2px hsl(215 25% 0% / 0.05);
-    --shadow-lg: 0 12px 28px -8px hsl(215 25% 0% / 0.12), 0 4px 10px -4px hsl(215 25% 0% / 0.06);
-    --shadow-xl: 0 24px 48px -12px hsl(215 25% 0% / 0.15), 0 12px 24px -8px hsl(215 25% 0% / 0.08);
-    --shadow-card: 0 8px 32px -8px hsl(215 25% 0% / 0.1), 0 4px 12px -4px hsl(215 25% 0% / 0.05);
-    --shadow-phone: 0 32px 64px -16px hsl(215 25% 0% / 0.35);
+    /* ─── Shadows ─── */
+    --shadow-xs: 0 1px 2px 0 hsl(217 25% 0% / 0.03);
+    --shadow-sm: 0 2px 4px -1px hsl(217 25% 0% / 0.06), 0 1px 2px -1px hsl(217 25% 0% / 0.04);
+    --shadow-md: 0 6px 16px -4px hsl(217 25% 0% / 0.08), 0 2px 6px -2px hsl(217 25% 0% / 0.05);
+    --shadow-lg: 0 12px 28px -8px hsl(217 25% 0% / 0.12), 0 4px 10px -4px hsl(217 25% 0% / 0.06);
+    --shadow-xl: 0 24px 48px -12px hsl(217 25% 0% / 0.15), 0 12px 24px -8px hsl(217 25% 0% / 0.08);
+    --shadow-card: 0 12px 30px -8px hsl(0 0% 0% / 0.08);
+    --shadow-phone: 0 32px 64px -16px hsl(217 25% 0% / 0.35);
     --shadow-glow: 0 0 24px hsl(var(--accent) / 0.25);
 
-    /* Glassmorphism */
-    --glass-bg: hsl(0 0% 100% / 0.65);
-    --glass-bg-heavy: hsl(0 0% 100% / 0.8);
-    --glass-border: hsl(0 0% 100% / 0.4);
-    --glass-border-light: hsl(215 85% 31% / 0.08);
-    --glass-blur: blur(20px);
-    --glass-blur-heavy: blur(32px);
-    --glass-shadow: 0 8px 32px hsl(215 85% 31% / 0.08), 0 2px 8px hsl(0 0% 0% / 0.04);
-    --glass-shadow-lg: 0 16px 48px hsl(215 85% 31% / 0.12), 0 4px 16px hsl(0 0% 0% / 0.06);
-    --glass-glow-blue: 0 0 0 1px hsl(215 85% 31% / 0.12), 0 0 20px hsl(215 85% 31% / 0.06);
+    /* ─── Glassmorphism ─── */
+    --glass-bg: hsla(0, 0%, 100%, 0.65);
+    --glass-bg-heavy: hsla(0, 0%, 100%, 0.82);
+    --glass-border: hsla(0, 0%, 100%, 0.35);
+    --glass-border-light: hsl(217 85% 29% / 0.08);
+    --glass-blur: blur(18px);
+    --glass-blur-heavy: blur(28px);
+    --glass-shadow: 0 12px 30px hsl(0 0% 0% / 0.08);
+    --glass-shadow-lg: 0 16px 48px hsl(217 85% 29% / 0.10), 0 4px 16px hsl(0 0% 0% / 0.06);
+    --glass-glow-blue: 0 0 0 1px hsl(217 85% 29% / 0.12), 0 0 20px hsl(217 85% 29% / 0.06);
     --glass-glow-yellow: 0 0 0 1px hsl(45 100% 51% / 0.15), 0 0 20px hsl(45 100% 51% / 0.08);
+
+    /* ─── Gradients ─── */
+    --gradient-primary: linear-gradient(135deg, hsl(217 85% 29%), hsl(213 83% 56%));
+    --gradient-accent: linear-gradient(135deg, hsl(45 100% 51%), hsl(40 100% 60%));
   }
 
   .dark {
-    --background: 215 85% 10%;
+    --background: 217 85% 10%;
     --foreground: 0 0% 98%;
-
-    --card: 215 80% 16%;
+    --card: 217 80% 16%;
     --card-foreground: 0 0% 98%;
-
-    --popover: 215 80% 16%;
+    --popover: 217 80% 16%;
     --popover-foreground: 0 0% 98%;
-
     --primary: 45 100% 51%;
-    --primary-foreground: 0 0% 7%;
-
-    --secondary: 215 70% 20%;
+    --primary-foreground: 0 0% 10%;
+    --primary-light: 213 83% 56%;
+    --secondary: 217 70% 20%;
     --secondary-foreground: 0 0% 98%;
-
-    --muted: 215 70% 20%;
-    --muted-foreground: 215 20% 70%;
-
+    --muted: 217 70% 20%;
+    --muted-foreground: 217 20% 70%;
     --accent: 45 100% 51%;
-    --accent-foreground: 0 0% 7%;
-
+    --accent-foreground: 0 0% 10%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 215 70% 22%;
-    --input: 215 70% 22%;
+    --border: 217 70% 22%;
+    --input: 217 70% 22%;
     --ring: 45 100% 51%;
-
-    --sidebar-background: 215 85% 8%;
+    --sidebar-background: 217 85% 8%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 45 100% 51%;
-    --sidebar-primary-foreground: 0 0% 7%;
-    --sidebar-accent: 215 80% 16%;
+    --sidebar-primary-foreground: 0 0% 10%;
+    --sidebar-accent: 217 80% 16%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 215 80% 16%;
+    --sidebar-border: 217 80% 16%;
     --sidebar-ring: 45 100% 51%;
   }
 }
@@ -150,7 +145,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
     font-feature-settings: 'cv11', 'ss01';
     letter-spacing: -0.011em;
   }
@@ -160,35 +155,21 @@
   }
 
   h1, h2, h3, h4 {
+    font-family: 'Space Grotesk', 'Sora', sans-serif;
     letter-spacing: -0.025em;
-    font-weight: 700;
+    font-weight: 600;
   }
 }
 
+/* ─── Glass utility classes ─── */
 @layer components {
-  .koloi-container {
-    @apply max-w-7xl mx-auto px-5 sm:px-6 lg:px-8;
-  }
-
-  .koloi-card {
-    @apply bg-card rounded-2xl shadow-[var(--shadow-card)] p-5 transition-shadow duration-200 hover:shadow-[var(--shadow-lg)];
-  }
-
-  .koloi-card-glass {
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    @apply rounded-2xl p-5;
-  }
-
   .glass-card {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
+    border-radius: 22px;
   }
 
   .glass-card-heavy {
@@ -197,6 +178,7 @@
     -webkit-backdrop-filter: var(--glass-blur-heavy);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow-lg);
+    border-radius: 22px;
   }
 
   .glass-btn {
@@ -213,6 +195,23 @@
 
   .glass-glow-yellow {
     box-shadow: var(--glass-glow-yellow);
+  }
+
+  .koloi-container {
+    @apply max-w-7xl mx-auto px-5 sm:px-6 lg:px-8;
+  }
+
+  .koloi-card {
+    @apply bg-card rounded-2xl shadow-[var(--shadow-card)] p-5 transition-shadow duration-200 hover:shadow-[var(--shadow-lg)];
+  }
+
+  .koloi-card-glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    @apply rounded-2xl p-5;
   }
 
   .koloi-input {
@@ -269,6 +268,10 @@
     text-wrap: balance;
   }
 
+  .font-display {
+    font-family: 'Space Grotesk', 'Sora', sans-serif;
+  }
+
   .animate-fade-in {
     animation: fadeIn 0.25s ease-out;
   }
@@ -307,6 +310,7 @@
   }
 }
 
+/* ─── Misc global ─── */
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -315,7 +319,6 @@
   background: transparent !important;
   border: none !important;
 }
-
 .custom-marker > div {
   display: flex;
   flex-direction: column;
@@ -325,7 +328,6 @@
 .driver-marker > div {
   animation: driverPulse 2s ease-in-out infinite;
 }
-
 @keyframes driverPulse {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.1); opacity: 0.9; }
@@ -336,20 +338,13 @@
   border-radius: 12px;
   overflow: hidden;
 }
-
-.landmark-popup .leaflet-popup-content {
-  margin: 0;
-}
-
-.landmark-popup .leaflet-popup-tip {
-  background: white;
-}
+.landmark-popup .leaflet-popup-content { margin: 0; }
+.landmark-popup .leaflet-popup-tip { background: white; }
 
 .leaflet-control-layers {
   border-radius: 12px !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
 }
-
 .leaflet-control-zoom a {
   border-radius: 8px !important;
 }
@@ -358,14 +353,8 @@
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-
 .map-shimmer {
-  background: linear-gradient(
-    90deg,
-    hsl(var(--muted)) 0%,
-    hsl(var(--muted-foreground) / 0.08) 40%,
-    hsl(var(--muted)) 80%
-  );
+  background: linear-gradient(90deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.08) 40%, hsl(var(--muted)) 80%);
   background-size: 200% 100%;
   animation: mapShimmer 1.8s ease-in-out infinite;
 }
