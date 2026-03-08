@@ -213,7 +213,7 @@ export function useAgoraCall({
 
   const startCall = useCallback(async () => {
     if (!rideId || !currentUserId || !otherUserId) {
-      console.error("[AgoraCall] startCall missing params:", { rideId, currentUserId, otherUserId });
+      
       toast.error("Cannot start call", { description: "Missing ride or user info" });
       return;
     }
