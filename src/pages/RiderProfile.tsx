@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
 import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
 import RiderBottomNav from '@/components/ride/RiderBottomNav';
 
