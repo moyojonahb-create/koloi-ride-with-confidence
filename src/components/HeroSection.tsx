@@ -103,7 +103,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     isTrafficAware: googleRoute.isTrafficAware,
   } : null;
 
-  // Calculate fare using Koloi pricing system with ROUTED distance as authoritative source
+  // Calculate fare using Voyex pricing system with ROUTED distance as authoritative source
   // This ensures pricing is consistent and not affected by search/autocomplete distances
   const fareResult: FareResult | null = pickupCoords && dropoffCoords 
     ? calculateKoloiFare(
