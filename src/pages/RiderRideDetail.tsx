@@ -31,7 +31,7 @@ import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
-import RiderBottomNav from "@/components/ride/RiderBottomNav";
+
 import TripReceipt from "@/components/ride/TripReceipt";
 import ShareTripButton from "@/components/ride/ShareTripButton";
 
@@ -523,8 +523,6 @@ export default function RiderRideDetail() {
         </div>
       </div>
 
-      {/* Bottom Nav */}
-      <RiderBottomNav />
 
       {/* Modals */}
       <OffersModal

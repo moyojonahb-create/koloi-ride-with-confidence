@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import VoyexLogo from '@/components/VoyexLogo';
-import RiderBottomNav from '@/components/ride/RiderBottomNav';
+
 
 export default function EditProfile() {
   const { user, loading: authLoading } = useAuth();
@@ -188,7 +188,7 @@ export default function EditProfile() {
         </Button>
       </div>
 
-      <RiderBottomNav activeTab="profile" />
+      
     </div>
   );
 }
