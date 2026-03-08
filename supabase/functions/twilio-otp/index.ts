@@ -49,7 +49,7 @@ serve(async (req) => {
         body: new URLSearchParams({
           To: phone,
           From: TWILIO_PHONE_NUMBER,
-          Body: `Your PickMe verification code is: ${otp}. Valid for 10 minutes.`,
+          Body: `Your Voyex verification code is: ${otp}. Valid for 10 minutes.`,
         }),
       });
 

@@ -45,7 +45,7 @@ const DriveSection = () => {
               Drive when you want, earn what you need
             </h2>
             <p className="text-primary-foreground/80 text-lg mb-10 leading-relaxed max-w-lg">
-              Join thousands of drivers earning on their own terms. Whether you need extra income or want to make driving your career, PickMe has you covered.
+              Join thousands of drivers earning on their own terms. Whether you need extra income or want to make driving your career, Voyex has you covered.
             </p>
 
             <div className="space-y-5 mb-10">

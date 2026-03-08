@@ -27,7 +27,7 @@ const BusinessSection = () => {
               Transform how your company moves
             </h2>
             <p className="text-muted-foreground text-lg mb-10 leading-relaxed max-w-lg">
-              Give your team the flexibility to travel on their terms while keeping complete control over costs. From startups to enterprises, PickMe Business scales with you.
+              Give your team the flexibility to travel on their terms while keeping complete control over costs. From startups to enterprises, Voyex Business scales with you.
             </p>
 
             <div className="space-y-5 mb-10">

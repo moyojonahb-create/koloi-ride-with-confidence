@@ -21,7 +21,7 @@ export const VEHICLE_TYPES: VehicleType[] = [
   },
 ];
 
-// Legacy function for backward compatibility - now uses Koloi pricing
+// Legacy function for backward compatibility - now uses Voyex pricing
 export const calculateFareForVehicle = (
   distanceKm: number,
   _vehicleType: VehicleType,

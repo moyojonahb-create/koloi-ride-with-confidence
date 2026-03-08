@@ -18,7 +18,7 @@ const suggestions = [
   {
     id: 'business',
     icon: Briefcase,
-    title: 'PickMe for Business',
+    title: 'Voyex for Business',
     description: 'Transform the way your company moves and feeds its people.',
     href: '#business',
   },

@@ -46,7 +46,7 @@ const AuthModalWrapper = forwardRef<HTMLDivElement, AuthModalWrapperProps>(
 
             {/* Terms */}
             <p className="text-xs text-muted-foreground mt-6 text-center">
-              By proceeding, you agree to PickMe's{' '}
+              By proceeding, you agree to Voyex's{' '}
               <a href="#" className="underline hover:text-foreground">Terms of Service</a>
               {' '}and{' '}
               <a href="#" className="underline hover:text-foreground">Privacy Policy</a>

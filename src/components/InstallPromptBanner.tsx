@@ -117,7 +117,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
           {isIOS ? (
             <div className="space-y-4">
               <p className="text-gray-600 text-center text-sm">
-                Install PickMe for the best experience:
+                Install Voyex for the best experience:
               </p>
               <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
                 <div className="flex items-center gap-3">
