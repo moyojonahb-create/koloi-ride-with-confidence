@@ -26,6 +26,8 @@ import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 import RiderBottomNav from './RiderBottomNav';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
+import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
+import TownSelectorSheet from './TownSelectorSheet';
 
 // ── types ──
 interface SelectedLocation { name: string; lat: number; lng: number; }
@@ -68,6 +70,7 @@ export default function RideView() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [sheetExpanded, setSheetExpanded] = useState(false);
+  const [selectedTown, setSelectedTown] = useState<TownConfig>(DEFAULT_TOWN);
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 15, userLocation: gpsState.coords, radiusKm: proximityRadius });
   const { suggestions: googleSuggestions, loading: googleLoading, search: searchGoogle, getPlaceDetails, clear: clearGoogleSuggestions } = useGooglePlacesAutocomplete();
@@ -106,7 +109,7 @@ export default function RideView() {
     if (!navigator.geolocation) { setGpsState({ status: 'unavailable', coords: null, error: 'Geolocation not supported' }); return; }
     setGpsState(prev => ({ ...prev, status: 'loading', error: null }));
     navigator.geolocation.getCurrentPosition(
-      pos => { const c = { lat: pos.coords.latitude, lng: pos.coords.longitude }; setGpsState({ status: 'success', coords: c, error: null }); setPickupLocation({ name: 'My location', lat: c.lat, lng: c.lng }); setActiveField(null); },
+      pos => { const c = { lat: pos.coords.latitude, lng: pos.coords.longitude }; setGpsState({ status: 'success', coords: c, error: null }); setPickupLocation({ name: 'My location', lat: c.lat, lng: c.lng }); setActiveField(null); setSelectedTown(detectTown(c.lat, c.lng)); },
       err => { setGpsState({ status: 'denied', coords: null, error: err.code === err.PERMISSION_DENIED ? 'Location access denied' : 'Unable to get location' }); },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -336,6 +339,11 @@ export default function RideView() {
         </div>
 
         <div className="px-5 pb-5 space-y-4 pt-1">
+          {/* Town selector */}
+          <div className="flex items-center justify-between">
+            <TownSelectorSheet currentTown={selectedTown} onSelect={(town) => { setSelectedTown(town); setPickupLocation(null); setDropoffLocation(null); }} />
+            <p className="text-xs text-muted-foreground">{selectedTown.radiusKm}km service area</p>
+          </div>
           {/* ── Pickup card ── */}
           <button
             onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
