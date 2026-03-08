@@ -14,7 +14,7 @@ export function useDriverTracking(
   const [position, setPosition] = useState<DriverPosition | null>(null);
   const channelRef = useRef<RealtimeChannel | null>(null);
 
-  const isActive = driverUserId && ["accepted", "in_progress", "arrived"].includes(rideStatus ?? "");
+  const isActive = driverUserId && ["accepted", "in_progress", "arrived", "enroute_pickup"].includes(rideStatus ?? "");
 
   useEffect(() => {
     if (!isActive || !driverUserId) {
