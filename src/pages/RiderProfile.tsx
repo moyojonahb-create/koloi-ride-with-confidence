@@ -11,7 +11,7 @@ import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
 import VoyexLogo from '@/components/VoyexLogo';
 import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
-import RiderBottomNav from '@/components/ride/RiderBottomNav';
+
 
 export default function RiderProfile() {
   const { user, signOut } = useAuth();
