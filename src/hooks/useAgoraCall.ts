@@ -107,9 +107,7 @@ export function useAgoraCall({
           }
         }
       )
-      .subscribe((status) => {
-        console.log("[AgoraCall] Realtime subscription status:", status);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
