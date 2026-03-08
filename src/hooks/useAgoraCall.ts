@@ -68,7 +68,7 @@ export function useAgoraCall({
         },
         (payload) => {
           const session = payload.new as Record<string, unknown>;
-          console.log("[AgoraCall] INSERT received:", session.status, session.id);
+          
           if (session.status === "ringing" && callStatusRef.current === "idle") {
             setIncomingCall({
               sessionId: session.id as string,
