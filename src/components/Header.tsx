@@ -134,7 +134,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                       }}
                       variant="outline"
                       size="lg"
-                      className="w-full border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
+                      className="w-full border-2 border-border text-foreground hover:bg-muted bg-transparent"
                     >
                       Log in
                     </Button>
