@@ -38,8 +38,8 @@ const QuickPickChips = ({ onSelect, selectedName, className, userLocation }: Qui
               'inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all',
               'min-h-[44px] active:scale-95',
               isSelected
-                ? 'bg-accent text-accent-foreground shadow-koloi-sm'
-                : 'bg-koloi-gray-100 text-foreground hover:bg-koloi-gray-200'
+                ? 'bg-accent text-accent-foreground shadow-voyex-sm'
+                : 'bg-voyex-gray-100 text-foreground hover:bg-voyex-gray-200'
             )}
           >
             <Icon className="w-4 h-4 shrink-0" />

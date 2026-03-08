@@ -25,7 +25,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card backdrop-blur-xl border-b border-border/30 shadow-sm">
-      <div className="koloi-container">
+      <div className="voyex-container">
         <nav className="flex items-center justify-between h-[60px] lg:h-[64px]">
           {/* Logo */}
           <a href="/" className="shrink-0 -ml-2">

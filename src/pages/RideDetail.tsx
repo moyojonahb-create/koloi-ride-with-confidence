@@ -291,7 +291,7 @@ export default function RideDetail() {
 
           {/* Chat */}
           {accepted && (
-            <div id="koloi-chat" className="glass-card rounded-2xl p-4">
+            <div id="voyex-chat" className="glass-card rounded-2xl p-4">
               <h3 className="font-bold text-lg mb-3 text-foreground">Chat</h3>
               <div className="h-48 overflow-y-auto space-y-2 mb-3 bg-foreground/[0.02] rounded-xl p-3">
                 {messages.length === 0 ? (
