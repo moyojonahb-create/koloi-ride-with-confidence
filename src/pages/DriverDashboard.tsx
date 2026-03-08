@@ -58,6 +58,7 @@ import { useAgoraCall } from "@/hooks/useAgoraCall";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
+import DriverEarningsDashboard from "@/components/driver/DriverEarningsDashboard";
 type Ride = {
   id: string;
   user_id: string;
@@ -546,6 +547,10 @@ export default function DriverDashboard() {
             <p className="text-[10px] text-primary-foreground/70 font-medium">Wallet</p>
           </div>
         </div>
+
+        {/* Earnings Dashboard */}
+        <DriverEarningsDashboard />
+
         {/* Trial Banner */}
         {profile && trialActive && (
           <Card className="border-amber-500 bg-amber-500/10">
