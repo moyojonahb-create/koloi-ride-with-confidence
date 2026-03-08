@@ -20,10 +20,11 @@ interface Props {
   initialEcocash?: string;
 }
 
-export default function DriverSettingsPanel({ driverId, initialArea = 'both', initialEarningNotif = true }: Props) {
+export default function DriverSettingsPanel({ driverId, initialArea = 'both', initialEarningNotif = true, initialEcocash = '' }: Props) {
   const { user } = useAuth();
   const [area, setArea] = useState(initialArea);
   const [earningNotif, setEarningNotif] = useState(initialEarningNotif);
+  const [ecocash, setEcocash] = useState(initialEcocash);
 
   const updateField = async (field: string, value: unknown) => {
     if (!user) return;
