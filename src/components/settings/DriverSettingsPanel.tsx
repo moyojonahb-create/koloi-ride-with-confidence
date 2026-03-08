@@ -83,6 +83,23 @@ export default function DriverSettingsPanel({ driverId, initialArea = 'both', in
           </div>
           <Switch checked={earningNotif} onCheckedChange={handleEarningNotif} />
         </div>
+
+        {/* EcoCash Number */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <Phone className="w-5 h-5 text-muted-foreground shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-foreground">EcoCash Number</p>
+              <p className="text-xs text-muted-foreground">Riders can pay you directly to this number</p>
+            </div>
+          </div>
+          <Input
+            value={ecocash}
+            onChange={(e) => setEcocash(e.target.value)}
+            onBlur={() => updateField('ecocash_number', ecocash.trim() || null)}
+            placeholder="e.g. 0771234567"
+          />
+        </div>
       </CardContent>
     </Card>
   );
