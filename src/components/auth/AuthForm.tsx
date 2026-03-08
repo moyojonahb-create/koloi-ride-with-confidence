@@ -437,7 +437,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
 
         <Button 
           type="submit" 
-          className="w-full mt-6 koloi-btn-primary"
+          className="w-full mt-6 voyex-btn-primary"
           disabled={loading}
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
