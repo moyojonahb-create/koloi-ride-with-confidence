@@ -82,7 +82,7 @@ const Signup = () => {
     setIsSubmitting(true);
     try {
       // Use email if provided, otherwise generate one from phone
-      const email = formData.email || `${formData.phone.replace(/\+/g, '')}@pickme.phone`;
+      const email = formData.email || `${formData.phone.replace(/\+/g, '')}@voyex.phone`;
       
       const { error } = await signUp(email, formData.password, formData.fullName);
       
