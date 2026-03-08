@@ -78,7 +78,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-3 hover:bg-primary-foreground/10 text-primary-foreground rounded-2xl active:scale-90 transition-all"
+            className="lg:hidden p-3 hover:bg-muted text-foreground rounded-2xl active:scale-90 transition-all"
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
