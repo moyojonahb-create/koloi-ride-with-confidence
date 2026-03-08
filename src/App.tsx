@@ -102,6 +102,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/deposits" element={<PageTransition><AdminDepositsPage /></PageTransition>} />
         <Route path="/admin/ledger" element={<PageTransition><AdminLedger /></PageTransition>} />
         <Route path="/admin/town-pricing" element={<PageTransition><AdminTownPricing /></PageTransition>} />
+        <Route path="/admin/rider-deposits" element={<PageTransition><AdminRiderDepositsPage /></PageTransition>} />
 
         {/* Negotiate / inDrive-style */}
         <Route path="/negotiate/request" element={<PageTransition><RiderRequestScreen /></PageTransition>} />
