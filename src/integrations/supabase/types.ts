@@ -990,6 +990,51 @@ export type Database = {
         }
         Relationships: []
       }
+      rider_deposit_requests: {
+        Row: {
+          admin_note: string | null
+          amount_usd: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          id: string
+          payment_method: string
+          phone_number: string
+          proof_path: string | null
+          reference: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount_usd: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          payment_method?: string
+          phone_number: string
+          proof_path?: string | null
+          reference: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount_usd?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          payment_method?: string
+          phone_number?: string
+          proof_path?: string | null
+          reference?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rides: {
         Row: {
           created_at: string
@@ -1351,6 +1396,10 @@ export type Database = {
     }
     Functions: {
       admin_approve_deposit: {
+        Args: { p_deposit_id: string; p_note?: string }
+        Returns: Json
+      }
+      admin_approve_rider_deposit: {
         Args: { p_deposit_id: string; p_note?: string }
         Returns: Json
       }
