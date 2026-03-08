@@ -123,7 +123,6 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                         setIsMobileMenuOpen(false);
                         onHistoryClick();
                       }}
-                      variant="light"
                     />
                   </div>
                 ) : (
