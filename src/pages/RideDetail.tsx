@@ -220,7 +220,7 @@ export default function RideDetail() {
             tripStatus={ride.status ?? "pending"}
             height="100%" />
         )}
-        <div className="absolute top-0 left-0 right-0 h-32 z-10 pointer-events-none bg-gradient-to-b from-primary/15 via-primary/5 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-28 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, hsl(217 85% 29% / 0.12), transparent)' }} />
       </div>
 
       {/* Glass header */}
