@@ -39,7 +39,7 @@ export default function NegotiationCard({
   const isBelowRecommended = customFare < fareCalc.recommended;
 
   return (
-    <div className={cn('glass-card rounded-2xl p-5 space-y-4 glass-glow-blue', className)}>
+    <div className={cn('glass-card rounded-2xl p-4 space-y-3 glass-glow-blue', className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
