@@ -118,15 +118,6 @@ const Signup = () => {
 
   const renderStep = () => {
     switch (step) {
-      case 'verify-phone':
-        return (
-          <PhoneOtpVerification
-            phone={formData?.phone || ''}
-            onVerified={onPhoneVerified}
-            onBack={() => setStep('details')}
-          />
-        );
-
       default:
         return (
           <>
