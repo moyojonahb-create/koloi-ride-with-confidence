@@ -30,7 +30,7 @@ const PhoneMockup = () => {
             <svg className="absolute inset-0 w-full h-full opacity-15" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-voyex-gray-500"/>
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-voyex-gray-500" />
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#grid)" />
@@ -44,14 +44,14 @@ const PhoneMockup = () => {
                   <stop offset="100%" stopColor="hsl(215 80% 55%)" />
                 </linearGradient>
               </defs>
-              <path 
-                d="M 80 260 Q 120 180, 160 160 T 220 90" 
-                fill="none" 
-                stroke="url(#routeGradient)" 
-                strokeWidth="5" 
+              <path
+                d="M 80 260 Q 120 180, 160 160 T 220 90"
+                fill="none"
+                stroke="url(#routeGradient)"
+                strokeWidth="5"
                 strokeLinecap="round"
-                strokeDasharray="0"
-              />
+                strokeDasharray="0" />
+              
             </svg>
 
             {/* Pickup Pin - Yellow with shadow */}
@@ -86,7 +86,7 @@ const PhoneMockup = () => {
                 <div className="absolute inset-0 bg-primary/30 rounded-full animate-ping" />
                 <div className="w-9 h-9 bg-voyex-white rounded-full shadow-voyex-md flex items-center justify-center rotate-45">
                   <svg className="w-5 h-5 text-voyex-gray-800" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+                    <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
                   </svg>
                 </div>
               </div>
@@ -102,11 +102,11 @@ const PhoneMockup = () => {
             <div className="space-y-2.5 mb-5">
               <div className="flex items-center gap-3 p-3 bg-voyex-gray-100 rounded-2xl">
                 <div className="w-3 h-3 rounded-full bg-accent shadow-sm" />
-                <span className="text-sm text-voyex-gray-800 font-medium">Gwanda Rank</span>
+                <span className="text-sm text-voyex-gray-800 font-medium">​Harare City </span>
               </div>
               <div className="flex items-center gap-3 p-3 bg-voyex-gray-100 rounded-2xl">
                 <div className="w-3 h-3 rounded-full bg-primary shadow-sm" />
-                <span className="text-sm text-voyex-gray-800 font-medium">Phakama Shops</span>
+                <span className="text-sm text-voyex-gray-800 font-medium">​Bulawayo City  </span>
               </div>
             </div>
 
@@ -126,8 +126,8 @@ const PhoneMockup = () => {
         {/* Home indicator */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-voyex-gray-600 rounded-full" />
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default PhoneMockup;
