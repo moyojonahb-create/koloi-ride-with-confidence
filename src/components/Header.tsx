@@ -64,7 +64,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                 <>
                   <button
                     onClick={onLoginClick}
-                    className="text-[15px] font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-150"
+                    className="text-[15px] font-medium text-foreground/70 hover:text-foreground hover:bg-muted px-4 py-2.5 rounded-full transition-all duration-150"
                   >
                     Log in
                   </button>
