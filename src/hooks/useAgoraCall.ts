@@ -54,7 +54,7 @@ export function useAgoraCall({
   useEffect(() => {
     if (!currentUserId) return;
 
-    console.log("[AgoraCall] Setting up realtime listener for user:", currentUserId);
+    
 
     const channel = supabase
       .channel(`call-session-${currentUserId}-${Date.now()}`)
@@ -68,7 +68,7 @@ export function useAgoraCall({
         },
         (payload) => {
           const session = payload.new as Record<string, unknown>;
-          console.log("[AgoraCall] INSERT received:", session.status, session.id);
+          
           if (session.status === "ringing" && callStatusRef.current === "idle") {
             setIncomingCall({
               sessionId: session.id as string,
@@ -91,7 +91,7 @@ export function useAgoraCall({
             session.callee_id === currentUserId;
           if (!isParticipant) return;
 
-          console.log("[AgoraCall] UPDATE received:", session.status, session.id, "my sessionId:", sessionIdRef.current);
+          
 
           if (session.status === "ended" || session.status === "declined") {
             if (session.id === sessionIdRef.current || (session.id as string) === incomingCallRef.current?.sessionId) {
@@ -102,14 +102,12 @@ export function useAgoraCall({
             }
           }
           if (session.status === "answered" && session.id === sessionIdRef.current) {
-            console.log("[AgoraCall] Other party answered, joining channel...");
+            
             joinChannel(session.id as string);
           }
         }
       )
-      .subscribe((status) => {
-        console.log("[AgoraCall] Realtime subscription status:", status);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
@@ -143,20 +141,20 @@ export function useAgoraCall({
         const { data: sessionData } = await supabase.auth.getSession();
         if (!sessionData?.session?.access_token) {
           toast.error("Voice token error", { description: "No session token. Please log in again." });
-          console.error("[AgoraCall] No session token available");
+          
           setCallStatus("error");
           setTimeout(() => setCallStatus("idle"), 3000);
           return;
         }
 
-        console.log("[AgoraCall] Invoking agora-token", sid);
+        
 
         const { data, error } = await supabase.functions.invoke("agora-token", {
           body: { session_id: sid },
         });
 
         if (error) {
-          console.error("[AgoraCall] Voice token error:", error);
+          
           toast.error("Voice token error", { description: error.message || String(error) });
           setCallStatus("error");
           setTimeout(() => setCallStatus("idle"), 3000);
@@ -164,14 +162,14 @@ export function useAgoraCall({
         }
 
         if (!data?.token) {
-          console.error("[AgoraCall] Token response missing token:", data);
+          
           toast.error("Call failed", { description: "No token in response" });
           setCallStatus("error");
           setTimeout(() => setCallStatus("idle"), 3000);
           return;
         }
 
-        console.log("[AgoraCall] Token response", data);
+        
         const { token, channelName, agoraUid, appId } = data;
 
         const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
@@ -185,7 +183,7 @@ export function useAgoraCall({
         });
 
         client.on("user-left", () => {
-          console.log("[AgoraCall] Remote user left");
+          
           endCall();
         });
 
@@ -196,14 +194,14 @@ export function useAgoraCall({
         await client.publish([micTrack]);
 
         setCallStatus("connected");
-        console.log("[AgoraCall] Connected and publishing audio");
+        
 
         const start = Date.now();
         timerRef.current = setInterval(() => {
           setCallDuration(Math.floor((Date.now() - start) / 1000));
         }, 1000);
       } catch (err) {
-        console.error("[AgoraCall] Failed to join Agora channel:", err);
+        
         toast.error("Call failed", { description: String(err) });
         setCallStatus("error");
         cleanup();
@@ -215,7 +213,7 @@ export function useAgoraCall({
 
   const startCall = useCallback(async () => {
     if (!rideId || !currentUserId || !otherUserId) {
-      console.error("[AgoraCall] startCall missing params:", { rideId, currentUserId, otherUserId });
+      
       toast.error("Cannot start call", { description: "Missing ride or user info" });
       return;
     }
