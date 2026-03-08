@@ -113,7 +113,7 @@ const Signup = () => {
 
       toast({
         title: 'Account created!',
-        description: 'Welcome to PickMe.',
+        description: 'Welcome to Voyex.',
       });
       navigate(next);
     } catch (err) {
