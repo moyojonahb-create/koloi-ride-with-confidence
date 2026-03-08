@@ -238,9 +238,9 @@ export default function RideDetail() {
       </div>
 
       {/* Bottom panel */}
-      <div className="absolute bottom-0 left-0 right-0 z-50 glass-card-heavy rounded-t-3xl max-h-[60vh] overflow-y-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
-        <div className="sticky top-0 pt-3 pb-2 z-10 rounded-t-3xl" style={{ background: 'linear-gradient(135deg, hsl(215 85% 31%), hsl(215 85% 40%))' }}>
-          <div className="w-10 h-1 rounded-full bg-white/40 mx-auto" />
+      <div className="absolute bottom-0 left-0 right-0 z-50 glass-card-heavy max-h-[60vh] overflow-y-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)', borderTopLeftRadius: 28, borderTopRightRadius: 28, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+        <div className="sticky top-0 pt-3.5 pb-2.5 z-10" style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, background: 'var(--gradient-primary)' }}>
+          <div className="w-10 h-1 rounded-full bg-primary-foreground/40 mx-auto" />
         </div>
 
         <div className="px-5 pb-5 space-y-4">
