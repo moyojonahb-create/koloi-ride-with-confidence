@@ -55,7 +55,7 @@ export default function RiderWalletPage() {
     return <Clock className="h-4 w-4 text-amber-500" />;
   };
 
-  if (!user) { navigate('/auth'); return null; }
+  useEffect(() => { if (!user) navigate('/auth'); }, [user, navigate]);
 
   return (
     <div className="min-h-[100dvh] bg-background">
