@@ -54,7 +54,7 @@ export function useAgoraCall({
   useEffect(() => {
     if (!currentUserId) return;
 
-    console.log("[AgoraCall] Setting up realtime listener for user:", currentUserId);
+    
 
     const channel = supabase
       .channel(`call-session-${currentUserId}-${Date.now()}`)
