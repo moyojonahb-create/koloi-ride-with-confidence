@@ -192,65 +192,67 @@ function InnerMap({
 
   }
 
-  return;
+  return (
+    <div style={{ width: "100%", height: height ?? "300px" }}>
+      <GoogleMap
+        mapContainerStyle={CONTAINER_STYLE}
+        center={pickup}
+        zoom={14}
+        options={MAP_OPTIONS}
+        onLoad={onMapLoad}
+      >
+        {/* Directions polyline */}
+        {directions && (
+          <DirectionsRenderer
+            directions={directions}
+            options={{
+              suppressMarkers: true,
+              polylineOptions: {
+                strokeColor: "#2563EB",
+                strokeWeight: 5,
+                strokeOpacity: 0.85,
+              },
+            }}
+          />
+        )}
 
+        {/* Pickup marker */}
+        <Marker
+          position={pickup}
+          icon={{
+            url: PICKUP_ICON_URL,
+            scaledSize: new google.maps.Size(40, 40),
+          }}
+          label={{ text: "P", color: "#000", fontWeight: "bold", fontSize: "11px" }}
+          zIndex={10}
+        />
 
+        {/* Dropoff marker */}
+        <Marker
+          position={dropoff}
+          icon={{
+            url: DROPOFF_ICON_URL,
+            scaledSize: new google.maps.Size(40, 40),
+          }}
+          label={{ text: "D", color: "#fff", fontWeight: "bold", fontSize: "11px" }}
+          zIndex={10}
+        />
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        {/* Driver marker */}
+        {driverLocation && (
+          <Marker
+            position={driverLocation}
+            icon={{
+              url: DRIVER_ICON_URL,
+              scaledSize: new google.maps.Size(40, 40),
+              anchor: new google.maps.Point(20, 20),
+            }}
+            zIndex={20}
+          />
+        )}
+      </GoogleMap>
+    </div>
+  );
 }
 
 /* ------------------------------------------------------------------ */
