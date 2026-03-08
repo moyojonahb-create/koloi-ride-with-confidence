@@ -339,13 +339,13 @@ export default function RideView() {
       {/* ── BOTTOM SHEET ── */}
       <div
         className={cn(
-          'absolute bottom-[72px] left-0 right-0 z-50 glass-card-heavy transition-all duration-300',
-          sheetExpanded ? 'max-h-[70vh] overflow-y-auto' : 'max-h-[50vh] overflow-y-auto'
+          'absolute left-0 right-0 z-50 glass-card-heavy transition-all duration-300 overflow-y-auto',
+          sheetExpanded ? 'max-h-[65vh]' : 'max-h-[45vh]'
         )}
-        style={{ paddingBottom: '8px', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, borderTopLeftRadius: 28, borderTopRightRadius: 28 }}
+        style={{ bottom: 64, paddingBottom: '8px', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
       >
         {/* Handle bar */}
-        <div className="sticky top-0 pt-3.5 pb-2.5 z-10" style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, background: 'var(--gradient-primary)' }}>
+        <div className="sticky top-0 pt-3 pb-2 z-10" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, background: 'var(--gradient-primary)' }}>
           <div className="w-10 h-1 rounded-full bg-primary-foreground/40 mx-auto" />
         </div>
 
