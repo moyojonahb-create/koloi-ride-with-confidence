@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import PhoneOtpVerification from '@/components/auth/PhoneOtpVerification';
+import { lovable } from '@/integrations/lovable/index';
 
 const signupSchema = z.object({
   fullName: z.string().min(2, 'Full Name is required').max(100, 'Name too long'),
