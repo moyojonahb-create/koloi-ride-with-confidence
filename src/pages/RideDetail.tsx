@@ -275,14 +275,14 @@ export default function RideDetail() {
               <div className="mt-4 space-y-3">
                 <p className="text-sm text-primary font-semibold">Driver accepted ✅</p>
                 <div className="grid grid-cols-3 gap-2">
-                  <VoiceCallButton onCall={startCall} disabled={callStatus !== "idle"} label="Voice Call" className="w-full" />
-                  <a href="tel:+263" className="flex items-center justify-center gap-1.5 py-3 rounded-2xl font-medium text-sm text-center active:scale-95 transition-all" style={{ background: 'var(--gradient-primary)' }}>
-                    <Phone className="h-4 w-4 text-primary-foreground shrink-0" />
+                  <VoiceCallButton onCall={startCall} disabled={callStatus !== "idle"} label="Data" className="w-full text-xs" />
+                  <a href="tel:+263" className="flex items-center justify-center gap-1 py-3 rounded-2xl font-medium text-xs text-center active:scale-95 transition-all" style={{ background: 'var(--gradient-primary)' }}>
+                    <Phone className="h-3.5 w-3.5 text-primary-foreground shrink-0" />
                     <span className="text-primary-foreground">Phone</span>
                   </a>
                   <button onClick={() => document.getElementById("koloi-chat")?.scrollIntoView({ behavior: "smooth" })}
-                    className="flex items-center justify-center gap-1.5 py-3 rounded-2xl glass-card font-medium text-sm active:scale-95 transition-all">
-                    <MessageCircle className="h-4 w-4 shrink-0" /> Chat
+                    className="flex items-center justify-center gap-1 py-3 rounded-2xl glass-card font-medium text-xs active:scale-95 transition-all">
+                    <MessageCircle className="h-3.5 w-3.5 shrink-0" /> Chat
                   </button>
                 </div>
               </div>
