@@ -302,6 +302,7 @@ export default function RiderRideDetail() {
             pickup={{ lat: ride.pickup_lat, lng: ride.pickup_lon }}
             dropoff={{ lat: ride.dropoff_lat, lng: ride.dropoff_lon }}
             driverLocation={driverLocation}
+            drivers={isPending ? nearbyDrivers : undefined}
             routeGeometry={ride.route_polyline}
             className="w-full h-full"
             height="100%"
