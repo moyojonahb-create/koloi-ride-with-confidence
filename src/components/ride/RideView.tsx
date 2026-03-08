@@ -23,7 +23,7 @@ import MapGoogle from '@/components/MapGoogle';
 import RideStatusBanner, { type RideStatus } from './RideStatusBanner';
 import OffersModal, { type DriverViewing, type DriverOffer } from '@/components/OffersModal';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 import RiderBottomNav from './RiderBottomNav';
