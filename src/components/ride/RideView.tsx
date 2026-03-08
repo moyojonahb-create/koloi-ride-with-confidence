@@ -636,14 +636,7 @@ export default function RideView() {
       </div>
 
       {/* ═══ FLOATING GLASS BOTTOM NAVIGATION BAR ═══ */}
-      <div className="absolute bottom-0 left-0 right-0 z-[55] px-3" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 6px)' }}>
-        <div className="glass-card-heavy rounded-[28px] flex items-center justify-around py-2 px-2">
-          <NavItem icon={<Home className="w-5 h-5" />} label="Home" active onClick={() => navigate('/ride')} />
-          <NavItem icon={<History className="w-5 h-5" />} label="Trips" onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} />
-          <NavItem icon={<CreditCard className="w-5 h-5" />} label="Wallet" onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} />
-          <NavItem icon={<User className="w-5 h-5" />} label="Profile" onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} />
-        </div>
-      </div>
+      <RiderBottomNav activeTab="home" />
 
       {/* ══ Full-Screen Search Overlay (Glass) ══ */}
       {activeField && (
