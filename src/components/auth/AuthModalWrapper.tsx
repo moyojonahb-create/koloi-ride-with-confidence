@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { X } from 'lucide-react';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 import AuthForm from './AuthForm';
 
 interface AuthModalWrapperProps {
