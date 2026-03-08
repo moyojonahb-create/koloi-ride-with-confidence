@@ -17,6 +17,7 @@ interface Props {
   driverId: string;
   initialArea?: string;
   initialEarningNotif?: boolean;
+  initialEcocash?: string;
 }
 
 export default function DriverSettingsPanel({ driverId, initialArea = 'both', initialEarningNotif = true }: Props) {
