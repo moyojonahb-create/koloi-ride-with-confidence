@@ -79,6 +79,17 @@ function InnerMapGoogle({
     } else { setRoutePath([]); }
   }, [routeGeometry]);
 
+  // Re-center map when defaultCenter changes (town switch) and no markers set
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (pickup || dropoff || driverLocation) return; // markers take priority
+    if (defaultCenter) {
+      map.panTo(defaultCenter);
+      map.setZoom(defaultZoom);
+    }
+  }, [defaultCenter?.lat, defaultCenter?.lng]);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;

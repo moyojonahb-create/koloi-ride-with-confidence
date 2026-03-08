@@ -207,7 +207,7 @@ export default function RideView() {
     return (
       <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
         <div className="absolute inset-0">
-          <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} className="w-full h-full" height="100%" />
+          <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
         </div>
 
         {/* Top gradient */}
@@ -279,7 +279,7 @@ export default function RideView() {
     <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
       {/* ── MAP ── */}
       <div className="absolute inset-0">
-        <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} className="w-full h-full" height="100%" />
+        <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
 
         {/* Floating map buttons */}
         <div className="absolute right-4 bottom-[340px] flex flex-col gap-3 z-20">
