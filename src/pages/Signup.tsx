@@ -169,7 +169,7 @@ const Signup = () => {
                       <FormControl>
                         <Input 
                           placeholder="John Doe" 
-                          className="h-12 rounded-2xl border-border/10 bg-white"
+                          className="h-12 rounded-2xl border-border bg-background text-foreground"
                           {...field} 
                         />
                       </FormControl>
