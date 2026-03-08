@@ -145,6 +145,7 @@ const AnimatedRoutes = () => {
 const App = () => {
   const [splashDone, setSplashDone] = useState(false);
   const handleSplashComplete = useCallback(() => setSplashDone(true), []);
+  const isOnline = useOnlineStatus();
 
   return (
   <QueryClientProvider client={queryClient}>
@@ -152,6 +153,7 @@ const App = () => {
       <TooltipProvider>
         <ErrorBoundary>
           {!splashDone && <SplashScreen onComplete={handleSplashComplete} />}
+          {splashDone && !isOnline && <Offline />}
           <Toaster />
           <Sonner />
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
