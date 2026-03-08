@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.agora-token]
 verify_jwt = false
+
+[functions.google-maps-key]
+verify_jwt = false
