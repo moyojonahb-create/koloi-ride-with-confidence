@@ -6,8 +6,8 @@ interface SplashScreenProps {
   duration?: number;
 }
 
-const SplashScreen = ({ onComplete, duration = 4000 }: SplashScreenProps) => {
-  const [phase, setPhase] = useState<'enter' | 'glow' | 'fade-out' | 'done'>('enter');
+const SplashScreen = ({ onComplete, duration = 3200 }: SplashScreenProps) => {
+  const [phase, setPhase] = useState<'enter' | 'visible' | 'fade-out' | 'done'>('enter');
 
   useLayoutEffect(() => {
     const instantSplash = document.getElementById('instant-splash');
@@ -22,8 +22,8 @@ const SplashScreen = ({ onComplete, duration = 4000 }: SplashScreenProps) => {
       onComplete();
     };
 
-    const t1 = setTimeout(() => setPhase('glow'), 400);
-    const t2 = setTimeout(() => setPhase('fade-out'), duration - 600);
+    const t1 = setTimeout(() => setPhase('visible'), 100);
+    const t2 = setTimeout(() => setPhase('fade-out'), duration - 500);
     const t3 = setTimeout(complete, duration);
 
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
@@ -33,134 +33,57 @@ const SplashScreen = ({ onComplete, duration = 4000 }: SplashScreenProps) => {
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-opacity duration-600 ${
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white transition-opacity duration-500 ${
         phase === 'fade-out' ? 'opacity-0' : 'opacity-100'
       }`}
-      style={{
-        background: 'linear-gradient(160deg, hsl(215 80% 12%) 0%, hsl(215 70% 8%) 40%, hsl(220 60% 5%) 100%)',
-      }}
     >
-      {/* Ambient particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: `${4 + i * 2}px`,
-              height: `${4 + i * 2}px`,
-              left: `${15 + i * 14}%`,
-              top: `${20 + (i % 3) * 25}%`,
-              background: i % 2 === 0
-                ? 'hsl(215 80% 50% / 0.3)'
-                : 'hsl(45 100% 55% / 0.25)',
-              animation: `splashFloat ${3 + i * 0.5}s ease-in-out infinite`,
-              animationDelay: `${i * 0.3}s`,
-            }}
-          />
-        ))}
+      {/* Logo with spring entrance */}
+      <div
+        className={`relative transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          phase === 'enter'
+            ? 'scale-[0.6] opacity-0'
+            : 'scale-100 opacity-100'
+        }`}
+      >
+        <img
+          src={voyexLogo}
+          alt="Voyex"
+          className="w-36 h-36 sm:w-44 sm:h-44 object-contain"
+        />
       </div>
 
-      {/* Outer glow rings */}
-      <div className="relative flex items-center justify-center">
-        <div
-          className={`absolute w-72 h-72 sm:w-80 sm:h-80 rounded-full transition-all duration-1000 ${
-            phase === 'enter' ? 'scale-50 opacity-0' : 'scale-100 opacity-100'
-          }`}
-          style={{
-            background: 'radial-gradient(circle, hsl(215 80% 40% / 0.12) 0%, transparent 70%)',
-            animation: phase === 'glow' ? 'splashPulse 2.5s ease-in-out infinite' : 'none',
-          }}
-        />
-
-        <div
-          className={`absolute w-52 h-52 sm:w-60 sm:h-60 rounded-full transition-all duration-700 ${
-            phase === 'enter' ? 'scale-75 opacity-0' : 'scale-100 opacity-100'
-          }`}
-          style={{
-            border: '1.5px solid hsl(45 100% 55% / 0.15)',
-            animation: phase === 'glow' ? 'splashRingSpin 8s linear infinite' : 'none',
-          }}
-        />
-
-        <div
-          className={`absolute w-44 h-44 sm:w-52 sm:h-52 rounded-full transition-all duration-500 ${
-            phase === 'enter' ? 'scale-90 opacity-0' : 'scale-100 opacity-100'
-          }`}
-          style={{
-            border: '1px solid hsl(215 80% 50% / 0.2)',
-            animation: phase === 'glow' ? 'splashPing 3s ease-in-out infinite' : 'none',
-          }}
-        />
-
-        {/* Logo — original, white bg acts as a clean card on dark splash */}
-        <div
-          className={`relative z-10 rounded-3xl p-4 transition-all duration-700 ${
-            phase === 'enter'
-              ? 'scale-75 opacity-0 translate-y-4'
-              : 'scale-100 opacity-100 translate-y-0'
-          }`}
-          style={{
-            background: 'white',
-            boxShadow: '0 0 60px hsl(215 80% 50% / 0.25), 0 8px 32px rgba(0,0,0,0.3)',
-          }}
-        >
-          <img
-            src={voyexLogo}
-            alt="Voyex"
-            className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 object-contain"
-          />
-        </div>
-      </div>
-
-      {/* Tagline */}
+      {/* Tagline — slides up after logo */}
       <p
-        className={`mt-8 text-sm sm:text-base font-medium tracking-[0.2em] uppercase transition-all duration-700 delay-300 ${
+        className={`mt-5 text-[13px] sm:text-sm font-semibold tracking-[0.25em] uppercase transition-all duration-600 delay-200 ${
           phase === 'enter'
             ? 'opacity-0 translate-y-3'
             : phase === 'fade-out'
-              ? 'opacity-0'
-              : 'opacity-70 translate-y-0'
+              ? 'opacity-0 -translate-y-1'
+              : 'opacity-100 translate-y-0'
         }`}
-        style={{ color: 'hsl(215 30% 70%)' }}
+        style={{ color: '#0B3D91' }}
       >
         Your ride, your way
       </p>
 
-      {/* Loading bar */}
+      {/* Minimal loading indicator — thin gold line */}
       <div
-        className={`mt-6 h-[2px] rounded-full overflow-hidden transition-all duration-500 ${
-          phase === 'enter' ? 'w-0 opacity-0' : 'w-32 sm:w-40 opacity-100'
+        className={`absolute bottom-16 sm:bottom-20 h-[2px] rounded-full overflow-hidden transition-all duration-500 delay-300 ${
+          phase === 'enter' ? 'w-0 opacity-0' : 'w-20 sm:w-24 opacity-100'
         }`}
-        style={{ background: 'hsl(215 30% 20%)' }}
+        style={{ background: '#E5E7EB' }}
       >
         <div
           className="h-full rounded-full"
           style={{
-            background: 'linear-gradient(90deg, hsl(215 80% 50%), hsl(45 100% 55%))',
-            animation: phase !== 'enter' ? `splashLoad ${duration - 800}ms ease-out forwards` : 'none',
+            background: 'linear-gradient(90deg, #0B3D91, #FFC107)',
+            animation: phase !== 'enter' ? `splashBar ${duration - 600}ms ease-out forwards` : 'none',
           }}
         />
       </div>
 
       <style>{`
-        @keyframes splashPulse {
-          0%, 100% { transform: scale(1); opacity: 0.6; }
-          50% { transform: scale(1.08); opacity: 1; }
-        }
-        @keyframes splashPing {
-          0%, 100% { transform: scale(1); opacity: 0.3; }
-          50% { transform: scale(1.05); opacity: 0.15; }
-        }
-        @keyframes splashRingSpin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes splashFloat {
-          0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
-          50% { transform: translateY(-20px) scale(1.3); opacity: 0.6; }
-        }
-        @keyframes splashLoad {
+        @keyframes splashBar {
           from { width: 0%; }
           to { width: 100%; }
         }
