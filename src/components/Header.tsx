@@ -24,12 +24,12 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-xl border-b border-primary-foreground/10">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-border/40 shadow-sm">
       <div className="koloi-container">
         <nav className="flex items-center justify-between h-[60px] lg:h-[64px]">
           {/* Logo */}
           <a href="/" className="shrink-0">
-            <KoloiLogo variant="light" />
+            <KoloiLogo />
           </a>
 
           {/* Desktop Navigation */}
@@ -38,7 +38,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
               <a
                 key={item.label}
                 href={item.href}
-                className="text-[15px] font-semibold text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-5 py-2.5 rounded-full transition-all duration-150"
+                className="text-[15px] font-semibold text-foreground/70 hover:text-foreground hover:bg-muted px-5 py-2.5 rounded-full transition-all duration-150"
               >
                 {item.label}
               </a>
@@ -47,24 +47,24 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
 
           {/* Desktop Right Side */}
           <div className="hidden lg:flex items-center gap-3">
-            <button className="text-[15px] font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-150 flex items-center gap-1.5">
+            <button className="text-[15px] font-medium text-foreground/70 hover:text-foreground hover:bg-muted px-4 py-2.5 rounded-full transition-all duration-150 flex items-center gap-1.5">
               <Globe className="w-4 h-4" />
               <span>EN</span>
             </button>
             <a
               href="#help"
-              className="text-[15px] font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-150"
+              className="text-[15px] font-medium text-foreground/70 hover:text-foreground hover:bg-muted px-4 py-2.5 rounded-full transition-all duration-150"
             >
               Help
             </a>
             {!loading &&
               (user ? (
-                <UserMenu onFavoritesClick={onFavoritesClick} onHistoryClick={onHistoryClick} variant="light" />
+                <UserMenu onFavoritesClick={onFavoritesClick} onHistoryClick={onHistoryClick} />
               ) : (
                 <>
                   <button
                     onClick={onLoginClick}
-                    className="text-[15px] font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-150"
+                    className="text-[15px] font-medium text-foreground/70 hover:text-foreground hover:bg-muted px-4 py-2.5 rounded-full transition-all duration-150"
                   >
                     Log in
                   </button>
@@ -78,7 +78,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-3 hover:bg-primary-foreground/10 text-primary-foreground rounded-2xl active:scale-90 transition-all"
+            className="lg:hidden p-3 hover:bg-muted text-foreground rounded-2xl active:scale-90 transition-all"
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -87,30 +87,30 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden py-5 border-t border-primary-foreground/10 animate-slide-down">
+          <div className="lg:hidden py-5 border-t border-border/40 animate-slide-down">
             <div className="flex flex-col gap-1">
               {navItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
-                  className="px-5 py-4 text-[15px] text-primary-foreground font-semibold hover:bg-primary-foreground/10 rounded-2xl transition-colors active:scale-[0.98]"
+                  className="px-5 py-4 text-[15px] text-foreground font-semibold hover:bg-muted rounded-2xl transition-colors active:scale-[0.98]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
                 </a>
               ))}
-              <div className="border-t border-primary-foreground/10 my-3" />
+              <div className="border-t border-border/40 my-3" />
               <a
                 href="#help"
-                className="px-4 py-3.5 text-primary-foreground font-medium hover:bg-primary-foreground/10 rounded-2xl transition-colors"
+                className="px-4 py-3.5 text-foreground font-medium hover:bg-muted rounded-2xl transition-colors"
               >
                 Help
               </a>
-              <button className="px-4 py-3.5 text-primary-foreground font-medium hover:bg-primary-foreground/10 rounded-2xl transition-colors text-left flex items-center gap-2">
+              <button className="px-4 py-3.5 text-foreground font-medium hover:bg-muted rounded-2xl transition-colors text-left flex items-center gap-2">
                 <Globe className="w-4 h-4" />
                 English
               </button>
-              <div className="border-t border-primary-foreground/10 my-3" />
+              <div className="border-t border-border/40 my-3" />
               {!loading &&
                 (user ? (
                   <div className="px-4">
@@ -123,7 +123,6 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                         setIsMobileMenuOpen(false);
                         onHistoryClick();
                       }}
-                      variant="light"
                     />
                   </div>
                 ) : (
@@ -135,7 +134,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                       }}
                       variant="outline"
                       size="lg"
-                      className="w-full border-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
+                      className="w-full border-2 border-border text-foreground hover:bg-muted bg-transparent"
                     >
                       Log in
                     </Button>
