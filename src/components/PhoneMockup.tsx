@@ -113,7 +113,7 @@ const PhoneMockup = () => {
             {/* Fare and CTA */}
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xl font-bold text-foreground">R35</p>
+                <p className="text-xl font-bold text-foreground">​$5</p>
                 <p className="text-xs text-muted-foreground">2.1 km • 6 min</p>
               </div>
               <button className="px-6 py-3 bg-accent text-accent-foreground font-bold rounded-full text-sm shadow-voyex-sm hover:brightness-105 transition-all">
