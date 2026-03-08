@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
 import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
 import RiderBottomNav from '@/components/ride/RiderBottomNav';
 
@@ -38,7 +38,7 @@ export default function RiderProfile() {
           <button onClick={() => navigate(-1)} className="w-12 h-12 flex items-center justify-center rounded-full glass-btn active:scale-95 transition-all">
             <ArrowLeft className="w-5 h-5 text-primary-foreground" />
           </button>
-          <KoloiLogo variant="light" size="sm" />
+          <VoyexLogo variant="light" size="sm" />
         </div>
       </div>
 

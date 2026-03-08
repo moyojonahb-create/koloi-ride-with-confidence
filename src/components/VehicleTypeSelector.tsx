@@ -14,14 +14,14 @@ export interface VehicleType {
 export const VEHICLE_TYPES: VehicleType[] = [
   {
     id: 'standard',
-    name: 'PickMe',
+    name: 'Voyex',
     description: 'Affordable town rides',
     icon: Car,
     eta: '3 min',
   },
 ];
 
-// Legacy function for backward compatibility - now uses Koloi pricing
+// Legacy function for backward compatibility - now uses Voyex pricing
 export const calculateFareForVehicle = (
   distanceKm: number,
   _vehicleType: VehicleType,

@@ -1,5 +1,5 @@
 import { Facebook, Twitter, Instagram, Linkedin, Globe, Mail, Phone, MapPin } from 'lucide-react';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 
 const footerLinks = {
   company: [
@@ -42,7 +42,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-14">
           <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-4 lg:mb-0">
             <a href="/" className="inline-block">
-              <KoloiLogo variant="inverted" showTagline />
+              <VoyexLogo variant="inverted" showTagline />
             </a>
           </div>
 

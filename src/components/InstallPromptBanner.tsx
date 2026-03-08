@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Download, Share, Plus } from 'lucide-react';
-import koloiLogo from '@/assets/pickme-logo.png';
+import voyexLogo from '@/assets/voyex-logo.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -104,11 +104,11 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
           </button>
           
           <img 
-            src={koloiLogo} 
-            alt="PickMe" 
+            src={voyexLogo} 
+            alt="Voyex" 
             className="w-20 h-20 mx-auto rounded-2xl object-cover shadow-lg mb-4"
           />
-          <h2 className="text-xl font-bold text-gray-900">Install PickMe</h2>
+          <h2 className="text-xl font-bold text-gray-900">Install Voyex</h2>
           <p className="text-sm text-gray-500 mt-1">Add to your home screen</p>
         </div>
 
@@ -117,7 +117,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
           {isIOS ? (
             <div className="space-y-4">
               <p className="text-gray-600 text-center text-sm">
-                Install PickMe for the best experience:
+                Install Voyex for the best experience:
               </p>
               <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
                 <div className="flex items-center gap-3">

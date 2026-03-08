@@ -1,6 +1,6 @@
 import voyexLogo from '@/assets/voyex-logo.png';
 
-interface KoloiLogoProps {
+interface VoyexLogoProps {
   className?: string;
   variant?: 'default' | 'inverted' | 'light';
   showTagline?: boolean;
@@ -8,13 +8,13 @@ interface KoloiLogoProps {
   iconOnly?: boolean;
 }
 
-const KoloiLogo = ({ 
+const VoyexLogo = ({ 
   className = '', 
   variant = 'default', 
   showTagline = false,
   size = 'md',
   iconOnly = false
-}: KoloiLogoProps) => {
+}: VoyexLogoProps) => {
   const isLight = variant === 'inverted' || variant === 'light';
   
   const iconSizeClasses = {
@@ -50,4 +50,4 @@ const KoloiLogo = ({
   );
 };
 
-export default KoloiLogo;
+export default VoyexLogo;

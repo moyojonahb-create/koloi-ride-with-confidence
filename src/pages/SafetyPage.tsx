@@ -1,6 +1,6 @@
 import { MessageSquare, Users, Phone, Shield, Car, AlertTriangle, Lock } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 
 const protectionCards = [
   { icon: Shield, title: 'Proactive safety support', color: 'bg-accent/20 text-accent' },
@@ -25,7 +25,7 @@ export default function SafetyPage() {
           </button>
         )}
         <div className={`flex items-center gap-2 ${isMapp ? 'mx-auto' : ''}`}>
-          <KoloiLogo size="sm" iconOnly />
+          <VoyexLogo size="sm" iconOnly />
           <h1 className="font-bold text-lg text-foreground">Safety</h1>
         </div>
         {!isMapp && <div className="w-12" />}

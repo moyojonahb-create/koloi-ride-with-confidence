@@ -123,8 +123,8 @@ const Auth = () => {
           </CardTitle>
           <CardDescription>
             {mode === 'login' 
-              ? 'Sign in to your PickMe account' 
-              : 'Sign up to start using PickMe'
+              ? 'Sign in to your Voyex account' 
+              : 'Sign up to start using Voyex'
             }
           </CardDescription>
         </CardHeader>

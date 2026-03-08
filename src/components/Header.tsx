@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Menu, X, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import KoloiLogo from "@/components/KoloiLogo";
+import VoyexLogo from "@/components/VoyexLogo";
 import UserMenu from "@/components/UserMenu";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -29,7 +29,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
         <nav className="flex items-center justify-between h-[60px] lg:h-[64px]">
           {/* Logo */}
           <a href="/" className="shrink-0 -ml-2">
-            <KoloiLogo size="lg" />
+            <VoyexLogo size="lg" />
           </a>
 
           {/* Desktop Navigation */}

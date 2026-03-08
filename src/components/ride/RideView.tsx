@@ -23,7 +23,7 @@ import MapGoogle from '@/components/MapGoogle';
 import RideStatusBanner, { type RideStatus } from './RideStatusBanner';
 import OffersModal, { type DriverViewing, type DriverOffer } from '@/components/OffersModal';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 import RiderBottomNav from './RiderBottomNav';
@@ -217,7 +217,7 @@ export default function RideView() {
           <button onClick={handleCancelRide} className="w-12 h-12 flex items-center justify-center rounded-full glass-card active:scale-95 transition-all">
             <ArrowLeft className="w-5 h-5 text-primary" />
           </button>
-          <KoloiLogo size="sm" />
+          <VoyexLogo size="sm" />
           <div className="w-12" />
         </div>
 

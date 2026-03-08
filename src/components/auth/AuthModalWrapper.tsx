@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { X } from 'lucide-react';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 import AuthForm from './AuthForm';
 
 interface AuthModalWrapperProps {
@@ -27,7 +27,7 @@ const AuthModalWrapper = forwardRef<HTMLDivElement, AuthModalWrapperProps>(
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="w-9" />
-            <KoloiLogo />
+            <VoyexLogo />
             <button 
               onClick={onClose}
               className="p-2 hover:bg-secondary rounded-lg transition-colors"
@@ -46,7 +46,7 @@ const AuthModalWrapper = forwardRef<HTMLDivElement, AuthModalWrapperProps>(
 
             {/* Terms */}
             <p className="text-xs text-muted-foreground mt-6 text-center">
-              By proceeding, you agree to PickMe's{' '}
+              By proceeding, you agree to Voyex's{' '}
               <a href="#" className="underline hover:text-foreground">Terms of Service</a>
               {' '}and{' '}
               <a href="#" className="underline hover:text-foreground">Privacy Policy</a>
