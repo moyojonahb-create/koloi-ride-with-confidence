@@ -181,6 +181,7 @@ const Signup = () => {
             </div>
 
             <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmitDetails)} className="space-y-4">
                 <FormField
                   control={form.control}
                   name="fullName"
