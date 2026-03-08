@@ -528,18 +528,6 @@ export default function DriverDashboard() {
       <div className="flex-1 overflow-y-auto overscroll-contain">
       <div className="max-w-lg mx-auto p-5 space-y-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
 
-        {/* DEBUG PANEL (temporary) */}
-        <Card className="border-dashed border-amber-500/60 bg-amber-50/10">
-          <CardContent className="pt-3 pb-3 space-y-1">
-            <p className="text-xs font-bold text-amber-600 uppercase tracking-wider">🐛 Call Debug</p>
-            <p className="text-xs text-muted-foreground font-mono">Driver UID: <span className="text-foreground">{user?.id ?? "none"}</span></p>
-            <p className="text-xs text-muted-foreground font-mono">Active Trip ID: <span className="text-foreground">{activeTrip?.id ?? "none"}</span></p>
-            <p className="text-xs text-muted-foreground font-mono">Rider UID: <span className="text-foreground">{activeTrip?.user_id ?? "none"}</span></p>
-            <p className="text-xs text-muted-foreground font-mono">Call sub: <span className={callSubStatus === "connected" ? "text-emerald-600" : "text-amber-600"}>{callSubStatus}</span></p>
-            <p className="text-xs text-muted-foreground font-mono">Agora status: <span className="text-foreground">{callStatus}</span></p>
-            {incomingCall && <p className="text-xs text-primary font-mono font-bold">⚡ Incoming call from: {incomingCall.callerId}</p>}
-          </CardContent>
-        </Card>
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-3 animate-fade-in">
           <div className="native-card text-center">
