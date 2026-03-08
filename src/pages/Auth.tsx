@@ -157,6 +157,7 @@ const Auth = () => {
             <div className="flex-1 h-px bg-border" />
           </div>
 
+          {mode === 'login' ? (
             <Form {...loginForm}>
               <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
                 <FormField
