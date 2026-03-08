@@ -67,25 +67,23 @@ const Signup = () => {
     return cleaned;
   };
 
-  const onSubmitDetails = (data: SignupFormData) => {
+  const onSubmitDetails = async (data: SignupFormData) => {
     // Format phone number before storing
     const formattedData = {
       ...data,
       phone: formatPhoneNumber(data.phone),
     };
     setFormData(formattedData);
-    setStep('verify-phone');
+    // Skip OTP verification - sign up directly
+    await onPhoneVerifiedDirect(formattedData);
   };
 
-  const onPhoneVerified = async () => {
-    if (!formData) return;
-    
+  const onPhoneVerifiedDirect = async (data: SignupFormData) => {
     setIsSubmitting(true);
     try {
-      // Use email if provided, otherwise generate one from phone
-      const email = formData.email || `${formData.phone.replace(/\+/g, '')}@voyex.phone`;
+      const email = data.email || `${data.phone.replace(/\+/g, '')}@voyex.phone`;
       
-      const { error } = await signUp(email, formData.password, formData.fullName);
+      const { error } = await signUp(email, data.password, data.fullName);
       
       if (error) {
         let message = error.message;
@@ -97,33 +95,22 @@ const Signup = () => {
           description: message,
           variant: 'destructive',
         });
-        setStep('details');
         return;
       }
 
-      // Update profile with phone number and ID after signup
+      // Update profile with phone number after signup
       const { data: authData } = await supabase.auth.getUser();
       if (authData?.user) {
         await supabase
           .from('profiles')
-          .update({ 
-            phone: formData.phone,
-          })
+          .update({ phone: data.phone })
           .eq('user_id', authData.user.id);
       }
 
-      toast({
-        title: 'Account created!',
-        description: 'Welcome to Voyex.',
-      });
+      toast({ title: 'Account created!', description: 'Welcome to Voyex.' });
       navigate(next);
     } catch (err) {
-      toast({
-        title: 'Sign up failed',
-        description: 'Please try again.',
-        variant: 'destructive',
-      });
-      setStep('details');
+      toast({ title: 'Sign up failed', description: 'Please try again.', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -131,15 +118,6 @@ const Signup = () => {
 
   const renderStep = () => {
     switch (step) {
-      case 'verify-phone':
-        return (
-          <PhoneOtpVerification
-            phone={formData?.phone || ''}
-            onVerified={onPhoneVerified}
-            onBack={() => setStep('details')}
-          />
-        );
-
       default:
         return (
           <>
@@ -191,7 +169,7 @@ const Signup = () => {
                       <FormControl>
                         <Input 
                           placeholder="John Doe" 
-                          className="h-12 rounded-2xl border-border/10 bg-white"
+                          className="h-12 rounded-2xl border-border bg-background text-foreground"
                           {...field} 
                         />
                       </FormControl>
@@ -209,7 +187,7 @@ const Signup = () => {
                       <FormControl>
                         <Input 
                           placeholder="National ID or Passport" 
-                          className="h-12 rounded-2xl border-border/10 bg-white"
+                          className="h-12 rounded-2xl border-border bg-background text-foreground"
                           {...field} 
                         />
                       </FormControl>
@@ -229,7 +207,7 @@ const Signup = () => {
                           type="tel"
                           inputMode="tel"
                           placeholder="+263 77 123 4567" 
-                          className="h-12 rounded-2xl border-border/10 bg-white"
+                          className="h-12 rounded-2xl border-border bg-background text-foreground"
                           {...field} 
                         />
                       </FormControl>
@@ -251,7 +229,7 @@ const Signup = () => {
                           type="email"
                           inputMode="email"
                           placeholder="you@email.com" 
-                          className="h-12 rounded-2xl border-border/10 bg-white"
+                          className="h-12 rounded-2xl border-border bg-background text-foreground"
                           {...field} 
                         />
                       </FormControl>
@@ -270,7 +248,7 @@ const Signup = () => {
                         <Input 
                           type="password"
                           placeholder="••••••••" 
-                          className="h-12 rounded-2xl border-border/10 bg-white"
+                          className="h-12 rounded-2xl border-border bg-background text-foreground"
                           {...field} 
                         />
                       </FormControl>
@@ -313,7 +291,7 @@ const Signup = () => {
 
   return (
     <div className="min-h-[100dvh] bg-primary flex items-center justify-center p-4 pt-[calc(16px+env(safe-area-inset-top))] pb-[calc(16px+env(safe-area-inset-bottom))]">
-      <div className="w-full max-w-[520px] bg-white/95 backdrop-blur-[10px] rounded-[26px] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+      <div className="w-full max-w-[520px] bg-background backdrop-blur-[10px] rounded-[26px] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
         {renderStep()}
       </div>
     </div>
