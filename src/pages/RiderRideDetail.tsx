@@ -17,7 +17,7 @@ import {
 } from "@/lib/offerHelpers";
 import { RideCommunication } from "@/components/ride/RideCommunication";
 import OffersModal from "@/components/OffersModal";
-import TripGoogleMap from "@/components/TripGoogleMap";
+import MapGoogle from "@/components/MapGoogle";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock, Star, Shield } from "lucide-react";
