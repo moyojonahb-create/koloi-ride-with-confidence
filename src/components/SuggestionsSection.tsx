@@ -5,7 +5,7 @@ const suggestions = [
     id: 'ride',
     icon: Car,
     title: 'Ride',
-    description: 'Go anywhere with PickMe. Request a ride, hop in, and go.',
+    description: 'Go anywhere with Voyex. Request a ride, hop in, and go.',
     href: '#ride',
   },
   {
