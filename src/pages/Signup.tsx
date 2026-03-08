@@ -78,15 +78,12 @@ const Signup = () => {
     await onPhoneVerifiedDirect(formattedData);
   };
 
-  const onPhoneVerified = async () => {
-    if (!formData) return;
-    
+  const onPhoneVerifiedDirect = async (data: SignupFormData) => {
     setIsSubmitting(true);
     try {
-      // Use email if provided, otherwise generate one from phone
-      const email = formData.email || `${formData.phone.replace(/\+/g, '')}@voyex.phone`;
+      const email = data.email || `${data.phone.replace(/\+/g, '')}@voyex.phone`;
       
-      const { error } = await signUp(email, formData.password, formData.fullName);
+      const { error } = await signUp(email, data.password, data.fullName);
       
       if (error) {
         let message = error.message;
@@ -98,33 +95,22 @@ const Signup = () => {
           description: message,
           variant: 'destructive',
         });
-        setStep('details');
         return;
       }
 
-      // Update profile with phone number and ID after signup
+      // Update profile with phone number after signup
       const { data: authData } = await supabase.auth.getUser();
       if (authData?.user) {
         await supabase
           .from('profiles')
-          .update({ 
-            phone: formData.phone,
-          })
+          .update({ phone: data.phone })
           .eq('user_id', authData.user.id);
       }
 
-      toast({
-        title: 'Account created!',
-        description: 'Welcome to Voyex.',
-      });
+      toast({ title: 'Account created!', description: 'Welcome to Voyex.' });
       navigate(next);
     } catch (err) {
-      toast({
-        title: 'Sign up failed',
-        description: 'Please try again.',
-        variant: 'destructive',
-      });
-      setStep('details');
+      toast({ title: 'Sign up failed', description: 'Please try again.', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
