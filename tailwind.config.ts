@@ -91,14 +91,14 @@ export default {
         display: ['Space Grotesk', 'Sora', 'sans-serif'],
       },
       boxShadow: {
-        'koloi-xs': 'var(--shadow-xs)',
-        'koloi-sm': 'var(--shadow-sm)',
-        'koloi-md': 'var(--shadow-md)',
-        'koloi-lg': 'var(--shadow-lg)',
-        'koloi-xl': 'var(--shadow-xl)',
-        'koloi-card': 'var(--shadow-card)',
-        'koloi-phone': 'var(--shadow-phone)',
-        'koloi-glow': 'var(--shadow-glow)',
+        'voyex-xs': 'var(--shadow-xs)',
+        'voyex-sm': 'var(--shadow-sm)',
+        'voyex-md': 'var(--shadow-md)',
+        'voyex-lg': 'var(--shadow-lg)',
+        'voyex-xl': 'var(--shadow-xl)',
+        'voyex-card': 'var(--shadow-card)',
+        'voyex-phone': 'var(--shadow-phone)',
+        'voyex-glow': 'var(--shadow-glow)',
       },
       keyframes: {
         "accordion-down": {
