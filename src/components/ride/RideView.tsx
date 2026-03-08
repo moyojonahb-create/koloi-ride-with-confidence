@@ -26,6 +26,8 @@ import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 import RiderBottomNav from './RiderBottomNav';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
+import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
+import TownSelectorSheet from './TownSelectorSheet';
 
 // ── types ──
 interface SelectedLocation { name: string; lat: number; lng: number; }
