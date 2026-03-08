@@ -397,7 +397,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                 onPickupSelect={handlePanelPickupSelect}
                 onDropoffSelect={handlePanelDropoffSelect}
                 routeGeometry={routeInfo?.geometry}
-                className="h-[500px] lg:h-[600px] shadow-koloi-xl"
+                className="h-[500px] lg:h-[600px] shadow-voyex-xl"
               />
             </ErrorBoundary>
           </div>
