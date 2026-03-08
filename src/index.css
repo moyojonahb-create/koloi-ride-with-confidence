@@ -54,23 +54,23 @@
     --sidebar-border: 217 70% 35%;
     --sidebar-ring: 45 100% 51%;
 
-    /* Koloi legacy tokens */
-    --koloi-blue: 217 85% 29%;
-    --koloi-blue-dark: 217 90% 22%;
-    --koloi-blue-light: 213 83% 56%;
-    --koloi-yellow: 45 100% 51%;
-    --koloi-yellow-light: 45 100% 70%;
-    --koloi-white: 0 0% 100%;
-    --koloi-dark: 0 0% 10%;
-    --koloi-gray-100: 225 27% 98%;
-    --koloi-gray-200: 225 27% 95%;
-    --koloi-gray-300: 217 20% 90%;
-    --koloi-gray-400: 217 15% 75%;
-    --koloi-gray-500: 217 10% 55%;
-    --koloi-gray-600: 217 10% 45%;
-    --koloi-gray-700: 217 15% 30%;
-    --koloi-gray-800: 217 20% 20%;
-    --koloi-gray-900: 0 0% 10%;
+    /* Voyex design tokens */
+    --voyex-blue: 217 85% 29%;
+    --voyex-blue-dark: 217 90% 22%;
+    --voyex-blue-light: 213 83% 56%;
+    --voyex-yellow: 45 100% 51%;
+    --voyex-yellow-light: 45 100% 70%;
+    --voyex-white: 0 0% 100%;
+    --voyex-dark: 0 0% 10%;
+    --voyex-gray-100: 225 27% 98%;
+    --voyex-gray-200: 225 27% 95%;
+    --voyex-gray-300: 217 20% 90%;
+    --voyex-gray-400: 217 15% 75%;
+    --voyex-gray-500: 217 10% 55%;
+    --voyex-gray-600: 217 10% 45%;
+    --voyex-gray-700: 217 15% 30%;
+    --voyex-gray-800: 217 20% 20%;
+    --voyex-gray-900: 0 0% 10%;
 
     /* ─── Shadows ─── */
     --shadow-xs: 0 1px 2px 0 hsl(217 25% 0% / 0.03);
