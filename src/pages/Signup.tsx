@@ -187,7 +187,7 @@ const Signup = () => {
                       <FormControl>
                         <Input 
                           placeholder="National ID or Passport" 
-                          className="h-12 rounded-2xl border-border/10 bg-white"
+                          className="h-12 rounded-2xl border-border bg-background text-foreground"
                           {...field} 
                         />
                       </FormControl>
