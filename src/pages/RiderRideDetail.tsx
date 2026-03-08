@@ -460,13 +460,14 @@ export default function RiderRideDetail() {
                 </div>
               </div>
               {driverPhone && (
-                <div className="flex gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <VoiceCallButton onCall={startCall} disabled={callStatus !== "idle"} label="Voice Call" className="flex-1" />
-                  <a href={`tel:${driverPhone}`} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-2xl font-semibold text-sm active:scale-95 transition-all">
-                    <Phone className="h-4 w-4" /> Phone
+                  <a href={`tel:${driverPhone}`} className="flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl font-medium text-sm active:scale-95 transition-all text-center" style={{ background: 'var(--gradient-primary)' }}>
+                    <Phone className="h-4 w-4 text-primary-foreground shrink-0" />
+                    <span className="text-primary-foreground">Phone</span>
                   </a>
-                  <Button variant="outline" className="flex-1 glass-btn rounded-2xl" onClick={() => setShowCommunication(!showCommunication)}>
-                    <MessageCircle className="h-4 w-4 mr-1" /> Chat
+                  <Button variant="outline" className="glass-card rounded-2xl h-auto py-3 text-sm font-medium" onClick={() => setShowCommunication(!showCommunication)}>
+                    <MessageCircle className="h-4 w-4 mr-1 shrink-0" /> Chat
                   </Button>
                 </div>
               )}
