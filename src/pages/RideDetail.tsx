@@ -10,7 +10,7 @@ import NavigationCard from "@/components/driver/NavigationCard";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
-import { ArrowLeft, Eye, Users, MessageCircle, Clock } from "lucide-react";
+import { ArrowLeft, Eye, Users, MessageCircle, Clock, Phone } from "lucide-react";
 
 function SettlementInfo({ tripId }: { tripId: string }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
