@@ -122,36 +122,6 @@ export default function DriverDashboard() {
     otherUserId: activeTrip?.user_id ?? null,
   });
 
-  // Debug: track realtime subscription status for calls
-  useEffect(() => {
-    if (!user?.id) {
-      setCallSubStatus("no-auth");
-      return;
-    }
-    setCallSubStatus("connecting");
-    const channel = supabase
-      .channel(`driver-call-debug-${user.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "call_sessions",
-          filter: `callee_id=eq.${user.id}`,
-        },
-        (payload) => {
-          console.log("[CallDebug] Incoming call_sessions INSERT:", payload);
-        }
-      )
-      .subscribe((status) => {
-        console.log("[CallDebug] Subscription status:", status);
-        setCallSubStatus(status === "SUBSCRIBED" ? "connected" : status);
-      });
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id]);
 
   // Helper: days left in trial
   const trialDaysLeft = profile?.trial_ends_at
