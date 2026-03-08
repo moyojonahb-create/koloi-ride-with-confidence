@@ -237,33 +237,33 @@ export default function RideView() {
 
         {/* Driver card bottom */}
         <div className="absolute bottom-0 left-0 right-0 z-50">
-          <div className="glass-card-heavy rounded-t-[28px] px-5 pt-5 pb-6" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
-            <div className="w-10 h-1 rounded-full bg-foreground/10 mx-auto mb-5" />
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center ring-2 ring-primary/20" style={{ background: 'var(--gradient-primary)' }}>
-                <User className="w-8 h-8 text-primary-foreground" />
+          <div className="glass-card-heavy rounded-t-[24px] px-4 pt-4 pb-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+            <div className="w-10 h-1 rounded-full bg-foreground/10 mx-auto mb-4" />
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center ring-2 ring-primary/20 shrink-0" style={{ background: 'var(--gradient-primary)' }}>
+                <User className="w-7 h-7 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-lg font-semibold font-display text-foreground">{matchedDriver.name}</p>
-                <p className="text-sm text-muted-foreground">{matchedDriver.car} · {matchedDriver.plate}</p>
+                <p className="text-base font-semibold font-display text-foreground truncate">{matchedDriver.name}</p>
+                <p className="text-sm text-muted-foreground truncate">{matchedDriver.car} · {matchedDriver.plate}</p>
               </div>
-              <div className="flex items-center gap-1.5 glass-card rounded-full px-3.5 py-2 glass-glow-yellow">
-                <Star className="w-4 h-4 text-accent fill-accent" />
+              <div className="flex items-center gap-1 glass-card rounded-full px-3 py-1.5 glass-glow-yellow shrink-0">
+                <Star className="w-3.5 h-3.5 text-accent fill-accent" />
                 <span className="text-sm font-bold text-foreground">{matchedDriver.rating}</span>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              <button className="flex flex-col items-center gap-2 py-4 rounded-2xl active:scale-95 transition-all" style={{ background: 'var(--gradient-primary)' }}>
+            <div className="grid grid-cols-3 gap-2">
+              <button className="flex flex-col items-center gap-1.5 py-3 rounded-2xl active:scale-95 transition-all" style={{ background: 'var(--gradient-primary)' }}>
                 <Phone className="w-5 h-5 text-primary-foreground" />
-                <span className="text-xs font-medium text-primary-foreground">Call</span>
+                <span className="text-[11px] font-medium text-primary-foreground">Call</span>
               </button>
-              <button className="flex flex-col items-center gap-2 py-4 rounded-2xl glass-card active:scale-95 transition-all">
+              <button className="flex flex-col items-center gap-1.5 py-3 rounded-2xl glass-card active:scale-95 transition-all">
                 <MessageCircle className="w-5 h-5 text-primary" />
-                <span className="text-xs font-medium text-foreground">Message</span>
+                <span className="text-[11px] font-medium text-foreground">Message</span>
               </button>
-              <button onClick={handleCancelRide} className="flex flex-col items-center gap-2 py-4 rounded-2xl bg-destructive/8 active:scale-95 transition-all">
+              <button onClick={handleCancelRide} className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-destructive/8 active:scale-95 transition-all">
                 <X className="w-5 h-5 text-destructive" />
-                <span className="text-xs font-medium text-destructive">Cancel</span>
+                <span className="text-[11px] font-medium text-destructive">Cancel</span>
               </button>
             </div>
           </div>
@@ -282,13 +282,15 @@ export default function RideView() {
         <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
 
         {/* Floating map buttons */}
-        <div className="absolute right-4 bottom-[340px] flex flex-col gap-3 z-20">
-          <button onClick={handleUseMyLocation} className="w-12 h-12 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-blue">
-            {gpsState.status === 'loading' ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <Locate className="w-5 h-5 text-primary" />}
-          </button>
-          <button className="w-12 h-12 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-yellow">
-            <Navigation className="w-5 h-5 text-accent" />
-          </button>
+        <div className="absolute right-3 z-20" style={{ bottom: 'calc(50vh + 16px)' }}>
+          <div className="flex flex-col gap-2.5">
+            <button onClick={handleUseMyLocation} className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-blue">
+              {gpsState.status === 'loading' ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <Locate className="w-5 h-5 text-primary" />}
+            </button>
+            <button className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-yellow">
+              <Navigation className="w-5 h-5 text-accent" />
+            </button>
+          </div>
         </div>
 
         {/* Reverse geocode loading overlay */}
@@ -337,13 +339,13 @@ export default function RideView() {
       {/* ── BOTTOM SHEET ── */}
       <div
         className={cn(
-          'absolute bottom-[72px] left-0 right-0 z-50 glass-card-heavy transition-all duration-300',
-          sheetExpanded ? 'max-h-[70vh] overflow-y-auto' : 'max-h-[50vh] overflow-y-auto'
+          'absolute left-0 right-0 z-50 glass-card-heavy transition-all duration-300 overflow-y-auto',
+          sheetExpanded ? 'max-h-[65vh]' : 'max-h-[45vh]'
         )}
-        style={{ paddingBottom: '8px', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, borderTopLeftRadius: 28, borderTopRightRadius: 28 }}
+        style={{ bottom: 64, paddingBottom: '8px', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
       >
         {/* Handle bar */}
-        <div className="sticky top-0 pt-3.5 pb-2.5 z-10" style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, background: 'var(--gradient-primary)' }}>
+        <div className="sticky top-0 pt-3 pb-2 z-10" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, background: 'var(--gradient-primary)' }}>
           <div className="w-10 h-1 rounded-full bg-primary-foreground/40 mx-auto" />
         </div>
 
@@ -479,7 +481,7 @@ export default function RideView() {
               </button>
             )}
 
-            {gpsState.error && <p className="text-sm text-amber-600 bg-amber-50/80 mx-4 my-3 p-3 rounded-xl">{gpsState.error}</p>}
+            {gpsState.error && <p className="text-sm text-destructive bg-destructive/10 mx-4 my-3 p-3 rounded-xl">{gpsState.error}</p>}
 
             {gpsState.coords && (
               <div className="px-4 pt-3 pb-1">
