@@ -316,7 +316,7 @@ export default function DriverDashboard() {
           );
 
           if (voiceEnabled && voiceSupported) {
-            speak("Attention! New ride request received! Open PickMe to respond.");
+            speak("Attention! New ride request received! Open Voyex to respond.");
           }
 
           toast.info("🚗 NEW RIDE REQUEST!", {
