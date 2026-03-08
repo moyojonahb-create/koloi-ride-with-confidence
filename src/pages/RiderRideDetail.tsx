@@ -356,8 +356,13 @@ export default function RiderRideDetail() {
             </div>
 
             {ride.status === "completed" && (
-              <div className="mt-3 px-3 py-2 bg-primary/10 rounded-xl text-sm text-primary font-semibold">
-                Trip completed ✅
+              <div className="mt-4">
+                <TripReceipt
+                  ride={{ ...ride, payment_method: 'cash', vehicle_type: 'standard', created_at: new Date().toISOString() }}
+                  driverName={(driverProfile as any)?.vehicle_make ? `${(driverProfile as any)?.vehicle_make} Driver` : undefined}
+                  onRateDriver={!hasRated && ride.driver_id ? () => setShowRating(true) : undefined}
+                  hasRated={hasRated}
+                />
               </div>
             )}
 
