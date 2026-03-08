@@ -28,7 +28,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
       <div className="koloi-container">
         <nav className="flex items-center justify-between h-[60px] lg:h-[64px]">
           {/* Logo */}
-          <a href="/" className="shrink-0">
+          <a href="/" className="shrink-0 -ml-2">
             <KoloiLogo size="lg" />
           </a>
 
