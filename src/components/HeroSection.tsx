@@ -187,7 +187,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
 
   return (
     <section className="relative bg-background">
-      <div className="koloi-container py-8 lg:py-16">
+      <div className="voyex-container py-8 lg:py-16">
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12">
           {/* Left Side - Ride Request Card */}
           <div className="w-full lg:w-[420px] shrink-0 z-10">
