@@ -254,7 +254,6 @@ function InnerMap({
     </div>
   );
 }
-}
 
 /* ------------------------------------------------------------------ */
 /*  Exported wrapper – fetches API key then renders InnerMap            */
