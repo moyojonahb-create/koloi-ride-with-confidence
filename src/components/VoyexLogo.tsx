@@ -8,13 +8,13 @@ interface VoyexLogoProps {
   iconOnly?: boolean;
 }
 
-const KoloiLogo = ({ 
+const VoyexLogo = ({ 
   className = '', 
   variant = 'default', 
   showTagline = false,
   size = 'md',
   iconOnly = false
-}: KoloiLogoProps) => {
+}: VoyexLogoProps) => {
   const isLight = variant === 'inverted' || variant === 'light';
   
   const iconSizeClasses = {
