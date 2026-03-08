@@ -11,6 +11,7 @@ import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
 import KoloiLogo from '@/components/KoloiLogo';
 import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
+import RiderBottomNav from '@/components/ride/RiderBottomNav';
 
 export default function RiderProfile() {
   const { user, signOut } = useAuth();
