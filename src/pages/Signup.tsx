@@ -229,7 +229,7 @@ const Signup = () => {
                           type="email"
                           inputMode="email"
                           placeholder="you@email.com" 
-                          className="h-12 rounded-2xl border-border/10 bg-white"
+                          className="h-12 rounded-2xl border-border bg-background text-foreground"
                           {...field} 
                         />
                       </FormControl>
