@@ -91,7 +91,7 @@ export function useAgoraCall({
             session.callee_id === currentUserId;
           if (!isParticipant) return;
 
-          console.log("[AgoraCall] UPDATE received:", session.status, session.id, "my sessionId:", sessionIdRef.current);
+          
 
           if (session.status === "ended" || session.status === "declined") {
             if (session.id === sessionIdRef.current || (session.id as string) === incomingCallRef.current?.sessionId) {
