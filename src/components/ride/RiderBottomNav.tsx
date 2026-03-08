@@ -3,12 +3,20 @@ import { Home, History, CreditCard, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
-const NAV_ITEMS = [
+interface NavItem {
+  id: string;
+  icon: typeof Home;
+  label: string;
+  path: string;
+  authRequired?: boolean;
+}
+
+const NAV_ITEMS: NavItem[] = [
   { id: 'home', icon: Home, label: 'Home', path: '/ride' },
   { id: 'trips', icon: History, label: 'Trips', path: '/profile', authRequired: true },
   { id: 'wallet', icon: CreditCard, label: 'Wallet', path: '/profile', authRequired: true },
   { id: 'profile', icon: User, label: 'Profile', path: '/profile', authRequired: true },
-] as const;
+];
 
 interface RiderBottomNavProps {
   activeTab?: 'home' | 'trips' | 'wallet' | 'profile';
