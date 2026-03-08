@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Download, Share, Plus } from 'lucide-react';
-import koloiLogo from '@/assets/pickme-logo.png';
+import voyexLogo from '@/assets/voyex-logo.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
