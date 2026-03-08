@@ -96,12 +96,14 @@ export async function fetchDriversByIds(driverIds: string[]): Promise<Record<str
   return map;
 }
 
-// Fetch open rides for drivers to bid on
+// Fetch open rides for drivers to bid on (only last 5 minutes)
 export async function fetchOpenRides() {
+  const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
   const { data, error } = await supabase
     .from("rides")
     .select("*")
     .eq("status", "pending")
+    .gte("created_at", fiveMinAgo)
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
