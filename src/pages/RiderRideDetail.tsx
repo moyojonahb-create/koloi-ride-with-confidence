@@ -336,12 +336,12 @@ export default function RiderRideDetail() {
       )}
 
       {/* Bottom glass panel */}
-      <div className="absolute bottom-[72px] left-0 right-0 z-50 glass-card-heavy max-h-[55vh] overflow-y-auto" style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
-        <div className="sticky top-0 pt-3.5 pb-2.5 z-10" style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, background: 'var(--gradient-primary)' }}>
+      <div className="absolute left-0 right-0 z-50 glass-card-heavy max-h-[50vh] overflow-y-auto" style={{ bottom: 64, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+        <div className="sticky top-0 pt-3 pb-2 z-10" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, background: 'var(--gradient-primary)' }}>
           <div className="w-10 h-1 rounded-full bg-primary-foreground/40 mx-auto" />
         </div>
 
-        <div className="px-5 pb-5 space-y-4">
+        <div className="px-4 pb-4 space-y-3">
           {/* Route info */}
           <div className="glass-card rounded-2xl p-4 glass-glow-blue">
             <div className="flex items-start gap-3">
