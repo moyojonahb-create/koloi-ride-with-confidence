@@ -139,7 +139,6 @@ const SplashScreen = ({ onComplete, duration = 6000 }: SplashScreenProps) => {
                   objectFit: 'contain',
                 }}
               />
-              />
             </div>
           </div>
         </div>
