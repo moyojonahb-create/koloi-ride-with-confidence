@@ -106,11 +106,11 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
               >
                 Help
               </a>
-              <button className="px-4 py-3.5 text-primary-foreground font-medium hover:bg-primary-foreground/10 rounded-2xl transition-colors text-left flex items-center gap-2">
+              <button className="px-4 py-3.5 text-foreground font-medium hover:bg-muted rounded-2xl transition-colors text-left flex items-center gap-2">
                 <Globe className="w-4 h-4" />
                 English
               </button>
-              <div className="border-t border-primary-foreground/10 my-3" />
+              <div className="border-t border-border/40 my-3" />
               {!loading &&
                 (user ? (
                   <div className="px-4">
