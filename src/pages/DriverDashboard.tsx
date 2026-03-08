@@ -310,7 +310,7 @@ export default function DriverDashboard() {
 
         if (hasNewRide) {
           triggerFullAlert(
-            "🚗 NEW PICKME RIDE REQUEST!",
+            "🚗 NEW VOYEX RIDE REQUEST!",
             "⚡ A rider is looking for a driver near you - respond NOW!",
             "/driver"
           );
