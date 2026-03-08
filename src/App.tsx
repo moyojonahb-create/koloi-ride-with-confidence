@@ -26,6 +26,7 @@ import DriverDepositPage from "./pages/DriverDepositPage";
 import SafetyPage from "./pages/SafetyPage";
 import DriverModeLanding from "./pages/DriverModeLanding";
 import RideHistory from "./pages/RideHistory";
+import EditProfile from "./pages/EditProfile";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
