@@ -105,6 +105,7 @@ export default function RiderProfile() {
         </section>
 
         <section className="space-y-2.5">
+          <QuickLink icon={<User className="w-5 h-5 text-primary" />} label="Edit Profile" onClick={() => navigate(`${prefix}/edit-profile`)} />
           <QuickLink icon={<MapPin className="w-5 h-5 text-primary" />} label="Request a Ride" onClick={() => navigate(`${prefix}/ride`)} />
           <QuickLink icon={<Zap className="w-5 h-5 text-accent" />} label="Negotiate a Price" onClick={() => navigate(`${prefix}/negotiate/request`)} />
           <QuickLink icon={<Shield className="w-5 h-5 text-primary" />} label="Safety" onClick={() => navigate(`${prefix}/safety`)} />
