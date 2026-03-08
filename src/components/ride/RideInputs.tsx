@@ -92,20 +92,20 @@ export default function RideInputs({
   return (
     <div className={cn('space-y-4', className)}>
       {/* Location Inputs - Compact Card Style */}
-      <div className="bg-koloi-gray-100 rounded-2xl p-1 space-y-1">
+      <div className="bg-voyex-gray-100 rounded-2xl p-1 space-y-1">
         {/* Pickup Input */}
         <button
           onClick={() => setActiveField('pickup')}
           className={cn(
             'w-full flex items-center gap-3 p-3.5 rounded-xl transition-all text-left',
             activeField === 'pickup'
-              ? 'bg-background shadow-koloi-sm'
-              : 'hover:bg-koloi-gray-200'
+              ? 'bg-background shadow-voyex-sm'
+              : 'hover:bg-voyex-gray-200'
           )}
         >
           <div className={cn(
             'w-4 h-4 rounded-full shrink-0 shadow-sm',
-            pickupLocation ? 'bg-accent' : 'bg-koloi-gray-400'
+            pickupLocation ? 'bg-accent' : 'bg-voyex-gray-400'
           )} />
           <div className="min-w-0 flex-1">
             <p className={cn(
@@ -118,7 +118,7 @@ export default function RideInputs({
           {pickupLocation && (
             <button
               onClick={(e) => { e.stopPropagation(); clearLocation('pickup'); }}
-              className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors"
+              className="p-1.5 hover:bg-voyex-gray-200 rounded-full transition-colors"
             >
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -128,9 +128,9 @@ export default function RideInputs({
         {/* Divider line */}
         <div className="flex items-center px-3">
           <div className="w-4 flex justify-center">
-            <div className="w-0.5 h-4 bg-koloi-gray-300" />
+            <div className="w-0.5 h-4 bg-voyex-gray-300" />
           </div>
-          <div className="flex-1 h-px bg-koloi-gray-300 ml-3" />
+          <div className="flex-1 h-px bg-voyex-gray-300 ml-3" />
         </div>
 
         {/* Dropoff Input */}
@@ -139,13 +139,13 @@ export default function RideInputs({
           className={cn(
             'w-full flex items-center gap-3 p-3.5 rounded-xl transition-all text-left',
             activeField === 'dropoff'
-              ? 'bg-background shadow-koloi-sm'
-              : 'hover:bg-koloi-gray-200'
+              ? 'bg-background shadow-voyex-sm'
+              : 'hover:bg-voyex-gray-200'
           )}
         >
           <div className={cn(
             'w-4 h-4 rounded-full shrink-0 shadow-sm',
-            dropoffLocation ? 'bg-primary' : 'bg-koloi-gray-400'
+            dropoffLocation ? 'bg-primary' : 'bg-voyex-gray-400'
           )} />
           <div className="min-w-0 flex-1">
             <p className={cn(
@@ -158,7 +158,7 @@ export default function RideInputs({
           {dropoffLocation && (
             <button
               onClick={(e) => { e.stopPropagation(); clearLocation('dropoff'); }}
-              className="p-1.5 hover:bg-koloi-gray-200 rounded-full transition-colors"
+              className="p-1.5 hover:bg-voyex-gray-200 rounded-full transition-colors"
             >
               <X className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -222,7 +222,7 @@ export default function RideInputs({
             placeholder={`Search ${activeField === 'pickup' ? 'pickup' : 'destination'}...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 h-14 text-base bg-koloi-gray-100 border-0 rounded-2xl"
+            className="pl-12 h-14 text-base bg-voyex-gray-100 border-0 rounded-2xl"
           />
         </div>
       )}
@@ -247,7 +247,7 @@ export default function RideInputs({
               <button
                 key={landmark.id}
                 onClick={() => handleLandmarkSelect(landmark)}
-                className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-koloi-gray-100 hover:bg-koloi-gray-200 transition-colors text-left"
+                className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-voyex-gray-100 hover:bg-voyex-gray-200 transition-colors text-left"
               >
                 <div className="w-10 h-10 bg-background rounded-xl flex items-center justify-center shadow-sm">
                   <MapPin className="w-5 h-5 text-muted-foreground" />

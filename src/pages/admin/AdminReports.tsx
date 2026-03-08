@@ -193,7 +193,7 @@ const AdminReports = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `koloi-${type}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+      a.download = `voyex-${type}-${format(new Date(), 'yyyy-MM-dd')}.csv`;
       a.click();
       window.URL.revokeObjectURL(url);
       

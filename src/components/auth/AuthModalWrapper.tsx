@@ -23,7 +23,7 @@ const AuthModalWrapper = forwardRef<HTMLDivElement, AuthModalWrapperProps>(
         />
 
         {/* Modal */}
-        <div className="relative bg-card w-full max-w-md mx-4 rounded-2xl shadow-koloi-xl animate-slide-up overflow-hidden">
+        <div className="relative bg-card w-full max-w-md mx-4 rounded-2xl shadow-voyex-xl animate-slide-up overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="w-9" />

@@ -385,7 +385,7 @@ const OSMMap = forwardRef<HTMLDivElement, OSMMapProps>(function OSMMap({
 
   return (
     <div 
-      className={cn('relative overflow-hidden bg-koloi-gray-200', className)} 
+      className={cn('relative overflow-hidden bg-voyex-gray-200', className)} 
       style={{ height, minHeight: height === '100%' ? undefined : '260px' }}
     >
       {/* Loading State */}
@@ -400,7 +400,7 @@ const OSMMap = forwardRef<HTMLDivElement, OSMMapProps>(function OSMMap({
 
       {/* Error State */}
       {mapState === 'error' && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-koloi-gray-200 gap-4">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-voyex-gray-200 gap-4">
           <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
             <AlertTriangle className="w-8 h-8 text-destructive" />
           </div>

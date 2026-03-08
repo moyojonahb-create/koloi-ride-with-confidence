@@ -280,7 +280,7 @@ export default function RideDetail() {
                     <Phone className="h-3.5 w-3.5 text-primary-foreground shrink-0" />
                     <span className="text-primary-foreground">Phone</span>
                   </a>
-                  <button onClick={() => document.getElementById("koloi-chat")?.scrollIntoView({ behavior: "smooth" })}
+                  <button onClick={() => document.getElementById("voyex-chat")?.scrollIntoView({ behavior: "smooth" })}
                     className="flex items-center justify-center gap-1 py-3 rounded-2xl glass-card font-medium text-xs active:scale-95 transition-all">
                     <MessageCircle className="h-3.5 w-3.5 shrink-0" /> Chat
                   </button>
@@ -291,7 +291,7 @@ export default function RideDetail() {
 
           {/* Chat */}
           {accepted && (
-            <div id="koloi-chat" className="glass-card rounded-2xl p-4">
+            <div id="voyex-chat" className="glass-card rounded-2xl p-4">
               <h3 className="font-bold text-lg mb-3 text-foreground">Chat</h3>
               <div className="h-48 overflow-y-auto space-y-2 mb-3 bg-foreground/[0.02] rounded-xl p-3">
                 {messages.length === 0 ? (

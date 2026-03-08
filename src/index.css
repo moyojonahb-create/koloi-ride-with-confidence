@@ -54,23 +54,23 @@
     --sidebar-border: 217 70% 35%;
     --sidebar-ring: 45 100% 51%;
 
-    /* Koloi legacy tokens */
-    --koloi-blue: 217 85% 29%;
-    --koloi-blue-dark: 217 90% 22%;
-    --koloi-blue-light: 213 83% 56%;
-    --koloi-yellow: 45 100% 51%;
-    --koloi-yellow-light: 45 100% 70%;
-    --koloi-white: 0 0% 100%;
-    --koloi-dark: 0 0% 10%;
-    --koloi-gray-100: 225 27% 98%;
-    --koloi-gray-200: 225 27% 95%;
-    --koloi-gray-300: 217 20% 90%;
-    --koloi-gray-400: 217 15% 75%;
-    --koloi-gray-500: 217 10% 55%;
-    --koloi-gray-600: 217 10% 45%;
-    --koloi-gray-700: 217 15% 30%;
-    --koloi-gray-800: 217 20% 20%;
-    --koloi-gray-900: 0 0% 10%;
+    /* Voyex design tokens */
+    --voyex-blue: 217 85% 29%;
+    --voyex-blue-dark: 217 90% 22%;
+    --voyex-blue-light: 213 83% 56%;
+    --voyex-yellow: 45 100% 51%;
+    --voyex-yellow-light: 45 100% 70%;
+    --voyex-white: 0 0% 100%;
+    --voyex-dark: 0 0% 10%;
+    --voyex-gray-100: 225 27% 98%;
+    --voyex-gray-200: 225 27% 95%;
+    --voyex-gray-300: 217 20% 90%;
+    --voyex-gray-400: 217 15% 75%;
+    --voyex-gray-500: 217 10% 55%;
+    --voyex-gray-600: 217 10% 45%;
+    --voyex-gray-700: 217 15% 30%;
+    --voyex-gray-800: 217 20% 20%;
+    --voyex-gray-900: 0 0% 10%;
 
     /* ─── Shadows ─── */
     --shadow-xs: 0 1px 2px 0 hsl(217 25% 0% / 0.03);
@@ -197,15 +197,15 @@
     box-shadow: var(--glass-glow-yellow);
   }
 
-  .koloi-container {
+  .voyex-container {
     @apply max-w-7xl mx-auto px-5 sm:px-6 lg:px-8;
   }
 
-  .koloi-card {
+  .voyex-card {
     @apply bg-card rounded-2xl shadow-[var(--shadow-card)] p-5 transition-shadow duration-200 hover:shadow-[var(--shadow-lg)];
   }
 
-  .koloi-card-glass {
+  .voyex-card-glass {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
@@ -214,43 +214,43 @@
     @apply rounded-2xl p-5;
   }
 
-  .koloi-input {
-    @apply w-full h-[52px] px-4 bg-koloi-gray-100 border-0 rounded-2xl text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:bg-background transition-all duration-200;
+  .voyex-input {
+    @apply w-full h-[52px] px-4 bg-voyex-gray-100 border-0 rounded-2xl text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:bg-background transition-all duration-200;
   }
 
-  .koloi-btn-primary {
+  .voyex-btn-primary {
     @apply h-[52px] px-8 bg-primary text-primary-foreground font-semibold rounded-full hover:brightness-105 hover:shadow-[var(--shadow-md)] active:scale-[0.97] transition-all duration-150;
   }
 
-  .koloi-btn-secondary {
+  .voyex-btn-secondary {
     @apply h-12 px-6 bg-secondary text-secondary-foreground font-medium rounded-full hover:brightness-98 hover:shadow-[var(--shadow-sm)] active:scale-[0.97] transition-all duration-150;
   }
 
-  .koloi-btn-accent {
+  .voyex-btn-accent {
     @apply h-[52px] px-8 bg-accent text-accent-foreground font-bold rounded-full hover:brightness-105 hover:shadow-[var(--shadow-glow)] active:scale-[0.97] transition-all duration-150;
   }
 
-  .koloi-link {
+  .voyex-link {
     @apply text-foreground font-medium hover:text-muted-foreground transition-colors duration-150;
   }
 
-  .koloi-link-nav {
-    @apply text-[15px] font-medium text-foreground hover:bg-koloi-gray-100 px-5 py-3 rounded-full transition-all duration-150;
+  .voyex-link-nav {
+    @apply text-[15px] font-medium text-foreground hover:bg-voyex-gray-100 px-5 py-3 rounded-full transition-all duration-150;
   }
 
-  .koloi-stat-card {
+  .voyex-stat-card {
     @apply bg-primary-foreground/10 rounded-2xl p-5 text-center transition-all duration-200 hover:bg-primary-foreground/15 hover:-translate-y-0.5;
   }
 
-  .koloi-feature-card {
+  .voyex-feature-card {
     @apply bg-card rounded-2xl p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5;
   }
 
-  .koloi-badge {
+  .voyex-badge {
     @apply inline-flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-semibold;
   }
 
-  .koloi-icon-box {
+  .voyex-icon-box {
     @apply w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-150;
   }
 
@@ -363,5 +363,5 @@
   width: 100%;
   height: 100%;
   min-height: 260px;
-  background: hsl(var(--koloi-gray-200));
+  background: hsl(var(--voyex-gray-200));
 }

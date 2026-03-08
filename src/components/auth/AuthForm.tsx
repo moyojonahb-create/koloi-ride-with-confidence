@@ -306,7 +306,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
                   <select 
                     value={countryCode}
                     onChange={(e) => setCountryCode(e.target.value)}
-                    className="koloi-input w-24"
+                    className="voyex-input w-24"
                   >
                     <option value="+263">+263</option>
                     <option value="+27">+27</option>
@@ -380,7 +380,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
 
         <Button 
           type="submit" 
-          className="w-full mt-8 koloi-btn-primary"
+          className="w-full mt-8 voyex-btn-primary"
           disabled={loading}
         >
           {loading && <Loader2 className="w-5 h-5 animate-spin mr-2" />}
@@ -412,7 +412,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
             <select 
               value={countryCode}
               onChange={(e) => setCountryCode(e.target.value)}
-              className="koloi-input w-24"
+              className="voyex-input w-24"
             >
               <option value="+263">+263</option>
               <option value="+27">+27</option>
@@ -437,7 +437,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
 
         <Button 
           type="submit" 
-          className="w-full mt-6 koloi-btn-primary"
+          className="w-full mt-6 voyex-btn-primary"
           disabled={loading}
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
@@ -483,7 +483,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
 
         <Button 
           type="submit" 
-          className="w-full mt-6 koloi-btn-primary"
+          className="w-full mt-6 voyex-btn-primary"
           disabled={loading}
         >
           {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}

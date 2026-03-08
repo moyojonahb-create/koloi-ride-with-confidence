@@ -103,7 +103,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     isTrafficAware: googleRoute.isTrafficAware,
   } : null;
 
-  // Calculate fare using Koloi pricing system with ROUTED distance as authoritative source
+  // Calculate fare using Voyex pricing system with ROUTED distance as authoritative source
   // This ensures pricing is consistent and not affected by search/autocomplete distances
   const fareResult: FareResult | null = pickupCoords && dropoffCoords 
     ? calculateKoloiFare(
@@ -187,7 +187,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
 
   return (
     <section className="relative bg-background">
-      <div className="koloi-container py-8 lg:py-16">
+      <div className="voyex-container py-8 lg:py-16">
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12">
           {/* Left Side - Ride Request Card */}
           <div className="w-full lg:w-[420px] shrink-0 z-10">
@@ -208,12 +208,12 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
               Get where you need to go with safe, reliable rides at your fingertips. Book in seconds, ride in minutes.
             </p>
 
-            <div className="bg-card rounded-xl shadow-koloi-card p-6 animate-slide-up">
+            <div className="bg-card rounded-xl shadow-voyex-card p-6 animate-slide-up">
               {/* Pickup Type Selector */}
               <div className="relative mb-4">
                 <button
                   onClick={() => setShowPickupDropdown(!showPickupDropdown)}
-                  className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full hover:bg-koloi-gray-300 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full hover:bg-voyex-gray-300 transition-colors"
                 >
                   {pickupType === 'now' ? (
                     <>
@@ -230,7 +230,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                 </button>
 
                 {showPickupDropdown && (
-                  <div className="absolute top-full left-0 mt-2 bg-card rounded-lg shadow-koloi-lg border border-border overflow-hidden z-20 animate-fade-in">
+                  <div className="absolute top-full left-0 mt-2 bg-card rounded-lg shadow-voyex-lg border border-border overflow-hidden z-20 animate-fade-in">
                     <button
                       onClick={() => {
                         setPickupType('now');
@@ -354,7 +354,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
 
               {/* Request Ride Button */}
               <Button 
-                className="koloi-btn-primary w-full mt-4" 
+                className="voyex-btn-primary w-full mt-4" 
                 disabled={!routeInfo || !currentFare || isRequesting}
                 onClick={handleRequestRide}
               >
@@ -364,7 +364,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                     Finding driver...
                   </>
                 ) : routeInfo && currentFare ? (
-                  `Request Koloi - R${currentFare}`
+                  `Request Voyex - R${currentFare}`
                 ) : (
                   <>
                     Find a ride
@@ -397,7 +397,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                 onPickupSelect={handlePanelPickupSelect}
                 onDropoffSelect={handlePanelDropoffSelect}
                 routeGeometry={routeInfo?.geometry}
-                className="h-[500px] lg:h-[600px] shadow-koloi-xl"
+                className="h-[500px] lg:h-[600px] shadow-voyex-xl"
               />
             </ErrorBoundary>
           </div>

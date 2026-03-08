@@ -17,10 +17,10 @@ export default function FareEstimate({
   className,
 }: FareEstimateProps) {
   return (
-    <div className={cn('bg-koloi-gray-100 rounded-2xl p-4', className)}>
+    <div className={cn('bg-voyex-gray-100 rounded-2xl p-4', className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-koloi-sm">
+          <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-voyex-sm">
             <Car className="w-6 h-6 text-primary-foreground" />
           </div>
           <div>
