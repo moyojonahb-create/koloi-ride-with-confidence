@@ -99,10 +99,10 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                   {item.label}
                 </a>
               ))}
-              <div className="border-t border-primary-foreground/10 my-3" />
+              <div className="border-t border-border/40 my-3" />
               <a
                 href="#help"
-                className="px-4 py-3.5 text-primary-foreground font-medium hover:bg-primary-foreground/10 rounded-2xl transition-colors"
+                className="px-4 py-3.5 text-foreground font-medium hover:bg-muted rounded-2xl transition-colors"
               >
                 Help
               </a>
