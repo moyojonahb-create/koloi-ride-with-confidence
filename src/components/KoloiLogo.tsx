@@ -1,4 +1,4 @@
-import voyexLogo from '@/assets/voyex-logo.png';
+import voyexLogo from '@/assets/voyex-logo-clean.png';
 
 interface KoloiLogoProps {
   className?: string;
