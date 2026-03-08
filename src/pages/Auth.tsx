@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Loader2, Car } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import { lovable } from '@/integrations/lovable/index';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email'),
