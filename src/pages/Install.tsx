@@ -57,10 +57,10 @@ export default function Install() {
         </p>
 
         {isInstalled ? (
-          <div className="bg-green-50 border border-green-200 rounded-2xl p-6 max-w-sm w-full">
-            <Check className="w-12 h-12 text-green-500 mx-auto mb-3" />
-            <h2 className="text-lg font-bold text-green-800">Already Installed!</h2>
-            <p className="text-green-600 text-sm mt-1">Voyex is on your home screen. Open it from there for the best experience.</p>
+          <div className="bg-accent/30 border border-accent rounded-2xl p-6 max-w-sm w-full">
+            <Check className="w-12 h-12 text-primary mx-auto mb-3" />
+            <h2 className="text-lg font-bold text-foreground">Already Installed!</h2>
+            <p className="text-muted-foreground text-sm mt-1">Voyex is on your home screen. Open it from there for the best experience.</p>
             <Button className="mt-4 w-full" onClick={() => window.location.href = '/ride'}>
               Open App
             </Button>
