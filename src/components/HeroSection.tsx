@@ -208,7 +208,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
               Get where you need to go with safe, reliable rides at your fingertips. Book in seconds, ride in minutes.
             </p>
 
-            <div className="bg-card rounded-xl shadow-koloi-card p-6 animate-slide-up">
+            <div className="bg-card rounded-xl shadow-voyex-card p-6 animate-slide-up">
               {/* Pickup Type Selector */}
               <div className="relative mb-4">
                 <button
