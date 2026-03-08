@@ -111,7 +111,7 @@ export function calculateRecommendedFare(
   const tripFloor = Math.max(pricing.offer_floor, pricing.minimum_fare);
   const tripCeiling = Math.min(
     pricing.offer_ceiling,
-    fare * 2.5 // Max 2.5x the recommended fare
+    fare * 2 // Max 2x the recommended fare
   );
 
   return {
