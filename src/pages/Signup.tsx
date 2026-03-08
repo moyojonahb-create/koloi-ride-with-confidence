@@ -291,7 +291,7 @@ const Signup = () => {
 
   return (
     <div className="min-h-[100dvh] bg-primary flex items-center justify-center p-4 pt-[calc(16px+env(safe-area-inset-top))] pb-[calc(16px+env(safe-area-inset-bottom))]">
-      <div className="w-full max-w-[520px] bg-white/95 backdrop-blur-[10px] rounded-[26px] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
+      <div className="w-full max-w-[520px] bg-background backdrop-blur-[10px] rounded-[26px] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
         {renderStep()}
       </div>
     </div>
