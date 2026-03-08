@@ -159,17 +159,24 @@ export default function RideView() {
     } finally { setReverseGeoLoading(false); }
   }, [activeField]);
 
-  const handleRequestRide = async () => {
+  const handleSendOffer = async (customFare: number) => {
     if (!user) { setAuthMode('login'); setAuthModalOpen(true); return; }
     if (!pickupLocation || !dropoffLocation || !fareEstimate) { toast({ title: 'Select pickup and destination', variant: 'destructive' }); return; }
     setIsRequesting(true); setRideStatus('searching');
     try {
-      const result = await requestRide({ pickup_address: pickupLocation.name, pickup_lat: pickupLocation.lat, pickup_lng: pickupLocation.lng, dropoff_address: dropoffLocation.name, dropoff_lat: dropoffLocation.lat, dropoff_lng: dropoffLocation.lng, distance_km: fareEstimate.distanceKm, duration_minutes: fareEstimate.durationMinutes, fare: Math.max(5, fareEstimate.fareR), route_polyline: routeData?.geometry || null, passenger_count: passengerCount, payment_method: paymentMethod, vehicle_type: selectedTier });
+      const result = await requestRide({
+        pickup_address: pickupLocation.name, pickup_lat: pickupLocation.lat, pickup_lng: pickupLocation.lng,
+        dropoff_address: dropoffLocation.name, dropoff_lat: dropoffLocation.lat, dropoff_lng: dropoffLocation.lng,
+        distance_km: fareEstimate.distanceKm, duration_minutes: fareEstimate.durationMinutes,
+        fare: customFare,
+        route_polyline: routeData?.geometry || null, passenger_count: passengerCount,
+        payment_method: paymentMethod, vehicle_type: selectedTier,
+      });
       if (!result.ok) throw new Error(result.error);
       setCurrentRideId(result.ride.id);
-      toast({ title: 'Ride requested!', description: 'Looking for nearby drivers...' });
+      toast({ title: 'Offer sent!', description: `${fareEstimate.currencySymbol}${customFare} — waiting for drivers…` });
       navigate(`/ride/${result.ride.id}`);
-    } catch (error: unknown) { toast({ title: 'Failed to request ride', description: (error as Error).message, variant: 'destructive' }); setRideStatus('idle'); } finally { setIsRequesting(false); }
+    } catch (error: unknown) { toast({ title: 'Failed to send offer', description: (error as Error).message, variant: 'destructive' }); setRideStatus('idle'); } finally { setIsRequesting(false); }
   };
 
   const handleAcceptOffer = async (offerId: string) => { setRideStatus('driver_assigned'); setOffersOpen(false); toast({ title: 'Driver accepted!' }); setMatchedDriver({ name: 'Sipho Ndlovu', car: 'Toyota Corolla', plate: 'ACB 2345', rating: 4.8, eta: 3 }); setTimeout(() => setRideStatus('driver_arriving'), 2000); };
