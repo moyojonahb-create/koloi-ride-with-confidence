@@ -136,7 +136,7 @@ export default function RiderWalletPage() {
         currentBalance={balance}
       />
 
-      <RiderBottomNav activeTab="wallet" />
+      
     </div>
   );
 }

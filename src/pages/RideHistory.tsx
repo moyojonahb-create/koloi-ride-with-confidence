@@ -136,7 +136,7 @@ export default function RideHistory() {
         )}
       </div>
 
-      <RiderBottomNav activeTab="trips" />
+      
     </div>
   );
 }

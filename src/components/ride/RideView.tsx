@@ -442,8 +442,6 @@ export default function RideView() {
         </div>
       </div>
 
-      {/* ── BOTTOM NAV ── */}
-      <RiderBottomNav activeTab="home" />
 
       {/* ═══ SEARCH OVERLAY ═══ */}
       {activeField && (

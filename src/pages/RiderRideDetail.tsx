@@ -523,8 +523,6 @@ export default function RiderRideDetail() {
         </div>
       </div>
 
-      {/* Bottom Nav */}
-      <RiderBottomNav />
 
       {/* Modals */}
       <OffersModal

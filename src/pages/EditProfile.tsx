@@ -188,7 +188,7 @@ export default function EditProfile() {
         </Button>
       </div>
 
-      <RiderBottomNav activeTab="profile" />
+      
     </div>
   );
 }

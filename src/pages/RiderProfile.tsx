@@ -119,7 +119,7 @@ export default function RiderProfile() {
         <div className="h-24" />
       </div>
 
-      <RiderBottomNav activeTab="profile" />
+      
     </div>
   );
 }

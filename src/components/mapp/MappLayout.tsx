@@ -31,27 +31,6 @@ export default function MappLayout() {
         <Outlet />
       </main>
 
-      {/* Fixed bottom navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-primary border-t border-primary-foreground/10 flex items-center justify-around px-1 safe-area-bottom">
-        {visibleTabs.map((tab) => {
-          const active = isActive(tab.path);
-          return (
-            <button
-              key={tab.path}
-              onClick={() => navigate(tab.path)}
-              className={cn(
-                'flex flex-col items-center justify-center gap-0.5 flex-1 h-full rounded-lg transition-colors',
-                active
-                  ? 'text-accent'
-                  : 'text-primary-foreground/50 hover:text-primary-foreground/80'
-              )}
-            >
-              <tab.icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium leading-tight">{tab.label}</span>
-            </button>
-          );
-        })}
-      </nav>
     </div>
   );
 }
