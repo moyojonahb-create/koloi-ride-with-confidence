@@ -147,7 +147,7 @@ export function useAgoraCall({
           return;
         }
 
-        console.log("[AgoraCall] Invoking agora-token", sid);
+        
 
         const { data, error } = await supabase.functions.invoke("agora-token", {
           body: { session_id: sid },
