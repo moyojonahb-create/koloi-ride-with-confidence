@@ -31,6 +31,8 @@ import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import RiderBottomNav from "@/components/ride/RiderBottomNav";
+import TripReceipt from "@/components/ride/TripReceipt";
+import ShareTripButton from "@/components/ride/ShareTripButton";
 
 type Ride = {
   id: string;
@@ -355,8 +357,13 @@ export default function RiderRideDetail() {
             </div>
 
             {ride.status === "completed" && (
-              <div className="mt-3 px-3 py-2 bg-primary/10 rounded-xl text-sm text-primary font-semibold">
-                Trip completed ✅
+              <div className="mt-4">
+                <TripReceipt
+                  ride={{ ...ride, payment_method: 'cash', vehicle_type: 'standard', created_at: new Date().toISOString() }}
+                  driverName={(driverProfile as any)?.vehicle_make ? `${(driverProfile as any)?.vehicle_make} Driver` : undefined}
+                  onRateDriver={!hasRated && ride.driver_id ? () => setShowRating(true) : undefined}
+                  hasRated={hasRated}
+                />
               </div>
             )}
 
@@ -481,7 +488,11 @@ export default function RiderRideDetail() {
             </div>
           )}
 
-          {/* Rating */}
+          {/* Share Trip - visible during active rides */}
+          {isAccepted && ride && (
+            <ShareTripButton rideId={ride.id} pickupAddress={ride.pickup_address} dropoffAddress={ride.dropoff_address} />
+          )}
+
           {ride.status === "completed" && !hasRated && !showRating && ride.driver_id && user && (
             <Button className="w-full h-[52px] gap-2 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground font-bold" onClick={() => setShowRating(true)}>
               <Star className="h-4 w-4" /> Rate Your Driver

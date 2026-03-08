@@ -27,6 +27,7 @@ import VoyexLogo from '@/components/VoyexLogo';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 import RiderBottomNav from './RiderBottomNav';
+import RecentDestinations from './RecentDestinations';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
 import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
 import TownSelectorSheet from './TownSelectorSheet';
@@ -484,6 +485,19 @@ export default function RideView() {
               <div className="px-4 pt-3 pb-1">
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Nearby places</p>
                 <ProximityFilter selected={proximityRadius} onSelect={setProximityRadius} />
+              </div>
+            )}
+
+            {!searchQuery.trim() && user && (
+              <div className="px-4 pt-3 pb-2">
+                <RecentDestinations
+                  field={activeField!}
+                  onSelect={(dest) => {
+                    const loc = { name: dest.name, lat: dest.lat, lng: dest.lng };
+                    if (activeField === 'pickup') setPickupLocation(loc); else setDropoffLocation(loc);
+                    setActiveField(null); setSearchQuery('');
+                  }}
+                />
               </div>
             )}
 
