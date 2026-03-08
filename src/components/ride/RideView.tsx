@@ -481,7 +481,7 @@ export default function RideView() {
               </button>
             )}
 
-            {gpsState.error && <p className="text-sm text-amber-600 bg-amber-50/80 mx-4 my-3 p-3 rounded-xl">{gpsState.error}</p>}
+            {gpsState.error && <p className="text-sm text-destructive bg-destructive/10 mx-4 my-3 p-3 rounded-xl">{gpsState.error}</p>}
 
             {gpsState.coords && (
               <div className="px-4 pt-3 pb-1">
