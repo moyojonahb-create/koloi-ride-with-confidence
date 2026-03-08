@@ -1,45 +1,9 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
-
-let cachedKey: string | null = null;
+const GOOGLE_MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
 export function useGoogleMapsKey() {
-  const [apiKey, setApiKey] = useState<string | null>(cachedKey);
-  const [loading, setLoading] = useState(!cachedKey);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (cachedKey) {
-      setApiKey(cachedKey);
-      setLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const { data, error: invokeError } = await supabase.functions.invoke(
-          "google-maps-key"
-        );
-        if (cancelled) return;
-        if (invokeError || !data?.apiKey) {
-          setError(invokeError?.message ?? "Failed to load Maps API key");
-          return;
-        }
-        cachedKey = data.apiKey;
-        setApiKey(data.apiKey);
-      } catch (e: unknown) {
-        if (!cancelled) setError((e as Error).message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return { apiKey, loading, error };
+  return {
+    apiKey: GOOGLE_MAPS_KEY || null,
+    loading: false,
+    error: GOOGLE_MAPS_KEY ? null : 'Google Maps API key not configured',
+  };
 }
