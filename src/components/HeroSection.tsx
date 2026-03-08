@@ -354,7 +354,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
 
               {/* Request Ride Button */}
               <Button 
-                className="koloi-btn-primary w-full mt-4" 
+                className="voyex-btn-primary w-full mt-4" 
                 disabled={!routeInfo || !currentFare || isRequesting}
                 onClick={handleRequestRide}
               >
