@@ -310,13 +310,13 @@ export default function DriverDashboard() {
 
         if (hasNewRide) {
           triggerFullAlert(
-            "🚗 NEW PICKME RIDE REQUEST!",
+            "🚗 NEW VOYEX RIDE REQUEST!",
             "⚡ A rider is looking for a driver near you - respond NOW!",
             "/driver"
           );
 
           if (voiceEnabled && voiceSupported) {
-            speak("Attention! New ride request received! Open PickMe to respond.");
+            speak("Attention! New ride request received! Open Voyex to respond.");
           }
 
           toast.info("🚗 NEW RIDE REQUEST!", {

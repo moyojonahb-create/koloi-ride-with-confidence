@@ -142,7 +142,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
             </div>
           ) : (
             <p className="text-gray-600 text-center text-sm">
-              Get quick access to PickMe from your home screen for the best ride-hailing experience.
+              Get quick access to Voyex from your home screen for the best ride-hailing experience.
             </p>
           )}
         </div>
