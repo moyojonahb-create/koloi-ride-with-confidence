@@ -102,7 +102,7 @@ export function useAgoraCall({
             }
           }
           if (session.status === "answered" && session.id === sessionIdRef.current) {
-            console.log("[AgoraCall] Other party answered, joining channel...");
+            
             joinChannel(session.id as string);
           }
         }
