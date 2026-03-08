@@ -201,7 +201,7 @@ export function useAgoraCall({
           setCallDuration(Math.floor((Date.now() - start) / 1000));
         }, 1000);
       } catch (err) {
-        console.error("[AgoraCall] Failed to join Agora channel:", err);
+        
         toast.error("Call failed", { description: String(err) });
         setCallStatus("error");
         cleanup();
