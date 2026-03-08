@@ -274,11 +274,16 @@ export default function RideDetail() {
             ) : (
               <div className="mt-4 space-y-3">
                 <p className="text-sm text-primary font-semibold">Driver accepted ✅</p>
-                <div className="flex gap-2">
-                  <VoiceCallButton onCall={startCall} disabled={callStatus !== "idle"} label="Voice Call" className="flex-1" />
-                  <a href="tel:+263" className="flex-1 py-3 rounded-2xl bg-primary text-primary-foreground font-bold text-center text-sm active:scale-95 transition-all">📞 Phone</a>
+                <div className="grid grid-cols-3 gap-2">
+                  <VoiceCallButton onCall={startCall} disabled={callStatus !== "idle"} label="Voice Call" className="w-full" />
+                  <a href="tel:+263" className="flex items-center justify-center gap-1.5 py-3 rounded-2xl font-medium text-sm text-center active:scale-95 transition-all" style={{ background: 'var(--gradient-primary)' }}>
+                    <Phone className="h-4 w-4 text-primary-foreground shrink-0" />
+                    <span className="text-primary-foreground">Phone</span>
+                  </a>
                   <button onClick={() => document.getElementById("koloi-chat")?.scrollIntoView({ behavior: "smooth" })}
-                    className="flex-1 py-3 rounded-2xl glass-card font-bold text-sm active:scale-95 transition-all">💬 Chat</button>
+                    className="flex items-center justify-center gap-1.5 py-3 rounded-2xl glass-card font-medium text-sm active:scale-95 transition-all">
+                    <MessageCircle className="h-4 w-4 shrink-0" /> Chat
+                  </button>
                 </div>
               </div>
             )}
