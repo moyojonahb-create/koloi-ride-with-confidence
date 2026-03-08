@@ -87,7 +87,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden py-5 border-t border-primary-foreground/10 animate-slide-down">
+          <div className="lg:hidden py-5 border-t border-border/40 animate-slide-down">
             <div className="flex flex-col gap-1">
               {navItems.map((item) => (
                 <a
