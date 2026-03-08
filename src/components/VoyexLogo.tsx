@@ -1,6 +1,6 @@
 import voyexLogo from '@/assets/voyex-logo.png';
 
-interface KoloiLogoProps {
+interface VoyexLogoProps {
   className?: string;
   variant?: 'default' | 'inverted' | 'light';
   showTagline?: boolean;
