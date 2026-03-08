@@ -27,7 +27,7 @@ export default function MappLayout() {
   return (
     <div className="min-h-[100dvh] bg-background flex flex-col">
       {/* Main content area with bottom padding for nav */}
-      <main className="flex-1 pb-20">
+      <main className="flex-1">
         <Outlet />
       </main>
 
