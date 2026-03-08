@@ -152,7 +152,9 @@ export default function RiderProfile() {
           <LogOut className="w-4 h-4 mr-2" />
           Sign Out
         </Button>
+        <div className="h-20" /> {/* spacer for bottom nav */}
       </div>
+      <RiderBottomNav activeTab="profile" />
     </div>);
 
 }
