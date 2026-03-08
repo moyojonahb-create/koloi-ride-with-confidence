@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useWallet } from '@/hooks/useWallet';
 import { supabase } from '@/integrations/supabase/client';
 import DepositModal from '@/components/wallet/DepositModal';
-import RiderBottomNav from '@/components/ride/RiderBottomNav';
+
 import { format } from 'date-fns';
 
 interface RiderDeposit {
