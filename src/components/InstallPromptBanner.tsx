@@ -104,11 +104,11 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
           </button>
           
           <img 
-            src={koloiLogo} 
-            alt="PickMe" 
+            src={voyexLogo} 
+            alt="Voyex" 
             className="w-20 h-20 mx-auto rounded-2xl object-cover shadow-lg mb-4"
           />
-          <h2 className="text-xl font-bold text-gray-900">Install PickMe</h2>
+          <h2 className="text-xl font-bold text-gray-900">Install Voyex</h2>
           <p className="text-sm text-gray-500 mt-1">Add to your home screen</p>
         </div>
 
