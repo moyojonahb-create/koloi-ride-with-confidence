@@ -46,6 +46,7 @@ import AdminDepositsPage from "./pages/admin/AdminDepositsPage";
 import AdminLedger from "./pages/admin/AdminLedger";
 import AdminTownPricing from "./pages/admin/AdminTownPricing";
 import AdminRiderDepositsPage from "./pages/admin/AdminRiderDepositsPage";
+import RiderWalletPage from "./pages/RiderWalletPage";
 import RiderRequestScreen from "./pages/negotiate/RiderRequestScreen";
 import RiderOffersScreen from "./pages/negotiate/RiderOffersScreen";
 import DriverRequestsScreen from "./pages/negotiate/DriverRequestsScreen";
@@ -87,6 +88,7 @@ const AnimatedRoutes = () => {
         <Route path="/pilot-test" element={<PageTransition><PilotTest /></PageTransition>} />
         <Route path="/drivers/wallet" element={<PageTransition><DriverWalletPage /></PageTransition>} />
         <Route path="/drivers/deposit" element={<PageTransition><DriverDepositPage /></PageTransition>} />
+        <Route path="/wallet" element={<PageTransition><RiderWalletPage /></PageTransition>} />
         
         {/* Admin Routes */}
         <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />

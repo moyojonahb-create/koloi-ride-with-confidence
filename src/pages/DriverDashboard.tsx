@@ -887,6 +887,7 @@ export default function DriverDashboard() {
             driverId={profile.id}
             initialArea={(profile as Record<string, unknown>).preferred_service_area as string || 'both'}
             initialEarningNotif={(profile as Record<string, unknown>).earning_notifications as boolean ?? true}
+            initialEcocash={(profile as Record<string, unknown>).ecocash_number as string || ''}
           />
         </div>
 

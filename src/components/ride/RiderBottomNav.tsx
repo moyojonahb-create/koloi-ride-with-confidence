@@ -14,7 +14,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: 'home', icon: Home, label: 'Home', path: '/ride' },
   { id: 'trips', icon: History, label: 'Trips', path: '/history', authRequired: true },
-  { id: 'wallet', icon: CreditCard, label: 'Wallet', path: '/profile', authRequired: true },
+  { id: 'wallet', icon: CreditCard, label: 'Wallet', path: '/wallet', authRequired: true },
   { id: 'profile', icon: User, label: 'Profile', path: '/profile', authRequired: true },
 ];
 

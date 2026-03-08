@@ -327,6 +327,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           earning_notifications: boolean
+          ecocash_number: string | null
           gender: string | null
           id: string
           is_online: boolean | null
@@ -347,6 +348,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           earning_notifications?: boolean
+          ecocash_number?: string | null
           gender?: string | null
           id?: string
           is_online?: boolean | null
@@ -367,6 +369,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           earning_notifications?: boolean
+          ecocash_number?: string | null
           gender?: string | null
           id?: string
           is_online?: boolean | null
