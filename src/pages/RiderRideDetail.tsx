@@ -486,6 +486,18 @@ export default function RiderRideDetail() {
                   </Button>
                 </div>
               )}
+              {/* Direct EcoCash Payment Option */}
+              {(driverProfile as Record<string, unknown>)?.ecocash_number && (
+                <div className="bg-green-500/10 rounded-xl p-3 mt-3 border border-green-500/20">
+                  <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-1">💰 Pay Driver via EcoCash</p>
+                  <p className="text-sm font-mono font-bold text-foreground">
+                    {String((driverProfile as Record<string, unknown>).ecocash_number)}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Send ${Number(ride.fare).toFixed(2)} directly to this number
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
