@@ -49,7 +49,6 @@ export default function RideView() {
   const { data: pricingSettings } = usePricingSettings();
   const { findNearestLandmark } = useLandmarks({});
 
-  const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
   // ── state ──
   const [pickupLocation, setPickupLocation] = useState<SelectedLocation | null>(null);
   const [dropoffLocation, setDropoffLocation] = useState<SelectedLocation | null>(null);
