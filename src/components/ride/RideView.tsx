@@ -282,13 +282,15 @@ export default function RideView() {
         <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
 
         {/* Floating map buttons */}
-        <div className="absolute right-4 bottom-[340px] flex flex-col gap-3 z-20">
-          <button onClick={handleUseMyLocation} className="w-12 h-12 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-blue">
-            {gpsState.status === 'loading' ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <Locate className="w-5 h-5 text-primary" />}
-          </button>
-          <button className="w-12 h-12 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-yellow">
-            <Navigation className="w-5 h-5 text-accent" />
-          </button>
+        <div className="absolute right-3 z-20" style={{ bottom: 'calc(50vh + 16px)' }}>
+          <div className="flex flex-col gap-2.5">
+            <button onClick={handleUseMyLocation} className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-blue">
+              {gpsState.status === 'loading' ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <Locate className="w-5 h-5 text-primary" />}
+            </button>
+            <button className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-yellow">
+              <Navigation className="w-5 h-5 text-accent" />
+            </button>
+          </div>
         </div>
 
         {/* Reverse geocode loading overlay */}
