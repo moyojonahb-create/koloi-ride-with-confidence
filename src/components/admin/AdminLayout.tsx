@@ -31,6 +31,7 @@ const navItems = [
   { label: 'Deposits', href: '/admin/deposits', icon: Banknote },
   { label: 'Ledger', href: '/admin/ledger', icon: Banknote },
   { label: 'Reports', href: '/admin/reports', icon: FileBarChart },
+  { label: 'Town Pricing', href: '/admin/town-pricing', icon: Banknote },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 

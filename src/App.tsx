@@ -39,6 +39,7 @@ import ImportOsmPlaces from "./pages/admin/ImportOsmPlaces";
 import AdminRatePage from "./pages/admin/AdminRatePage";
 import AdminDepositsPage from "./pages/admin/AdminDepositsPage";
 import AdminLedger from "./pages/admin/AdminLedger";
+import AdminTownPricing from "./pages/admin/AdminTownPricing";
 import RiderRequestScreen from "./pages/negotiate/RiderRequestScreen";
 import RiderOffersScreen from "./pages/negotiate/RiderOffersScreen";
 import DriverRequestsScreen from "./pages/negotiate/DriverRequestsScreen";
@@ -91,6 +92,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/rate" element={<PageTransition><AdminRatePage /></PageTransition>} />
         <Route path="/admin/deposits" element={<PageTransition><AdminDepositsPage /></PageTransition>} />
         <Route path="/admin/ledger" element={<PageTransition><AdminLedger /></PageTransition>} />
+        <Route path="/admin/town-pricing" element={<PageTransition><AdminTownPricing /></PageTransition>} />
 
         {/* Negotiate / inDrive-style */}
         <Route path="/negotiate/request" element={<PageTransition><RiderRequestScreen /></PageTransition>} />

@@ -1,3 +1,9 @@
+/**
+ * @deprecated LEGACY Gwanda & Beitbridge zone-based pricing.
+ * New towns use the `town_pricing` DB table + `useTownPricing` hook.
+ * This file is kept for Gwanda inner-zone polygon logic and existing tests.
+ * Do NOT add new town logic here — add it to the town_pricing table instead.
+ */
 // Koloi Dynamic Fare Pricing System — Gwanda & Beitbridge Zone-Based Pricing
 
 export type Location = { lat: number; lng: number };
