@@ -38,7 +38,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
               <a
                 key={item.label}
                 href={item.href}
-                className="text-[15px] font-semibold text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-5 py-2.5 rounded-full transition-all duration-150"
+                className="text-[15px] font-semibold text-foreground/70 hover:text-foreground hover:bg-muted px-5 py-2.5 rounded-full transition-all duration-150"
               >
                 {item.label}
               </a>
