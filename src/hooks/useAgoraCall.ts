@@ -154,7 +154,7 @@ export function useAgoraCall({
         });
 
         if (error) {
-          console.error("[AgoraCall] Voice token error:", error);
+          
           toast.error("Voice token error", { description: error.message || String(error) });
           setCallStatus("error");
           setTimeout(() => setCallStatus("idle"), 3000);
