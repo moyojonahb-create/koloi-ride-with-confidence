@@ -183,7 +183,7 @@ export function useAgoraCall({
         });
 
         client.on("user-left", () => {
-          console.log("[AgoraCall] Remote user left");
+          
           endCall();
         });
 
