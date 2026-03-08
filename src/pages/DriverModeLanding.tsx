@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { Button } from '@/components/ui/button';
 import { Clock, DollarSign, Percent, Car, ChevronRight } from 'lucide-react';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 import { useState } from 'react';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 
