@@ -24,6 +24,7 @@ import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 import KoloiLogo from '@/components/KoloiLogo';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
+import RiderBottomNav from './RiderBottomNav';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
 
 interface SelectedLocation {
