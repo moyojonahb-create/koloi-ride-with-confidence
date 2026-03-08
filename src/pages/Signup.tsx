@@ -67,14 +67,15 @@ const Signup = () => {
     return cleaned;
   };
 
-  const onSubmitDetails = (data: SignupFormData) => {
+  const onSubmitDetails = async (data: SignupFormData) => {
     // Format phone number before storing
     const formattedData = {
       ...data,
       phone: formatPhoneNumber(data.phone),
     };
     setFormData(formattedData);
-    setStep('verify-phone');
+    // Skip OTP verification - sign up directly
+    await onPhoneVerifiedDirect(formattedData);
   };
 
   const onPhoneVerified = async () => {
