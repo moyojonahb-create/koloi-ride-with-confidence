@@ -1,6 +1,6 @@
 import { MessageSquare, Users, Phone, Shield, Car, AlertTriangle, Lock } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 
 const protectionCards = [
   { icon: Shield, title: 'Proactive safety support', color: 'bg-accent/20 text-accent' },
