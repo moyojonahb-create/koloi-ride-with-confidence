@@ -148,6 +148,10 @@ export default function RiderRideDetail() {
     ride?.status ?? null
   );
 
+  // Show nearby online drivers while waiting for offers
+  const isPendingStatus = ride?.status === "pending";
+  const nearbyDrivers = useNearbyDrivers(isPendingStatus);
+
   useEffect(() => {
     if (!ride || ride.status !== "pending" || !ride.expires_at) return;
     const updateCountdown = () => {
