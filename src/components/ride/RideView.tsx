@@ -339,6 +339,11 @@ export default function RideView() {
         </div>
 
         <div className="px-5 pb-5 space-y-4 pt-1">
+          {/* Town selector */}
+          <div className="flex items-center justify-between">
+            <TownSelectorSheet currentTown={selectedTown} onSelect={(town) => { setSelectedTown(town); setPickupLocation(null); setDropoffLocation(null); }} />
+            <p className="text-xs text-muted-foreground">{selectedTown.radiusKm}km service area</p>
+          </div>
           {/* ── Pickup card ── */}
           <button
             onClick={() => { setActiveField('pickup'); setSearchQuery(''); }}
