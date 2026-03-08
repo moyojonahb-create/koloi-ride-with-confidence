@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { ArrowLeft, MapPin, Navigation, Clock, Banknote, Car, ChevronRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import VoyexLogo from '@/components/VoyexLogo';
-import RiderBottomNav from '@/components/ride/RiderBottomNav';
+
 
 interface RideRecord {
   id: string;
