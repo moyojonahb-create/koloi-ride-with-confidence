@@ -1,5 +1,5 @@
 // Hook to fetch and use town-specific pricing from the database
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
 export interface TownPricingConfig {
