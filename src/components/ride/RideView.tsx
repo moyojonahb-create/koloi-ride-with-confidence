@@ -99,12 +99,10 @@ export default function RideView() {
   );
 
   const calculateFare = useCallback(() => {
-    if (!routeData?.distanceKm || !pricingSettings) return null;
-    const tier = VEHICLE_TIERS.find(t => t.id === selectedTier)!;
-    let fare = (pricingSettings.base_fare + routeData.distanceKm * pricingSettings.per_km_rate) * tier.multiplier;
-    fare = Math.max(fare, pricingSettings.min_fare);
-    return { fareR: Math.round(fare), distanceKm: routeData.distanceKm, durationMinutes: routeData.durationMinutes };
-  }, [routeData, pricingSettings, selectedTier]);
+    if (!routeData?.distanceKm) return null;
+    const rec = calculateRecommendedFare(townPricing, routeData.distanceKm, routeData.durationMinutes);
+    return { fareR: rec.recommended, distanceKm: routeData.distanceKm, durationMinutes: routeData.durationMinutes, currencySymbol: rec.currencySymbol, currencyCode: rec.currencyCode };
+  }, [routeData, townPricing]);
   const fareEstimate = calculateFare();
 
   // ── handlers ──
