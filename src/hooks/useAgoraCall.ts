@@ -194,7 +194,7 @@ export function useAgoraCall({
         await client.publish([micTrack]);
 
         setCallStatus("connected");
-        console.log("[AgoraCall] Connected and publishing audio");
+        
 
         const start = Date.now();
         timerRef.current = setInterval(() => {
