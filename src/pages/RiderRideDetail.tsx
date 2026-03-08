@@ -17,7 +17,7 @@ import {
 } from "@/lib/offerHelpers";
 import { RideCommunication } from "@/components/ride/RideCommunication";
 import OffersModal from "@/components/OffersModal";
-import TripGoogleMap from "@/components/TripGoogleMap";
+import MapGoogle from "@/components/MapGoogle";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock, Star, Shield } from "lucide-react";
@@ -293,12 +293,14 @@ export default function RiderRideDetail() {
       {/* Map background */}
       <div className="absolute inset-0">
         {ride.pickup_lat && (
-          <TripGoogleMap
+          <MapGoogle
             pickup={{ lat: ride.pickup_lat, lng: ride.pickup_lon }}
             dropoff={{ lat: ride.dropoff_lat, lng: ride.dropoff_lon }}
             driverLocation={driverLocation}
-            tripStatus={ride.status}
-            height="100%" />
+            routeGeometry={ride.route_polyline}
+            className="w-full h-full"
+            height="100%"
+          />
         )}
         {/* Top gradient */}
         <div className="absolute top-0 left-0 right-0 h-28 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, hsl(217 85% 29% / 0.12), transparent)' }} />
