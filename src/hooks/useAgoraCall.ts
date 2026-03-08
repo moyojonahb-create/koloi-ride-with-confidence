@@ -141,7 +141,7 @@ export function useAgoraCall({
         const { data: sessionData } = await supabase.auth.getSession();
         if (!sessionData?.session?.access_token) {
           toast.error("Voice token error", { description: "No session token. Please log in again." });
-          console.error("[AgoraCall] No session token available");
+          
           setCallStatus("error");
           setTimeout(() => setCallStatus("idle"), 3000);
           return;
