@@ -529,21 +529,21 @@ export default function DriverDashboard() {
       <div className="max-w-lg mx-auto p-5 space-y-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-3 animate-fade-in">
-          <div className="native-card text-center">
-            <Star className="h-5 w-5 mx-auto text-amber-500 mb-1.5" />
-            <p className="text-xl font-extrabold tabular-nums">{profile.rating_avg?.toFixed(1) || '—'}</p>
-            <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Rating</p>
+        <div className="grid grid-cols-3 gap-2 animate-fade-in">
+          <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
+            <Star className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
+            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">{profile.rating_avg?.toFixed(1) || '—'}</p>
+            <p className="text-[10px] text-primary-foreground/70 font-medium">Rating</p>
           </div>
-          <div className="native-card text-center">
-            <TrendingUp className="h-5 w-5 mx-auto text-primary mb-1.5" />
-            <p className="text-xl font-extrabold tabular-nums">{profile.total_trips || 0}</p>
-            <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Total Trips</p>
+          <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
+            <TrendingUp className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
+            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">{profile.total_trips || 0}</p>
+            <p className="text-[10px] text-primary-foreground/70 font-medium">Trips</p>
           </div>
-          <div className="native-card text-center">
-            <Zap className="h-5 w-5 mx-auto text-emerald-500 mb-1.5" />
-            <p className="text-xl font-extrabold tabular-nums">${balance.toFixed(2)}</p>
-            <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Wallet</p>
+          <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
+            <Zap className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
+            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">${balance % 1 === 0 ? balance : balance.toFixed(1)}</p>
+            <p className="text-[10px] text-primary-foreground/70 font-medium">Wallet</p>
           </div>
         </div>
         {/* Trial Banner */}
