@@ -130,15 +130,28 @@ const SplashScreen = ({ onComplete, duration = 6000 }: SplashScreenProps) => {
                 }}
               />
               {/* Voyex logo — the actual brand mark */}
-              <img
-                src={voyexLogo}
-                alt="Voyex"
+              <div
                 style={{
                   width: 140,
                   height: 140,
-                  objectFit: 'contain',
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#fff',
                 }}
-              />
+              >
+                <img
+                  src={voyexLogo}
+                  alt="Voyex"
+                  style={{
+                    width: 140,
+                    height: 140,
+                    objectFit: 'contain',
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
