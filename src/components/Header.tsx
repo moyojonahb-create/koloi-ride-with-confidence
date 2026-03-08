@@ -93,7 +93,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
                 <a
                   key={item.label}
                   href={item.href}
-                  className="px-5 py-4 text-[15px] text-primary-foreground font-semibold hover:bg-primary-foreground/10 rounded-2xl transition-colors active:scale-[0.98]"
+                  className="px-5 py-4 text-[15px] text-foreground font-semibold hover:bg-muted rounded-2xl transition-colors active:scale-[0.98]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.label}
