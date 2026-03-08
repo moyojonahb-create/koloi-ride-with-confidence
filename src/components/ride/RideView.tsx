@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
   Car, Star, Phone, MessageCircle, Clock, Users, ChevronRight, Locate,
-  Banknote, Wallet, Crown, Zap, CarFront, Home, History, CreditCard
+  Banknote, Wallet, Zap, CarFront
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import MapGoogle from '@/components/MapGoogle';
@@ -24,6 +24,7 @@ import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 import KoloiLogo from '@/components/KoloiLogo';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
+import RiderBottomNav from './RiderBottomNav';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
 
 interface SelectedLocation {
@@ -635,14 +636,7 @@ export default function RideView() {
       </div>
 
       {/* ═══ FLOATING GLASS BOTTOM NAVIGATION BAR ═══ */}
-      <div className="absolute bottom-0 left-0 right-0 z-[55] px-3" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 6px)' }}>
-        <div className="glass-card-heavy rounded-[28px] flex items-center justify-around py-2 px-2">
-          <NavItem icon={<Home className="w-5 h-5" />} label="Home" active onClick={() => navigate('/ride')} />
-          <NavItem icon={<History className="w-5 h-5" />} label="Trips" onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} />
-          <NavItem icon={<CreditCard className="w-5 h-5" />} label="Wallet" onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} />
-          <NavItem icon={<User className="w-5 h-5" />} label="Profile" onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} />
-        </div>
-      </div>
+      <RiderBottomNav activeTab="home" />
 
       {/* ══ Full-Screen Search Overlay (Glass) ══ */}
       {activeField && (
@@ -826,17 +820,3 @@ export default function RideView() {
   );
 }
 
-/* ── Bottom Nav Item ── */
-function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-2xl transition-all active:scale-95 min-w-[60px]',
-        active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'
-      )}>
-      {icon}
-      <span className="text-[10px] font-semibold">{label}</span>
-    </button>
-  );
-}

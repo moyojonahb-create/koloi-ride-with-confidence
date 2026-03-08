@@ -11,6 +11,7 @@ import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
 import KoloiLogo from '@/components/KoloiLogo';
 import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
+import RiderBottomNav from '@/components/ride/RiderBottomNav';
 
 export default function RiderProfile() {
   const { user, signOut } = useAuth();
@@ -151,7 +152,9 @@ export default function RiderProfile() {
           <LogOut className="w-4 h-4 mr-2" />
           Sign Out
         </Button>
+        <div className="h-20" /> {/* spacer for bottom nav */}
       </div>
+      <RiderBottomNav activeTab="profile" />
     </div>);
 
 }
