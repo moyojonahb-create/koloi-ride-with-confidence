@@ -1,5 +1,5 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
-import voyexLogo from '@/assets/voyex-logo-clean.png';
+import voyexLogo from '@/assets/voyex-logo.png';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -63,7 +63,6 @@ const SplashScreen = ({ onComplete, duration = 4000 }: SplashScreenProps) => {
 
       {/* Outer glow rings */}
       <div className="relative flex items-center justify-center">
-        {/* Ring 1 — large soft glow */}
         <div
           className={`absolute w-72 h-72 sm:w-80 sm:h-80 rounded-full transition-all duration-1000 ${
             phase === 'enter' ? 'scale-50 opacity-0' : 'scale-100 opacity-100'
@@ -74,7 +73,6 @@ const SplashScreen = ({ onComplete, duration = 4000 }: SplashScreenProps) => {
           }}
         />
 
-        {/* Ring 2 — accent gold ring */}
         <div
           className={`absolute w-52 h-52 sm:w-60 sm:h-60 rounded-full transition-all duration-700 ${
             phase === 'enter' ? 'scale-75 opacity-0' : 'scale-100 opacity-100'
@@ -85,7 +83,6 @@ const SplashScreen = ({ onComplete, duration = 4000 }: SplashScreenProps) => {
           }}
         />
 
-        {/* Ring 3 — blue inner ring */}
         <div
           className={`absolute w-44 h-44 sm:w-52 sm:h-52 rounded-full transition-all duration-500 ${
             phase === 'enter' ? 'scale-90 opacity-0' : 'scale-100 opacity-100'
@@ -96,19 +93,24 @@ const SplashScreen = ({ onComplete, duration = 4000 }: SplashScreenProps) => {
           }}
         />
 
-        {/* Logo */}
-        <img
-          src={voyexLogo}
-          alt="Voyex"
-          className={`w-36 h-auto sm:w-44 md:w-52 relative z-10 transition-all duration-700 drop-shadow-2xl ${
+        {/* Logo — original, white bg acts as a clean card on dark splash */}
+        <div
+          className={`relative z-10 rounded-3xl p-4 transition-all duration-700 ${
             phase === 'enter'
               ? 'scale-75 opacity-0 translate-y-4'
               : 'scale-100 opacity-100 translate-y-0'
           }`}
           style={{
-            filter: 'drop-shadow(0 0 30px hsl(215 80% 50% / 0.3))',
+            background: 'white',
+            boxShadow: '0 0 60px hsl(215 80% 50% / 0.25), 0 8px 32px rgba(0,0,0,0.3)',
           }}
-        />
+        >
+          <img
+            src={voyexLogo}
+            alt="Voyex"
+            className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 object-contain"
+          />
+        </div>
       </div>
 
       {/* Tagline */}
