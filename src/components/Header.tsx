@@ -47,7 +47,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
 
           {/* Desktop Right Side */}
           <div className="hidden lg:flex items-center gap-3">
-            <button className="text-[15px] font-medium text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 px-4 py-2.5 rounded-full transition-all duration-150 flex items-center gap-1.5">
+            <button className="text-[15px] font-medium text-foreground/70 hover:text-foreground hover:bg-muted px-4 py-2.5 rounded-full transition-all duration-150 flex items-center gap-1.5">
               <Globe className="w-4 h-4" />
               <span>EN</span>
             </button>
