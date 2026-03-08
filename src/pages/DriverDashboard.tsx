@@ -547,6 +547,10 @@ export default function DriverDashboard() {
             <p className="text-[10px] text-primary-foreground/70 font-medium">Wallet</p>
           </div>
         </div>
+
+        {/* Earnings Dashboard */}
+        <DriverEarningsDashboard />
+
         {/* Trial Banner */}
         {profile && trialActive && (
           <Card className="border-amber-500 bg-amber-500/10">
