@@ -820,17 +820,3 @@ export default function RideView() {
   );
 }
 
-/* ── Bottom Nav Item ── */
-function NavItem({ icon, label, active, onClick }: { icon: React.ReactNode; label: string; active?: boolean; onClick?: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-2xl transition-all active:scale-95 min-w-[60px]',
-        active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'
-      )}>
-      {icon}
-      <span className="text-[10px] font-semibold">{label}</span>
-    </button>
-  );
-}
