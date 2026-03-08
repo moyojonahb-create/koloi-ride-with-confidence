@@ -52,19 +52,6 @@ const SplashScreen = ({ onComplete, duration = 3200 }: SplashScreenProps) => {
         />
       </div>
 
-      {/* Tagline — slides up after logo */}
-      <p
-        className={`mt-5 text-[13px] sm:text-sm font-semibold tracking-[0.25em] uppercase transition-all duration-600 delay-200 ${
-          phase === 'enter'
-            ? 'opacity-0 translate-y-3'
-            : phase === 'fade-out'
-              ? 'opacity-0 -translate-y-1'
-              : 'opacity-100 translate-y-0'
-        }`}
-        style={{ color: '#0B3D91' }}
-      >
-        Your ride, your way
-      </p>
 
       {/* Minimal loading indicator — thin gold line */}
       <div
