@@ -690,22 +690,22 @@ export default function DriverDashboard() {
                   <VoiceCallButton
                     onCall={startCall}
                     disabled={callStatus !== "idle"}
-                    label="Call (Data)"
-                    className="w-full"
+                    label="Data"
+                    className="w-full text-xs"
                   />
                   <a
                     href={riderPhone ? `tel:${riderPhone.replace(/[^\d+]/g, "")}` : "#"}
-                    className="flex items-center justify-center gap-1.5 py-3 rounded-2xl font-medium text-sm text-center active:scale-95 transition-all"
+                    className="flex items-center justify-center gap-1 py-3 rounded-2xl font-medium text-xs text-center active:scale-95 transition-all"
                     style={{ background: 'var(--gradient-primary)' }}
                   >
-                    <Phone className="h-4 w-4 text-primary-foreground shrink-0" />
-                    <span className="text-primary-foreground">Normal</span>
+                    <Phone className="h-3.5 w-3.5 text-primary-foreground shrink-0" />
+                    <span className="text-primary-foreground">Phone</span>
                   </a>
                   <a
                     href={riderPhone ? `https://wa.me/${riderPhone.replace(/[^\d]/g, "")}` : "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1.5 py-3 rounded-2xl bg-[hsl(142,70%,40%)] text-primary-foreground font-medium text-sm text-center active:scale-95 transition-all"
+                    className="flex items-center justify-center gap-1 py-3 rounded-2xl bg-[hsl(142,70%,40%)] text-primary-foreground font-medium text-xs text-center active:scale-95 transition-all"
                   >
                     💬 <span>WhatsApp</span>
                   </a>
