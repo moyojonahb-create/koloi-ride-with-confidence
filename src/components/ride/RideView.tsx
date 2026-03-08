@@ -207,7 +207,7 @@ export default function RideView() {
     return (
       <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
         <div className="absolute inset-0">
-          <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} className="w-full h-full" height="100%" />
+          <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
         </div>
 
         {/* Top gradient */}
