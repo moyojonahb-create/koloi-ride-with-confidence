@@ -169,7 +169,7 @@ export function useAgoraCall({
           return;
         }
 
-        console.log("[AgoraCall] Token response", data);
+        
         const { token, channelName, agoraUid, appId } = data;
 
         const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
