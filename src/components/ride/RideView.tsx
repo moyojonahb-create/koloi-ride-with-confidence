@@ -109,7 +109,7 @@ export default function RideView() {
     if (!navigator.geolocation) { setGpsState({ status: 'unavailable', coords: null, error: 'Geolocation not supported' }); return; }
     setGpsState(prev => ({ ...prev, status: 'loading', error: null }));
     navigator.geolocation.getCurrentPosition(
-      pos => { const c = { lat: pos.coords.latitude, lng: pos.coords.longitude }; setGpsState({ status: 'success', coords: c, error: null }); setPickupLocation({ name: 'My location', lat: c.lat, lng: c.lng }); setActiveField(null); },
+      pos => { const c = { lat: pos.coords.latitude, lng: pos.coords.longitude }; setGpsState({ status: 'success', coords: c, error: null }); setPickupLocation({ name: 'My location', lat: c.lat, lng: c.lng }); setActiveField(null); setSelectedTown(detectTown(c.lat, c.lng)); },
       err => { setGpsState({ status: 'denied', coords: null, error: err.code === err.PERMISSION_DENIED ? 'Location access denied' : 'Unable to get location' }); },
       { enableHighAccuracy: true, timeout: 10000 }
     );
