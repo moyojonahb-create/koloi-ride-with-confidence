@@ -3,8 +3,9 @@ import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MapPin, BellRing } from 'lucide-react';
+import { MapPin, BellRing, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 
 type DriverSettings = {
