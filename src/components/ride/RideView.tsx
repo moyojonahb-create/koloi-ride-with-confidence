@@ -392,44 +392,17 @@ export default function RideView() {
             )}
           </button>
 
-          {/* ── Ride options ── */}
-          {pickupLocation && dropoffLocation && (
+          {/* ── Negotiation Card (inDrive-style) ── */}
+          {pickupLocation && dropoffLocation && fareEstimate && (
             <>
-              {/* Tier selection */}
-              <div>
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Your ride</p>
-                <div className="space-y-2.5">
-                  {VEHICLE_TIERS.map(tier => {
-                    const isSelected = selectedTier === tier.id;
-                    return (
-                      <button
-                        key={tier.id}
-                        onClick={() => setSelectedTier(tier.id)}
-                        className={cn(
-                          'w-full flex items-center gap-3.5 p-4 rounded-[18px] transition-all active:scale-[0.98] glass-card',
-                          isSelected ? 'glass-glow-blue ring-1 ring-primary/25' : ''
-                        )}
-                      >
-                        <div className={cn("w-13 h-13 rounded-2xl flex items-center justify-center shrink-0", isSelected ? '' : 'bg-muted')} style={isSelected ? { background: 'var(--gradient-primary)', width: 52, height: 52 } : { width: 52, height: 52 }}>
-                          <CarFront className={cn("w-6 h-6", isSelected ? 'text-primary-foreground' : 'text-muted-foreground')} />
-                        </div>
-                        <div className="flex-1 min-w-0 text-left">
-                          <p className={cn('text-[16px] font-medium font-display', isSelected ? 'text-primary' : 'text-foreground')}>{tier.name}</p>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
-                            <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{tier.passengers}</span>
-                            <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{tier.eta}</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className={cn('text-xl font-bold font-display', isSelected ? 'text-primary' : 'text-foreground')}>
-                            {fareEstimate ? `R${fareEstimate.fareR}` : tier.priceRange}
-                          </p>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              {/* Negotiation Card */}
+              <NegotiationCard
+                pricing={townPricing}
+                distanceKm={fareEstimate.distanceKm}
+                durationMinutes={fareEstimate.durationMinutes}
+                onSendOffer={(fare) => handleSendOffer(fare)}
+                isSubmitting={isRequesting}
+              />
 
               {/* Payment Method */}
               <div>
@@ -450,28 +423,6 @@ export default function RideView() {
                   ))}
                 </div>
               </div>
-
-              {/* CTA — Confirm Ride */}
-              <Button
-                onClick={handleRequestRide}
-                disabled={!canRequestRide}
-                className={cn(
-                  'w-full h-[56px] text-[16px] font-medium rounded-2xl transition-all gap-2 active:scale-[0.97]',
-                  canRequestRide
-                    ? 'bg-accent hover:bg-accent/90 text-accent-foreground shadow-[0_4px_24px_hsl(45_100%_51%/0.35)]'
-                    : 'bg-muted text-muted-foreground'
-                )}
-              >
-                {isRequesting ? <><Loader2 className="w-5 h-5 animate-spin" /> Finding drivers…</> : !user ? 'Sign in to continue' : canRequestRide ? 'Confirm Ride' : 'Select locations'}
-              </Button>
-
-              {/* Negotiate */}
-              <button
-                onClick={() => user ? navigate('/negotiate/request') : setAuthModalOpen(true)}
-                className="w-full flex items-center justify-center gap-2 text-sm font-medium py-3.5 rounded-[18px] glass-card text-primary hover:text-primary/80 transition-colors active:scale-[0.98]"
-              >
-                <Zap className="w-4 h-4" /> Send Offer — Negotiate Price <ChevronRight className="w-4 h-4" />
-              </button>
 
               {/* Cancel */}
               {rideStatus !== 'idle' && (
