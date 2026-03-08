@@ -70,6 +70,7 @@ export default function RideView() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [sheetExpanded, setSheetExpanded] = useState(false);
+  const [selectedTown, setSelectedTown] = useState<TownConfig>(DEFAULT_TOWN);
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 15, userLocation: gpsState.coords, radiusKm: proximityRadius });
   const { suggestions: googleSuggestions, loading: googleLoading, search: searchGoogle, getPlaceDetails, clear: clearGoogleSuggestions } = useGooglePlacesAutocomplete();
