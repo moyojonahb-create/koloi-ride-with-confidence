@@ -213,7 +213,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
               <div className="relative mb-4">
                 <button
                   onClick={() => setShowPickupDropdown(!showPickupDropdown)}
-                  className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full hover:bg-koloi-gray-300 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-secondary rounded-full hover:bg-voyex-gray-300 transition-colors"
                 >
                   {pickupType === 'now' ? (
                     <>
