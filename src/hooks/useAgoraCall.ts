@@ -162,7 +162,7 @@ export function useAgoraCall({
         }
 
         if (!data?.token) {
-          console.error("[AgoraCall] Token response missing token:", data);
+          
           toast.error("Call failed", { description: "No token in response" });
           setCallStatus("error");
           setTimeout(() => setCallStatus("idle"), 3000);
