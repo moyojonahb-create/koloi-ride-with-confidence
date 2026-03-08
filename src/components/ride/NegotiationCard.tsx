@@ -64,23 +64,23 @@ export default function NegotiationCard({
       </div>
 
       {/* Fare stepper */}
-      <div className="flex items-center justify-center gap-5">
+      <div className="flex items-center justify-center gap-4">
         <button
           onClick={decrement}
           disabled={customFare <= fareCalc.floor}
-          className="w-12 h-12 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30"
+          className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30 shrink-0"
         >
           <Minus className="w-5 h-5 text-foreground" />
         </button>
 
-        <div className="text-center min-w-[120px]">
+        <div className="text-center min-w-[100px]">
           <p className={cn(
-            'text-4xl font-black font-display tabular-nums transition-colors',
+            'text-3xl sm:text-4xl font-black font-display tabular-nums transition-colors',
             isAboveRecommended ? 'text-primary' : isBelowRecommended ? 'text-accent' : 'text-foreground'
           )}>
             {formatFare(customFare, fareCalc.currencySymbol, fareCalc.currencyCode)}
           </p>
-          <p className="text-[10px] text-muted-foreground mt-1">
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             {pricing.currency_code === 'ZAR' ? 'Increments of R5' : 'Increments of $0.50'}
           </p>
         </div>
@@ -88,7 +88,7 @@ export default function NegotiationCard({
         <button
           onClick={increment}
           disabled={customFare >= fareCalc.ceiling}
-          className="w-12 h-12 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30"
+          className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30 shrink-0"
         >
           <Plus className="w-5 h-5 text-foreground" />
         </button>
