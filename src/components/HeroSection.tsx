@@ -230,7 +230,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                 </button>
 
                 {showPickupDropdown && (
-                  <div className="absolute top-full left-0 mt-2 bg-card rounded-lg shadow-koloi-lg border border-border overflow-hidden z-20 animate-fade-in">
+                  <div className="absolute top-full left-0 mt-2 bg-card rounded-lg shadow-voyex-lg border border-border overflow-hidden z-20 animate-fade-in">
                     <button
                       onClick={() => {
                         setPickupType('now');
