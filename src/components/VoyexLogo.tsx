@@ -50,4 +50,4 @@ const VoyexLogo = ({
   );
 };
 
-export default KoloiLogo;
+export default VoyexLogo;

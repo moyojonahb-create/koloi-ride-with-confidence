@@ -38,7 +38,7 @@ export default function RiderProfile() {
           <button onClick={() => navigate(-1)} className="w-12 h-12 flex items-center justify-center rounded-full glass-btn active:scale-95 transition-all">
             <ArrowLeft className="w-5 h-5 text-primary-foreground" />
           </button>
-          <KoloiLogo variant="light" size="sm" />
+          <VoyexLogo variant="light" size="sm" />
         </div>
       </div>
 

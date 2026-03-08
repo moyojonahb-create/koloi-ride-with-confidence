@@ -52,7 +52,7 @@ export default function DriverModeLanding() {
             ← Back
           </button>
         )}
-        <KoloiLogo size="sm" />
+        <VoyexLogo size="sm" />
         {!isMapp && <div className="w-12" />}
       </div>
 

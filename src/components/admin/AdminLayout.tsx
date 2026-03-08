@@ -69,7 +69,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-border">
           <Link to="/admin" className="flex items-center gap-2">
-            <KoloiLogo />
+            <VoyexLogo />
             <span className="text-xs font-medium text-muted-foreground bg-accent/10 px-2 py-0.5 rounded">
               Admin
             </span>

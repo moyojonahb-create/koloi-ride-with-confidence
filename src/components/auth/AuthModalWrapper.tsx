@@ -27,7 +27,7 @@ const AuthModalWrapper = forwardRef<HTMLDivElement, AuthModalWrapperProps>(
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="w-9" />
-            <KoloiLogo />
+            <VoyexLogo />
             <button 
               onClick={onClose}
               className="p-2 hover:bg-secondary rounded-lg transition-colors"

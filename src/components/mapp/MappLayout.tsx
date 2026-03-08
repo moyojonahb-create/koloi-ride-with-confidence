@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { cn } from '@/lib/utils';
-import KoloiLogo from '@/components/KoloiLogo';
+import VoyexLogo from '@/components/VoyexLogo';
 
 export default function MappLayout() {
   const location = useLocation();

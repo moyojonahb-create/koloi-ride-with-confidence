@@ -29,7 +29,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick 
         <nav className="flex items-center justify-between h-[60px] lg:h-[64px]">
           {/* Logo */}
           <a href="/" className="shrink-0 -ml-2">
-            <KoloiLogo size="lg" />
+            <VoyexLogo size="lg" />
           </a>
 
           {/* Desktop Navigation */}
