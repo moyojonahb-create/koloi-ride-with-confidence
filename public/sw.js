@@ -1,5 +1,5 @@
 // Bump cache name to force clients to pick up fresh assets after updates
-const CACHE_NAME = 'koloi-v3';
+const CACHE_NAME = 'koloi-v4';
 const STATIC_ASSETS = [
   '/',
   '/ride',
