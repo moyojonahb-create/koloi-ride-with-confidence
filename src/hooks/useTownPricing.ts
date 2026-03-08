@@ -95,13 +95,7 @@ export function calculateRecommendedFare(
   const nightMult = isNight ? pricing.night_multiplier : 1.0;
   const demandMult = pricing.demand_multiplier;
 
-  let fare: number;
-  if (distanceKm <= pricing.short_trip_km) {
-    fare = pricing.short_trip_fare;
-  } else {
-    fare = pricing.base_fare + distanceKm * pricing.per_km_rate;
-  }
-
+  let fare = pricing.base_fare + distanceKm * pricing.per_km_rate;
   fare = fare * nightMult * demandMult;
   fare = Math.max(fare, pricing.minimum_fare);
 
