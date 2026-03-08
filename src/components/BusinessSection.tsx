@@ -21,7 +21,7 @@ const BusinessSection = () => {
           <div>
             <div className="koloi-badge mb-6">
               <Building2 className="w-4 h-4" />
-              PickMe for Business
+              Voyex for Business
             </div>
             <h2 className="text-4xl lg:text-5xl font-bold text-foreground mb-6 leading-tight tracking-tight">
               Transform how your company moves
