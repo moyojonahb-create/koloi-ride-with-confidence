@@ -33,11 +33,11 @@ const stats = [{
 }];
 const DriveSection = () => {
   return <section id="drive" className="bg-primary text-primary-foreground py-20 lg:py-28">
-      <div className="koloi-container">
+      <div className="voyex-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Content */}
           <div>
-            <div className="koloi-badge bg-primary-foreground/10 text-primary-foreground mb-6">
+            <div className="voyex-badge bg-primary-foreground/10 text-primary-foreground mb-6">
               <TrendingUp className="w-4 h-4" />
               Start Earning
             </div>
@@ -50,7 +50,7 @@ const DriveSection = () => {
 
             <div className="space-y-5 mb-10">
               {benefits.map(benefit => <div key={benefit.title} className="flex gap-4 items-start">
-                  <div className="koloi-icon-box bg-primary-foreground/10 text-primary-foreground shrink-0">
+                  <div className="voyex-icon-box bg-primary-foreground/10 text-primary-foreground shrink-0">
                     <benefit.icon className="w-5 h-5" />
                   </div>
                   <div>
@@ -77,7 +77,7 @@ const DriveSection = () => {
 
           {/* Right Stats Grid */}
           <div className="grid grid-cols-2 gap-5">
-            {stats.map(stat => <div key={stat.label} className="koloi-stat-card">
+            {stats.map(stat => <div key={stat.label} className="voyex-stat-card">
                 <div className="text-2xl mb-2">{stat.icon}</div>
                 <div className="text-4xl lg:text-5xl font-bold mb-2">{stat.value}</div>
                 <div className="text-primary-foreground/70 text-sm">{stat.label}</div>
