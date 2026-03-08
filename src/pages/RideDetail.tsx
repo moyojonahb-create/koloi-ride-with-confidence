@@ -10,7 +10,7 @@ import NavigationCard from "@/components/driver/NavigationCard";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
-import { ArrowLeft, Eye, Users, MessageCircle, Clock } from "lucide-react";
+import { ArrowLeft, Eye, Users, MessageCircle, Clock, Phone } from "lucide-react";
 
 function SettlementInfo({ tripId }: { tripId: string }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
@@ -220,7 +220,7 @@ export default function RideDetail() {
             tripStatus={ride.status ?? "pending"}
             height="100%" />
         )}
-        <div className="absolute top-0 left-0 right-0 h-32 z-10 pointer-events-none bg-gradient-to-b from-primary/15 via-primary/5 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-28 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, hsl(217 85% 29% / 0.12), transparent)' }} />
       </div>
 
       {/* Glass header */}
@@ -238,9 +238,9 @@ export default function RideDetail() {
       </div>
 
       {/* Bottom panel */}
-      <div className="absolute bottom-0 left-0 right-0 z-50 glass-card-heavy rounded-t-3xl max-h-[60vh] overflow-y-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
-        <div className="sticky top-0 pt-3 pb-2 z-10 rounded-t-3xl" style={{ background: 'linear-gradient(135deg, hsl(215 85% 31%), hsl(215 85% 40%))' }}>
-          <div className="w-10 h-1 rounded-full bg-white/40 mx-auto" />
+      <div className="absolute bottom-0 left-0 right-0 z-50 glass-card-heavy max-h-[60vh] overflow-y-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)', borderTopLeftRadius: 28, borderTopRightRadius: 28, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+        <div className="sticky top-0 pt-3.5 pb-2.5 z-10" style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, background: 'var(--gradient-primary)' }}>
+          <div className="w-10 h-1 rounded-full bg-primary-foreground/40 mx-auto" />
         </div>
 
         <div className="px-5 pb-5 space-y-4">
@@ -274,11 +274,16 @@ export default function RideDetail() {
             ) : (
               <div className="mt-4 space-y-3">
                 <p className="text-sm text-primary font-semibold">Driver accepted ✅</p>
-                <div className="flex gap-2">
-                  <VoiceCallButton onCall={startCall} disabled={callStatus !== "idle"} label="Voice Call" className="flex-1" />
-                  <a href="tel:+263" className="flex-1 py-3 rounded-2xl bg-primary text-primary-foreground font-bold text-center text-sm active:scale-95 transition-all">📞 Phone</a>
+                <div className="grid grid-cols-3 gap-2">
+                  <VoiceCallButton onCall={startCall} disabled={callStatus !== "idle"} label="Voice Call" className="w-full" />
+                  <a href="tel:+263" className="flex items-center justify-center gap-1.5 py-3 rounded-2xl font-medium text-sm text-center active:scale-95 transition-all" style={{ background: 'var(--gradient-primary)' }}>
+                    <Phone className="h-4 w-4 text-primary-foreground shrink-0" />
+                    <span className="text-primary-foreground">Phone</span>
+                  </a>
                   <button onClick={() => document.getElementById("koloi-chat")?.scrollIntoView({ behavior: "smooth" })}
-                    className="flex-1 py-3 rounded-2xl glass-card font-bold text-sm active:scale-95 transition-all">💬 Chat</button>
+                    className="flex items-center justify-center gap-1.5 py-3 rounded-2xl glass-card font-medium text-sm active:scale-95 transition-all">
+                    <MessageCircle className="h-4 w-4 shrink-0" /> Chat
+                  </button>
                 </div>
               </div>
             )}
@@ -322,12 +327,12 @@ export default function RideDetail() {
       {showOffersModal && (
         <div className="fixed inset-0 z-[60] bg-foreground/20 backdrop-blur-sm flex items-end justify-center" onClick={() => setShowOffersModal(false)}>
           <div className="glass-card-heavy w-full max-w-lg rounded-t-3xl max-h-[80vh] overflow-hidden animate-slide-up" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 border-b border-border/30" style={{ background: 'linear-gradient(135deg, hsl(215 85% 31%), hsl(215 85% 40%))' }}>
+            <div className="flex items-center justify-between p-5" style={{ background: 'var(--gradient-primary)', borderTopLeftRadius: 28, borderTopRightRadius: 28 }}>
               <div>
-                <h2 className="font-black text-lg text-white">Driver Offers</h2>
-                <p className="text-xs text-white/70">Drivers viewing: {driversViewing}</p>
+                <h2 className="font-semibold text-lg font-display text-primary-foreground">Driver Offers</h2>
+                <p className="text-xs text-primary-foreground/70">Drivers viewing: {driversViewing}</p>
               </div>
-              <button onClick={() => setShowOffersModal(false)} className="px-3 py-2 rounded-xl glass-btn font-bold text-sm text-white">Close</button>
+              <button onClick={() => setShowOffersModal(false)} className="px-4 py-2 rounded-xl bg-primary-foreground/15 font-medium text-sm text-primary-foreground active:scale-95 transition-all">Close</button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               {pendingOffers.length === 0 ? (

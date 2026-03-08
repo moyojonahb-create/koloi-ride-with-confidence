@@ -299,7 +299,7 @@ export default function RiderRideDetail() {
             height="100%" />
         )}
         {/* Top gradient */}
-        <div className="absolute top-0 left-0 right-0 h-32 z-10 pointer-events-none bg-gradient-to-b from-primary/15 via-primary/5 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-28 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, hsl(217 85% 29% / 0.12), transparent)' }} />
       </div>
 
       {/* Glass header */}
@@ -334,9 +334,9 @@ export default function RiderRideDetail() {
       )}
 
       {/* Bottom glass panel */}
-      <div className="absolute bottom-[68px] left-0 right-0 z-50 glass-card-heavy rounded-t-3xl max-h-[55vh] overflow-y-auto">
-        <div className="sticky top-0 pt-3 pb-2 z-10 rounded-t-3xl" style={{ background: 'linear-gradient(135deg, hsl(215 85% 31%), hsl(215 85% 40%))' }}>
-          <div className="w-10 h-1 rounded-full bg-white/40 mx-auto" />
+      <div className="absolute bottom-[72px] left-0 right-0 z-50 glass-card-heavy max-h-[55vh] overflow-y-auto" style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+        <div className="sticky top-0 pt-3.5 pb-2.5 z-10" style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, background: 'var(--gradient-primary)' }}>
+          <div className="w-10 h-1 rounded-full bg-primary-foreground/40 mx-auto" />
         </div>
 
         <div className="px-5 pb-5 space-y-4">
@@ -460,13 +460,14 @@ export default function RiderRideDetail() {
                 </div>
               </div>
               {driverPhone && (
-                <div className="flex gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <VoiceCallButton onCall={startCall} disabled={callStatus !== "idle"} label="Voice Call" className="flex-1" />
-                  <a href={`tel:${driverPhone}`} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-2xl font-semibold text-sm active:scale-95 transition-all">
-                    <Phone className="h-4 w-4" /> Phone
+                  <a href={`tel:${driverPhone}`} className="flex items-center justify-center gap-1.5 px-3 py-3 rounded-2xl font-medium text-sm active:scale-95 transition-all text-center" style={{ background: 'var(--gradient-primary)' }}>
+                    <Phone className="h-4 w-4 text-primary-foreground shrink-0" />
+                    <span className="text-primary-foreground">Phone</span>
                   </a>
-                  <Button variant="outline" className="flex-1 glass-btn rounded-2xl" onClick={() => setShowCommunication(!showCommunication)}>
-                    <MessageCircle className="h-4 w-4 mr-1" /> Chat
+                  <Button variant="outline" className="glass-card rounded-2xl h-auto py-3 text-sm font-medium" onClick={() => setShowCommunication(!showCommunication)}>
+                    <MessageCircle className="h-4 w-4 mr-1 shrink-0" /> Chat
                   </Button>
                 </div>
               )}
