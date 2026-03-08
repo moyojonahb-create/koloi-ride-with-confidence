@@ -147,7 +147,7 @@ const Signup = () => {
                 <ArrowLeft className="h-5 w-5 text-foreground" />
               </Link>
               <div>
-                <h1 className="text-xl font-black text-foreground">Create your PickMe account</h1>
+                <h1 className="text-xl font-black text-foreground">Create your Voyex account</h1>
                 <p className="text-sm text-muted-foreground">Sign up to request a ride.</p>
               </div>
             </div>
