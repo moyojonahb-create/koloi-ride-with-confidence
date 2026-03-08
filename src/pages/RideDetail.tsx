@@ -327,12 +327,12 @@ export default function RideDetail() {
       {showOffersModal && (
         <div className="fixed inset-0 z-[60] bg-foreground/20 backdrop-blur-sm flex items-end justify-center" onClick={() => setShowOffersModal(false)}>
           <div className="glass-card-heavy w-full max-w-lg rounded-t-3xl max-h-[80vh] overflow-hidden animate-slide-up" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-4 border-b border-border/30" style={{ background: 'linear-gradient(135deg, hsl(215 85% 31%), hsl(215 85% 40%))' }}>
+            <div className="flex items-center justify-between p-5" style={{ background: 'var(--gradient-primary)', borderTopLeftRadius: 28, borderTopRightRadius: 28 }}>
               <div>
-                <h2 className="font-black text-lg text-white">Driver Offers</h2>
-                <p className="text-xs text-white/70">Drivers viewing: {driversViewing}</p>
+                <h2 className="font-semibold text-lg font-display text-primary-foreground">Driver Offers</h2>
+                <p className="text-xs text-primary-foreground/70">Drivers viewing: {driversViewing}</p>
               </div>
-              <button onClick={() => setShowOffersModal(false)} className="px-3 py-2 rounded-xl glass-btn font-bold text-sm text-white">Close</button>
+              <button onClick={() => setShowOffersModal(false)} className="px-4 py-2 rounded-xl bg-primary-foreground/15 font-medium text-sm text-primary-foreground active:scale-95 transition-all">Close</button>
             </div>
             <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
               {pendingOffers.length === 0 ? (

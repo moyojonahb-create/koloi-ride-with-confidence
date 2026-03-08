@@ -681,35 +681,33 @@ export default function DriverDashboard() {
             </Card>
 
             {/* Call Buttons: Data / Normal / WhatsApp */}
-            <Card>
+            <Card className="glass-card border-0">
               <CardContent className="pt-4 space-y-3">
-                <p className="font-bold text-sm text-foreground flex items-center gap-2">
-                  <PhoneCall className="h-4 w-4" /> Contact Rider
+                <p className="font-medium text-sm text-foreground flex items-center gap-2">
+                  <PhoneCall className="h-4 w-4 text-primary" /> Contact Rider
                 </p>
                 <div className="grid grid-cols-3 gap-2">
-                  {/* Call (Data) — Agora in-app voice */}
                   <VoiceCallButton
                     onCall={startCall}
                     disabled={callStatus !== "idle"}
                     label="Call (Data)"
                     className="w-full"
                   />
-                  {/* Call (Normal) — phone dialer */}
                   <a
                     href={riderPhone ? `tel:${riderPhone.replace(/[^\d+]/g, "")}` : "#"}
-                    className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm text-center"
+                    className="flex items-center justify-center gap-1.5 py-3 rounded-2xl font-medium text-sm text-center active:scale-95 transition-all"
+                    style={{ background: 'var(--gradient-primary)' }}
                   >
-                    <Phone className="h-4 w-4" />
-                    Call (Normal)
+                    <Phone className="h-4 w-4 text-primary-foreground shrink-0" />
+                    <span className="text-primary-foreground">Normal</span>
                   </a>
-                  {/* WhatsApp */}
                   <a
                     href={riderPhone ? `https://wa.me/${riderPhone.replace(/[^\d]/g, "")}` : "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-emerald-600 text-white font-bold text-sm text-center"
+                    className="flex items-center justify-center gap-1.5 py-3 rounded-2xl bg-[hsl(142,70%,40%)] text-primary-foreground font-medium text-sm text-center active:scale-95 transition-all"
                   >
-                    💬 WhatsApp
+                    💬 <span>WhatsApp</span>
                   </a>
                 </div>
                 {!riderPhone && (
@@ -719,7 +717,7 @@ export default function DriverDashboard() {
             </Card>
 
             {/* Communication with Rider */}
-            <Card>
+            <Card className="glass-card border-0">
               <CardContent className="pt-4">
                 <RideCommunication
                   rideId={activeTrip.id}
