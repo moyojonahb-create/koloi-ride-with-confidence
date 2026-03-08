@@ -45,6 +45,7 @@ import AdminRatePage from "./pages/admin/AdminRatePage";
 import AdminDepositsPage from "./pages/admin/AdminDepositsPage";
 import AdminLedger from "./pages/admin/AdminLedger";
 import AdminTownPricing from "./pages/admin/AdminTownPricing";
+import AdminRiderDepositsPage from "./pages/admin/AdminRiderDepositsPage";
 import RiderRequestScreen from "./pages/negotiate/RiderRequestScreen";
 import RiderOffersScreen from "./pages/negotiate/RiderOffersScreen";
 import DriverRequestsScreen from "./pages/negotiate/DriverRequestsScreen";
