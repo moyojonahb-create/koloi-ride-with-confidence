@@ -488,6 +488,19 @@ export default function RideView() {
               </div>
             )}
 
+            {!searchQuery.trim() && user && (
+              <div className="px-4 pt-3 pb-2">
+                <RecentDestinations
+                  field={activeField!}
+                  onSelect={(dest) => {
+                    const loc = { name: dest.name, lat: dest.lat, lng: dest.lng };
+                    if (activeField === 'pickup') setPickupLocation(loc); else setDropoffLocation(loc);
+                    setActiveField(null); setSearchQuery('');
+                  }}
+                />
+              </div>
+            )}
+
             {!searchQuery.trim() && (
               <div className="px-4 pt-4 pb-2">
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Popular places</p>
