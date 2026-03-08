@@ -103,7 +103,7 @@ export default function DriverDashboard() {
   const { wallet, balance, transactions, deposit, refresh: refreshWallet } = useWallet();
 
   // Agora voice calling for active trip
-  const [callSubStatus, setCallSubStatus] = useState<string>("idle");
+  
   const {
     callStatus,
     isMuted,
