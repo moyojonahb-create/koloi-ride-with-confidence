@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useRideRealtime } from "@/hooks/useRideRealtime";
 import { useDriverTracking } from "@/hooks/useDriverTracking";
+import { useNearbyDrivers } from "@/hooks/useNearbyDrivers";
 import { useAgoraCall } from "@/hooks/useAgoraCall";
 import { getSecondsRemaining, isRideExpired } from "@/lib/rideExpiry";
 import {
@@ -146,6 +147,10 @@ export default function RiderRideDetail() {
     (driverProfile as Record<string, unknown>)?.user_id as string ?? null,
     ride?.status ?? null
   );
+
+  // Show nearby online drivers while waiting for offers
+  const isPendingStatus = ride?.status === "pending";
+  const nearbyDrivers = useNearbyDrivers(isPendingStatus);
 
   useEffect(() => {
     if (!ride || ride.status !== "pending" || !ride.expires_at) return;
@@ -297,6 +302,7 @@ export default function RiderRideDetail() {
             pickup={{ lat: ride.pickup_lat, lng: ride.pickup_lon }}
             dropoff={{ lat: ride.dropoff_lat, lng: ride.dropoff_lon }}
             driverLocation={driverLocation}
+            drivers={isPending ? nearbyDrivers : undefined}
             routeGeometry={ride.route_polyline}
             className="w-full h-full"
             height="100%"
