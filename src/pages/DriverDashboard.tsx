@@ -100,6 +100,7 @@ export default function DriverDashboard() {
   const [riderPhone, setRiderPhone] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
   const [isTopDriver, setIsTopDriver] = useState(false);
+  const [townPricingMap, setTownPricingMap] = useState<Record<string, TownPricingConfig>>({});
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
