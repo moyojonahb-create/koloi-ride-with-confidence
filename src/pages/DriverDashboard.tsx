@@ -64,6 +64,8 @@ import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import DriverEarningsDashboard from "@/components/driver/DriverEarningsDashboard";
 import MapGoogle from "@/components/MapGoogle";
+import { useNearbyDrivers } from "@/hooks/useNearbyDrivers";
+import { useOSRMRoute } from "@/hooks/useOSRMRoute";
 
 // Smart USD format: $4 for whole, $4.50 for halves
 function fmtUSD(n: number): string {
@@ -128,8 +130,21 @@ export default function DriverDashboard() {
   useEffect(() => { fetchDriverBalance(); }, [fetchDriverBalance]);
   useEffect(() => { preloadAllTownPricing().then(setTownPricingMap); }, []);
 
+  // Nearby drivers for map
+  const nearbyDrivers = useNearbyDrivers(isOnline);
+
+  // OSRM routes for map polylines
+  const driverToPickupRoute = useOSRMRoute(
+    driverCoords && activeTrip ? { lat: driverCoords.lat, lng: driverCoords.lng } : null,
+    activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : null
+  );
+  const pickupToDropoffRoute = useOSRMRoute(
+    activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : null,
+    activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : null
+  );
+
   // Agora voice calling for active trip
-  
+
   const {
     callStatus,
     isMuted,
@@ -603,11 +618,14 @@ export default function DriverDashboard() {
         {/* Navigation Map */}
         <Card className="overflow-hidden">
           <CardContent className="p-0">
-            <div className="h-56 rounded-xl overflow-hidden">
+            <div className="h-[45vh] min-h-[300px] rounded-xl overflow-hidden">
               <MapGoogle
                 driverLocation={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
                 pickup={activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : undefined}
                 dropoff={activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : undefined}
+                routeGeometry={pickupToDropoffRoute.route?.geometry ?? undefined}
+                secondaryRouteGeometry={driverToPickupRoute.route?.geometry ?? undefined}
+                drivers={nearbyDrivers}
                 defaultCenter={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
                 defaultZoom={15}
                 className="w-full h-full"
