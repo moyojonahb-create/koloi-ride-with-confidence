@@ -64,6 +64,8 @@ import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import DriverEarningsDashboard from "@/components/driver/DriverEarningsDashboard";
 import MapGoogle from "@/components/MapGoogle";
+import { useNearbyDrivers } from "@/hooks/useNearbyDrivers";
+import { useOSRMRoute } from "@/hooks/useOSRMRoute";
 
 // Smart USD format: $4 for whole, $4.50 for halves
 function fmtUSD(n: number): string {
