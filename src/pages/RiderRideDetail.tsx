@@ -188,7 +188,7 @@ export default function RiderRideDetail() {
 
   const updateFare = async (newFare: number) => {
     if (!rideId || !ride || ride.status !== "pending") return;
-    const clampedFare = clampTo5(newFare);
+    const clampedFare = Math.max(0.50, Math.round(newFare * 2) / 2);
     if (clampedFare === ride.fare) return;
     setUpdatingFare(true);
     try {
