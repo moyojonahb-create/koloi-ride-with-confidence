@@ -103,16 +103,15 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     isTrafficAware: googleRoute.isTrafficAware,
   } : null;
 
-  // Calculate fare using Voyex pricing system with ROUTED distance as authoritative source
-  // This ensures pricing is consistent and not affected by search/autocomplete distances
-  const fareResult: FareResult | null = pickupCoords && dropoffCoords 
-    ? calculateKoloiFare(
-        { lat: pickupCoords.lat, lng: pickupCoords.lng },
-        { lat: dropoffCoords.lat, lng: dropoffCoords.lng },
-        routeInfo?.distance // Pass routed distance from Google Routes API
+  // Calculate fare using USD town pricing
+  const fareCalc = pickupCoords && dropoffCoords && routeInfo
+    ? calculateRecommendedFare(
+        { id: '', town_id: 'default', town_name: 'Zimbabwe', currency_code: 'USD', currency_symbol: '$', base_fare: 1.5, per_km_rate: 1, minimum_fare: 1.5, offer_floor: 1, offer_ceiling: 50, short_trip_fare: 1.5, short_trip_km: 2, night_multiplier: 1.2, demand_multiplier: 1, is_negotiation_enabled: true },
+        routeInfo.distance,
+        routeInfo.duration
       )
     : null;
-  const currentFare = fareResult?.priceR ?? null;
+  const currentFare = fareCalc?.recommended ?? null;
 
   // Handle ride request
   const handleRequestRide = async () => {

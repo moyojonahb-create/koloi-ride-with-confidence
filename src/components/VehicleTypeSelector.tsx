@@ -1,7 +1,5 @@
 import { Car } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { calculateKoloiFare, PRICING_INFO, type Location } from '@/lib/pricing';
-import { Clock, Moon, Sun } from 'lucide-react';
 
 export interface VehicleType {
   id: 'standard';
@@ -21,52 +19,19 @@ export const VEHICLE_TYPES: VehicleType[] = [
   },
 ];
 
-// Legacy function for backward compatibility - now uses Voyex pricing
-export const calculateFareForVehicle = (
-  distanceKm: number,
-  _vehicleType: VehicleType,
-  pickup?: Location,
-  dropoff?: Location
-): number => {
-  // If we have actual coordinates, use proper pricing
-  if (pickup && dropoff) {
-    return calculateKoloiFare(pickup, dropoff).priceR;
-  }
-  // Fallback: estimate using distance only (within town)
-  let price = PRICING_INFO.baseFare + distanceKm * PRICING_INFO.perKmRate;
-  price = Math.max(PRICING_INFO.minFare, Math.min(price, PRICING_INFO.maxTownFare));
-  return Math.round(price);
-};
-
 interface VehicleTypeSelectorProps {
   selectedType: VehicleType;
   onSelect: (type: VehicleType) => void;
   distanceKm?: number;
-  pickup?: Location;
-  dropoff?: Location;
-  routedDistanceKm?: number; // Authoritative distance from Google Routes API
+  fareUsd?: number;
 }
 
 const VehicleTypeSelector = ({ 
   selectedType, 
   onSelect, 
-  distanceKm, 
-  pickup, 
-  dropoff,
-  routedDistanceKm,
+  distanceKm,
+  fareUsd,
 }: VehicleTypeSelectorProps) => {
-  // Calculate fare with routed distance as authoritative source
-  const fareResult = pickup && dropoff 
-    ? calculateKoloiFare(pickup, dropoff, routedDistanceKm) 
-    : null;
-
-  const getMultiplierIcon = () => {
-    if (!fareResult) return null;
-    if (fareResult.multiplier === 1.3) return <Moon className="w-3 h-3" />;
-    if (fareResult.multiplier === 1.2) return <Clock className="w-3 h-3" />;
-    return <Sun className="w-3 h-3" />;
-  };
-
   return (
     <div className="space-y-2">
       <p className="text-sm font-medium text-muted-foreground">Your ride</p>
@@ -74,7 +39,6 @@ const VehicleTypeSelector = ({
         {VEHICLE_TYPES.map((vehicle) => {
           const Icon = vehicle.icon;
           const isSelected = selectedType.id === vehicle.id;
-          const fare = fareResult?.priceR ?? (distanceKm ? calculateFareForVehicle(distanceKm, vehicle) : null);
           
           return (
             <button
@@ -100,25 +64,13 @@ const VehicleTypeSelector = ({
                   <span className="text-xs text-muted-foreground">{vehicle.eta}</span>
                 </div>
                 <p className="text-sm text-muted-foreground truncate">{vehicle.description}</p>
-                {fareResult && (
-                  <div className="flex items-center gap-1 mt-1">
-                    {getMultiplierIcon()}
-                    <span className={cn(
-                      "text-xs",
-                      fareResult.multiplier > 1 ? "text-amber-600" : "text-muted-foreground"
-                    )}>
-                      {fareResult.reason}
-                      {fareResult.multiplier > 1 && ` (${fareResult.multiplier}x)`}
-                    </span>
-                  </div>
-                )}
               </div>
               
               <div className="text-right shrink-0">
-                {fare ? (
-                  <span className="font-bold text-foreground">${fare}</span>
+                {fareUsd ? (
+                  <span className="font-bold text-foreground">${fareUsd.toFixed(2)}</span>
                 ) : (
-                  <span className="text-sm text-muted-foreground">${PRICING_INFO.minFare}+</span>
+                  <span className="text-sm text-muted-foreground">$1.50+</span>
                 )}
               </div>
             </button>
@@ -128,7 +80,7 @@ const VehicleTypeSelector = ({
       
       {/* Pricing info */}
       <div className="text-xs text-muted-foreground text-center pt-2 border-t border-border">
-        ${PRICING_INFO.minFare} - ${PRICING_INFO.maxTownFare} in town ($0.50 increments)
+        $1.50 – $50.00 in town ($0.50 increments)
       </div>
     </div>
   );
