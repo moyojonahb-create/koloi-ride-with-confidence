@@ -938,22 +938,19 @@ export default function DriverDashboard() {
       {/* Deposit Modal */}
       <DepositModal
         isOpen={depositModalOpen}
-        onClose={() => setDepositModalOpen(false)}
-        onDeposit={deposit}
-        currentBalance={balance}
+        onClose={() => { setDepositModalOpen(false); fetchDriverBalance(); }}
+        onDeposit={async (amount: number, desc?: string) => {
+          // Driver deposits go through the deposit request flow, not direct
+          return { error: 'Use the deposit page at /drivers/deposit' };
+        }}
+        currentBalance={driverBalance}
       />
 
       {/* Transactions Sheet */}
       <TransactionsSheet
         isOpen={transactionsOpen}
         onClose={() => setTransactionsOpen(false)}
-        transactions={transactions.map(tx => ({
-          id: tx.id,
-          amount: Number(tx.amount),
-          transaction_type: tx.transaction_type as 'deposit' | 'withdrawal' | 'trip_fee' | 'refund',
-          description: tx.description,
-          created_at: tx.created_at,
-        }))}
+        transactions={[]}
         title="Wallet History"
       />
     </div>
