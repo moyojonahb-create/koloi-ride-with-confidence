@@ -93,7 +93,7 @@ export default function DriverDashboard() {
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [transactionsOpen, setTransactionsOpen] = useState(false);
   const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number; user_id: string; status: string; pickup_lat: number; pickup_lon: number; dropoff_lat: number; dropoff_lon: number } | null>(null);
-  const lastAutoNavStatus = useRef<string | null>(null);
+  const [driverCoords, setDriverCoords] = useState<Coordinates | null>(null);
   const [riderPhone, setRiderPhone] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
   const [isTopDriver, setIsTopDriver] = useState(false);
