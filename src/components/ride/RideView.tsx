@@ -467,11 +467,13 @@ export default function RideView() {
 
           {/* ── Fare estimate & breakdown ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
-            const isZarTown = selectedTown.id === 'gwanda' || selectedTown.id === 'beitbridge';
+            const activeTown = selectedTown.name;
+            const isRandTown = activeTown?.toLowerCase() === 'gwanda' || activeTown?.toLowerCase() === 'beitbridge';
             const extraPassengers = Math.max(passengerCount - 3, 0);
-            const extraFee = isZarTown ? extraPassengers * 5 : extraPassengers * 0.50;
-            const baseFare = fareEstimate.fareR;
-            const totalFare = baseFare + extraFee;
+            const extraPassengerFee = isRandTown ? extraPassengers * 5 : extraPassengers * 0.5;
+            const baseFare = townPricing.base_fare;
+            const distanceFare = fareEstimate.fareR - baseFare;
+            const totalFare = baseFare + distanceFare + extraPassengerFee;
             const sym = fareEstimate.currencySymbol;
             const code = fareEstimate.currencyCode;
             const fmt = (v: number) => code === 'ZAR' ? `${sym}${Math.round(v)}` : `${sym}${v.toFixed(2)}`;
@@ -492,10 +494,14 @@ export default function RideView() {
                       <span className="text-muted-foreground">Base fare</span>
                       <span className="text-foreground font-medium">{fmt(baseFare)}</span>
                     </div>
-                    {extraFee > 0 &&
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Distance fare</span>
+                      <span className="text-foreground font-medium">{fmt(distanceFare)}</span>
+                    </div>
+                    {extraPassengerFee > 0 &&
                     <div className="flex justify-between text-sm">
                         <span className="text-accent font-medium">Extra passengers (×{extraPassengers})</span>
-                        <span className="text-accent font-medium">+{fmt(extraFee)}</span>
+                        <span className="text-accent font-medium">+{fmt(extraPassengerFee)}</span>
                       </div>
                     }
                     <div className="flex justify-between text-base font-bold border-t border-border/20 pt-2">
@@ -510,7 +516,7 @@ export default function RideView() {
                   pricing={townPricing}
                   distanceKm={fareEstimate.distanceKm}
                   durationMinutes={fareEstimate.durationMinutes}
-                  onSendOffer={(fare) => handleSendOffer(fare + extraFee)}
+                  onSendOffer={(fare) => handleSendOffer(fare + extraPassengerFee)}
                   isSubmitting={isRequesting} />
                 
 
