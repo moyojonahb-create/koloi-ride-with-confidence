@@ -136,17 +136,16 @@ export default function DriverDashboard() {
   const startLocationTracking = () => {
     stopLocationTracking();
     if (!navigator.geolocation) return;
+    const handlePos = (pos: GeolocationPosition) => {
+      const { latitude, longitude } = pos.coords;
+      updateDriverLocation(latitude, longitude);
+      setDriverCoords({ lat: latitude, lng: longitude });
+    };
     // Send initial location
-    navigator.geolocation.getCurrentPosition(
-      (pos) => updateDriverLocation(pos.coords.latitude, pos.coords.longitude),
-      () => {}
-    );
+    navigator.geolocation.getCurrentPosition(handlePos, () => {});
     // Update every 10 seconds
     locationIntervalRef.current = setInterval(() => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => updateDriverLocation(pos.coords.latitude, pos.coords.longitude),
-        () => {}
-      );
+      navigator.geolocation.getCurrentPosition(handlePos, () => {});
     }, 10000);
   };
 
