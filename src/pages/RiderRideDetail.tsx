@@ -331,18 +331,7 @@ export default function RiderRideDetail() {
         </div>
       </div>
 
-      {/* Live ETA Banner */}
-      {driverLocation && ride.pickup_lat && (
-        <div className="absolute top-24 left-4 right-4 z-30">
-          <div className="glass-card-heavy rounded-2xl overflow-hidden">
-            <DriverETABanner
-              driverLocation={driverLocation}
-              pickupLat={ride.pickup_lat} pickupLng={ride.pickup_lon}
-              dropoffLat={ride.dropoff_lat} dropoffLng={ride.dropoff_lon}
-              rideStatus={ride.status} />
-          </div>
-        </div>
-      )}
+      {/* ETA Banner removed from map - now shown below accepted driver card */}
 
       {/* Bottom glass panel */}
       <div className="absolute left-0 right-0 z-50 glass-card-heavy max-h-[50vh] overflow-y-auto" style={{ bottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, paddingBottom: 'env(safe-area-inset-bottom)' }}>
@@ -507,6 +496,17 @@ export default function RiderRideDetail() {
                   </div>
                 );
               })()}
+
+              {/* ETA Banner - below driver card */}
+              {driverLocation && ride.pickup_lat && (
+                <div className="rounded-2xl overflow-hidden mt-3 glass-card">
+                  <DriverETABanner
+                    driverLocation={driverLocation}
+                    pickupLat={ride.pickup_lat} pickupLng={ride.pickup_lon}
+                    dropoffLat={ride.dropoff_lat} dropoffLng={ride.dropoff_lon}
+                    rideStatus={ride.status} />
+                </div>
+              )}
             </div>
           )}
 

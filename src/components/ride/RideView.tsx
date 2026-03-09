@@ -40,7 +40,7 @@ import TownSelectorSheet from './TownSelectorSheet';
 interface SelectedLocation {name: string;lat: number;lng: number;}
 interface GPSState {status: 'idle' | 'loading' | 'success' | 'denied' | 'unavailable';coords: {lat: number;lng: number;} | null;error: string | null;}
 type VehicleTier = 'standard';
-type PaymentMethod = 'cash' | 'wallet';
+type PaymentMethod = 'cash' | 'wallet' | 'ecocash';
 
 const VEHICLE_TIERS: {id: VehicleTier;name: string;icon: typeof Car;priceRange: string;passengers: string;eta: string;multiplier: number;}[] = [
 { id: 'standard', name: 'Voyex Standard', icon: Car, priceRange: 'R15 – R40', passengers: '1–4', eta: '3 min', multiplier: 1 }];
@@ -523,7 +523,7 @@ export default function RideView() {
                 <div>
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
                   <div className="flex gap-2">
-                    {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
+                    {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'ecocash' as const, icon: Phone, label: 'EcoCash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
                     <button
                       key={pm.key}
                       onClick={() => setPaymentMethod(pm.key)}
