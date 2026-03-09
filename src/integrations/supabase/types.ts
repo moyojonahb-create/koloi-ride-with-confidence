@@ -1376,6 +1376,7 @@ export type Database = {
           id: string
           updated_at: string
           user_id: string
+          wallet_pin: string | null
         }
         Insert: {
           balance?: number
@@ -1383,6 +1384,7 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id: string
+          wallet_pin?: string | null
         }
         Update: {
           balance?: number
@@ -1390,6 +1392,7 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+          wallet_pin?: string | null
         }
         Relationships: []
       }
