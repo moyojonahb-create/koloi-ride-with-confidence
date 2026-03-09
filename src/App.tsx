@@ -161,6 +161,7 @@ const App = () => {
         <ErrorBoundary>
           {!splashDone && <SplashScreen onComplete={handleSplashComplete} />}
           {splashDone && !isOnline && <Offline />}
+          <GlobalRideNotifier />
           <Toaster />
           <Sonner />
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
