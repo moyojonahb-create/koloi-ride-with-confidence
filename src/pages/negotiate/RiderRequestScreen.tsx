@@ -70,13 +70,14 @@ export default function RiderRequestScreen() {
     let fare = baseFare + distanceKm * perKmRate;
     fare = Math.max(fare, minFare);
 
-    // R5 surcharge for 3-5 passengers
+    // $0.50 surcharge for 3-5 passengers
     if (passengerCount >= 3 && passengerCount <= 5) {
-      fare += 5;
+      fare += 0.50;
     }
 
-    // Round to nearest R5
-    fare = Math.round(fare / 5) * 5;
+    // Round to nearest $0.50
+    fare = Math.round(fare * 2) / 2;
+    fare = Math.max(fare, 0.50);
 
     return { fareR: fare, distanceKm, durationMinutes };
   })();
