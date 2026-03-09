@@ -256,7 +256,7 @@ export default function DriverDashboard() {
       // Fetch active trip (accepted/in_progress) assigned to this driver
       const { data: activeTripData } = await supabase
         .from("rides")
-        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon")
+        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, payment_method")
         .eq("driver_id", p.id)
         .in("status", ["accepted", "enroute_pickup", "in_progress", "arrived"])
         .order("updated_at", { ascending: false })
