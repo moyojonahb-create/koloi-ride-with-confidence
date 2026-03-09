@@ -22,6 +22,7 @@ import MapGoogle from "@/components/MapGoogle";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { ArrowLeft, MapPin, Navigation, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock, Star, Shield } from "lucide-react";
+import BottomNavBar from "@/components/BottomNavBar";
 import DriverETABanner from "@/components/ride/DriverETABanner";
 import CancellationPolicy from "@/components/ride/CancellationPolicy";
 import EmergencyButton from "@/components/ride/EmergencyButton";
