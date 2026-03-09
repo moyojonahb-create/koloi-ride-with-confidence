@@ -544,6 +544,15 @@ export default function DriverDashboard() {
             <Button
               variant="ghost"
               size="icon"
+              onClick={() => setEarningsOpen(!earningsOpen)}
+              className="w-11 h-11 rounded-2xl text-muted-foreground active:scale-90 transition-all"
+              title="Earnings"
+            >
+              <BarChart3 className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setTransactionsOpen(true)}
               className="w-11 h-11 rounded-2xl text-muted-foreground active:scale-90 transition-all"
             >
