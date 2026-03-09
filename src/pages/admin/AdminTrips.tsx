@@ -259,7 +259,7 @@ const AdminTrips = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <span className="font-medium">R{Number(ride.fare).toFixed(0)}</span>
+                        <span className="font-medium">${Number(ride.fare).toFixed(2)}</span>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">

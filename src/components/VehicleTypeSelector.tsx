@@ -128,7 +128,7 @@ const VehicleTypeSelector = ({
       
       {/* Pricing info */}
       <div className="text-xs text-muted-foreground text-center pt-2 border-t border-border">
-        R{PRICING_INFO.minFare} - R{PRICING_INFO.maxTownFare} in town (R5 increments)
+        ${PRICING_INFO.minFare} - ${PRICING_INFO.maxTownFare} in town ($0.50 increments)
       </div>
     </div>
   );

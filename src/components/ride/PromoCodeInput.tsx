@@ -78,7 +78,7 @@ export default function PromoCodeInput({ fare, onApply, onRemove, appliedDiscoun
       }
 
       onApply(discount, promo.id);
-      toast.success(`Promo applied! R${discount} off`);
+      toast.success(`Promo applied! $${discount} off`);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : 'Unknown error';
       toast.error("Failed to apply promo", { description: message });

@@ -84,7 +84,7 @@ export default function AdminEarningsSheet({
                         ${Number(e.platform_fee).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-amber-600 font-medium">
-                        R{Number(e.driver_earnings).toFixed(2)}
+                        ${Number(e.driver_earnings).toFixed(2)}
                       </TableCell>
                     </TableRow>
                   ))

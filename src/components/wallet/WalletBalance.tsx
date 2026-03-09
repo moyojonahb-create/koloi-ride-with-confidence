@@ -21,7 +21,7 @@ export default function WalletBalance({ balance, onClick, className, size = 'md'
     lg: 'h-5 w-5',
   };
 
-  const displayBalance = balance % 1 === 0 ? `R${balance}` : `R${balance.toFixed(1)}`;
+  const displayBalance = `$${balance.toFixed(2)}`;
 
   return (
     <button

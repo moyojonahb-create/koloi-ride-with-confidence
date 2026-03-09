@@ -120,7 +120,7 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
             if (navigator.share) {
               navigator.share({
                 title: 'Voyex Trip Receipt',
-                text: `Trip from ${ride.pickup_address} to ${ride.dropoff_address} — R${ride.fare}`,
+                text: `Trip from ${ride.pickup_address} to ${ride.dropoff_address} — $${Number(ride.fare).toFixed(2)}`,
               });
             }
           }}

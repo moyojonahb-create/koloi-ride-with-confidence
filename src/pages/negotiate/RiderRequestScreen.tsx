@@ -287,7 +287,7 @@ export default function RiderRequestScreen() {
                   {fareEstimate.distanceKm.toFixed(1)} km • {fareEstimate.durationMinutes} min
                 </p>
                 {passengerCount >= 3 && passengerCount <= 5 && (
-                  <p className="text-xs text-accent font-medium">+R5 group surcharge (3-5 passengers)</p>
+                  <p className="text-xs text-accent font-medium">+$5 group surcharge (3-5 passengers)</p>
                 )}
               </>
             ) : null}
