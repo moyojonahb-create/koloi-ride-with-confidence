@@ -7,11 +7,9 @@ export async function completeTrip(tripId: string) {
   if (error) throw error;
   const result = data as {
     ok: boolean;
-    fare_zar?: number;
-    commission_zar?: number;
+    fare_usd?: number;
     commission_usd?: number;
-    driver_earnings_zar?: number;
-    zar_per_usd?: number;
+    driver_earnings_usd?: number;
     reason?: string;
   };
 
