@@ -37,22 +37,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     dropoffCoords ? { lat: dropoffCoords.lat, lng: dropoffCoords.lng } : null
   );
 
-  // Update pricing config when settings load from DB
-  useEffect(() => {
-    if (pricingSettings) {
-      setPricingConfig({
-        baseFare: pricingSettings.base_fare,
-        perKmRate: pricingSettings.per_km_rate,
-        minFare: pricingSettings.min_fare,
-        maxTownFare: pricingSettings.max_town_fare,
-        fixedTownFare: pricingSettings.fixed_town_fare,
-        townRadiusKm: pricingSettings.town_radius_km,
-        peakMultiplier: pricingSettings.peak_multiplier,
-        nightMultiplier: pricingSettings.night_multiplier,
-        gwandaCbd: { lat: pricingSettings.gwanda_cbd_lat, lng: pricingSettings.gwanda_cbd_lng },
-      });
-    }
-  }, [pricingSettings]);
+  // Pricing settings no longer needed for legacy config
 
   // Get user location on mount for nearby landmarks
   useEffect(() => {
