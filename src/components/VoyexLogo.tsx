@@ -36,7 +36,7 @@ const VoyexLogo = ({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <img 
-        src={voyexLogo} 
+        src={voyexIcon} 
         alt="Voyex" 
         className={`${sizeClass} w-auto object-contain`}
       />

@@ -9,7 +9,7 @@ export default function Offline() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
-      <img src={voyexLogo} alt="Voyex" className="w-20 h-20 rounded-2xl object-contain mb-6 opacity-60" />
+      <img src={voyexIcon} alt="Voyex" className="w-28 h-28 rounded-2xl object-contain mb-6 opacity-60" />
       <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-6">
         <WifiOff className="w-8 h-8 text-muted-foreground" />
       </div>

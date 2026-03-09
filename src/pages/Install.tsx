@@ -50,7 +50,7 @@ export default function Install() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex flex-col">
       {/* Hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
-        <img src={voyexLogo} alt="Voyex" className="w-28 h-28 rounded-3xl shadow-2xl mb-6 object-contain" />
+        <img src={voyexIcon} alt="Voyex" className="w-36 h-36 rounded-3xl shadow-2xl mb-6 object-contain" />
         <h1 className="text-3xl font-extrabold text-foreground mb-2">Get Voyex App</h1>
         <p className="text-muted-foreground text-lg mb-8 max-w-sm">
           Zimbabwe's #1 ride-hailing app. Install it now for the best experience.
