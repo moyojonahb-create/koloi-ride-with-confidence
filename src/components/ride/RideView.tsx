@@ -632,25 +632,33 @@ export default function RideView() {
               </div>
           }
 
-            {!searchQuery.trim() && user &&
-          <div className="px-4 pt-3 pb-2">
-                <RecentDestinations
-              field={activeField!}
-              onSelect={(dest) => {
-                const loc = { name: dest.name, lat: dest.lat, lng: dest.lng };
-                if (activeField === 'pickup') setPickupLocation(loc);else setDropoffLocation(loc);
-                setActiveField(null);setSearchQuery('');
-              }} />
-            
-              </div>
-          }
-
-            {!searchQuery.trim() &&
-          <div className="px-4 pt-4 pb-2">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Popular places</p>
-                <QuickPickChips onSelect={handleQuickPickSelect} selectedName={activeField === 'pickup' ? pickupLocation?.name : dropoffLocation?.name} />
-              </div>
-          }
+            {/* Show town places by default when no search query */}
+            {!searchQuery.trim() && (
+              <>
+                <div className="px-4 pt-3 pb-1">
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
+                    📍 Places in {selectedTown.name}
+                  </p>
+                </div>
+                {landmarksLoading ? (
+                  <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>
+                ) : landmarks.length > 0 ? (
+                  landmarks.map((landmark) => (
+                    <button key={landmark.id} onClick={() => handleLandmarkSelect(landmark)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
+                      <div className="w-10 h-10 rounded-2xl glass-card flex items-center justify-center shrink-0">
+                        <MapPin className="w-4.5 h-4.5 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground truncate text-sm">{landmark.name}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{landmark.category}{landmark.distance ? ` · ${landmark.distance < 1 ? `${Math.round(landmark.distance * 1000)}m` : `${landmark.distance.toFixed(1)}km`}` : ''}</p>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-6">No places found in {selectedTown.name}</p>
+                )}
+              </>
+            )}
 
             {(searchQuery.trim() || proximityRadius !== null) &&
           <>
