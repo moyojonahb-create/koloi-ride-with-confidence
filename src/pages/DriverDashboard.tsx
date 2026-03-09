@@ -671,7 +671,7 @@ export default function DriverDashboard() {
                   disabled={completing}
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  {completing ? "Completing..." : "Complete Trip (R4 fee)"}
+                  {completing ? "Completing..." : "Complete Trip (15% commission)"}
                 </Button>
               </CardContent>
             </Card>
