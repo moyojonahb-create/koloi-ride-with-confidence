@@ -311,7 +311,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                 <div className="mt-4 p-4 bg-accent/10 rounded-xl border border-accent/20 animate-fade-in">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-foreground">R{currentFare}</span>
+                      <span className="text-2xl font-bold text-foreground">${currentFare}</span>
                       {fareResult.multiplier > 1 && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
                           {fareResult.multiplier === 1.3 ? <Moon className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
