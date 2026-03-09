@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
   Car, Star, Phone, MessageCircle, Clock, Users, ChevronRight, Locate,
-  Banknote, Wallet, Zap, CarFront, Menu, History
+  Banknote, Wallet, Zap, CarFront, Menu, History, Minus, Plus, Route
 } from 'lucide-react';
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
