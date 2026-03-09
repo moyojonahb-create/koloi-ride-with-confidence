@@ -733,6 +733,7 @@ export default function RideView() {
               </>
           }
           </div>
+          </div>
         </div>
       }
 
