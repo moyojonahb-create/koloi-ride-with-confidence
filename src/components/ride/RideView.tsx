@@ -470,9 +470,8 @@ export default function RideView() {
           {/* ── Fare breakdown + Negotiation (expanded) ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
             const activeTown = selectedTown.name;
-            const isRandTown = townPricing.currency_code === 'ZAR';
             const extraPassengers = Math.max(passengerCount - 3, 0);
-            const extraPassengerFee = isRandTown ? extraPassengers * 5 : extraPassengers * 0.5;
+            const extraPassengerFee = extraPassengers * 0.5;
             const baseFare = townPricing.base_fare;
             const distanceFare = fareEstimate.fareR - baseFare;
             const totalFare = baseFare + distanceFare + extraPassengerFee;
