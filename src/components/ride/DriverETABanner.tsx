@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Car, MapPin, Navigation, Clock } from "lucide-react";
 
 interface DriverETABannerProps {
-  driverLocation: { lat: number; lng: number };
+  driverLocation: {lat: number;lng: number;};
   pickupLat: number;
   pickupLng: number;
   dropoffLat: number;
@@ -12,17 +12,17 @@ interface DriverETABannerProps {
 
 function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
   const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  Math.sin(dLat / 2) ** 2 +
+  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function estimateMinutes(distanceKm: number): number {
   // Assume ~25 km/h average in town
-  return Math.max(1, Math.round((distanceKm / 25) * 60));
+  return Math.max(1, Math.round(distanceKm / 25 * 60));
 }
 
 export default function DriverETABanner({
@@ -31,7 +31,7 @@ export default function DriverETABanner({
   pickupLng,
   dropoffLat,
   dropoffLng,
-  rideStatus,
+  rideStatus
 }: DriverETABannerProps) {
   const [, setTick] = useState(0);
 
@@ -62,8 +62,8 @@ export default function DriverETABanner({
           <p className="text-xs opacity-80">Meet your driver at the pickup point</p>
         </div>
         <MapPin className="h-5 w-5" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (isInProgress) {
@@ -77,24 +77,24 @@ export default function DriverETABanner({
           </p>
         </div>
         <Clock className="h-4 w-4" />
-      </div>
-    );
+      </div>);
+
   }
 
   // En route to pickup
-  return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-primary text-primary-foreground">
-      <Car className="h-5 w-5" />
-      <div className="flex-1">
-        <p className="font-bold text-sm">Driver is on the way</p>
-        <p className="text-xs opacity-80">
-          {distToPickup.toFixed(1)} km away • ~{etaToPickup} min
-        </p>
-      </div>
-      <div className="text-right">
-        <p className="font-black text-lg">{etaToPickup}</p>
-        <p className="text-[10px] opacity-70">min</p>
-      </div>
-    </div>
-  );
+  return;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
