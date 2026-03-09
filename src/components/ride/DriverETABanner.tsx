@@ -98,10 +98,6 @@ export default function DriverETABanner({
   }
 
   return null;
-
-
-
-
-
+}
 
 }
