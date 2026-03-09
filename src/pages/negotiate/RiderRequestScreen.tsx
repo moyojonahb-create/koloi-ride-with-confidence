@@ -194,12 +194,12 @@ export default function RiderRequestScreen() {
     navigate(`/negotiate/offers/${data.id}`);
   }
 
-  // Fare adjustment helpers (R5 steps)
+  // Fare adjustment helpers ($0.50 steps)
   const adjustFare = (direction: 'up' | 'down') => {
     const current = parseFloat(offeredFare) || 0;
-    const step = 5;
+    const step = 0.50;
     const newFare = direction === 'up' ? current + step : Math.max(step, current - step);
-    setOfferedFare(String(newFare));
+    setOfferedFare(String(Math.round(newFare * 2) / 2));
   };
 
   return (
