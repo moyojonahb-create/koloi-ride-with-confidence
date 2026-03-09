@@ -28,9 +28,9 @@ const SplashScreen = ({ onComplete, duration = 5000 }: SplashScreenProps) => {
       }`}
     >
       <img
-        src={voyexIcon}
+        src={voyexLogo}
         alt="Voyex"
-        className={`w-80 h-80 sm:w-96 sm:h-96 object-contain transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+        className={`w-72 h-72 sm:w-80 sm:h-80 object-contain transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
           visible ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
         }`}
       />
