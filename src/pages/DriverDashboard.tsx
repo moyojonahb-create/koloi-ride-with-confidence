@@ -39,7 +39,8 @@ import {
   Phone,
   PhoneCall,
 } from "lucide-react";
-import { triggerFullAlert } from "@/lib/alerts";
+import { playAlert, vibrateAlert, showBrowserNotification } from "@/lib/alerts";
+import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds";
 import { updateDriverLocation } from "@/lib/driverLocation";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 import { filterActiveRides, getSecondsRemaining, expireOldRides } from "@/lib/rideExpiry";
