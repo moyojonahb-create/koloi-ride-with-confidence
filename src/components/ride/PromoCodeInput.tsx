@@ -52,7 +52,7 @@ export default function PromoCodeInput({ fare, onApply, onRemove, appliedDiscoun
 
       // Check min fare
       if (promo.min_fare && fare < promo.min_fare) {
-        toast.error(`Minimum fare of R${promo.min_fare} required`);
+        toast.error(`Minimum fare of $${promo.min_fare} required`);
         return;
       }
 
