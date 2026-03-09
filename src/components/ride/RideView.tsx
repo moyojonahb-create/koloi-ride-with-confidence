@@ -375,7 +375,7 @@ export default function RideView() {
       {/* ── BOTTOM SHEET ── */}
       <div
         className={cn("absolute left-0 right-0 bottom-0 z-50 glass-card-heavy transition-all duration-300 overflow-y-auto",
-        sheetExpanded ? 'max-h-[65vh]' : 'max-h-[50vh]'
+        sheetExpanded ? 'max-h-[55vh]' : 'max-h-[38vh]'
         )}
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
         
