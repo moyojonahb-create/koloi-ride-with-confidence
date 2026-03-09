@@ -16,6 +16,8 @@ interface MapGoogleProps {
   dropoff?: Coords | null;
   driverLocation?: Coords | null;
   routeGeometry?: string | null;
+  /** Secondary route polyline (e.g. driver→pickup) */
+  secondaryRouteGeometry?: string | null;
   onMapClick?: (coords: Coords) => void;
   className?: string;
   height?: string;
@@ -43,6 +45,12 @@ const mapOptions: google.maps.MapOptions = {
   ],
 };
 
+const CAR_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="hsl(215,80%,25%)" stroke="white" stroke-width="3"/><path d="M25.92 13.01C25.72 12.42 25.16 12 24.5 12h-13c-.66 0-1.21.42-1.42 1.01L8 19v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h14v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM12.5 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM11 18l1.5-4.5h11L25 18H11z" fill="white"/></svg>`;
+
+const NEARBY_CAR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="#22c55e" stroke="white" stroke-width="2.5"/><path d="M25.92 13.01C25.72 12.42 25.16 12 24.5 12h-13c-.66 0-1.21.42-1.42 1.01L8 19v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h14v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM12.5 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM11 18l1.5-4.5h11L25 18H11z" fill="white"/></svg>`;
+
+const OFFLINE_CAR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="#9ca3af" stroke="white" stroke-width="2.5"/><path d="M25.92 13.01C25.72 12.42 25.16 12 24.5 12h-13c-.66 0-1.21.42-1.42 1.01L8 19v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h14v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM12.5 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM11 18l1.5-4.5h11L25 18H11z" fill="white"/></svg>`;
+
 function decodePolyline(encoded: string): Coords[] {
   const points: Coords[] = [];
   let index = 0, lat = 0, lng = 0;
@@ -60,7 +68,7 @@ function decodePolyline(encoded: string): Coords[] {
 
 // ── Inner map component (only rendered when API key is available) ──
 function InnerMapGoogle({
-  pickup, dropoff, driverLocation, routeGeometry, onMapClick,
+  pickup, dropoff, driverLocation, routeGeometry, secondaryRouteGeometry, onMapClick,
   className = '', height = '100%', drivers, defaultCenter, defaultZoom = 13, apiKey,
 }: MapGoogleProps & { apiKey: string }) {
   const { isLoaded, loadError } = useJsApiLoader({
@@ -71,6 +79,7 @@ function InnerMapGoogle({
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const [routePath, setRoutePath] = useState<Coords[]>([]);
+  const [secondaryPath, setSecondaryPath] = useState<Coords[]>([]);
 
   useEffect(() => {
     if (routeGeometry) {
@@ -79,11 +88,18 @@ function InnerMapGoogle({
     } else { setRoutePath([]); }
   }, [routeGeometry]);
 
+  useEffect(() => {
+    if (secondaryRouteGeometry) {
+      try { setSecondaryPath(decodePolyline(secondaryRouteGeometry)); }
+      catch { setSecondaryPath([]); }
+    } else { setSecondaryPath([]); }
+  }, [secondaryRouteGeometry]);
+
   // Re-center map when defaultCenter changes (town switch) and no markers set
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (pickup || dropoff || driverLocation) return; // markers take priority
+    if (pickup || dropoff || driverLocation) return;
     if (defaultCenter) {
       map.panTo(defaultCenter);
       map.setZoom(defaultZoom);
@@ -161,11 +177,21 @@ function InnerMapGoogle({
           <Marker position={dropoff} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#2563EB', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }} label={{ text: 'D', color: '#fff', fontWeight: 'bold', fontSize: '11px' }} zIndex={10} />
         )}
         {driverLocation && (
-          <Marker position={driverLocation} icon={{ url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="hsl(215,80%,25%)" stroke="white" stroke-width="3"/><path d="M25.92 13.01C25.72 12.42 25.16 12 24.5 12h-13c-.66 0-1.21.42-1.42 1.01L8 19v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h14v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM12.5 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM11 18l1.5-4.5h11L25 18H11z" fill="white"/></svg>`), scaledSize: new google.maps.Size(36, 36), anchor: new google.maps.Point(18, 18) }} zIndex={20} />
+          <Marker position={driverLocation} icon={{ url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(CAR_ICON_SVG), scaledSize: new google.maps.Size(36, 36), anchor: new google.maps.Point(18, 18) }} zIndex={20} />
         )}
+        {/* Nearby drivers as car icons */}
         {drivers?.map((d) => (
-          <Marker key={d.id} position={{ lat: d.lat, lng: d.lng }} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: d.isOnline ? '#22c55e' : '#9ca3af', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }} zIndex={5} />
+          <Marker key={d.id} position={{ lat: d.lat, lng: d.lng }} icon={{
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(d.isOnline ? NEARBY_CAR_SVG : OFFLINE_CAR_SVG),
+            scaledSize: new google.maps.Size(d.isOnline ? 32 : 28, d.isOnline ? 32 : 28),
+            anchor: new google.maps.Point(d.isOnline ? 16 : 14, d.isOnline ? 16 : 14),
+          }} zIndex={5} />
         ))}
+        {/* Secondary route: driver → pickup (dashed blue) */}
+        {secondaryPath.length > 1 && (
+          <Polyline path={secondaryPath} options={{ strokeColor: '#60a5fa', strokeWeight: 4, strokeOpacity: 0.7, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '15px' }] }} />
+        )}
+        {/* Primary route: pickup → dropoff (solid blue) */}
         {routePath.length > 1 && (
           <Polyline path={routePath} options={{ strokeColor: '#2563EB', strokeWeight: 5, strokeOpacity: 0.85 }} />
         )}
