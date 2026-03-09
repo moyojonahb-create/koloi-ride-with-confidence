@@ -148,7 +148,7 @@ export default function DriverRequestsScreen() {
                 <p className="text-sm text-muted-foreground">
                   Rider offering:{' '}
                   <span className="font-bold text-foreground">
-                    ${req.offered_fare} {req.currency}
+                    ${req.offered_fare.toFixed(2)}
                   </span>
                 </p>
               </div>

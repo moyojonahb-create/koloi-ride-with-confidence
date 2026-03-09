@@ -44,6 +44,7 @@ import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds
 import { updateDriverLocation } from "@/lib/driverLocation";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 import { filterActiveRides, getSecondsRemaining, expireOldRides } from "@/lib/rideExpiry";
+import { preloadAllTownPricing, type TownPricingConfig } from "@/hooks/useTownPricing";
 
 import { completeTrip } from "@/lib/completeTrip";
 import WalletBalance from "@/components/wallet/WalletBalance";
@@ -99,6 +100,7 @@ export default function DriverDashboard() {
   const [riderPhone, setRiderPhone] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
   const [isTopDriver, setIsTopDriver] = useState(false);
+  const [townPricingMap, setTownPricingMap] = useState<Record<string, TownPricingConfig>>({});
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -114,6 +116,7 @@ export default function DriverDashboard() {
     setDriverBalance(data?.balance_usd ?? 0);
   }, [user]);
   useEffect(() => { fetchDriverBalance(); }, [fetchDriverBalance]);
+  useEffect(() => { preloadAllTownPricing().then(setTownPricingMap); }, []);
 
   // Agora voice calling for active trip
   
@@ -390,7 +393,16 @@ export default function DriverDashboard() {
     return () => clearInterval(interval);
   }, [isOnline]);
 
-  const isZarTown = (townId?: string | null) => townId === 'gwanda' || townId === 'beitbridge';
+  const isZarTown = (townId?: string | null) => {
+    if (!townId) return false;
+    const tp = townPricingMap[townId];
+    return tp?.currency_code === 'ZAR';
+  };
+
+  const getCurrencySymbol = (townId?: string | null) => {
+    if (!townId) return '$';
+    return townPricingMap[townId]?.currency_symbol ?? '$';
+  };
 
   const chooseRide = (r: Ride) => {
     setSelectedRide(r);
@@ -398,7 +410,6 @@ export default function DriverDashboard() {
       const base = clampTo5((r.fare || 50) * mult);
       setOfferPrice(base);
     } else {
-      // USD: round to nearest $0.50
       const base = Math.max(0.50, Math.round(((r.fare || 5) * mult) * 2) / 2);
       setOfferPrice(base);
     }
@@ -834,7 +845,7 @@ export default function DriverDashboard() {
                         <p className="text-sm text-muted-foreground truncate">{r.dropoff_address}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-lg">${Number(r.fare).toFixed(2)}</p>
+                        <p className="font-black text-lg">{isZarTown(r.town_id) ? `R${Math.round(r.fare)}` : `$${Number(r.fare).toFixed(2)}`}</p>
                         <p className="text-xs text-muted-foreground">{r.distance_km?.toFixed(1)} km</p>
                       </div>
                     </div>

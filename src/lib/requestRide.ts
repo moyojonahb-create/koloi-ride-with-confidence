@@ -16,6 +16,7 @@ type RequestRideInput = {
   passenger_count?: number;
   scheduled_at?: string;
   payment_method?: string;
+  town_id?: string | null;
 };
 
 interface RideRow {
@@ -59,6 +60,7 @@ export async function requestRide(input: RequestRideInput) {
     route_polyline: input.route_polyline ?? null,
     passenger_count: input.passenger_count ?? 1,
     payment_method: input.payment_method ?? "cash",
+    town_id: input.town_id ?? null,
     ...(input.scheduled_at ? { scheduled_at: input.scheduled_at } : {}),
   };
 

@@ -176,7 +176,8 @@ export default function RideView() {
         distance_km: fareEstimate.distanceKm, duration_minutes: fareEstimate.durationMinutes,
         fare: customFare,
         route_polyline: routeData?.geometry || null, passenger_count: passengerCount,
-        payment_method: paymentMethod, vehicle_type: selectedTier
+        payment_method: paymentMethod, vehicle_type: selectedTier,
+        town_id: selectedTown?.id ?? null
       });
       if (!result.ok) throw new Error(result.error);
       setCurrentRideId(result.ride.id);
@@ -469,7 +470,7 @@ export default function RideView() {
           {/* ── Fare breakdown + Negotiation (expanded) ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
             const activeTown = selectedTown.name;
-            const isRandTown = activeTown?.toLowerCase() === 'gwanda' || activeTown?.toLowerCase() === 'beitbridge';
+            const isRandTown = townPricing.currency_code === 'ZAR';
             const extraPassengers = Math.max(passengerCount - 3, 0);
             const extraPassengerFee = isRandTown ? extraPassengers * 5 : extraPassengers * 0.5;
             const baseFare = townPricing.base_fare;
