@@ -287,7 +287,7 @@ export default function RideView() {
         <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
 
         {/* Floating map buttons */}
-        <div className="absolute right-3 z-20" style={{ bottom: sheetExpanded ? 'calc(70vh + 72px)' : 'calc(48vh + 72px)', transition: 'bottom 0.3s cubic-bezier(0.32,0.72,0,1)' }}>
+        <div className="absolute right-3 z-20" style={{ bottom: sheetExpanded ? 'calc(70vh + 16px)' : 'calc(48vh + 16px)', transition: 'bottom 0.3s cubic-bezier(0.32,0.72,0,1)' }}>
           <div className="flex flex-col gap-2.5">
             <button onClick={handleUseMyLocation} className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-blue">
               {gpsState.status === 'loading' ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <Locate className="w-5 h-5 text-primary" />}
@@ -373,17 +373,14 @@ export default function RideView() {
         </SheetContent>
       </Sheet>
 
-      {/* ── BOTTOM NAV BAR ── */}
-      <BottomNavBar />
-
       {/* ── BOTTOM SHEET ── */}
       <div
         className="absolute left-0 right-0 z-50 flex flex-col glass-card-heavy"
         style={{
-          bottom: 56,
+          bottom: 0,
           height: sheetExpanded ? '70vh' : '48vh',
           transition: 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
-          paddingBottom: 8,
+          paddingBottom: 'env(safe-area-inset-bottom)',
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24
         }}>
