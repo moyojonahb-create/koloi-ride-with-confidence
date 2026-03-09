@@ -327,26 +327,26 @@ export default function RiderRequestScreen() {
           </div>
         </div>
 
-        {/* Offered Fare with R5 stepper */}
+        {/* Offered Fare with $0.50 stepper */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-foreground flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-primary" /> Your Offered Fare (ZAR)
+            <DollarSign className="w-4 h-4 text-primary" /> Your Offered Fare (USD)
           </Label>
           <div className="flex items-center gap-2">
             <button
               onClick={() => adjustFare('down')}
-              disabled={!offeredFare || parseFloat(offeredFare) <= 5}
+              disabled={!offeredFare || parseFloat(offeredFare) <= 0.50}
               className="w-12 h-12 rounded-xl bg-muted border border-border flex items-center justify-center text-xl font-bold text-foreground disabled:opacity-30 transition-opacity shrink-0"
             >
               −
             </button>
             <div className="flex-1 relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold">R</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold">$</span>
               <input
                 type="number"
                 placeholder="0"
-                min="5"
-                step="5"
+                min="0.50"
+                step="0.50"
                 value={offeredFare}
                 onChange={e => setOfferedFare(e.target.value)}
                 className="w-full h-12 pl-8 pr-4 bg-muted rounded-xl text-2xl font-bold text-foreground text-center focus:outline-none focus:ring-2 focus:ring-accent border-0"
@@ -359,7 +359,7 @@ export default function RiderRequestScreen() {
               +
             </button>
           </div>
-          <p className="text-xs text-muted-foreground">Adjust in R5 steps. Drivers can negotiate a different price.</p>
+          <p className="text-xs text-muted-foreground">Adjust in $0.50 steps. Drivers can negotiate a different price.</p>
         </div>
 
         <Button
