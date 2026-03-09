@@ -52,9 +52,11 @@ interface UseLandmarksOptions {
   searchQuery?: string;
   limit?: number;
   radiusKm?: number | null; // Filter by proximity radius
+  townCenter?: { lat: number; lng: number } | null; // Filter landmarks to this town
+  townRadiusKm?: number | null; // Radius around town center
 }
 
-export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiusKm = null }: UseLandmarksOptions = {}) => {
+export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiusKm = null, townCenter = null, townRadiusKm = null }: UseLandmarksOptions = {}) => {
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
