@@ -99,13 +99,9 @@ export function calculateRecommendedFare(
   fare = fare * nightMult * demandMult;
   fare = Math.max(fare, pricing.minimum_fare);
 
-  // Round appropriately based on currency
-  if (pricing.currency_code === 'ZAR') {
-    fare = Math.round(fare / 5) * 5 || 5; // Round to nearest R5
-  } else {
-    fare = Math.round(fare * 2) / 2; // Round to nearest $0.50
-    fare = Math.max(fare, 0.50);
-  }
+  // Round to nearest $0.50
+  fare = Math.round(fare * 2) / 2;
+  fare = Math.max(fare, 0.50);
 
   // Calculate floor/ceiling for this trip
   const tripFloor = Math.max(pricing.offer_floor, pricing.minimum_fare);
@@ -128,16 +124,13 @@ function isNightTime(): boolean {
   return h >= 20 || h < 5;
 }
 
-/** Get step size for fare adjustment based on currency */
-export function getFareStep(currencyCode: string): number {
-  return currencyCode === 'ZAR' ? 5 : 0.50;
+/** Get step size for fare adjustment */
+export function getFareStep(_currencyCode?: string): number {
+  return 0.50;
 }
 
 /** Format a fare with currency symbol */
-export function formatFare(amount: number, symbol: string, code: string): string {
-  if (code === 'ZAR') {
-    return `${symbol}${Math.round(amount)}`;
-  }
+export function formatFare(amount: number, symbol: string = '$', _code?: string): string {
   return `${symbol}${amount.toFixed(2)}`;
 }
 

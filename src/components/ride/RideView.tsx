@@ -470,15 +470,14 @@ export default function RideView() {
           {/* ── Fare breakdown + Negotiation (expanded) ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
             const activeTown = selectedTown.name;
-            const isRandTown = townPricing.currency_code === 'ZAR';
             const extraPassengers = Math.max(passengerCount - 3, 0);
-            const extraPassengerFee = isRandTown ? extraPassengers * 5 : extraPassengers * 0.5;
+            const extraPassengerFee = extraPassengers * 0.5;
             const baseFare = townPricing.base_fare;
             const distanceFare = fareEstimate.fareR - baseFare;
             const totalFare = baseFare + distanceFare + extraPassengerFee;
             const sym = fareEstimate.currencySymbol;
             const code = fareEstimate.currencyCode;
-            const fmt = (v: number) => code === 'ZAR' ? `${sym}${Math.round(v)}` : `${sym}${v.toFixed(2)}`;
+            const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
 
             return (
               <>
@@ -551,13 +550,12 @@ export default function RideView() {
         <div className="shrink-0 px-4 pb-3 pt-2">
           {pickupLocation && dropoffLocation && fareEstimate ? (() => {
             const activeTown = selectedTown.name;
-            const isRandTown = activeTown?.toLowerCase() === 'gwanda' || activeTown?.toLowerCase() === 'beitbridge';
             const extraPassengers = Math.max(passengerCount - 3, 0);
-            const extraPassengerFee = isRandTown ? extraPassengers * 5 : extraPassengers * 0.5;
+            const extraPassengerFee = extraPassengers * 0.5;
             const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee;
             const sym = fareEstimate.currencySymbol;
             const code = fareEstimate.currencyCode;
-            const fmt = (v: number) => code === 'ZAR' ? `${sym}${Math.round(v)}` : `${sym}${v.toFixed(2)}`;
+            const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
             return (
               <Button
                 onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}

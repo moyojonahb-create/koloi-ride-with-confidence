@@ -81,7 +81,7 @@ export default function NegotiationCard({
             {formatFare(customFare, fareCalc.currencySymbol, fareCalc.currencyCode)}
           </p>
           <p className="text-[10px] text-muted-foreground mt-0.5">
-            {pricing.currency_code === 'ZAR' ? 'Increments of R5' : 'Increments of $0.50'}
+            Increments of $0.50
           </p>
         </div>
 

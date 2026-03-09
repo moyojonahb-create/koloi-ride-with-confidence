@@ -393,41 +393,19 @@ export default function DriverDashboard() {
     return () => clearInterval(interval);
   }, [isOnline]);
 
-  const isZarTown = (townId?: string | null) => {
-    if (!townId) return false;
-    const tp = townPricingMap[townId];
-    return tp?.currency_code === 'ZAR';
-  };
-
-  const getCurrencySymbol = (townId?: string | null) => {
-    if (!townId) return '$';
-    return townPricingMap[townId]?.currency_symbol ?? '$';
-  };
-
   const chooseRide = (r: Ride) => {
     setSelectedRide(r);
-    if (isZarTown(r.town_id)) {
-      const base = clampTo5((r.fare || 50) * mult);
-      setOfferPrice(base);
-    } else {
-      const base = Math.max(0.50, Math.round(((r.fare || 5) * mult) * 2) / 2);
-      setOfferPrice(base);
-    }
+    const base = Math.max(0.50, Math.round(((r.fare || 5) * mult) * 2) / 2);
+    setOfferPrice(base);
     setEta(Math.max(5, Math.round(r.duration_minutes / 2)));
     setNote(isNightLocal() ? "Night service" : "");
   };
 
-  const fareStep = selectedRide && isZarTown(selectedRide.town_id) ? 5 : 0.50;
-  const fareMin = selectedRide && isZarTown(selectedRide.town_id) ? 5 : 0.50;
+  const fareStep = 0.50;
+  const fareMin = 0.50;
 
-  const inc = () => setOfferPrice((p) => {
-    if (selectedRide && isZarTown(selectedRide.town_id)) return clampTo5(p + 5);
-    return Math.round((p + 0.50) * 2) / 2;
-  });
-  const dec = () => setOfferPrice((p) => {
-    if (selectedRide && isZarTown(selectedRide.town_id)) return clampTo5(p - 5, 5);
-    return Math.max(0.50, Math.round((p - 0.50) * 2) / 2);
-  });
+  const inc = () => setOfferPrice((p) => Math.round((p + 0.50) * 2) / 2);
+  const dec = () => setOfferPrice((p) => Math.max(0.50, Math.round((p - 0.50) * 2) / 2));
 
   const sendOffer = async () => {
     if (!selectedRide || submitting) return;
@@ -469,6 +447,7 @@ export default function DriverDashboard() {
       const r = result as Record<string, unknown>;
       toast.success("Trip completed!", {
         description: `15% commission: $${r.commission_zar ?? "?"} deducted. You earned $${r.driver_earnings_zar ?? "?"}`,
+
       });
       setActiveTrip(null);
       fetchDriverBalance();
@@ -845,7 +824,7 @@ export default function DriverDashboard() {
                         <p className="text-sm text-muted-foreground truncate">{r.dropoff_address}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-lg">{isZarTown(r.town_id) ? `R${Math.round(r.fare)}` : `$${Number(r.fare).toFixed(2)}`}</p>
+                        <p className="font-black text-lg">${Number(r.fare).toFixed(2)}</p>
                         <p className="text-xs text-muted-foreground">{r.distance_km?.toFixed(1)} km</p>
                       </div>
                     </div>
@@ -893,10 +872,10 @@ export default function DriverDashboard() {
                 </Button>
                 <div className="text-center">
                   <p className="text-3xl font-black">
-                    {isZarTown(selectedRide.town_id) ? `R${offerPrice}` : `$${offerPrice.toFixed(2)}`}
+                    ${offerPrice.toFixed(2)}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Increments of {isZarTown(selectedRide.town_id) ? 'R5' : '$0.50'}
+                    Increments of $0.50
                   </p>
                 </div>
                 <Button variant="outline" size="icon" onClick={inc}>

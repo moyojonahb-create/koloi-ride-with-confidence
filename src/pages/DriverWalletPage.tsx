@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -18,16 +18,9 @@ export default function DriverWalletPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [balance, setBalance] = useState(0);
-  const [zarPerUsd, setZarPerUsd] = useState<number | null>(null);
   const [deposits, setDeposits] = useState<DepositRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
-
-  const feeZar = 4;
-  const feeUsdPreview = useMemo(() => {
-    if (!zarPerUsd) return null;
-    return Number((feeZar / zarPerUsd).toFixed(2));
-  }, [zarPerUsd]);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -41,15 +34,6 @@ export default function DriverWalletPage() {
         .maybeSingle();
       if (w.error) throw w.error;
       setBalance(Number(w.data?.balance_usd ?? 0));
-
-      const fx = await supabase
-        .from("fx_rates")
-        .select("zar_per_usd,effective_date")
-        .order("effective_date", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(1);
-      if (fx.error) throw fx.error;
-      setZarPerUsd(fx.data?.[0]?.zar_per_usd ? Number(fx.data[0].zar_per_usd) : null);
 
       const dep = await supabase
         .from("deposit_requests")
@@ -94,17 +78,8 @@ export default function DriverWalletPage() {
           <div className="text-4xl font-black">${balance.toFixed(2)}</div>
 
           <div className="mt-4 bg-muted/50 rounded-xl p-3">
-            <div className="font-bold text-sm">Today's Rate</div>
-            {zarPerUsd ? (
-              <>
-                <div className="text-sm text-muted-foreground">$1 = {zarPerUsd} ZAR</div>
-                <div className="text-sm font-bold mt-1">
-                  Fee per trip: R4 ≈ ${feeUsdPreview?.toFixed(2)}
-                </div>
-              </>
-            ) : (
-              <div className="text-sm text-muted-foreground">Rate not set. Contact admin.</div>
-            )}
+            <div className="font-bold text-sm">Commission</div>
+            <div className="text-sm text-muted-foreground">15% per completed trip</div>
           </div>
 
           <div className="flex gap-3 mt-4">

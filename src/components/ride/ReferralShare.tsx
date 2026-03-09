@@ -37,7 +37,7 @@ export default function ReferralShare() {
 
   const handleCopy = async () => {
     if (!referralCode) return;
-    const shareText = `Join Voyex and get R5 off your first ride! Use my code: ${referralCode}`;
+    const shareText = `Join Voyex and get $5 off your first ride! Use my code: ${referralCode}`;
     
     if (navigator.share) {
       try {
@@ -66,10 +66,10 @@ export default function ReferralShare() {
     <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-4 space-y-3">
       <div className="flex items-center gap-2">
         <Gift className="h-5 w-5 text-primary" />
-        <h3 className="font-bold text-foreground">Invite friends, earn R5</h3>
+        <h3 className="font-bold text-foreground">Invite friends, earn $5</h3>
       </div>
       <p className="text-sm text-muted-foreground">
-        Share your code. Both you and your friend get R5 off!
+        Share your code. Both you and your friend get $5 off!
       </p>
       <div className="flex items-center gap-2">
         <div className="flex-1 bg-background rounded-xl px-4 py-3 font-mono font-bold text-lg text-center tracking-widest border border-border">
