@@ -98,7 +98,7 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
         )}
         <div className="flex justify-between items-center pt-2 border-t border-border/30">
           <span className="font-bold text-foreground">Total paid</span>
-          <span className="text-2xl font-black text-primary">R{ride.fare}</span>
+          <span className="text-2xl font-black text-primary">${Number(ride.fare).toFixed(2)}</span>
         </div>
       </div>
 
