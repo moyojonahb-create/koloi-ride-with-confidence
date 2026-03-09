@@ -64,6 +64,12 @@ import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import DriverEarningsDashboard from "@/components/driver/DriverEarningsDashboard";
 import MapGoogle from "@/components/MapGoogle";
+
+// Smart USD format: $4 for whole, $4.50 for halves
+function fmtUSD(n: number): string {
+  return n % 1 === 0 ? `$${n}` : `$${n.toFixed(2)}`;
+}
+
 type Ride = {
   id: string;
   user_id: string;
