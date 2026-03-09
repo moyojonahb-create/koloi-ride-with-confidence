@@ -176,7 +176,8 @@ export default function RideView() {
         distance_km: fareEstimate.distanceKm, duration_minutes: fareEstimate.durationMinutes,
         fare: customFare,
         route_polyline: routeData?.geometry || null, passenger_count: passengerCount,
-        payment_method: paymentMethod, vehicle_type: selectedTier
+        payment_method: paymentMethod, vehicle_type: selectedTier,
+        town_id: selectedTown?.id ?? null
       });
       if (!result.ok) throw new Error(result.error);
       setCurrentRideId(result.ride.id);
