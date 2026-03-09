@@ -690,7 +690,18 @@ export default function DriverDashboard() {
                     <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
                     <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
                   </div>
-                  <p className="font-black text-lg">${Number(activeTrip.fare).toFixed(2)}</p>
+                  <div className="text-right">
+                    <p className="font-black text-lg">{fmtUSD(Number(activeTrip.fare))}</p>
+                    {activeTrip.payment_method && activeTrip.payment_method !== 'cash' && (
+                      <div className="flex items-center gap-1 mt-1 justify-end">
+                        <CreditCard className="h-3 w-3 text-primary" />
+                        <span className="text-xs font-medium text-primary capitalize">{activeTrip.payment_method}</span>
+                      </div>
+                    )}
+                    {activeTrip.payment_method === 'cash' && (
+                      <span className="text-xs text-muted-foreground">Cash</span>
+                    )}
+                  </div>
                 </div>
                 <Button
                   className="w-full bg-accent text-accent-foreground hover:brightness-105"
