@@ -1,5 +1,5 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
-import voyexIcon from '@/assets/voyex-icon-only.png';
+import voyexLogo from '@/assets/voyex-logo.png';
 
 interface SplashScreenProps {
   onComplete: () => void;
