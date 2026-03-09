@@ -385,12 +385,12 @@ export default function RideView() {
           borderTopRightRadius: 24
         }}>
         
-        {/* Handle bar — tap to toggle */}
+        {/* Blue ribbon handle bar */}
         <button
           onClick={() => setSheetExpanded((e) => !e)}
-          className="w-full pt-3 pb-2 flex justify-center shrink-0">
-          
-          <div className="w-10 h-1 rounded-full bg-foreground/20" />
+          className="w-full py-3 flex justify-center shrink-0 rounded-t-[24px]"
+          style={{ background: 'var(--gradient-primary)' }}>
+          <div className="w-12 h-1.5 rounded-full bg-primary-foreground/40" />
         </button>
 
         {/* Scrollable content */}
