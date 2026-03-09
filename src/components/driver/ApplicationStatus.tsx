@@ -25,8 +25,8 @@ const ApplicationStatus = ({ status, vehicleInfo, documentsStatus }: Application
       case 'approved':
         return {
           icon: CheckCircle,
-          color: 'text-green-500',
-          bgColor: 'bg-green-500/10',
+          color: 'text-accent',
+          bgColor: 'bg-accent/10',
           label: 'Approved',
           description: 'Congratulations! You are now an approved driver.',
         };
