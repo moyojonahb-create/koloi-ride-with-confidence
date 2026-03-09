@@ -137,7 +137,7 @@ function QuickAction({ icon, label, onClick, accent }: { icon: React.ReactNode; 
     <button
       onClick={onClick}
       className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl active:scale-95 transition-all ${
-        accent ? 'bg-primary text-primary-foreground shadow-md' : 'glass-card text-foreground'
+        accent ? 'bg-primary text-primary-foreground shadow-md' : 'bg-accent text-accent-foreground shadow-sm'
       }`}
     >
       {icon}
