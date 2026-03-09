@@ -523,7 +523,7 @@ export default function RideView() {
                 <div>
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
                   <div className="flex gap-2">
-                    {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
+                    {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'ecocash' as const, icon: Phone, label: 'EcoCash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
                     <button
                       key={pm.key}
                       onClick={() => setPaymentMethod(pm.key)}

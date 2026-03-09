@@ -496,6 +496,17 @@ export default function RiderRideDetail() {
                   </div>
                 );
               })()}
+
+              {/* ETA Banner - below driver card */}
+              {driverLocation && ride.pickup_lat && (
+                <div className="rounded-2xl overflow-hidden mt-3 glass-card">
+                  <DriverETABanner
+                    driverLocation={driverLocation}
+                    pickupLat={ride.pickup_lat} pickupLng={ride.pickup_lon}
+                    dropoffLat={ride.dropoff_lat} dropoffLng={ride.dropoff_lon}
+                    rideStatus={ride.status} />
+                </div>
+              )}
             </div>
           )}
 
