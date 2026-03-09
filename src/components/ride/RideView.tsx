@@ -516,7 +516,7 @@ export default function RideView() {
                   pricing={townPricing}
                   distanceKm={fareEstimate.distanceKm}
                   durationMinutes={fareEstimate.durationMinutes}
-                  onSendOffer={(fare) => handleSendOffer(fare + extraFee)}
+                  onSendOffer={(fare) => handleSendOffer(fare + extraPassengerFee)}
                   isSubmitting={isRequesting} />
                 
 
