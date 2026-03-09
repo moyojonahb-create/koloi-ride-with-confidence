@@ -550,9 +550,8 @@ export default function RideView() {
         <div className="shrink-0 px-4 pb-3 pt-2">
           {pickupLocation && dropoffLocation && fareEstimate ? (() => {
             const activeTown = selectedTown.name;
-            const isRandTown = activeTown?.toLowerCase() === 'gwanda' || activeTown?.toLowerCase() === 'beitbridge';
             const extraPassengers = Math.max(passengerCount - 3, 0);
-            const extraPassengerFee = isRandTown ? extraPassengers * 5 : extraPassengers * 0.5;
+            const extraPassengerFee = extraPassengers * 0.5;
             const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee;
             const sym = fareEstimate.currencySymbol;
             const code = fareEstimate.currencyCode;
