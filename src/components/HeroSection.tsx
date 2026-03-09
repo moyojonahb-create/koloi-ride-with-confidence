@@ -8,7 +8,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
-import { calculateKoloiFare, setPricingConfig, PRICING_INFO, type FareResult } from '@/lib/pricing';
+import { calculateRecommendedFare } from '@/hooks/useTownPricing';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
 import { useGoogleRoute } from '@/hooks/useGoogleRoute';
 
@@ -37,22 +37,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     dropoffCoords ? { lat: dropoffCoords.lat, lng: dropoffCoords.lng } : null
   );
 
-  // Update pricing config when settings load from DB
-  useEffect(() => {
-    if (pricingSettings) {
-      setPricingConfig({
-        baseFare: pricingSettings.base_fare,
-        perKmRate: pricingSettings.per_km_rate,
-        minFare: pricingSettings.min_fare,
-        maxTownFare: pricingSettings.max_town_fare,
-        fixedTownFare: pricingSettings.fixed_town_fare,
-        townRadiusKm: pricingSettings.town_radius_km,
-        peakMultiplier: pricingSettings.peak_multiplier,
-        nightMultiplier: pricingSettings.night_multiplier,
-        gwandaCbd: { lat: pricingSettings.gwanda_cbd_lat, lng: pricingSettings.gwanda_cbd_lng },
-      });
-    }
-  }, [pricingSettings]);
+  // Pricing settings no longer needed for legacy config
 
   // Get user location on mount for nearby landmarks
   useEffect(() => {
@@ -103,16 +88,15 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
     isTrafficAware: googleRoute.isTrafficAware,
   } : null;
 
-  // Calculate fare using Voyex pricing system with ROUTED distance as authoritative source
-  // This ensures pricing is consistent and not affected by search/autocomplete distances
-  const fareResult: FareResult | null = pickupCoords && dropoffCoords 
-    ? calculateKoloiFare(
-        { lat: pickupCoords.lat, lng: pickupCoords.lng },
-        { lat: dropoffCoords.lat, lng: dropoffCoords.lng },
-        routeInfo?.distance // Pass routed distance from Google Routes API
+  // Calculate fare using USD town pricing
+  const fareCalc = pickupCoords && dropoffCoords && routeInfo
+    ? calculateRecommendedFare(
+        { id: '', town_id: 'default', town_name: 'Zimbabwe', currency_code: 'USD', currency_symbol: '$', base_fare: 1.5, per_km_rate: 1, minimum_fare: 1.5, offer_floor: 1, offer_ceiling: 50, short_trip_fare: 1.5, short_trip_km: 2, night_multiplier: 1.2, demand_multiplier: 1, is_negotiation_enabled: true },
+        routeInfo.distance,
+        routeInfo.duration
       )
     : null;
-  const currentFare = fareResult?.priceR ?? null;
+  const currentFare = fareCalc?.recommended ?? null;
 
   // Handle ride request
   const handleRequestRide = async () => {
@@ -291,9 +275,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                     selectedType={selectedVehicle}
                     onSelect={setSelectedVehicle}
                     distanceKm={routeInfo.distance}
-                    pickup={{ lat: pickupCoords.lat, lng: pickupCoords.lng }}
-                    dropoff={{ lat: dropoffCoords.lat, lng: dropoffCoords.lng }}
-                    routedDistanceKm={routeInfo.distance} // Authoritative distance from Google Routes
+                    fareUsd={currentFare ?? undefined}
                   />
                 </div>
               )}
@@ -307,17 +289,11 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
               )}
 
               {/* Fare Estimate Card */}
-              {routeInfo && currentFare && fareResult && !routeLoading && (
+              {routeInfo && currentFare && !routeLoading && (
                 <div className="mt-4 p-4 bg-accent/10 rounded-xl border border-accent/20 animate-fade-in">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-foreground">${currentFare}</span>
-                      {fareResult.multiplier > 1 && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
-                          {fareResult.multiplier === 1.3 ? <Moon className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
-                          {fareResult.multiplier}x
-                        </span>
-                      )}
+                      <span className="text-2xl font-bold text-foreground">${currentFare.toFixed(2)}</span>
                     </div>
                     <div className="text-right text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
@@ -337,7 +313,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {fareResult.reason} • {fareResult.isInnerZone ? 'Inner zone flat fare' : fareResult.isOutsideTown ? 'Distance-based fare' : `Distance band pricing`}
+                    USD fare estimate
                     {routeInfo.isTrafficAware && ' • Live traffic'}
                     {routeInfo.isEstimate && ' • Estimated route'}
                   </p>
