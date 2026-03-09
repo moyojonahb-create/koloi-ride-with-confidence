@@ -580,7 +580,7 @@ export default function DriverDashboard() {
           </div>
           <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
             <Zap className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
-            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">${balance % 1 === 0 ? balance : balance.toFixed(1)}</p>
+            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">${driverBalance % 1 === 0 ? driverBalance : driverBalance.toFixed(1)}</p>
             <p className="text-[10px] text-primary-foreground/70 font-medium">Wallet</p>
           </div>
         </div>
