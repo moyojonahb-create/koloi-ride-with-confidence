@@ -16,8 +16,11 @@ import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
   Car, Star, Phone, MessageCircle, Clock, Users, ChevronRight, Locate,
-  Banknote, Wallet, Zap, CarFront
+  Banknote, Wallet, Zap, CarFront, Menu, History
 } from 'lucide-react';
+import {
+  Sheet, SheetContent, SheetHeader, SheetTitle,
+} from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import MapGoogle from '@/components/MapGoogle';
 import RideStatusBanner, { type RideStatus } from './RideStatusBanner';
@@ -73,6 +76,7 @@ export default function RideView() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [sheetExpanded, setSheetExpanded] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [selectedTown, setSelectedTown] = useState<TownConfig>(DEFAULT_TOWN);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
 
@@ -328,13 +332,45 @@ export default function RideView() {
 
       {/* ── TOP HEADER BUTTONS ── */}
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
-        <button onClick={() => navigate(-1)} className="w-12 h-12 flex items-center justify-center rounded-full glass-card active:scale-95 transition-all glass-glow-blue">
-          <ArrowLeft className="w-5 h-5 text-primary" />
+        <button onClick={() => setMenuOpen(true)} className="w-12 h-12 flex items-center justify-center rounded-full glass-card active:scale-95 transition-all glass-glow-blue">
+          <Menu className="w-5 h-5 text-primary" />
         </button>
-        <button onClick={() => user ? navigate('/profile') : setAuthModalOpen(true)} className="w-12 h-12 flex items-center justify-center rounded-full glass-card active:scale-95 transition-all glass-glow-blue">
+        <button onClick={() => user ? navigate(location.pathname.startsWith('/mapp') ? '/mapp/profile' : '/profile') : setAuthModalOpen(true)} className="w-12 h-12 flex items-center justify-center rounded-full glass-card active:scale-95 transition-all glass-glow-blue">
           <User className="w-5 h-5 text-primary" />
         </button>
       </div>
+
+      {/* ── HAMBURGER MENU ── */}
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent side="left" className="w-[280px] p-0 border-r border-border/20" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
+          <SheetHeader className="px-5 pb-2 pt-4">
+            <SheetTitle><VoyexLogo size="sm" /></SheetTitle>
+          </SheetHeader>
+          <nav className="flex flex-col gap-1 px-3 mt-2">
+            <button
+              onClick={() => { setMenuOpen(false); navigate(location.pathname.startsWith('/mapp') ? '/mapp/profile' : '/profile'); }}
+              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all"
+            >
+              <User className="w-5 h-5 text-primary" />
+              <span className="text-[15px] font-semibold text-foreground">Profile</span>
+            </button>
+            <button
+              onClick={() => { setMenuOpen(false); navigate(location.pathname.startsWith('/mapp') ? '/mapp/wallet' : '/rider-wallet'); }}
+              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all"
+            >
+              <Wallet className="w-5 h-5 text-primary" />
+              <span className="text-[15px] font-semibold text-foreground">Wallet</span>
+            </button>
+            <button
+              onClick={() => { setMenuOpen(false); navigate(location.pathname.startsWith('/mapp') ? '/mapp/history' : '/ride-history'); }}
+              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all"
+            >
+              <History className="w-5 h-5 text-primary" />
+              <span className="text-[15px] font-semibold text-foreground">History</span>
+            </button>
+          </nav>
+        </SheetContent>
+      </Sheet>
 
       {/* ── BOTTOM SHEET ── */}
       <div
