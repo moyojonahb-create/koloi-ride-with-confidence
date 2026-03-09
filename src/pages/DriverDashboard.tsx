@@ -44,6 +44,7 @@ import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds
 import { updateDriverLocation } from "@/lib/driverLocation";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 import { filterActiveRides, getSecondsRemaining, expireOldRides } from "@/lib/rideExpiry";
+import { preloadAllTownPricing, type TownPricingConfig } from "@/hooks/useTownPricing";
 
 import { completeTrip } from "@/lib/completeTrip";
 import WalletBalance from "@/components/wallet/WalletBalance";
