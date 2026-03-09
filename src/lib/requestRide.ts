@@ -16,6 +16,7 @@ type RequestRideInput = {
   passenger_count?: number;
   scheduled_at?: string;
   payment_method?: string;
+  town_id?: string | null;
 };
 
 interface RideRow {
