@@ -194,11 +194,8 @@ export default function OffersModal({
                   </div>
                   <span className="text-xs text-muted-foreground whitespace-nowrap">~{d.etaMinutes} min</span>
                 </div>
-              ))}
-
-
-
-
+            </div>
+          }
 
 
 
