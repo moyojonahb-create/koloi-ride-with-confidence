@@ -18,17 +18,17 @@ const VoyexLogo = ({
   const isLight = variant === 'inverted' || variant === 'light';
   
   const iconSizeClasses = {
-    sm: 'h-7 w-7',
-    md: 'h-9 w-9',
-    lg: 'h-11 w-11',
-    xl: 'h-16 w-16'
+    sm: 'h-9 w-9',
+    md: 'h-12 w-12',
+    lg: 'h-14 w-14',
+    xl: 'h-20 w-20'
   };
 
   const fullLogoSizeClasses = {
-    sm: 'h-8',
-    md: 'h-10',
-    lg: 'h-12',
-    xl: 'h-20'
+    sm: 'h-10',
+    md: 'h-12',
+    lg: 'h-14',
+    xl: 'h-24'
   };
 
   const sizeClass = iconOnly ? iconSizeClasses[size] : fullLogoSizeClasses[size];
