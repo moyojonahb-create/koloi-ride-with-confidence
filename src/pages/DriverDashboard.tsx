@@ -950,7 +950,7 @@ export default function DriverDashboard() {
 
               <Button className="w-full" size="lg" onClick={sendOffer} disabled={submitting}>
                 <Send className="h-4 w-4 mr-2" />
-                {submitting ? "Sending..." : `Send Offer • $${offerPrice.toFixed(2)}`}
+                {submitting ? "Sending..." : `Send Offer • ${fmtUSD(offerPrice)}`}
               </Button>
             </div>
           </div>
