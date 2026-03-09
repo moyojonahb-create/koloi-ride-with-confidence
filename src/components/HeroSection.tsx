@@ -8,7 +8,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
-import { calculateKoloiFare, setPricingConfig, PRICING_INFO, type FareResult } from '@/lib/pricing';
+import { calculateRecommendedFare } from '@/hooks/useTownPricing';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
 import { useGoogleRoute } from '@/hooks/useGoogleRoute';
 
