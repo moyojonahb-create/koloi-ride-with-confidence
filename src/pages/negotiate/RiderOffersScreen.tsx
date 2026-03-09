@@ -174,7 +174,7 @@ export default function RiderOffersScreen() {
           <p className="text-sm font-semibold text-foreground">📍 {request.pickup}</p>
           <p className="text-sm font-semibold text-foreground">🏁 {request.dropoff}</p>
           <p className="text-sm text-muted-foreground">
-            Offered: <span className="font-bold text-foreground">${request.offered_fare} {request.currency}</span>
+            Offered: <span className="font-bold text-foreground">${Number(request.offered_fare).toFixed(2)}</span>
           </p>
           {request.status === 'negotiating' && (
             <p className="text-xs text-primary flex items-center gap-1 mt-1">
