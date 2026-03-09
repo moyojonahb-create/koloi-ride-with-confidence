@@ -16,8 +16,11 @@ import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
   Car, Star, Phone, MessageCircle, Clock, Users, ChevronRight, Locate,
-  Banknote, Wallet, Zap, CarFront
+  Banknote, Wallet, Zap, CarFront, Menu, History
 } from 'lucide-react';
+import {
+  Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose,
+} from '@/components/ui/drawer';
 import { cn } from '@/lib/utils';
 import MapGoogle from '@/components/MapGoogle';
 import RideStatusBanner, { type RideStatus } from './RideStatusBanner';
