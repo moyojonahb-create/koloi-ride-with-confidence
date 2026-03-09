@@ -181,7 +181,7 @@ const RideHistorySheet = ({ isOpen, onClose }: RideHistorySheetProps) => {
                           </div>
                           <div className="border-t border-border pt-2 flex justify-between font-bold">
                             <span>Total Fare</span>
-                            <span>R{Number(ride.fare).toFixed(0)}</span>
+                            <span>${Number(ride.fare).toFixed(2)}</span>
                           </div>
                         </div>
 
