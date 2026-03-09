@@ -872,10 +872,10 @@ export default function DriverDashboard() {
                 </Button>
                 <div className="text-center">
                   <p className="text-3xl font-black">
-                    {isZarTown(selectedRide.town_id) ? `R${offerPrice}` : `$${offerPrice.toFixed(2)}`}
+                    ${offerPrice.toFixed(2)}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Increments of {isZarTown(selectedRide.town_id) ? 'R5' : '$0.50'}
+                    Increments of $0.50
                   </p>
                 </div>
                 <Button variant="outline" size="icon" onClick={inc}>

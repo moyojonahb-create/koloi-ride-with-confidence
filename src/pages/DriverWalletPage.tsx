@@ -87,17 +87,8 @@ export default function DriverWalletPage() {
           <div className="text-4xl font-black">${balance.toFixed(2)}</div>
 
           <div className="mt-4 bg-muted/50 rounded-xl p-3">
-            <div className="font-bold text-sm">Today's Rate</div>
-            {zarPerUsd ? (
-              <>
-                <div className="text-sm text-muted-foreground">$1 = {zarPerUsd} ZAR</div>
-                <div className="text-sm font-bold mt-1">
-                  Fee per trip: R4 ≈ ${feeUsdPreview?.toFixed(2)}
-                </div>
-              </>
-            ) : (
-              <div className="text-sm text-muted-foreground">Rate not set. Contact admin.</div>
-            )}
+            <div className="font-bold text-sm">Commission</div>
+            <div className="text-sm text-muted-foreground">15% per completed trip</div>
           </div>
 
           <div className="flex gap-3 mt-4">

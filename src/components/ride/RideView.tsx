@@ -555,7 +555,7 @@ export default function RideView() {
             const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee;
             const sym = fareEstimate.currencySymbol;
             const code = fareEstimate.currencyCode;
-            const fmt = (v: number) => code === 'ZAR' ? `${sym}${Math.round(v)}` : `${sym}${v.toFixed(2)}`;
+            const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
             return (
               <Button
                 onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
