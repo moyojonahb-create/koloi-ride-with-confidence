@@ -35,6 +35,8 @@ import VoiceCallButton from "@/components/ride/VoiceCallButton";
 
 import TripReceipt from "@/components/ride/TripReceipt";
 import ShareTripButton from "@/components/ride/ShareTripButton";
+import EcoCashPaymentModal from "@/components/wallet/EcoCashPaymentModal";
+import { useWallet } from "@/hooks/useWallet";
 
 type Ride = {
   id: string;
