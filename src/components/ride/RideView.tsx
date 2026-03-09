@@ -515,39 +515,35 @@ export default function RideView() {
                   </div>
                 </div>
 
-                {/* Negotiation + Payment only when expanded */}
-                {sheetExpanded && (
-                  <>
-                    <NegotiationCard
-                      pricing={townPricing}
-                      distanceKm={fareEstimate.distanceKm}
-                      durationMinutes={fareEstimate.durationMinutes}
-                      onSendOffer={(fare) => handleSendOffer(fare + extraPassengerFee)}
-                      isSubmitting={isRequesting} />
+                {/* Negotiation + Payment — always visible */}
+                <NegotiationCard
+                  pricing={townPricing}
+                  distanceKm={fareEstimate.distanceKm}
+                  durationMinutes={fareEstimate.durationMinutes}
+                  onSendOffer={(fare) => handleSendOffer(fare + extraPassengerFee)}
+                  isSubmitting={isRequesting} />
 
-                    <div>
-                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
-                      <div className="flex gap-2">
-                        {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
-                          <button
-                            key={pm.key}
-                            onClick={() => setPaymentMethod(pm.key)}
-                            className={cn(
-                              'flex-1 flex items-center gap-2 px-3 py-3 rounded-2xl transition-all active:scale-[0.98] glass-card',
-                              paymentMethod === pm.key ? 'ring-1 ring-primary/25' : ''
-                            )}>
-                            <pm.icon className={cn('w-4 h-4', paymentMethod === pm.key ? 'text-primary' : 'text-muted-foreground')} />
-                            <span className={cn('font-medium text-sm', paymentMethod === pm.key ? 'text-primary' : 'text-foreground')}>{pm.label}</span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
+                  <div className="flex gap-2">
+                    {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
+                      <button
+                        key={pm.key}
+                        onClick={() => setPaymentMethod(pm.key)}
+                        className={cn(
+                          'flex-1 flex items-center gap-2 px-3 py-3 rounded-2xl transition-all active:scale-[0.98] glass-card',
+                          paymentMethod === pm.key ? 'ring-1 ring-primary/25' : ''
+                        )}>
+                        <pm.icon className={cn('w-4 h-4', paymentMethod === pm.key ? 'text-primary' : 'text-muted-foreground')} />
+                        <span className={cn('font-medium text-sm', paymentMethod === pm.key ? 'text-primary' : 'text-foreground')}>{pm.label}</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
 
-                    {rideStatus !== 'idle' &&
-                      <button onClick={handleCancelRide} className="w-full text-center text-sm text-destructive font-medium py-1.5 hover:underline transition-colors">Cancel Ride</button>
-                    }
-                  </>
-                )}
+                {rideStatus !== 'idle' &&
+                  <button onClick={handleCancelRide} className="w-full text-center text-sm text-destructive font-medium py-1.5 hover:underline transition-colors">Cancel Ride</button>
+                }
               </>
             );
           })()}
