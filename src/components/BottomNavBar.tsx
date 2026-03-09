@@ -64,22 +64,4 @@ export default function BottomNavBar() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
