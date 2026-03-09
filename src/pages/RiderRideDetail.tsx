@@ -384,13 +384,13 @@ export default function RiderRideDetail() {
                     <Button variant="outline" size="icon" className="h-8 w-8 glass-btn" onClick={() => updateFare(ride.fare - 5)} disabled={updatingFare || ride.fare <= 10}>
                       <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="font-black text-xl min-w-[60px] text-center text-foreground">R{ride.fare}</span>
+                    <span className="font-black text-xl min-w-[60px] text-center text-foreground">${ride.fare.toFixed(2)}</span>
                     <Button variant="outline" size="icon" className="h-8 w-8 glass-btn" onClick={() => updateFare(ride.fare + 5)} disabled={updatingFare}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
                 ) : (
-                  <p className="font-black text-xl text-foreground">R{ride.fare}</p>
+                  <p className="font-black text-xl text-foreground">${ride.fare.toFixed(2)}</p>
                 )}
               </div>
               <div className="text-right">
