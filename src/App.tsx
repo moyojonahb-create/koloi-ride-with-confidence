@@ -133,6 +133,8 @@ const AnimatedRoutes = () => {
           <Route path="/mapp/driver-mode" element={<PageTransition><DriverModeLanding /></PageTransition>} />
           <Route path="/mapp/drive" element={<MappAuthGuard><PageTransition><DriverApplication /></PageTransition></MappAuthGuard>} />
           <Route path="/mapp/profile" element={<MappAuthGuard><PageTransition><RiderProfile /></PageTransition></MappAuthGuard>} />
+          <Route path="/mapp/wallet" element={<MappAuthGuard><PageTransition><RiderWalletPage /></PageTransition></MappAuthGuard>} />
+          <Route path="/mapp/ride-history" element={<MappAuthGuard><PageTransition><RideHistory /></PageTransition></MappAuthGuard>} />
 
           {/* Admin */}
           <Route path="/mapp/admin" element={<MappAuthGuard><MappAdminGuard><PageTransition><AdminDashboard /></PageTransition></MappAdminGuard></MappAuthGuard>} />
