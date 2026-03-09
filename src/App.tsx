@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AuthProvider } from "@/hooks/useAuth";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SplashScreen from "@/components/SplashScreen";
+import GlobalRideNotifier from "@/components/GlobalRideNotifier";
 import PageTransition from "@/components/PageTransition";
 import Index from "./pages/Index";
 import Ride from "./pages/Ride";
@@ -160,6 +161,7 @@ const App = () => {
         <ErrorBoundary>
           {!splashDone && <SplashScreen onComplete={handleSplashComplete} />}
           {splashDone && !isOnline && <Offline />}
+          <GlobalRideNotifier />
           <Toaster />
           <Sonner />
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
