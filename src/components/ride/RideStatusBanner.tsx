@@ -56,7 +56,7 @@ const STATUS_CONFIG: Record<RideStatus, {
   driver_arrived: {
     icon: <Check className="w-4 h-4" />,
     label: 'Driver has arrived',
-    color: 'bg-emerald-500 text-white',
+    color: 'bg-accent/80 backdrop-blur-sm text-accent-foreground',
     pulse: true,
   },
   in_progress: {
