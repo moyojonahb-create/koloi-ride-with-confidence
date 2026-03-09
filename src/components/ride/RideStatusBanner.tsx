@@ -67,7 +67,7 @@ const STATUS_CONFIG: Record<RideStatus, {
   completed: {
     icon: <Check className="w-4 h-4" />,
     label: 'Trip completed',
-    color: 'bg-emerald-500 text-white',
+    color: 'bg-accent/80 backdrop-blur-sm text-accent-foreground',
   },
 };
 

@@ -675,7 +675,7 @@ export default function DriverDashboard() {
                     href={riderPhone ? `https://wa.me/${riderPhone.replace(/[^\d]/g, "")}` : "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1 py-3 rounded-2xl bg-[hsl(142,70%,40%)] text-primary-foreground font-medium text-xs text-center active:scale-95 transition-all"
+                    className="flex items-center justify-center gap-1 py-3 rounded-2xl bg-accent/80 backdrop-blur-sm text-accent-foreground font-medium text-xs text-center active:scale-95 transition-all"
                   >
                     💬 <span>WhatsApp</span>
                   </a>
