@@ -39,7 +39,8 @@ import {
   Phone,
   PhoneCall,
 } from "lucide-react";
-import { triggerFullAlert } from "@/lib/alerts";
+import { playAlert, vibrateAlert, showBrowserNotification } from "@/lib/alerts";
+import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds";
 import { updateDriverLocation } from "@/lib/driverLocation";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 import { filterActiveRides, getSecondsRemaining, expireOldRides } from "@/lib/rideExpiry";
@@ -262,6 +263,21 @@ export default function DriverDashboard() {
           dropoff_lon: activeTripData.dropoff_lon,
         });
 
+        // Notify driver when rider accepts their offer
+        if (newStatus === 'accepted' && prevStatus !== 'accepted') {
+          playAcceptedSound();
+          vibrateAlert();
+          showBrowserNotification(
+            "✅ Ride Accepted!",
+            `Rider accepted your offer — $${Number(activeTripData.fare).toFixed(2)}. Head to pickup!`,
+            "/driver"
+          );
+          toast.success("✅ Ride Accepted!", {
+            description: `Rider accepted your offer — $${Number(activeTripData.fare).toFixed(2)}. Head to pickup now!`,
+            duration: 10000,
+          });
+        }
+
         // Voice nav announcement on status transitions
         if (newStatus === 'enroute_pickup' || (newStatus === 'accepted' && prevStatus !== 'accepted')) {
           toast.info("Voice navigation active — follow in-app directions");
@@ -304,15 +320,14 @@ export default function DriverDashboard() {
         }
 
         if (hasNewRide) {
-          triggerFullAlert(
-            "🚗 NEW VOYEX RIDE REQUEST!",
-            "⚡ A rider is looking for a driver near you - respond NOW!",
+          // Simple beep for incoming rides
+          playNewRequestSound();
+          vibrateAlert();
+          showBrowserNotification(
+            "🚗 New Ride Request",
+            "A rider is looking for a driver near you",
             "/driver"
           );
-
-          if (voiceEnabled && voiceSupported) {
-            speak("Attention! New ride request received! Open Voyex to respond.");
-          }
 
           toast.info("🚗 NEW RIDE REQUEST!", {
             description: "A rider is looking for a driver - respond quickly!",
