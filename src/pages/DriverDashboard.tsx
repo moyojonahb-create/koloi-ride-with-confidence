@@ -263,6 +263,21 @@ export default function DriverDashboard() {
           dropoff_lon: activeTripData.dropoff_lon,
         });
 
+        // Notify driver when rider accepts their offer
+        if (newStatus === 'accepted' && prevStatus !== 'accepted') {
+          playAcceptedSound();
+          vibrateAlert();
+          showBrowserNotification(
+            "✅ Ride Accepted!",
+            `Rider accepted your offer — $${Number(activeTripData.fare).toFixed(2)}. Head to pickup!`,
+            "/driver"
+          );
+          toast.success("✅ Ride Accepted!", {
+            description: `Rider accepted your offer — $${Number(activeTripData.fare).toFixed(2)}. Head to pickup now!`,
+            duration: 10000,
+          });
+        }
+
         // Voice nav announcement on status transitions
         if (newStatus === 'enroute_pickup' || (newStatus === 'accepted' && prevStatus !== 'accepted')) {
           toast.info("Voice navigation active — follow in-app directions");
