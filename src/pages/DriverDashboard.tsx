@@ -393,7 +393,16 @@ export default function DriverDashboard() {
     return () => clearInterval(interval);
   }, [isOnline]);
 
-  const isZarTown = (townId?: string | null) => townId === 'gwanda' || townId === 'beitbridge';
+  const isZarTown = (townId?: string | null) => {
+    if (!townId) return false;
+    const tp = townPricingMap[townId];
+    return tp?.currency_code === 'ZAR';
+  };
+
+  const getCurrencySymbol = (townId?: string | null) => {
+    if (!townId) return '$';
+    return townPricingMap[townId]?.currency_symbol ?? '$';
+  };
 
   const chooseRide = (r: Ride) => {
     setSelectedRide(r);
@@ -401,7 +410,6 @@ export default function DriverDashboard() {
       const base = clampTo5((r.fare || 50) * mult);
       setOfferPrice(base);
     } else {
-      // USD: round to nearest $0.50
       const base = Math.max(0.50, Math.round(((r.fare || 5) * mult) * 2) / 2);
       setOfferPrice(base);
     }
