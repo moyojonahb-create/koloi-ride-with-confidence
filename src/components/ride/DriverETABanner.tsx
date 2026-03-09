@@ -82,19 +82,20 @@ export default function DriverETABanner({
   }
 
   // En route to pickup
-  return;
+  if (isEnRoute) {
+    return (
+      <div className="flex items-center gap-3 px-4 py-3 bg-primary text-primary-foreground">
+        <Car className="h-5 w-5" />
+        <div className="flex-1">
+          <p className="font-bold text-sm">Driver is on the way</p>
+          <p className="text-xs opacity-80">
+            {distToPickup.toFixed(1)} km away • ~{etaToPickup} min
+          </p>
+        </div>
+        <Clock className="h-4 w-4" />
+      </div>
+    );
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+  return null;
 }
