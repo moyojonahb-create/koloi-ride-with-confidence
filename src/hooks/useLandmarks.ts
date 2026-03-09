@@ -177,7 +177,7 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
     }
 
     return results.slice(0, limit);
-  }, [landmarks, searchQuery, userLocation, limit, radiusKm]);
+  }, [landmarks, searchQuery, userLocation, limit, radiusKm, townCenter, townRadiusKm]);
 
   // Get nearby landmarks (within specified radius in km)
   const getNearbyLandmarks = (radiusKm: number = 5): Landmark[] => {
