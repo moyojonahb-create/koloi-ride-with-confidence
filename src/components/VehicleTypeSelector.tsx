@@ -116,9 +116,9 @@ const VehicleTypeSelector = ({
               
               <div className="text-right shrink-0">
                 {fare ? (
-                  <span className="font-bold text-foreground">R{fare}</span>
+                  <span className="font-bold text-foreground">${fare}</span>
                 ) : (
-                  <span className="text-sm text-muted-foreground">R{PRICING_INFO.minFare}+</span>
+                  <span className="text-sm text-muted-foreground">${PRICING_INFO.minFare}+</span>
                 )}
               </div>
             </button>
