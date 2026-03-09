@@ -36,6 +36,8 @@ import {
   Star,
   TrendingUp,
   Zap,
+  BarChart3,
+  CreditCard,
   Phone,
   PhoneCall,
 } from "lucide-react";
