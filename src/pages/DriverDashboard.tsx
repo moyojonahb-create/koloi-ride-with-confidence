@@ -401,7 +401,7 @@ export default function DriverDashboard() {
         eta_minutes: eta,
         message: note,
       });
-      toast.success("Offer sent!", { description: `R${offerPrice} for ${eta} min ETA` });
+      toast.success("Offer sent!", { description: `$${offerPrice.toFixed(2)} for ${eta} min ETA` });
       setSelectedRide(null);
     } catch (e: unknown) {
       setError((e as Error).message);
@@ -629,7 +629,7 @@ export default function DriverDashboard() {
                     <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
                     <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
                   </div>
-                  <p className="font-black text-lg">R{activeTrip.fare}</p>
+                  <p className="font-black text-lg">${Number(activeTrip.fare).toFixed(2)}</p>
                 </div>
                 <Button
                   className="w-full bg-emerald-600 hover:bg-emerald-700"
@@ -801,7 +801,7 @@ export default function DriverDashboard() {
                         <p className="text-sm text-muted-foreground truncate">{r.dropoff_address}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-lg">R{r.fare}</p>
+                        <p className="font-black text-lg">${Number(r.fare).toFixed(2)}</p>
                         <p className="text-xs text-muted-foreground">{r.distance_km?.toFixed(1)} km</p>
                       </div>
                     </div>
@@ -874,7 +874,7 @@ export default function DriverDashboard() {
 
               <Button className="w-full" size="lg" onClick={sendOffer} disabled={submitting}>
                 <Send className="h-4 w-4 mr-2" />
-                {submitting ? "Sending..." : `Send Offer • R${offerPrice}`}
+                {submitting ? "Sending..." : `Send Offer • $${offerPrice.toFixed(2)}`}
               </Button>
             </div>
           </div>

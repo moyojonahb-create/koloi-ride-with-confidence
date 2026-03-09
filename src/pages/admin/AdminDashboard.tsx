@@ -415,7 +415,7 @@ const AdminDashboard = () => {
                         </td>
                         <td className="py-2 px-2 text-xs max-w-[150px] truncate">{r.pickup_address || '—'}</td>
                         <td className="py-2 px-2 text-xs max-w-[150px] truncate">{r.dropoff_address || '—'}</td>
-                        <td className="py-2 px-2 text-xs font-bold">R{Number(r.fare).toFixed(0)}</td>
+                        <td className="py-2 px-2 text-xs font-bold">${Number(r.fare).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>

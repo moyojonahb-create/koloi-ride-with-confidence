@@ -259,7 +259,7 @@ const AdminReports = () => {
               />
               <MetricCard
                 title="Average Fare"
-                value={`R${metrics.averageFare.toFixed(0)}`}
+                value={`$${metrics.averageFare.toFixed(2)}`}
                 icon={Banknote}
               />
               <MetricCard

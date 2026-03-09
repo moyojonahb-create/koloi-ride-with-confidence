@@ -282,12 +282,12 @@ export default function RiderRequestScreen() {
                     <Info className="w-3 h-3" /> approx.
                   </span>
                 </div>
-                <p className="text-3xl font-bold text-foreground">R{fareEstimate.fareR}</p>
+                <p className="text-3xl font-bold text-foreground">${fareEstimate.fareR.toFixed(2)}</p>
                 <p className="text-sm text-muted-foreground">
                   {fareEstimate.distanceKm.toFixed(1)} km • {fareEstimate.durationMinutes} min
                 </p>
                 {passengerCount >= 3 && passengerCount <= 5 && (
-                  <p className="text-xs text-accent font-medium">+R5 group surcharge (3-5 passengers)</p>
+                  <p className="text-xs text-accent font-medium">+$5 group surcharge (3-5 passengers)</p>
                 )}
               </>
             ) : null}

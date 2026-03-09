@@ -182,7 +182,7 @@ export default function RiderRideDetail() {
       const { error } = await supabase.from("rides").update({ fare: clampedFare }).eq("id", rideId);
       if (error) throw error;
       setRide({ ...ride, fare: clampedFare });
-      toast.success(`Fare updated to R${clampedFare}`);
+      toast.success(`Fare updated to $${clampedFare.toFixed(2)}`);
     } catch (e: unknown) { toast.error("Failed to update fare", { description: (e as Error).message }); }
     finally { setUpdatingFare(false); }
   };

@@ -81,7 +81,7 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
       <div className="border-t border-border/30 pt-4 space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Trip fare</span>
-          <span className="font-semibold text-foreground">R{ride.fare}</span>
+          <span className="font-semibold text-foreground">${Number(ride.fare).toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground flex items-center gap-1.5">
@@ -98,7 +98,7 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
         )}
         <div className="flex justify-between items-center pt-2 border-t border-border/30">
           <span className="font-bold text-foreground">Total paid</span>
-          <span className="text-2xl font-black text-primary">R{ride.fare}</span>
+          <span className="text-2xl font-black text-primary">${Number(ride.fare).toFixed(2)}</span>
         </div>
       </div>
 
@@ -120,7 +120,7 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
             if (navigator.share) {
               navigator.share({
                 title: 'Voyex Trip Receipt',
-                text: `Trip from ${ride.pickup_address} to ${ride.dropoff_address} — R${ride.fare}`,
+                text: `Trip from ${ride.pickup_address} to ${ride.dropoff_address} — $${Number(ride.fare).toFixed(2)}`,
               });
             }
           }}

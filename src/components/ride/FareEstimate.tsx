@@ -38,7 +38,7 @@ export default function FareEstimate({
           </div>
         </div>
         <div className="text-right">
-          <p className="text-3xl font-bold text-foreground">R{fareR.toFixed(0)}</p>
+          <p className="text-3xl font-bold text-foreground">${fareR.toFixed(2)}</p>
         </div>
       </div>
     </div>

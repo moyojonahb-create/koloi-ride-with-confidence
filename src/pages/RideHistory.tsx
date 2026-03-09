@@ -119,7 +119,7 @@ export default function RideHistory() {
               <div className="flex items-center gap-4 text-xs text-muted-foreground border-t border-border/30 pt-2.5 mt-1">
                 <span className="flex items-center gap-1">
                   <Banknote className="w-3.5 h-3.5" />
-                  R{ride.fare}
+                  ${Number(ride.fare).toFixed(2)}
                 </span>
                 <span className="flex items-center gap-1">
                   <Navigation className="w-3.5 h-3.5" />

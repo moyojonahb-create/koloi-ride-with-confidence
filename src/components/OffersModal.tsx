@@ -264,7 +264,7 @@ export default function OffersModal({
                     </div>
                     <div className="text-right">
                       <div className="font-black text-2xl text-primary">
-                        R{o.offeredFareR.toFixed(0)}
+                        ${o.offeredFareR.toFixed(2)}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {o.etaMinutes} min away

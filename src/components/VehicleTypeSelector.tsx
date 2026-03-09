@@ -116,9 +116,9 @@ const VehicleTypeSelector = ({
               
               <div className="text-right shrink-0">
                 {fare ? (
-                  <span className="font-bold text-foreground">R{fare}</span>
+                  <span className="font-bold text-foreground">${fare}</span>
                 ) : (
-                  <span className="text-sm text-muted-foreground">R{PRICING_INFO.minFare}+</span>
+                  <span className="text-sm text-muted-foreground">${PRICING_INFO.minFare}+</span>
                 )}
               </div>
             </button>
@@ -128,7 +128,7 @@ const VehicleTypeSelector = ({
       
       {/* Pricing info */}
       <div className="text-xs text-muted-foreground text-center pt-2 border-t border-border">
-        R{PRICING_INFO.minFare} - R{PRICING_INFO.maxTownFare} in town (R5 increments)
+        ${PRICING_INFO.minFare} - ${PRICING_INFO.maxTownFare} in town ($0.50 increments)
       </div>
     </div>
   );

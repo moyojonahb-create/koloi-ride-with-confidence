@@ -39,16 +39,16 @@ export default function AdminEarningsSheet({
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-blue-500/10 rounded-xl p-4 text-center">
               <p className="text-xs text-muted-foreground">Total Fares</p>
-              <p className="text-lg font-black text-blue-500">R{totalFares.toFixed(2)}</p>
+              <p className="text-lg font-black text-blue-500">${totalFares.toFixed(2)}</p>
             </div>
             <div className="bg-green-500/10 rounded-xl p-4 text-center">
               <p className="text-xs text-muted-foreground">Platform Fees</p>
-              <p className="text-lg font-black text-green-500">R{totalPlatformFees.toFixed(2)}</p>
+              <p className="text-lg font-black text-green-500">${totalPlatformFees.toFixed(2)}</p>
             </div>
             <div className="bg-amber-500/10 rounded-xl p-4 text-center">
               <p className="text-xs text-muted-foreground">Driver Payouts</p>
               <p className="text-lg font-black text-amber-500">
-                R{(totalFares - totalPlatformFees).toFixed(2)}
+                ${(totalFares - totalPlatformFees).toFixed(2)}
               </p>
             </div>
           </div>
@@ -78,13 +78,13 @@ export default function AdminEarningsSheet({
                         {format(new Date(e.created_at), 'dd MMM, HH:mm')}
                       </TableCell>
                       <TableCell className="font-medium">
-                        R{Number(e.fare_amount).toFixed(2)}
+                        ${Number(e.fare_amount).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-green-600 font-medium">
-                        R{Number(e.platform_fee).toFixed(2)}
+                        ${Number(e.platform_fee).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-amber-600 font-medium">
-                        R{Number(e.driver_earnings).toFixed(2)}
+                        ${Number(e.driver_earnings).toFixed(2)}
                       </TableCell>
                     </TableRow>
                   ))

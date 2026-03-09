@@ -71,7 +71,7 @@ const AdminLedger = () => {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Platform Ledger</h1>
-            <p className="text-muted-foreground">All settled trips • Total: R{totalAmount.toFixed(2)} ({filtered.length} entries)</p>
+            <p className="text-muted-foreground">All settled trips • Total: ${totalAmount.toFixed(2)} ({filtered.length} entries)</p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
@@ -126,7 +126,7 @@ const AdminLedger = () => {
                     <tr key={r.id} className="border-b border-border hover:bg-secondary/50">
                       <td className="p-3">{format(new Date(r.created_at), 'MMM d, HH:mm')}</td>
                       <td className="p-3 font-mono text-xs">{r.trip_id.slice(0, 8)}…</td>
-                      <td className="p-3 font-bold">R{Number(r.amount).toFixed(2)}</td>
+                      <td className="p-3 font-bold">${Number(r.amount).toFixed(2)}</td>
                       <td className="p-3">{r.currency}</td>
                       <td className="p-3">
                         <Badge variant="outline" className="bg-emerald-100 text-emerald-700">{r.status}</Badge>
