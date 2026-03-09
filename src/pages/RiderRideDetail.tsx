@@ -345,7 +345,7 @@ export default function RiderRideDetail() {
       )}
 
       {/* Bottom glass panel */}
-      <div className="absolute left-0 right-0 z-50 glass-card-heavy max-h-[50vh] overflow-y-auto" style={{ bottom: 64, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+      <div className="absolute left-0 right-0 z-50 glass-card-heavy max-h-[50vh] overflow-y-auto" style={{ bottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="sticky top-0 pt-3 pb-2 z-10" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, background: 'var(--gradient-primary)' }}>
           <div className="w-10 h-1 rounded-full bg-primary-foreground/40 mx-auto" />
         </div>
@@ -524,8 +524,7 @@ export default function RiderRideDetail() {
         </div>
       </div>
 
-      {/* Bottom Nav */}
-      <BottomNavBar />
+
 
       {/* Modals */}
       <OffersModal
