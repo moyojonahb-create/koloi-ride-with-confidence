@@ -445,8 +445,9 @@ export default function DriverDashboard() {
       if (!(result as Record<string, unknown>)?.ok) {
         throw new Error(((result as Record<string, unknown>)?.reason as string) || "Failed to complete trip");
       }
+      const r = result as Record<string, unknown>;
       toast.success("Trip completed!", {
-        description: `R4 fee charged (≈$${(result as Record<string, unknown>)?.fee_usd ?? "?"})`,
+        description: `15% commission: $${r.commission_zar ?? "?"} deducted. You earned $${r.driver_earnings_zar ?? "?"}`,
       });
       setActiveTrip(null);
       refreshWallet();
