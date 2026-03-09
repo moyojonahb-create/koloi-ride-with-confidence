@@ -392,7 +392,7 @@ export default function RideView() {
         </button>
 
         {/* Scrollable content */}
-        <div className={cn("flex-1 px-4 pb-3 space-y-3", sheetExpanded ? 'overflow-y-auto' : 'overflow-hidden')}>
+        <div className={cn("flex-1 px-4 pb-2 space-y-3 min-h-0", sheetExpanded ? 'overflow-y-auto' : 'overflow-hidden')}>
 
           {/* Town selector row */}
           <div className="flex items-center justify-between">
@@ -543,38 +543,40 @@ export default function RideView() {
                     }
                   </>
                 )}
-
-                {/* Find Drivers — always visible */}
-                {!sheetExpanded && (
-                  <Button
-                    onClick={() => setSheetExpanded(true)}
-                    className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 shadow-[0_4px_20px_hsl(var(--primary)/0.3)]"
-                    style={{ background: 'var(--gradient-primary)' }}
-                  >
-                    <Car className="w-4 h-4" />
-                    Find Drivers • {fmt(totalFare)}
-                  </Button>
-                )}
               </>
             );
           })()}
+        </div>
 
-          {/* Disabled state buttons */}
-          {(!pickupLocation || !dropoffLocation) &&
+        {/* ── PINNED FIND DRIVERS BUTTON ── always visible at bottom */}
+        <div className="shrink-0 px-4 pb-3 pt-2">
+          {pickupLocation && dropoffLocation && fareEstimate ? (() => {
+            const activeTown = selectedTown.name;
+            const isRandTown = activeTown?.toLowerCase() === 'gwanda' || activeTown?.toLowerCase() === 'beitbridge';
+            const extraPassengers = Math.max(passengerCount - 3, 0);
+            const extraPassengerFee = isRandTown ? extraPassengers * 5 : extraPassengers * 0.5;
+            const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee;
+            const sym = fareEstimate.currencySymbol;
+            const code = fareEstimate.currencyCode;
+            const fmt = (v: number) => code === 'ZAR' ? `${sym}${Math.round(v)}` : `${sym}${v.toFixed(2)}`;
+            return (
+              <Button
+                onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
+                disabled={isRequesting}
+                className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 shadow-[0_4px_20px_hsl(var(--primary)/0.3)]"
+                style={{ background: 'var(--gradient-primary)' }}
+              >
+                {isRequesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Car className="w-4 h-4" />}
+                {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
+              </Button>
+            );
+          })() : (
             <Button
               disabled
               className="w-full h-[48px] text-[15px] font-semibold rounded-2xl bg-primary/40 text-primary-foreground">
-              Find Drivers
+              {pickupLocation && dropoffLocation ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Calculating…</> : 'Find Drivers'}
             </Button>
-          }
-          {pickupLocation && dropoffLocation && !fareEstimate &&
-            <Button
-              disabled
-              className="w-full h-[48px] text-[15px] font-semibold rounded-2xl bg-primary/40 text-primary-foreground">
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-              Calculating…
-            </Button>
-          }
+          )}
         </div>
       </div>
 
