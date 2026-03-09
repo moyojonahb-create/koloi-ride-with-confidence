@@ -801,7 +801,7 @@ export default function DriverDashboard() {
                         <p className="text-sm text-muted-foreground truncate">{r.dropoff_address}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-lg">R{r.fare}</p>
+                        <p className="font-black text-lg">${Number(r.fare).toFixed(2)}</p>
                         <p className="text-xs text-muted-foreground">{r.distance_km?.toFixed(1)} km</p>
                       </div>
                     </div>
