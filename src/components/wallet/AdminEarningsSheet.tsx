@@ -48,7 +48,7 @@ export default function AdminEarningsSheet({
             <div className="bg-amber-500/10 rounded-xl p-4 text-center">
               <p className="text-xs text-muted-foreground">Driver Payouts</p>
               <p className="text-lg font-black text-amber-500">
-                R{(totalFares - totalPlatformFees).toFixed(2)}
+                ${(totalFares - totalPlatformFees).toFixed(2)}
               </p>
             </div>
           </div>
