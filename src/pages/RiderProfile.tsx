@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
-import { ArrowLeft, User, CreditCard, Calendar, Gift, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, Zap, ChevronRight, Edit3, History } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
+import { ArrowLeft, User, CreditCard, Calendar, Gift, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, Zap, ChevronRight, Edit3, History, Camera, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
 import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
 import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
+import { toast } from 'sonner';
 
 export default function RiderProfile() {
   const { user, signOut } = useAuth();
@@ -21,10 +23,53 @@ export default function RiderProfile() {
   const prefix = isMapp ? '/mapp' : '';
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Rider';
   const userEmail = user?.email || '';
   const initials = userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('user_id', user.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+        });
+    }
+  }, [user]);
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Photo must be less than 5MB');
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/avatar.${ext}`;
+      const { error: uploadErr } = await supabase.storage
+        .from('driver-avatars')
+        .upload(path, file, { upsert: true });
+      if (uploadErr) throw uploadErr;
+      const { data: urlData } = supabase.storage
+        .from('driver-avatars')
+        .getPublicUrl(path);
+      setAvatarUrl(urlData.publicUrl);
+      await supabase.from('profiles').update({ avatar_url: urlData.publicUrl }).eq('user_id', user.id);
+      toast.success('Photo updated!');
+    } catch (err: unknown) {
+      toast.error('Upload failed', { description: (err as Error).message });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSignOut = async () => { await signOut(); navigate('/'); };
 
@@ -46,9 +91,23 @@ export default function RiderProfile() {
 
           {/* Avatar + info inline */}
           <div className="flex items-center gap-3.5">
-            <div className="w-14 h-14 rounded-full bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center ring-2 ring-primary-foreground/20 shrink-0">
-              <span className="text-lg font-bold text-primary-foreground">{initials}</span>
-            </div>
+            <label className="relative cursor-pointer group shrink-0">
+              <div className="w-14 h-14 rounded-full bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center ring-2 ring-primary-foreground/20 overflow-hidden">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-lg font-bold text-primary-foreground">{initials}</span>
+                )}
+              </div>
+              <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-accent flex items-center justify-center border-2 border-primary group-hover:scale-110 transition-transform">
+                {uploading ? (
+                  <Loader2 className="w-3 h-3 animate-spin text-accent-foreground" />
+                ) : (
+                  <Camera className="w-3 h-3 text-accent-foreground" />
+                )}
+              </div>
+              <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
+            </label>
             <div className="min-w-0 flex-1">
               <h1 className="text-lg font-bold text-primary-foreground truncate leading-tight">{userName}</h1>
               {userEmail && <p className="text-xs text-primary-foreground/60 truncate mt-0.5">{userEmail}</p>}
@@ -97,7 +156,6 @@ export default function RiderProfile() {
           <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
         </section>
 
-        {/* Referral + Notifications side by side on larger, stacked on small */}
         <div className="grid grid-cols-1 gap-3">
           <section className="glass-card p-4">
             <div className="flex items-center gap-2 mb-2.5">
