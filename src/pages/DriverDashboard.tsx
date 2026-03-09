@@ -293,11 +293,11 @@ export default function DriverDashboard() {
           vibrateAlert();
           showBrowserNotification(
             "✅ Ride Accepted!",
-            `Rider accepted your offer — $${Number(activeTripData.fare).toFixed(2)}. Head to pickup!`,
+            `Rider accepted your offer — ${fmtUSD(Number(activeTripData.fare))}. Head to pickup!`,
             "/driver"
           );
           toast.success("✅ Ride Accepted!", {
-            description: `Rider accepted your offer — $${Number(activeTripData.fare).toFixed(2)}. Head to pickup now!`,
+            description: `Rider accepted your offer — ${fmtUSD(Number(activeTripData.fare))}. Head to pickup now!`,
             duration: 10000,
           });
         }
