@@ -374,27 +374,25 @@ export default function RideView() {
 
       {/* ── BOTTOM SHEET ── */}
       <div
-        className="absolute left-0 right-0 bottom-0 z-50 flex flex-col"
+        className="absolute left-0 right-0 bottom-0 z-50 flex flex-col glass-card-heavy"
         style={{
-          maxHeight: sheetExpanded ? '62vh' : '28vh',
-          transition: 'max-height 0.3s cubic-bezier(0.32,0.72,0,1)',
+          height: sheetExpanded ? '60vh' : '28vh',
+          transition: 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
           paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
         }}
       >
-        {/* Glass background */}
-        <div className="absolute inset-0 glass-card-heavy" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }} />
-
         {/* Handle bar — tap to toggle */}
         <button
           onClick={() => setSheetExpanded(e => !e)}
-          className="relative z-10 w-full pt-3 pb-2 flex justify-center"
-          style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+          className="w-full pt-3 pb-2 flex justify-center shrink-0"
         >
           <div className="w-10 h-1 rounded-full bg-foreground/20" />
         </button>
 
         {/* Scrollable content */}
-        <div className={cn("relative z-10 flex-1 px-4 pb-3 space-y-3", sheetExpanded ? 'overflow-y-auto' : 'overflow-hidden')}>
+        <div className={cn("flex-1 px-4 pb-3 space-y-3", sheetExpanded ? 'overflow-y-auto' : 'overflow-hidden')}>
 
           {/* Town selector row */}
           <div className="flex items-center justify-between">
