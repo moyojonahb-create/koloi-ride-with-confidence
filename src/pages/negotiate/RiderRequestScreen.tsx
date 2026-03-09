@@ -304,7 +304,7 @@ export default function RiderRequestScreen() {
             <div>
               <p className="text-sm font-semibold text-foreground">{passengerCount} {passengerCount === 1 ? 'person' : 'people'}</p>
               {passengerCount >= 3 && passengerCount <= 5 && (
-                <p className="text-xs text-accent">+R5 surcharge applies</p>
+                <p className="text-xs text-accent">+$0.50 surcharge applies</p>
               )}
             </div>
             <div className="flex items-center gap-2">
