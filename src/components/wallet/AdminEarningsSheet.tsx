@@ -39,7 +39,7 @@ export default function AdminEarningsSheet({
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-blue-500/10 rounded-xl p-4 text-center">
               <p className="text-xs text-muted-foreground">Total Fares</p>
-              <p className="text-lg font-black text-blue-500">R{totalFares.toFixed(2)}</p>
+              <p className="text-lg font-black text-blue-500">${totalFares.toFixed(2)}</p>
             </div>
             <div className="bg-green-500/10 rounded-xl p-4 text-center">
               <p className="text-xs text-muted-foreground">Platform Fees</p>
