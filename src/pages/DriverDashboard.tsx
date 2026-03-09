@@ -116,6 +116,7 @@ export default function DriverDashboard() {
     setDriverBalance(data?.balance_usd ?? 0);
   }, [user]);
   useEffect(() => { fetchDriverBalance(); }, [fetchDriverBalance]);
+  useEffect(() => { preloadAllTownPricing().then(setTownPricingMap); }, []);
 
   // Agora voice calling for active trip
   
