@@ -494,10 +494,14 @@ export default function RideView() {
                       <span className="text-muted-foreground">Base fare</span>
                       <span className="text-foreground font-medium">{fmt(baseFare)}</span>
                     </div>
-                    {extraFee > 0 &&
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Distance fare</span>
+                      <span className="text-foreground font-medium">{fmt(distanceFare)}</span>
+                    </div>
+                    {extraPassengerFee > 0 &&
                     <div className="flex justify-between text-sm">
                         <span className="text-accent font-medium">Extra passengers (×{extraPassengers})</span>
-                        <span className="text-accent font-medium">+{fmt(extraFee)}</span>
+                        <span className="text-accent font-medium">+{fmt(extraPassengerFee)}</span>
                       </div>
                     }
                     <div className="flex justify-between text-base font-bold border-t border-border/20 pt-2">
