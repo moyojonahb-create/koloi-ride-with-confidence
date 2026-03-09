@@ -76,6 +76,7 @@ export default function RideView() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [sheetExpanded, setSheetExpanded] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [selectedTown, setSelectedTown] = useState<TownConfig>(DEFAULT_TOWN);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
 
