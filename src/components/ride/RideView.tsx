@@ -331,13 +331,17 @@ export default function RideView() {
         }
       </div>
 
+      {/* ── BLUE UPPER RIBBON ── */}
+      <div className="absolute top-0 left-0 right-0 z-30 h-[52px]" style={{ background: 'var(--gradient-primary)', paddingTop: 'env(safe-area-inset-top)' }} />
+
       {/* ── TOP HEADER BUTTONS ── */}
-      <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
-        <button onClick={() => setMenuOpen(true)} className="w-12 h-12 flex items-center justify-center rounded-full glass-card active:scale-95 transition-all glass-glow-blue">
-          <Menu className="w-5 h-5 text-primary" />
+      <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 6px)' }}>
+        <button onClick={() => setMenuOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full bg-primary-foreground/15 backdrop-blur-sm active:scale-95 transition-all">
+          <Menu className="w-5 h-5 text-primary-foreground" />
         </button>
-        <button onClick={() => user ? navigate(location.pathname.startsWith('/mapp') ? '/mapp/profile' : '/profile') : setAuthModalOpen(true)} className="w-12 h-12 flex items-center justify-center rounded-full glass-card active:scale-95 transition-all glass-glow-blue">
-          <User className="w-5 h-5 text-primary" />
+        <VoyexLogo size="sm" />
+        <button onClick={() => user ? navigate(location.pathname.startsWith('/mapp') ? '/mapp/profile' : '/profile') : setAuthModalOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full bg-primary-foreground/15 backdrop-blur-sm active:scale-95 transition-all">
+          <User className="w-5 h-5 text-primary-foreground" />
         </button>
       </div>
 
