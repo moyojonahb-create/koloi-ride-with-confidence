@@ -75,6 +75,17 @@ export default function RiderRideDetail() {
   const [showRating, setShowRating] = useState(false);
   const [hasRated, setHasRated] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(30);
+  const [showEcoCashPay, setShowEcoCashPay] = useState(false);
+
+  const { balance: walletBalance } = useWallet();
+
+  // Wallet PIN for payment
+  const [walletPin, setWalletPin] = useState<string | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('wallets').select('wallet_pin').eq('user_id', user.id).maybeSingle()
+      .then(({ data }) => { setWalletPin((data as Record<string, unknown>)?.wallet_pin as string | null); });
+  }, [user]);
 
   // Agora voice calling
   const {
