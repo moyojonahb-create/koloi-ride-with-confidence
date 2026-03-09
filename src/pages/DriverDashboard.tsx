@@ -624,7 +624,7 @@ export default function DriverDashboard() {
         {/* Active Trip */}
         {activeTrip && (
           <>
-            <Card className="border-emerald-500 bg-emerald-500/5">
+            <Card className="border-accent/40 bg-accent/5 backdrop-blur-sm">
               <CardContent className="pt-4">
                 <div className="flex items-start gap-3 mb-3">
                   <div className="flex flex-col items-center">
