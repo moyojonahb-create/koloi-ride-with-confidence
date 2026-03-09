@@ -36,6 +36,8 @@ import {
   Star,
   TrendingUp,
   Zap,
+  BarChart3,
+  CreditCard,
   Phone,
   PhoneCall,
 } from "lucide-react";
@@ -61,6 +63,13 @@ import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import DriverEarningsDashboard from "@/components/driver/DriverEarningsDashboard";
+import MapGoogle from "@/components/MapGoogle";
+
+// Smart USD format: $4 for whole, $4.50 for halves
+function fmtUSD(n: number): string {
+  return n % 1 === 0 ? `$${n}` : `$${n.toFixed(2)}`;
+}
+
 type Ride = {
   id: string;
   user_id: string;
@@ -95,7 +104,8 @@ export default function DriverDashboard() {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [transactionsOpen, setTransactionsOpen] = useState(false);
-  const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number; user_id: string; status: string; pickup_lat: number; pickup_lon: number; dropoff_lat: number; dropoff_lon: number } | null>(null);
+  const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number; user_id: string; status: string; pickup_lat: number; pickup_lon: number; dropoff_lat: number; dropoff_lon: number; payment_method: string } | null>(null);
+  const [earningsOpen, setEarningsOpen] = useState(false);
   const [driverCoords, setDriverCoords] = useState<Coordinates | null>(null);
   const [riderPhone, setRiderPhone] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
@@ -252,7 +262,7 @@ export default function DriverDashboard() {
       // Fetch active trip (accepted/in_progress) assigned to this driver
       const { data: activeTripData } = await supabase
         .from("rides")
-        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon")
+        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, payment_method")
         .eq("driver_id", p.id)
         .in("status", ["accepted", "enroute_pickup", "in_progress", "arrived"])
         .order("updated_at", { ascending: false })
@@ -274,6 +284,7 @@ export default function DriverDashboard() {
           pickup_lon: activeTripData.pickup_lon,
           dropoff_lat: activeTripData.dropoff_lat,
           dropoff_lon: activeTripData.dropoff_lon,
+          payment_method: activeTripData.payment_method || 'cash',
         });
 
         // Notify driver when rider accepts their offer
@@ -282,11 +293,11 @@ export default function DriverDashboard() {
           vibrateAlert();
           showBrowserNotification(
             "✅ Ride Accepted!",
-            `Rider accepted your offer — $${Number(activeTripData.fare).toFixed(2)}. Head to pickup!`,
+            `Rider accepted your offer — ${fmtUSD(Number(activeTripData.fare))}. Head to pickup!`,
             "/driver"
           );
           toast.success("✅ Ride Accepted!", {
-            description: `Rider accepted your offer — $${Number(activeTripData.fare).toFixed(2)}. Head to pickup now!`,
+            description: `Rider accepted your offer — ${fmtUSD(Number(activeTripData.fare))}. Head to pickup now!`,
             duration: 10000,
           });
         }
@@ -426,7 +437,7 @@ export default function DriverDashboard() {
         eta_minutes: eta,
         message: note,
       });
-      toast.success("Offer sent!", { description: `$${offerPrice.toFixed(2)} for ${eta} min ETA` });
+      toast.success("Offer sent!", { description: `${fmtUSD(offerPrice)} for ${eta} min ETA` });
       setSelectedRide(null);
     } catch (e: unknown) {
       setError((e as Error).message);
@@ -445,9 +456,9 @@ export default function DriverDashboard() {
         throw new Error(((result as Record<string, unknown>)?.reason as string) || "Failed to complete trip");
       }
       const r = result as Record<string, unknown>;
+      const payMethod = activeTrip.payment_method === 'ecocash' ? ' (Paid via EcoCash)' : activeTrip.payment_method === 'wallet' ? ' (Paid via Wallet)' : '';
       toast.success("Trip completed!", {
-        description: `15% commission: $${r.commission_usd ?? "?"} deducted. You earned $${r.driver_earnings_usd ?? "?"}`,
-
+        description: `Fare: ${fmtUSD(Number(r.fare_usd ?? 0))}${payMethod} • Commission: ${fmtUSD(Number(r.commission_usd ?? 0))} • You earned: ${fmtUSD(Number(r.driver_earnings_usd ?? 0))}`,
       });
       setActiveTrip(null);
       fetchDriverBalance();
@@ -539,6 +550,15 @@ export default function DriverDashboard() {
             <Button
               variant="ghost"
               size="icon"
+              onClick={() => setEarningsOpen(!earningsOpen)}
+              className="w-11 h-11 rounded-2xl text-muted-foreground active:scale-90 transition-all"
+              title="Earnings"
+            >
+              <BarChart3 className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setTransactionsOpen(true)}
               className="w-11 h-11 rounded-2xl text-muted-foreground active:scale-90 transition-all"
             >
@@ -570,13 +590,31 @@ export default function DriverDashboard() {
           </div>
           <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
             <Zap className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
-            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">${driverBalance % 1 === 0 ? driverBalance : driverBalance.toFixed(1)}</p>
+            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">${driverBalance % 1 === 0 ? driverBalance : driverBalance.toFixed(2)}</p>
             <p className="text-[10px] text-primary-foreground/70 font-medium">Wallet</p>
           </div>
         </div>
 
-        {/* Earnings Dashboard */}
-        <DriverEarningsDashboard />
+        {/* Earnings Dashboard (toggled via icon) */}
+        {earningsOpen && (
+          <DriverEarningsDashboard />
+        )}
+
+        {/* Navigation Map */}
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="h-56 rounded-xl overflow-hidden">
+              <MapGoogle
+                driverLocation={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
+                pickup={activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : undefined}
+                dropoff={activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : undefined}
+                defaultCenter={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
+                defaultZoom={15}
+                className="w-full h-full"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Trial Banner */}
         {profile && trialActive && (
@@ -652,7 +690,18 @@ export default function DriverDashboard() {
                     <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
                     <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
                   </div>
-                  <p className="font-black text-lg">${Number(activeTrip.fare).toFixed(2)}</p>
+                  <div className="text-right">
+                    <p className="font-black text-lg">{fmtUSD(Number(activeTrip.fare))}</p>
+                    {activeTrip.payment_method && activeTrip.payment_method !== 'cash' && (
+                      <div className="flex items-center gap-1 mt-1 justify-end">
+                        <CreditCard className="h-3 w-3 text-primary" />
+                        <span className="text-xs font-medium text-primary capitalize">{activeTrip.payment_method}</span>
+                      </div>
+                    )}
+                    {activeTrip.payment_method === 'cash' && (
+                      <span className="text-xs text-muted-foreground">Cash</span>
+                    )}
+                  </div>
                 </div>
                 <Button
                   className="w-full bg-accent text-accent-foreground hover:brightness-105"
@@ -824,7 +873,7 @@ export default function DriverDashboard() {
                         <p className="text-sm text-muted-foreground truncate">{r.dropoff_address}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-black text-lg">${Number(r.fare).toFixed(2)}</p>
+                        <p className="font-black text-lg">{fmtUSD(Number(r.fare))}</p>
                         <p className="text-xs text-muted-foreground">{r.distance_km?.toFixed(1)} km</p>
                       </div>
                     </div>
@@ -872,7 +921,7 @@ export default function DriverDashboard() {
                 </Button>
                 <div className="text-center">
                   <p className="text-3xl font-black">
-                    ${offerPrice.toFixed(2)}
+                    {fmtUSD(offerPrice)}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Increments of $0.50
@@ -901,7 +950,7 @@ export default function DriverDashboard() {
 
               <Button className="w-full" size="lg" onClick={sendOffer} disabled={submitting}>
                 <Send className="h-4 w-4 mr-2" />
-                {submitting ? "Sending..." : `Send Offer • $${offerPrice.toFixed(2)}`}
+                {submitting ? "Sending..." : `Send Offer • ${fmtUSD(offerPrice)}`}
               </Button>
             </div>
           </div>
