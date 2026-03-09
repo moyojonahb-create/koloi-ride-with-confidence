@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Download, Share, Plus } from 'lucide-react';
-import voyexLogo from '@/assets/voyex-logo.png';
+import voyexIcon from '@/assets/voyex-icon-only.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -104,9 +104,9 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
           </button>
           
           <img 
-            src={voyexLogo} 
+            src={voyexIcon} 
             alt="Voyex" 
-            className="w-20 h-20 mx-auto rounded-2xl object-cover shadow-lg mb-4"
+            className="w-24 h-24 mx-auto rounded-2xl object-contain shadow-lg mb-4"
           />
           <h2 className="text-xl font-bold text-gray-900">Install Voyex</h2>
           <p className="text-sm text-gray-500 mt-1">Add to your home screen</p>

@@ -41,8 +41,8 @@ export function showBrowserNotification(title: string, body: string, url?: strin
     if (Notification.permission !== "granted") return;
     const notification = new Notification(title, {
       body,
-      icon: "/icons/voyex-logo.png",
-      badge: "/icons/voyex-logo.png",
+      icon: "/icons/voyex-icon-only.png",
+      badge: "/icons/voyex-icon-only.png",
       tag: "voyex-alert",
       requireInteraction: true,
     });
