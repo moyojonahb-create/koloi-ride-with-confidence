@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { completeTrip } from "@/lib/completeTrip";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -549,6 +550,28 @@ export default function RiderRideDetail() {
           {/* Share Trip - visible during active rides */}
           {isAccepted && ride && (
             <ShareTripButton rideId={ride.id} pickupAddress={ride.pickup_address} dropoffAddress={ride.dropoff_address} />
+          )}
+
+          {/* Rider complete trip */}
+          {isAccepted && ride && (
+            <Button
+              className="w-full h-[52px] rounded-2xl font-bold text-lg bg-accent hover:bg-accent/90 text-accent-foreground shadow-[0_4px_20px_hsl(45_100%_51%/0.3)]"
+              onClick={async () => {
+                try {
+                  const result = await completeTrip(ride.id);
+                  if (result.ok) {
+                    toast.success(`Trip completed! Fare: $${Number(result.fare_usd).toFixed(2)}`);
+                    refreshRide();
+                  } else {
+                    toast.error(result.reason || "Could not complete trip");
+                  }
+                } catch (e: unknown) {
+                  toast.error((e as Error)?.message || "Failed to complete trip");
+                }
+              }}
+            >
+              ✅ Complete Trip
+            </Button>
           )}
 
           {ride.status === "completed" && !hasRated && !showRating && ride.driver_id && user && (
