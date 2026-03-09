@@ -12,14 +12,17 @@ export async function updateDriverLocation(lat: number, lng: number): Promise<vo
     return;
   }
 
-  const { error } = await supabase.from("live_locations").upsert({
-    user_id: userId,
-    latitude: lat,
-    longitude: lng,
-    user_type: "driver",
-    is_online: true,
-    updated_at: new Date().toISOString(),
-  });
+  const { error } = await supabase.from("live_locations").upsert(
+    {
+      user_id: userId,
+      latitude: lat,
+      longitude: lng,
+      user_type: "driver",
+      is_online: true,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
 
   if (error) {
     console.error("[DriverLocation] Failed to update location:", error);

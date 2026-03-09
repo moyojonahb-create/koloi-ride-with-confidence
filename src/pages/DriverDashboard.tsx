@@ -44,7 +44,7 @@ import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds
 import { updateDriverLocation } from "@/lib/driverLocation";
 import { useVoiceNavigation } from "@/hooks/useVoiceNavigation";
 import { filterActiveRides, getSecondsRemaining, expireOldRides } from "@/lib/rideExpiry";
-import { useWallet } from "@/hooks/useWallet";
+
 import { completeTrip } from "@/lib/completeTrip";
 import WalletBalance from "@/components/wallet/WalletBalance";
 import DepositModal from "@/components/wallet/DepositModal";
@@ -103,7 +103,17 @@ export default function DriverDashboard() {
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { speak, isSupported: voiceSupported } = useVoiceNavigation({ enabled: voiceEnabled });
-  const { wallet, balance, transactions, deposit, refresh: refreshWallet } = useWallet();
+  const [driverBalance, setDriverBalance] = useState(0);
+  const fetchDriverBalance = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("driver_wallets")
+      .select("balance_usd")
+      .eq("driver_id", user.id)
+      .maybeSingle();
+    setDriverBalance(data?.balance_usd ?? 0);
+  }, [user]);
+  useEffect(() => { fetchDriverBalance(); }, [fetchDriverBalance]);
 
   // Agora voice calling for active trip
   
@@ -450,7 +460,7 @@ export default function DriverDashboard() {
         description: `15% commission: $${r.commission_zar ?? "?"} deducted. You earned $${r.driver_earnings_zar ?? "?"}`,
       });
       setActiveTrip(null);
-      refreshWallet();
+      fetchDriverBalance();
       refresh();
     } catch (e: unknown) {
       toast.error("Failed to complete trip", { description: (e as Error).message });
@@ -545,7 +555,7 @@ export default function DriverDashboard() {
               <History className="h-5 w-5" />
             </Button>
             <WalletBalance
-              balance={balance}
+              balance={driverBalance}
               onClick={() => nav("/drivers/wallet")}
               size="sm"
             />
@@ -570,7 +580,7 @@ export default function DriverDashboard() {
           </div>
           <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
             <Zap className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
-            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">${balance % 1 === 0 ? balance : balance.toFixed(1)}</p>
+            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">${driverBalance % 1 === 0 ? driverBalance : driverBalance.toFixed(1)}</p>
             <p className="text-[10px] text-primary-foreground/70 font-medium">Wallet</p>
           </div>
         </div>
@@ -928,22 +938,19 @@ export default function DriverDashboard() {
       {/* Deposit Modal */}
       <DepositModal
         isOpen={depositModalOpen}
-        onClose={() => setDepositModalOpen(false)}
-        onDeposit={deposit}
-        currentBalance={balance}
+        onClose={() => { setDepositModalOpen(false); fetchDriverBalance(); }}
+        onDeposit={async (amount: number, desc?: string) => {
+          // Driver deposits go through the deposit request flow, not direct
+          return { error: 'Use the deposit page at /drivers/deposit' };
+        }}
+        currentBalance={driverBalance}
       />
 
       {/* Transactions Sheet */}
       <TransactionsSheet
         isOpen={transactionsOpen}
         onClose={() => setTransactionsOpen(false)}
-        transactions={transactions.map(tx => ({
-          id: tx.id,
-          amount: Number(tx.amount),
-          transaction_type: tx.transaction_type as 'deposit' | 'withdrawal' | 'trip_fee' | 'refund',
-          description: tx.description,
-          created_at: tx.created_at,
-        }))}
+        transactions={[]}
         title="Wallet History"
       />
     </div>
