@@ -376,7 +376,7 @@ export default function RideView() {
       <div
         className="absolute left-0 right-0 bottom-0 z-50 flex flex-col glass-card-heavy"
         style={{
-          height: sheetExpanded ? '60vh' : '28vh',
+          height: sheetExpanded ? '70vh' : '38vh',
           transition: 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
           paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
           borderTopLeftRadius: 24,
