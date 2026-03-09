@@ -52,8 +52,8 @@ import { RideCommunication } from "@/components/ride/RideCommunication";
 import DriverAvatarUpload from "@/components/driver/DriverAvatarUpload";
 import DriverFeedback from "@/components/driver/DriverFeedback";
 import DriverSettingsPanel from "@/components/settings/DriverSettingsPanel";
-import NavigationCard from "@/components/driver/NavigationCard";
-import { openNavTo } from "@/lib/navigation";
+import DriverNavigationView from "@/components/driver/DriverNavigationView";
+import type { Coordinates } from "@/lib/osrm";
 import { useAgoraCall } from "@/hooks/useAgoraCall";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
@@ -93,7 +93,7 @@ export default function DriverDashboard() {
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [transactionsOpen, setTransactionsOpen] = useState(false);
   const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number; user_id: string; status: string; pickup_lat: number; pickup_lon: number; dropoff_lat: number; dropoff_lon: number } | null>(null);
-  const lastAutoNavStatus = useRef<string | null>(null);
+  const [driverCoords, setDriverCoords] = useState<Coordinates | null>(null);
   const [riderPhone, setRiderPhone] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
   const [isTopDriver, setIsTopDriver] = useState(false);
@@ -136,17 +136,16 @@ export default function DriverDashboard() {
   const startLocationTracking = () => {
     stopLocationTracking();
     if (!navigator.geolocation) return;
+    const handlePos = (pos: GeolocationPosition) => {
+      const { latitude, longitude } = pos.coords;
+      updateDriverLocation(latitude, longitude);
+      setDriverCoords({ lat: latitude, lng: longitude });
+    };
     // Send initial location
-    navigator.geolocation.getCurrentPosition(
-      (pos) => updateDriverLocation(pos.coords.latitude, pos.coords.longitude),
-      () => {}
-    );
+    navigator.geolocation.getCurrentPosition(handlePos, () => {});
     // Update every 10 seconds
     locationIntervalRef.current = setInterval(() => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => updateDriverLocation(pos.coords.latitude, pos.coords.longitude),
-        () => {}
-      );
+      navigator.geolocation.getCurrentPosition(handlePos, () => {});
     }, 10000);
   };
 
@@ -262,17 +261,11 @@ export default function DriverDashboard() {
           dropoff_lon: activeTripData.dropoff_lon,
         });
 
-        // Auto-open navigation on status transitions (once per status)
-        if (lastAutoNavStatus.current !== newStatus) {
-          if (newStatus === 'enroute_pickup' || (newStatus === 'accepted' && prevStatus !== 'accepted')) {
-            toast.info("Opening Maps for voice navigation...");
-            openNavTo(activeTripData.pickup_lat, activeTripData.pickup_lon, activeTripData.id, 'pickup');
-            lastAutoNavStatus.current = newStatus;
-          } else if (newStatus === 'in_progress' && prevStatus !== 'in_progress') {
-            toast.info("Opening Maps for voice navigation...");
-            openNavTo(activeTripData.dropoff_lat, activeTripData.dropoff_lon, activeTripData.id, 'dropoff');
-            lastAutoNavStatus.current = newStatus;
-          }
+        // Voice nav announcement on status transitions
+        if (newStatus === 'enroute_pickup' || (newStatus === 'accepted' && prevStatus !== 'accepted')) {
+          toast.info("Voice navigation active — follow in-app directions");
+        } else if (newStatus === 'in_progress' && prevStatus !== 'in_progress') {
+          toast.info("Navigating to drop-off — follow in-app directions");
         }
         // Fetch rider phone
         const { data: riderProfile } = await supabase
@@ -602,15 +595,11 @@ export default function DriverDashboard() {
         </Card>
 
         {activeTrip && (
-          <NavigationCard
-            tripId={activeTrip.id}
-            status={activeTrip.status}
-            pickupLat={activeTrip.pickup_lat}
-            pickupLng={activeTrip.pickup_lon}
-            dropoffLat={activeTrip.dropoff_lat}
-            dropoffLng={activeTrip.dropoff_lon}
-            pickupAddress={activeTrip.pickup_address}
-            dropoffAddress={activeTrip.dropoff_address}
+          <DriverNavigationView
+            driverLocation={driverCoords}
+            pickupLocation={{ lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon }}
+            dropoffLocation={{ lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon }}
+            tripPhase={['accepted', 'enroute_pickup'].includes(activeTrip.status) ? 'to_pickup' : 'to_dropoff'}
           />
         )}
 
