@@ -71,7 +71,7 @@ const AdminLedger = () => {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Platform Ledger</h1>
-            <p className="text-muted-foreground">All settled trips • Total: R{totalAmount.toFixed(2)} ({filtered.length} entries)</p>
+            <p className="text-muted-foreground">All settled trips • Total: ${totalAmount.toFixed(2)} ({filtered.length} entries)</p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
