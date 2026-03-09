@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { RefreshCw, Wallet, Car, Navigation, Users, MapPin, TrendingUp, Clock, Eye } from 'lucide-react';
+import { RefreshCw, Wallet, Car, Navigation, Users, MapPin, TrendingUp, Clock, Eye, DollarSign } from 'lucide-react';
+import { startOfDay, startOfWeek, startOfMonth, isAfter } from 'date-fns';
 import { supabase } from '@/lib/supabaseClient';
 import AdminGuard from '@/components/admin/AdminGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
