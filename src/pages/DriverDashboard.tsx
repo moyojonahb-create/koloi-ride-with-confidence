@@ -639,7 +639,7 @@ export default function DriverDashboard() {
                   <p className="font-black text-lg">${Number(activeTrip.fare).toFixed(2)}</p>
                 </div>
                 <Button
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  className="w-full bg-accent text-accent-foreground hover:brightness-105"
                   size="lg"
                   onClick={handleCompleteTrip}
                   disabled={completing}
