@@ -46,26 +46,26 @@ function normalizePhone(phone: string) {
 }
 
 // Progress bar component for 10-second countdown
-function ExpiryProgressBar({ 
-  secondsLeft, 
-  totalSeconds = ACCEPT_WINDOW_SECONDS 
-}: { 
-  secondsLeft: number; 
-  totalSeconds?: number;
-}) {
-  const progress = Math.max(0, (secondsLeft / totalSeconds) * 100);
-  
+function ExpiryProgressBar({
+  secondsLeft,
+  totalSeconds = ACCEPT_WINDOW_SECONDS
+
+
+
+}: {secondsLeft: number;totalSeconds?: number;}) {
+  const progress = Math.max(0, secondsLeft / totalSeconds * 100);
+
   return (
     <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-2">
-      <div 
+      <div
         className="h-full bg-primary rounded-full transition-all duration-200 ease-linear"
-        style={{ 
+        style={{
           width: `${progress}%`,
           transition: 'width 0.2s linear'
-        }}
-      />
-    </div>
-  );
+        }} />
+      
+    </div>);
+
 }
 
 export default function OffersModal({
@@ -76,7 +76,7 @@ export default function OffersModal({
   onAcceptOffer,
   onDeclineOffer,
   onCancelRide,
-  onClose,
+  onClose
 }: Props) {
   const deadlinesRef = useRef<Record<string, number>>({});
   const [now, setNow] = useState<number>(Date.now());
@@ -98,7 +98,7 @@ export default function OffersModal({
         deadlinesRef.current[o.offerId] = created + ACCEPT_WINDOW_SECONDS * 1000;
       }
     }
-    
+
     // Play sound when new offers arrive
     if (offers.length > prevOffersCount.current && prevOffersCount.current > 0) {
       playNewRequestSound();
@@ -113,7 +113,7 @@ export default function OffersModal({
       const secondsLeft = Math.max(0, Math.ceil(msLeft / 1000));
       const expired = msLeft <= 0;
       return { ...o, secondsLeft, expired };
-    }).filter(o => !o.expired); // Hide expired offers
+    }).filter((o) => !o.expired); // Hide expired offers
   }, [offers, now]);
 
   const handleAccept = async (offerId: string, expired: boolean) => {
@@ -151,12 +151,12 @@ export default function OffersModal({
   if (!isOpen) return null;
 
   return (
-    <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-end z-[9999] p-3" 
-      role="dialog" 
-      aria-modal="true" 
-      aria-label="Nearby drivers"
-    >
+    <div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-end z-[9999] p-3"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Nearby drivers">
+      
       <div className="w-full max-w-[520px] bg-background rounded-2xl p-4 shadow-2xl max-h-[88vh] overflow-auto">
         <div className="flex items-center justify-between">
           <div>
@@ -165,11 +165,11 @@ export default function OffersModal({
               {offersWithCountdown.length} active offer{offersWithCountdown.length !== 1 ? 's' : ''}
             </div>
           </div>
-          <button 
-            onClick={onClose} 
-            className="border-none bg-muted hover:bg-muted/80 rounded-full p-2 text-lg cursor-pointer transition-colors" 
-            aria-label="Close"
-          >
+          <button
+            onClick={onClose}
+            className="border-none bg-muted hover:bg-muted/80 rounded-full p-2 text-lg cursor-pointer transition-colors"
+            aria-label="Close">
+            
             ✕
           </button>
         </div>
@@ -177,52 +177,52 @@ export default function OffersModal({
         {/* Viewing Section */}
         <section className="mt-4">
           <div className="font-bold text-foreground mb-2 text-sm">Drivers viewing your request</div>
-          {viewing.length === 0 ? (
-            <div className="p-3 bg-muted/50 rounded-xl text-muted-foreground text-sm">
+          {viewing.length === 0 ?
+          <div className="p-3 bg-muted/50 rounded-xl text-muted-foreground text-sm">
               Waiting for drivers to view your request…
+            </div> :
+
+          <div className="flex flex-col gap-2">
+              {viewing.map((d) => {}
+
+
+
+
+
+
+
+
+
+
+
+
+            )}
             </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {viewing.map((d) => (
-                <div key={d.driverId} className="border border-border rounded-xl p-3 bg-card">
-                  <div className="flex justify-between items-baseline gap-2">
-                    <div className="font-bold text-foreground">{d.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {d.etaMinutes} min • {d.distanceKm.toFixed(1)} km
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {d.vehicleType} • {d.plateNumber}
-                    {d.vehicleColor && ` • ${d.vehicleColor}`}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          }
         </section>
 
         {/* Offers Section */}
         <section className="mt-4">
           <div className="font-bold text-foreground mb-2 text-sm">Offers received</div>
-          {offersWithCountdown.length === 0 ? (
-            <div className="p-4 bg-muted/50 rounded-xl text-muted-foreground text-sm text-center">
+          {offersWithCountdown.length === 0 ?
+          <div className="p-4 bg-muted/50 rounded-xl text-muted-foreground text-sm text-center">
               <div className="animate-pulse">Waiting for driver offers…</div>
               <p className="text-xs mt-1">Offers appear here when drivers bid on your ride</p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {offersWithCountdown.map((o) => (
-                <div 
-                  key={o.offerId} 
-                  className="border border-primary/30 rounded-xl p-4 bg-primary/5"
-                >
+            </div> :
+
+          <div className="flex flex-col gap-3">
+              {offersWithCountdown.map((o) =>
+            <div
+              key={o.offerId}
+              className="border border-primary/30 rounded-xl p-4 bg-primary/5">
+              
                   {/* Driver Info */}
                   <div className="flex justify-between items-start gap-2 mb-3">
                     <div className="flex items-start gap-3 flex-1">
                       <Avatar className="h-12 w-12 border-2 border-primary/20">
-                        {o.avatarUrl ? (
-                          <AvatarImage src={o.avatarUrl} alt={o.driverName || 'Driver'} />
-                        ) : null}
+                        {o.avatarUrl ?
+                    <AvatarImage src={o.avatarUrl} alt={o.driverName || 'Driver'} /> :
+                    null}
                         <AvatarFallback className={`text-sm font-bold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
                           {o.gender === 'female' ? '♀' : '♂'}
                         </AvatarFallback>
@@ -232,30 +232,30 @@ export default function OffersModal({
                           {o.driverName || o.name || 'Driver'}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {o.vehicleMake && o.vehicleModel 
-                            ? `${o.vehicleMake} ${o.vehicleModel}`
-                            : o.vehicleType
-                          }
+                          {o.vehicleMake && o.vehicleModel ?
+                      `${o.vehicleMake} ${o.vehicleModel}` :
+                      o.vehicleType
+                      }
                           {o.vehicleColor && ` • ${o.vehicleColor}`}
                         </div>
                         <div className="text-sm text-muted-foreground mt-0.5">
                           Plate: <span className="font-semibold text-foreground">{o.plateNumber}</span>
                         </div>
-                        {o.gender && (
-                          <div className="text-sm mt-1">
+                        {o.gender &&
+                    <div className="text-sm mt-1">
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
                               {o.gender === 'female' ? '♀ Female' : '♂ Male'} driver
                             </span>
                           </div>
-                        )}
+                    }
                         {/* Rating & Trips */}
                         <div className="flex items-center gap-2 mt-1">
-                          {o.ratingAvg != null && o.ratingAvg > 0 && (
-                            <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">
+                          {o.ratingAvg != null && o.ratingAvg > 0 &&
+                      <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">
                               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                               {Number(o.ratingAvg).toFixed(1)}
                             </span>
-                          )}
+                      }
                           <span className="text-xs text-muted-foreground">
                             {o.totalTrips || 0} trips
                           </span>
@@ -273,16 +273,16 @@ export default function OffersModal({
                   </div>
 
                   {/* Contact Info */}
-                  {o.phone && o.phone !== "+263" && (
-                    <div className="mb-3 p-2 bg-muted rounded-lg">
-                      <a 
-                        className="font-semibold text-primary no-underline hover:underline flex items-center gap-2" 
-                        href={`tel:${normalizePhone(o.phone)}`}
-                      >
+                  {o.phone && o.phone !== "+263" &&
+              <div className="mb-3 p-2 bg-muted rounded-lg">
+                      <a
+                  className="font-semibold text-primary no-underline hover:underline flex items-center gap-2"
+                  href={`tel:${normalizePhone(o.phone)}`}>
+                  
                         📞 {o.phone}
                       </a>
                     </div>
-                  )}
+              }
 
                   {/* Expiry Progress Bar */}
                   <div className="mb-3">
@@ -296,24 +296,24 @@ export default function OffersModal({
                   {/* Action Buttons */}
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleAccept(o.offerId, o.expired)}
-                      disabled={o.expired || busyOfferId !== null}
-                      className="flex-1 border-none rounded-xl px-4 py-3 font-bold cursor-pointer bg-primary text-primary-foreground disabled:opacity-50 transition-all hover:opacity-90"
-                    >
+                  onClick={() => handleAccept(o.offerId, o.expired)}
+                  disabled={o.expired || busyOfferId !== null}
+                  className="flex-1 border-none rounded-xl px-4 py-3 font-bold cursor-pointer bg-primary text-primary-foreground disabled:opacity-50 transition-all hover:opacity-90">
+                  
                       {busyOfferId === o.offerId ? "Accepting..." : "Accept"}
                     </button>
                     <button
-                      onClick={() => handleDecline(o.offerId)}
-                      disabled={busyOfferId !== null}
-                      className="flex-1 border-none rounded-xl px-4 py-3 font-bold cursor-pointer bg-destructive text-destructive-foreground disabled:opacity-50 transition-all hover:opacity-90"
-                    >
+                  onClick={() => handleDecline(o.offerId)}
+                  disabled={busyOfferId !== null}
+                  className="flex-1 border-none rounded-xl px-4 py-3 font-bold cursor-pointer bg-destructive text-destructive-foreground disabled:opacity-50 transition-all hover:opacity-90">
+                  
                       Decline
                     </button>
                   </div>
                 </div>
-              ))}
+            )}
             </div>
-          )}
+          }
         </section>
 
         {/* Cancel Ride Button */}
@@ -321,8 +321,8 @@ export default function OffersModal({
           <button
             onClick={handleCancelRide}
             disabled={busyCancel}
-            className="w-full border-2 border-destructive rounded-xl px-4 py-3 font-bold cursor-pointer bg-transparent text-destructive disabled:opacity-50 transition-all hover:bg-destructive hover:text-destructive-foreground"
-          >
+            className="w-full border-2 border-destructive rounded-xl px-4 py-3 font-bold cursor-pointer bg-transparent text-destructive disabled:opacity-50 transition-all hover:bg-destructive hover:text-destructive-foreground">
+            
             {busyCancel ? "Cancelling…" : "Cancel Ride"}
           </button>
         </div>
@@ -332,6 +332,6 @@ export default function OffersModal({
           Offers are valid for 3 minutes. Expired offers disappear automatically.
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
