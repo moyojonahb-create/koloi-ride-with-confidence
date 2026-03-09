@@ -37,7 +37,7 @@ export default function ReferralShare() {
 
   const handleCopy = async () => {
     if (!referralCode) return;
-    const shareText = `Join Voyex and get R5 off your first ride! Use my code: ${referralCode}`;
+    const shareText = `Join Voyex and get $5 off your first ride! Use my code: ${referralCode}`;
     
     if (navigator.share) {
       try {
