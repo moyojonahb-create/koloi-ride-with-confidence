@@ -7,8 +7,8 @@ import {
   type TownPricingConfig,
   calculateRecommendedFare,
   getFareStep,
-  formatFare,
-} from '@/hooks/useTownPricing';
+  formatFare } from
+'@/hooks/useTownPricing';
 
 interface NegotiationCardProps {
   pricing: TownPricingConfig;
@@ -25,15 +25,15 @@ export default function NegotiationCard({
   durationMinutes,
   onSendOffer,
   isSubmitting,
-  className,
+  className
 }: NegotiationCardProps) {
   const fareCalc = calculateRecommendedFare(pricing, distanceKm, durationMinutes);
   const step = getFareStep(pricing.currency_code);
   const [customFare, setCustomFare] = useState(fareCalc.recommended);
   const [isEditing, setIsEditing] = useState(false);
 
-  const increment = () => setCustomFare(prev => Math.min(prev + step, fareCalc.ceiling));
-  const decrement = () => setCustomFare(prev => Math.max(prev - step, fareCalc.floor));
+  const increment = () => setCustomFare((prev) => Math.min(prev + step, fareCalc.ceiling));
+  const decrement = () => setCustomFare((prev) => Math.max(prev - step, fareCalc.floor));
 
   const isAboveRecommended = customFare > fareCalc.recommended;
   const isBelowRecommended = customFare < fareCalc.recommended;
@@ -64,12 +64,12 @@ export default function NegotiationCard({
       </div>
 
       {/* Fare stepper */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-4 my-0">
         <button
           onClick={decrement}
           disabled={customFare <= fareCalc.floor}
-          className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30 shrink-0"
-        >
+          className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30 shrink-0">
+          
           <Minus className="w-5 h-5 text-foreground" />
         </button>
 
@@ -88,23 +88,23 @@ export default function NegotiationCard({
         <button
           onClick={increment}
           disabled={customFare >= fareCalc.ceiling}
-          className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30 shrink-0"
-        >
+          className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30 shrink-0">
+          
           <Plus className="w-5 h-5 text-foreground" />
         </button>
       </div>
 
       {/* Fare hint */}
-      {isBelowRecommended && (
-        <p className="text-xs text-center text-accent font-medium">
+      {isBelowRecommended &&
+      <p className="text-xs text-center text-accent font-medium">
           ⚡ Lower offers may take longer to get accepted
         </p>
-      )}
-      {isAboveRecommended && (
-        <p className="text-xs text-center text-primary font-medium">
+      }
+      {isAboveRecommended &&
+      <p className="text-xs text-center text-primary font-medium">
           🚀 Higher offers attract drivers faster
         </p>
-      )}
+      }
 
       {/* Range indicator */}
       <div className="px-1">
@@ -117,15 +117,15 @@ export default function NegotiationCard({
             className="absolute h-full bg-primary/30 rounded-full"
             style={{
               left: '0%',
-              width: `${Math.min(100, ((fareCalc.recommended - fareCalc.floor) / (fareCalc.ceiling - fareCalc.floor)) * 100)}%`,
-            }}
-          />
+              width: `${Math.min(100, (fareCalc.recommended - fareCalc.floor) / (fareCalc.ceiling - fareCalc.floor) * 100)}%`
+            }} />
+          
           <div
             className="absolute h-full w-1.5 bg-primary rounded-full"
             style={{
-              left: `${Math.min(100, ((customFare - fareCalc.floor) / (fareCalc.ceiling - fareCalc.floor)) * 100)}%`,
-            }}
-          />
+              left: `${Math.min(100, (customFare - fareCalc.floor) / (fareCalc.ceiling - fareCalc.floor) * 100)}%`
+            }} />
+          
         </div>
       </div>
 
@@ -137,8 +137,8 @@ export default function NegotiationCard({
           className={cn(
             'flex-1 h-[52px] text-[15px] font-medium rounded-2xl gap-2 active:scale-[0.97]',
             'bg-accent hover:bg-accent/90 text-accent-foreground shadow-[0_4px_24px_hsl(45_100%_51%/0.35)]'
-          )}
-        >
+          )}>
+          
           <Send className="w-4 h-4" />
           {isSubmitting ? 'Sending…' : `Send Offer`}
         </Button>
@@ -148,6 +148,6 @@ export default function NegotiationCard({
       <p className="text-[10px] text-center text-muted-foreground">
         Prices in {pricing.currency_code} • {pricing.town_name}
       </p>
-    </div>
-  );
+    </div>);
+
 }

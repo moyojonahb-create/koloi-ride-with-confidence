@@ -385,14 +385,14 @@ export default function RideView() {
           transition: 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
           paddingBottom: 8,
           borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-        }}
-      >
+          borderTopRightRadius: 24
+        }}>
+        
         {/* Handle bar — tap to toggle */}
         <button
-          onClick={() => setSheetExpanded(e => !e)}
-          className="w-full pt-3 pb-2 flex justify-center shrink-0"
-        >
+          onClick={() => setSheetExpanded((e) => !e)}
+          className="w-full pt-3 pb-2 flex justify-center shrink-0">
+          
           <div className="w-10 h-1 rounded-full bg-foreground/20" />
         </button>
 
@@ -420,8 +420,8 @@ export default function RideView() {
                 </p>
               </div>
               {pickupLocation ?
-                <span onClick={(e) => {e.stopPropagation();setPickupLocation(null);}} className="p-1.5 hover:bg-foreground/5 rounded-full"><X className="w-3.5 h-3.5 text-muted-foreground" /></span> :
-                <button onClick={(e) => {e.stopPropagation();handleUseMyLocation();}} className="p-1.5 hover:bg-foreground/5 rounded-full"><Locate className="w-3.5 h-3.5 text-primary" /></button>
+              <span onClick={(e) => {e.stopPropagation();setPickupLocation(null);}} className="p-1.5 hover:bg-foreground/5 rounded-full"><X className="w-3.5 h-3.5 text-muted-foreground" /></span> :
+              <button onClick={(e) => {e.stopPropagation();handleUseMyLocation();}} className="p-1.5 hover:bg-foreground/5 rounded-full"><Locate className="w-3.5 h-3.5 text-primary" /></button>
               }
             </button>
 
@@ -438,7 +438,7 @@ export default function RideView() {
                 </p>
               </div>
               {dropoffLocation &&
-                <span onClick={(e) => {e.stopPropagation();setDropoffLocation(null);}} className="p-1.5 hover:bg-foreground/5 rounded-full"><X className="w-3.5 h-3.5 text-muted-foreground" /></span>
+              <span onClick={(e) => {e.stopPropagation();setDropoffLocation(null);}} className="p-1.5 hover:bg-foreground/5 rounded-full"><X className="w-3.5 h-3.5 text-muted-foreground" /></span>
               }
             </button>
           </div>
@@ -466,7 +466,7 @@ export default function RideView() {
             </div>
           </div>
           {passengerCount > 3 &&
-            <p className="text-[11px] text-accent font-medium -mt-1.5 ml-1">⚡ Extra passenger charges applied</p>
+          <p className="text-[11px] text-accent font-medium -mt-1.5 ml-1">⚡ Extra passenger charges applied</p>
           }
 
           {/* ── Fare breakdown + Negotiation (expanded) ── */}
@@ -485,35 +485,35 @@ export default function RideView() {
             return (
               <>
                 {/* Compact fare card */}
-                <div className="glass-card rounded-2xl p-3 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <Zap className="w-3.5 h-3.5 text-accent" />
-                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Fare Estimate</span>
-                    </div>
-                    <span className="text-[11px] text-muted-foreground">{fareEstimate.distanceKm.toFixed(1)} km · ~{fareEstimate.durationMinutes} min</span>
-                  </div>
-                  <div className="border-t border-border/20 pt-1.5 space-y-1">
-                    <div className="flex justify-between text-[13px]">
-                      <span className="text-muted-foreground">Base fare</span>
-                      <span className="text-foreground font-medium">{fmt(baseFare)}</span>
-                    </div>
-                    <div className="flex justify-between text-[13px]">
-                      <span className="text-muted-foreground">Distance fare</span>
-                      <span className="text-foreground font-medium">{fmt(distanceFare)}</span>
-                    </div>
-                    {extraPassengerFee > 0 &&
-                      <div className="flex justify-between text-[13px]">
-                        <span className="text-accent font-medium">Extra passengers (×{extraPassengers})</span>
-                        <span className="text-accent font-medium">+{fmt(extraPassengerFee)}</span>
-                      </div>
-                    }
-                    <div className="flex justify-between text-sm font-bold border-t border-border/20 pt-1.5">
-                      <span className="text-foreground">Total</span>
-                      <span className="text-primary">{fmt(totalFare)}</span>
-                    </div>
-                  </div>
-                </div>
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
 
                 {/* Negotiation + Payment — always visible */}
                 <NegotiationCard
@@ -527,13 +527,13 @@ export default function RideView() {
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
                   <div className="flex gap-2">
                     {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
-                      <button
-                        key={pm.key}
-                        onClick={() => setPaymentMethod(pm.key)}
-                        className={cn(
-                          'flex-1 flex items-center gap-2 px-3 py-3 rounded-2xl transition-all active:scale-[0.98] glass-card',
-                          paymentMethod === pm.key ? 'ring-1 ring-primary/25' : ''
-                        )}>
+                    <button
+                      key={pm.key}
+                      onClick={() => setPaymentMethod(pm.key)}
+                      className={cn(
+                        'flex-1 flex items-center gap-2 px-3 py-3 rounded-2xl transition-all active:scale-[0.98] glass-card',
+                        paymentMethod === pm.key ? 'ring-1 ring-primary/25' : ''
+                      )}>
                         <pm.icon className={cn('w-4 h-4', paymentMethod === pm.key ? 'text-primary' : 'text-muted-foreground')} />
                         <span className={cn('font-medium text-sm', paymentMethod === pm.key ? 'text-primary' : 'text-foreground')}>{pm.label}</span>
                       </button>
@@ -542,10 +542,10 @@ export default function RideView() {
                 </div>
 
                 {rideStatus !== 'idle' &&
-                  <button onClick={handleCancelRide} className="w-full text-center text-sm text-destructive font-medium py-1.5 hover:underline transition-colors">Cancel Ride</button>
+                <button onClick={handleCancelRide} className="w-full text-center text-sm text-destructive font-medium py-1.5 hover:underline transition-colors">Cancel Ride</button>
                 }
-              </>
-            );
+              </>);
+
           })()}
         </div>
 
@@ -565,19 +565,19 @@ export default function RideView() {
                 onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
                 disabled={isRequesting}
                 className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 shadow-[0_4px_20px_hsl(var(--primary)/0.3)]"
-                style={{ background: 'var(--gradient-primary)' }}
-              >
+                style={{ background: 'var(--gradient-primary)' }}>
+                
                 {isRequesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Car className="w-4 h-4" />}
                 {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
-              </Button>
-            );
-          })() : (
-            <Button
-              disabled
-              className="w-full h-[48px] text-[15px] font-semibold rounded-2xl bg-primary/40 text-primary-foreground">
+              </Button>);
+
+          })() :
+          <Button
+            disabled
+            className="w-full h-[48px] text-[15px] font-semibold rounded-2xl bg-primary/40 text-primary-foreground">
               {pickupLocation && dropoffLocation ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Calculating…</> : 'Find Drivers'}
             </Button>
-          )}
+          }
         </div>
       </div>
 
@@ -598,12 +598,12 @@ export default function RideView() {
             <div className="flex-1 relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
               <input
-              autoFocus type="text"
-              placeholder={activeField === 'pickup' ? 'Search pickup location…' : 'Search destination…'}
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full h-12 pl-11 pr-4 glass-card text-[16px] font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/25 border-0"
-              style={{ borderRadius: 18 }} />
+                autoFocus type="text"
+                placeholder={activeField === 'pickup' ? 'Search pickup location…' : 'Search destination…'}
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="w-full h-12 pl-11 pr-4 glass-card text-[16px] font-medium text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/25 border-0"
+                style={{ borderRadius: 18 }} />
             
             </div>
           </div>
@@ -612,7 +612,7 @@ export default function RideView() {
           <div className="flex-1 overflow-y-auto">
             {/* GPS button */}
             {activeField === 'pickup' &&
-          <button onClick={handleUseMyLocation} disabled={gpsState.status === 'loading'} className="w-full flex items-center gap-4 px-5 py-4 hover:bg-primary/5 active:bg-primary/8 transition-colors border-b border-border/15 text-left">
+            <button onClick={handleUseMyLocation} disabled={gpsState.status === 'loading'} className="w-full flex items-center gap-4 px-5 py-4 hover:bg-primary/5 active:bg-primary/8 transition-colors border-b border-border/15 text-left">
                 <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'var(--gradient-primary)' }}>
                   {gpsState.status === 'loading' ? <Loader2 className="w-5 h-5 animate-spin text-primary-foreground" /> : <Crosshair className="w-5 h-5 text-primary-foreground" />}
                 </div>
@@ -621,30 +621,30 @@ export default function RideView() {
                   <p className="text-sm text-muted-foreground">Find pickup point automatically</p>
                 </div>
               </button>
-          }
+            }
 
             {gpsState.error && <p className="text-sm text-destructive bg-destructive/10 mx-4 my-3 p-3 rounded-xl">{gpsState.error}</p>}
 
             {gpsState.coords &&
-          <div className="px-4 pt-3 pb-1">
+            <div className="px-4 pt-3 pb-1">
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Nearby places</p>
                 <ProximityFilter selected={proximityRadius} onSelect={setProximityRadius} />
               </div>
-          }
+            }
 
             {/* Show town places by default when no search query */}
-            {!searchQuery.trim() && (
-              <>
+            {!searchQuery.trim() &&
+            <>
                 <div className="px-4 pt-3 pb-1">
                   <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
                     📍 Places in {selectedTown.name}
                   </p>
                 </div>
-                {landmarksLoading ? (
-                  <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>
-                ) : landmarks.length > 0 ? (
-                  landmarks.map((landmark) => (
-                    <button key={landmark.id} onClick={() => handleLandmarkSelect(landmark)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
+                {landmarksLoading ?
+              <div className="flex items-center justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div> :
+              landmarks.length > 0 ?
+              landmarks.map((landmark) =>
+              <button key={landmark.id} onClick={() => handleLandmarkSelect(landmark)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
                       <div className="w-10 h-10 rounded-2xl glass-card flex items-center justify-center shrink-0">
                         <MapPin className="w-4.5 h-4.5 text-primary" />
                       </div>
@@ -653,15 +653,15 @@ export default function RideView() {
                         <p className="text-xs text-muted-foreground capitalize">{landmark.category}{landmark.distance ? ` · ${landmark.distance < 1 ? `${Math.round(landmark.distance * 1000)}m` : `${landmark.distance.toFixed(1)}km`}` : ''}</p>
                       </div>
                     </button>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-6">No places found in {selectedTown.name}</p>
-                )}
+              ) :
+
+              <p className="text-sm text-muted-foreground text-center py-6">No places found in {selectedTown.name}</p>
+              }
               </>
-            )}
+            }
 
             {(searchQuery.trim() || proximityRadius !== null) &&
-          <>
+            <>
                 <div className="px-4 pt-4 pb-1">
                   <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
                     {searchQuery.trim() ? 'Results' : `Within ${proximityRadius}km`}
@@ -669,11 +669,11 @@ export default function RideView() {
                 </div>
 
                 {landmarksLoading ?
-            <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div> :
+              <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div> :
 
-            <>
+              <>
                     {landmarks.map((landmark) =>
-              <button key={landmark.id} onClick={() => handleLandmarkSelect(landmark)} className="w-full flex items-center gap-4 px-4 py-4 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
+                <button key={landmark.id} onClick={() => handleLandmarkSelect(landmark)} className="w-full flex items-center gap-4 px-4 py-4 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
                         <div className="w-11 h-11 rounded-2xl glass-card flex items-center justify-center shrink-0">
                           <MapPin className="w-5 h-5 text-primary" />
                         </div>
@@ -682,28 +682,28 @@ export default function RideView() {
                           <p className="text-sm text-muted-foreground capitalize">{landmark.category}</p>
                         </div>
                       </button>
-              )}
+                )}
 
                     {landmarks.length === 0 && !nominatimLoading && !showNominatimFallback && searchQuery.trim() &&
-              <div className="text-center py-12 text-muted-foreground">
+                <div className="text-center py-12 text-muted-foreground">
                         <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
                         <p className="text-sm">No results for "{searchQuery}"</p>
                       </div>
-              }
+                }
 
                     {nominatimLoading &&
-              <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" /><span className="text-sm">Searching more places…</span></div>
-              }
+                <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" /><span className="text-sm">Searching more places…</span></div>
+                }
                   </>
-            }
+              }
 
                 {(showNominatimFallback || landmarks.length > 0 && nominatimResults.length > 0) &&
-            <>
+              <>
                     <div className="px-4 py-2 bg-primary/5 border-t border-border/15">
                       <p className="text-[11px] font-semibold text-primary uppercase tracking-widest">📍 More places</p>
                     </div>
                     {nominatimResults.map((result, index) =>
-              <button key={`nom-${index}`} onClick={() => handleNominatimSelect(result)} className="w-full flex items-center gap-4 px-4 py-4 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
+                <button key={`nom-${index}`} onClick={() => handleNominatimSelect(result)} className="w-full flex items-center gap-4 px-4 py-4 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
                         <div className="w-11 h-11 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
                           <Navigation className="w-5 h-5 text-primary" />
                         </div>
@@ -712,18 +712,18 @@ export default function RideView() {
                           <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
                         </div>
                       </button>
-              )}
+                )}
                   </>
-            }
+              }
 
                 {/* Google Places */}
                 {googleSuggestions.length > 0 && searchQuery.trim().length >= 2 &&
-            <>
+              <>
                     <div className="px-4 py-2 bg-accent/8 border-t border-border/15">
                       <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">🌍 Streets & Places</p>
                     </div>
                     {googleSuggestions.map((suggestion) =>
-              <button key={suggestion.placeId} onClick={() => handleGooglePlaceSelect(suggestion)} className="w-full flex items-center gap-4 px-4 py-4 hover:bg-accent/5 transition-colors border-b border-border/15 text-left">
+                <button key={suggestion.placeId} onClick={() => handleGooglePlaceSelect(suggestion)} className="w-full flex items-center gap-4 px-4 py-4 hover:bg-accent/5 transition-colors border-b border-border/15 text-left">
                         <div className="w-11 h-11 rounded-2xl bg-accent/12 flex items-center justify-center shrink-0">
                           <Search className="w-5 h-5 text-primary" />
                         </div>
@@ -732,15 +732,15 @@ export default function RideView() {
                           <p className="text-sm text-muted-foreground truncate">{suggestion.description}</p>
                         </div>
                       </button>
-              )}
+                )}
                   </>
-            }
+              }
 
                 {googleLoading && !googleSuggestions.length &&
-            <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" /><span className="text-sm">Searching streets & places…</span></div>
-            }
+              <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" /><span className="text-sm">Searching streets & places…</span></div>
+              }
               </>
-          }
+            }
           </div>
           </div>
         </div>
