@@ -286,7 +286,7 @@ export default function RideView() {
         <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
 
         {/* Floating map buttons */}
-        <div className="absolute right-3 z-20" style={{ bottom: 'calc(50vh + 16px)' }}>
+        <div className="absolute right-3 z-20" style={{ bottom: sheetExpanded ? 'calc(60vh + 16px)' : 'calc(28vh + 16px)', transition: 'bottom 0.3s cubic-bezier(0.32,0.72,0,1)' }}>
           <div className="flex flex-col gap-2.5">
             <button onClick={handleUseMyLocation} className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-blue">
               {gpsState.status === 'loading' ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <Locate className="w-5 h-5 text-primary" />}
@@ -374,27 +374,25 @@ export default function RideView() {
 
       {/* ── BOTTOM SHEET ── */}
       <div
-        className="absolute left-0 right-0 bottom-0 z-50 flex flex-col"
+        className="absolute left-0 right-0 bottom-0 z-50 flex flex-col glass-card-heavy"
         style={{
-          maxHeight: sheetExpanded ? '62vh' : '28vh',
-          transition: 'max-height 0.3s cubic-bezier(0.32,0.72,0,1)',
+          height: sheetExpanded ? '60vh' : '28vh',
+          transition: 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
           paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
         }}
       >
-        {/* Glass background */}
-        <div className="absolute inset-0 glass-card-heavy" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }} />
-
         {/* Handle bar — tap to toggle */}
         <button
           onClick={() => setSheetExpanded(e => !e)}
-          className="relative z-10 w-full pt-3 pb-2 flex justify-center"
-          style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+          className="w-full pt-3 pb-2 flex justify-center shrink-0"
         >
           <div className="w-10 h-1 rounded-full bg-foreground/20" />
         </button>
 
         {/* Scrollable content */}
-        <div className={cn("relative z-10 flex-1 px-4 pb-3 space-y-3", sheetExpanded ? 'overflow-y-auto' : 'overflow-hidden')}>
+        <div className={cn("flex-1 px-4 pb-3 space-y-3", sheetExpanded ? 'overflow-y-auto' : 'overflow-hidden')}>
 
           {/* Town selector row */}
           <div className="flex items-center justify-between">
