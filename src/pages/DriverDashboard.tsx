@@ -460,7 +460,7 @@ export default function DriverDashboard() {
         description: `15% commission: $${r.commission_zar ?? "?"} deducted. You earned $${r.driver_earnings_zar ?? "?"}`,
       });
       setActiveTrip(null);
-      refreshWallet();
+      fetchDriverBalance();
       refresh();
     } catch (e: unknown) {
       toast.error("Failed to complete trip", { description: (e as Error).message });
