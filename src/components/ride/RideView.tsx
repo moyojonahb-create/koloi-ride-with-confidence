@@ -392,7 +392,7 @@ export default function RideView() {
         </button>
 
         {/* Scrollable content */}
-        <div className={cn("flex-1 px-4 pb-2 space-y-3 min-h-0", sheetExpanded ? 'overflow-y-auto' : 'overflow-hidden')}>
+        <div className="flex-1 px-4 pb-2 space-y-3 min-h-0 overflow-y-auto overscroll-contain">
 
           {/* Town selector row */}
           <div className="flex items-center justify-between">
