@@ -130,8 +130,21 @@ export default function DriverDashboard() {
   useEffect(() => { fetchDriverBalance(); }, [fetchDriverBalance]);
   useEffect(() => { preloadAllTownPricing().then(setTownPricingMap); }, []);
 
+  // Nearby drivers for map
+  const nearbyDrivers = useNearbyDrivers(isOnline);
+
+  // OSRM routes for map polylines
+  const driverToPickupRoute = useOSRMRoute(
+    driverCoords && activeTrip ? { lat: driverCoords.lat, lng: driverCoords.lng } : null,
+    activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : null
+  );
+  const pickupToDropoffRoute = useOSRMRoute(
+    activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : null,
+    activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : null
+  );
+
   // Agora voice calling for active trip
-  
+
   const {
     callStatus,
     isMuted,
