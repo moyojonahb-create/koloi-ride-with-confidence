@@ -595,15 +595,11 @@ export default function DriverDashboard() {
         </Card>
 
         {activeTrip && (
-          <NavigationCard
-            tripId={activeTrip.id}
-            status={activeTrip.status}
-            pickupLat={activeTrip.pickup_lat}
-            pickupLng={activeTrip.pickup_lon}
-            dropoffLat={activeTrip.dropoff_lat}
-            dropoffLng={activeTrip.dropoff_lon}
-            pickupAddress={activeTrip.pickup_address}
-            dropoffAddress={activeTrip.dropoff_address}
+          <DriverNavigationView
+            driverLocation={driverCoords}
+            pickupLocation={{ lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon }}
+            dropoffLocation={{ lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon }}
+            tripPhase={['accepted', 'enroute_pickup'].includes(activeTrip.status) ? 'to_pickup' : 'to_dropoff'}
           />
         )}
 
