@@ -356,7 +356,7 @@ export default function RideView() {
               <span className="text-[15px] font-semibold text-foreground">Profile</span>
             </button>
             <button
-              onClick={() => {setMenuOpen(false);navigate(location.pathname.startsWith('/mapp') ? '/mapp/wallet' : '/rider-wallet');}}
+              onClick={() => {setMenuOpen(false);navigate(location.pathname.startsWith('/mapp') ? '/mapp/wallet' : '/wallet');}}
               className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all">
               
               <Wallet className="w-5 h-5 text-primary" />
