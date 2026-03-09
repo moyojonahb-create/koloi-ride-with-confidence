@@ -447,6 +447,7 @@ export default function DriverDashboard() {
       const r = result as Record<string, unknown>;
       toast.success("Trip completed!", {
         description: `15% commission: $${r.commission_zar ?? "?"} deducted. You earned $${r.driver_earnings_zar ?? "?"}`,
+
       });
       setActiveTrip(null);
       fetchDriverBalance();
