@@ -4,11 +4,11 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
 const tabs = [
-{ label: 'Home', icon: Home, path: '/ride' },
-{ label: 'Trips', icon: Clock, path: '/history' },
-{ label: 'Wallet', icon: Wallet, path: '/wallet' },
-{ label: 'Profile', icon: User, path: '/profile' }];
-
+  { label: 'Home', icon: Home, path: '/ride' },
+  { label: 'Trips', icon: Clock, path: '/history' },
+  { label: 'Wallet', icon: Wallet, path: '/wallet' },
+  { label: 'Profile', icon: User, path: '/profile' },
+];
 
 export default function BottomNavBar() {
   const navigate = useNavigate();
@@ -21,7 +21,6 @@ export default function BottomNavBar() {
       navigate(isMapp ? '/mapp/ride' : '/ride');
       return;
     }
-    // Auth-gate non-home tabs
     if (!user) {
       navigate(isMapp ? '/mapp/login' : '/auth');
       return;
@@ -29,7 +28,7 @@ export default function BottomNavBar() {
     const mappPaths: Record<string, string> = {
       '/history': '/mapp/ride',
       '/wallet': '/mapp/ride',
-      '/profile': '/mapp/profile'
+      '/profile': '/mapp/profile',
     };
     navigate(isMapp ? mappPaths[path] || path : path);
   };
@@ -61,4 +60,4 @@ export default function BottomNavBar() {
       </div>
     </div>
   );
-
+}
