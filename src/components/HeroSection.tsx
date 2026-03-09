@@ -148,7 +148,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
       if (error) throw error;
 
       toast.success(
-        `Ride confirmed! ${selectedVehicle.name} • R${currentFare} • ${routeInfo.distance}km`,
+        `Ride confirmed! ${selectedVehicle.name} • $${currentFare} • ${routeInfo.distance}km`,
         { description: `From ${pickupLocation} to ${dropoffLocation}. A driver will be assigned shortly.`, duration: 6000 }
       );
       
