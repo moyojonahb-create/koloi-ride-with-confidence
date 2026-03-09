@@ -52,9 +52,11 @@ interface UseLandmarksOptions {
   searchQuery?: string;
   limit?: number;
   radiusKm?: number | null; // Filter by proximity radius
+  townCenter?: { lat: number; lng: number } | null; // Filter landmarks to this town
+  townRadiusKm?: number | null; // Radius around town center
 }
 
-export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiusKm = null }: UseLandmarksOptions = {}) => {
+export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiusKm = null, townCenter = null, townRadiusKm = null }: UseLandmarksOptions = {}) => {
   const [landmarks, setLandmarks] = useState<Landmark[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,6 +122,14 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
   const filteredLandmarks = useMemo(() => {
     let results = [...landmarks];
 
+    // Filter by town first — only show landmarks in the selected town
+    if (townCenter && townRadiusKm) {
+      results = results.filter(landmark => {
+        const dist = calculateDistance(townCenter.lat, townCenter.lng, landmark.latitude, landmark.longitude);
+        return dist <= townRadiusKm;
+      });
+    }
+
     // Calculate distances if user location is available
     if (userLocation) {
       results = results.map(landmark => ({
@@ -132,7 +142,7 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
         )
       }));
 
-      // Apply proximity filter first (before search, so we search within radius)
+      // Apply proximity filter (within user's radius)
       if (radiusKm !== null) {
         results = results.filter(landmark => (landmark.distance || 0) <= radiusKm);
       }
@@ -167,7 +177,7 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
     }
 
     return results.slice(0, limit);
-  }, [landmarks, searchQuery, userLocation, limit, radiusKm]);
+  }, [landmarks, searchQuery, userLocation, limit, radiusKm, townCenter, townRadiusKm]);
 
   // Get nearby landmarks (within specified radius in km)
   const getNearbyLandmarks = (radiusKm: number = 5): Landmark[] => {
