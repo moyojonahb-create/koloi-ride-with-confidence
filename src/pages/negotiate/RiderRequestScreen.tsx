@@ -282,7 +282,7 @@ export default function RiderRequestScreen() {
                     <Info className="w-3 h-3" /> approx.
                   </span>
                 </div>
-                <p className="text-3xl font-bold text-foreground">R{fareEstimate.fareR}</p>
+                <p className="text-3xl font-bold text-foreground">${fareEstimate.fareR.toFixed(2)}</p>
                 <p className="text-sm text-muted-foreground">
                   {fareEstimate.distanceKm.toFixed(1)} km • {fareEstimate.durationMinutes} min
                 </p>
