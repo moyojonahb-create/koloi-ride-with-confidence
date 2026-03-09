@@ -19,8 +19,8 @@ import {
   Banknote, Wallet, Zap, CarFront, Menu, History
 } from 'lucide-react';
 import {
-  Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose,
-} from '@/components/ui/drawer';
+  Sheet, SheetContent, SheetHeader, SheetTitle,
+} from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import MapGoogle from '@/components/MapGoogle';
 import RideStatusBanner, { type RideStatus } from './RideStatusBanner';
