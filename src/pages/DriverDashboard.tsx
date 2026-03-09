@@ -456,9 +456,9 @@ export default function DriverDashboard() {
         throw new Error(((result as Record<string, unknown>)?.reason as string) || "Failed to complete trip");
       }
       const r = result as Record<string, unknown>;
+      const payMethod = activeTrip.payment_method === 'ecocash' ? ' (Paid via EcoCash)' : activeTrip.payment_method === 'wallet' ? ' (Paid via Wallet)' : '';
       toast.success("Trip completed!", {
-        description: `15% commission: $${r.commission_usd ?? "?"} deducted. You earned $${r.driver_earnings_usd ?? "?"}`,
-
+        description: `Fare: ${fmtUSD(Number(r.fare_usd ?? 0))}${payMethod} • Commission: ${fmtUSD(Number(r.commission_usd ?? 0))} • You earned: ${fmtUSD(Number(r.driver_earnings_usd ?? 0))}`,
       });
       setActiveTrip(null);
       fetchDriverBalance();
