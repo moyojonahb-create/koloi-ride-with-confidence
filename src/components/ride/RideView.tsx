@@ -340,12 +340,12 @@ export default function RideView() {
         </button>
       </div>
 
-      {/* ── HAMBURGER DRAWER ── */}
-      <Drawer open={menuOpen} onOpenChange={setMenuOpen} direction="left">
-        <DrawerContent className="h-full w-[280px] rounded-none rounded-r-3xl left-0 right-auto inset-y-0 border-r border-border/20" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
-          <DrawerHeader className="px-5 pb-2">
-            <VoyexLogo size="sm" />
-          </DrawerHeader>
+      {/* ── HAMBURGER MENU ── */}
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent side="left" className="w-[280px] p-0 border-r border-border/20" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
+          <SheetHeader className="px-5 pb-2 pt-4">
+            <SheetTitle><VoyexLogo size="sm" /></SheetTitle>
+          </SheetHeader>
           <nav className="flex flex-col gap-1 px-3 mt-2">
             <button
               onClick={() => { setMenuOpen(false); navigate(location.pathname.startsWith('/mapp') ? '/mapp/profile' : '/profile'); }}
@@ -369,8 +369,8 @@ export default function RideView() {
               <span className="text-[15px] font-semibold text-foreground">History</span>
             </button>
           </nav>
-        </DrawerContent>
-      </Drawer>
+        </SheetContent>
+      </Sheet>
 
       {/* ── BOTTOM SHEET ── */}
       <div
