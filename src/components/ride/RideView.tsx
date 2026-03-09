@@ -373,13 +373,17 @@ export default function RideView() {
         </SheetContent>
       </Sheet>
 
+      {/* ── BOTTOM NAV BAR ── */}
+      <BottomNavBar />
+
       {/* ── BOTTOM SHEET ── */}
       <div
-        className="absolute left-0 right-0 bottom-0 z-50 flex flex-col glass-card-heavy"
+        className="absolute left-0 right-0 z-50 flex flex-col glass-card-heavy"
         style={{
-          height: sheetExpanded ? '75vh' : '44vh',
+          bottom: 56,
+          height: sheetExpanded ? '70vh' : '48vh',
           transition: 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
-          paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
+          paddingBottom: 8,
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
         }}
