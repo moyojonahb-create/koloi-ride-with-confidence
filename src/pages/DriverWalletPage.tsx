@@ -35,15 +35,6 @@ export default function DriverWalletPage() {
       if (w.error) throw w.error;
       setBalance(Number(w.data?.balance_usd ?? 0));
 
-      const fx = await supabase
-        .from("fx_rates")
-        .select("zar_per_usd,effective_date")
-        .order("effective_date", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(1);
-      if (fx.error) throw fx.error;
-      setZarPerUsd(fx.data?.[0]?.zar_per_usd ? Number(fx.data[0].zar_per_usd) : null);
-
       const dep = await supabase
         .from("deposit_requests")
         .select("id,amount_usd,status,created_at,ecocash_reference")
