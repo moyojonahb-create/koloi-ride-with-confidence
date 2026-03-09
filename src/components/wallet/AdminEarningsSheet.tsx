@@ -78,7 +78,7 @@ export default function AdminEarningsSheet({
                         {format(new Date(e.created_at), 'dd MMM, HH:mm')}
                       </TableCell>
                       <TableCell className="font-medium">
-                        R{Number(e.fare_amount).toFixed(2)}
+                        ${Number(e.fare_amount).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-green-600 font-medium">
                         R{Number(e.platform_fee).toFixed(2)}
