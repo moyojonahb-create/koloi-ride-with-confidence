@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
   Car, Star, Phone, MessageCircle, Clock, Users, ChevronRight, Locate,
-  Banknote, Wallet, Zap, CarFront, Menu, History
+  Banknote, Wallet, Zap, CarFront, Menu, History, Minus, Plus, Route
 } from 'lucide-react';
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
@@ -431,49 +431,138 @@ export default function RideView() {
             )}
           </button>
 
-          {/* ── Negotiation Card (inDrive-style) ── */}
-          {pickupLocation && dropoffLocation && fareEstimate && (
-            <>
-              {/* Negotiation Card */}
-              <NegotiationCard
-                pricing={townPricing}
-                distanceKm={fareEstimate.distanceKm}
-                durationMinutes={fareEstimate.durationMinutes}
-                onSendOffer={(fare) => handleSendOffer(fare)}
-                isSubmitting={isRequesting}
-              />
-
-              {/* Payment Method */}
-              <div>
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Payment</p>
-                <div className="flex gap-3">
-                  {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map(pm => (
-                    <button
-                      key={pm.key}
-                      onClick={() => setPaymentMethod(pm.key)}
-                      className={cn(
-                        'flex-1 flex items-center gap-3 p-4 rounded-[18px] transition-all active:scale-[0.98] glass-card',
-                        paymentMethod === pm.key ? 'glass-glow-blue ring-1 ring-primary/25' : ''
-                      )}
-                    >
-                      <pm.icon className={cn('w-5 h-5', paymentMethod === pm.key ? 'text-primary' : 'text-muted-foreground')} />
-                      <span className={cn('font-medium text-sm', paymentMethod === pm.key ? 'text-primary' : 'text-foreground')}>{pm.label}</span>
-                    </button>
-                  ))}
-                </div>
+          {/* ── Passenger count selector ── */}
+          <div>
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Passengers</p>
+            <div className="flex items-center justify-between glass-card rounded-2xl px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Users className="w-4.5 h-4.5 text-primary" />
+                <span className="text-sm font-medium text-foreground">Passengers</span>
               </div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setPassengerCount(prev => Math.max(1, prev - 1))}
+                  disabled={passengerCount <= 1}
+                  className="w-9 h-9 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30"
+                >
+                  <Minus className="w-4 h-4 text-foreground" />
+                </button>
+                <span className="text-lg font-bold text-foreground tabular-nums w-6 text-center">{passengerCount}</span>
+                <button
+                  onClick={() => setPassengerCount(prev => Math.min(10, prev + 1))}
+                  disabled={passengerCount >= 10}
+                  className="w-9 h-9 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30"
+                >
+                  <Plus className="w-4 h-4 text-foreground" />
+                </button>
+              </div>
+            </div>
+            {passengerCount > 3 && (
+              <p className="text-xs text-accent font-medium mt-1.5 ml-1">⚡ Extra passenger charges applied</p>
+            )}
+            {passengerCount <= 3 && (
+              <p className="text-[11px] text-muted-foreground mt-1 ml-1">More than 3 passengers may affect fare</p>
+            )}
+          </div>
 
-              {/* Cancel */}
-              {rideStatus !== 'idle' && (
-                <button onClick={handleCancelRide} className="w-full text-center text-sm text-destructive font-medium py-2 hover:underline transition-colors">Cancel Ride</button>
-              )}
-            </>
-          )}
+          {/* ── Fare estimate & breakdown ── */}
+          {pickupLocation && dropoffLocation && fareEstimate && (() => {
+            const isZarTown = selectedTown.id === 'gwanda' || selectedTown.id === 'beitbridge';
+            const extraPassengers = Math.max(passengerCount - 3, 0);
+            const extraFee = isZarTown ? extraPassengers * 5 : extraPassengers * 0.50;
+            const baseFare = fareEstimate.fareR;
+            const totalFare = baseFare + extraFee;
+            const sym = fareEstimate.currencySymbol;
+            const code = fareEstimate.currencyCode;
+            const fmt = (v: number) => code === 'ZAR' ? `${sym}${Math.round(v)}` : `${sym}${v.toFixed(2)}`;
+
+            return (
+              <>
+                {/* Fare breakdown card */}
+                <div className="glass-card rounded-2xl p-4 space-y-2.5">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Zap className="w-4 h-4 text-accent" />
+                    <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Fare Estimate</p>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground flex items-center gap-2"><Route className="w-3.5 h-3.5" /> {fareEstimate.distanceKm.toFixed(1)} km · ~{fareEstimate.durationMinutes} min</span>
+                  </div>
+                  <div className="border-t border-border/20 pt-2 space-y-1.5">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Base fare</span>
+                      <span className="text-foreground font-medium">{fmt(baseFare)}</span>
+                    </div>
+                    {extraFee > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-accent font-medium">Extra passengers (×{extraPassengers})</span>
+                        <span className="text-accent font-medium">+{fmt(extraFee)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-base font-bold border-t border-border/20 pt-2">
+                      <span className="text-foreground">Total</span>
+                      <span className="text-primary">{fmt(totalFare)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Negotiation Card */}
+                <NegotiationCard
+                  pricing={townPricing}
+                  distanceKm={fareEstimate.distanceKm}
+                  durationMinutes={fareEstimate.durationMinutes}
+                  onSendOffer={(fare) => handleSendOffer(fare + extraFee)}
+                  isSubmitting={isRequesting}
+                />
+
+                {/* Payment Method */}
+                <div>
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Payment</p>
+                  <div className="flex gap-3">
+                    {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map(pm => (
+                      <button
+                        key={pm.key}
+                        onClick={() => setPaymentMethod(pm.key)}
+                        className={cn(
+                          'flex-1 flex items-center gap-3 p-4 rounded-[18px] transition-all active:scale-[0.98] glass-card',
+                          paymentMethod === pm.key ? 'glass-glow-blue ring-1 ring-primary/25' : ''
+                        )}
+                      >
+                        <pm.icon className={cn('w-5 h-5', paymentMethod === pm.key ? 'text-primary' : 'text-muted-foreground')} />
+                        <span className={cn('font-medium text-sm', paymentMethod === pm.key ? 'text-primary' : 'text-foreground')}>{pm.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Cancel */}
+                {rideStatus !== 'idle' && (
+                  <button onClick={handleCancelRide} className="w-full text-center text-sm text-destructive font-medium py-2 hover:underline transition-colors">Cancel Ride</button>
+                )}
+              </>
+            );
+          })()}
 
           {(!pickupLocation || !dropoffLocation) && (
-            <div className="text-center py-5">
-              <p className="text-sm text-muted-foreground">Select pickup and destination to see ride options</p>
-            </div>
+            <>
+              <div className="text-center py-3">
+                <p className="text-sm text-muted-foreground">Select pickup and destination to see ride options</p>
+              </div>
+              <Button
+                disabled
+                className="w-full h-[52px] text-[15px] font-semibold rounded-2xl bg-primary/40 text-primary-foreground"
+              >
+                Find Drivers
+              </Button>
+            </>
+          )}
+          {pickupLocation && dropoffLocation && !fareEstimate && (
+            <Button
+              disabled
+              className="w-full h-[52px] text-[15px] font-semibold rounded-2xl bg-primary/40 text-primary-foreground"
+            >
+              <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              Calculating…
+            </Button>
           )}
         </div>
       </div>
