@@ -70,6 +70,7 @@ type Ride = {
   duration_minutes: number;
   created_at: string;
   expires_at?: string | null;
+  town_id?: string | null;
 };
 
 export default function DriverDashboard() {
