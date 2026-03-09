@@ -81,7 +81,7 @@ export default function RideView() {
   const [selectedTown, setSelectedTown] = useState<TownConfig>(DEFAULT_TOWN);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
 
-  const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 15, userLocation: gpsState.coords, radiusKm: proximityRadius });
+  const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
   const { suggestions: googleSuggestions, loading: googleLoading, search: searchGoogle, getPlaceDetails, clear: clearGoogleSuggestions } = useGooglePlacesAutocomplete();
 
   // ── effects ──
