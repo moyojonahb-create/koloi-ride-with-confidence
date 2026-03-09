@@ -304,6 +304,48 @@ const AdminDashboard = () => {
             </Card>
           </div>
 
+          {/* Commission Revenue Summary */}
+          {(() => {
+            const now = new Date();
+            const todayEarnings = earnings.filter(e => isAfter(new Date(e.created_at), startOfDay(now)));
+            const weekEarnings = earnings.filter(e => isAfter(new Date(e.created_at), startOfWeek(now, { weekStartsOn: 1 })));
+            const monthEarnings = earnings.filter(e => isAfter(new Date(e.created_at), startOfMonth(now)));
+            const sum = (items: typeof earnings) => items.reduce((a, e) => a + Number(e.platform_fee), 0);
+            const countTrips = (items: typeof earnings) => items.length;
+            return (
+              <Card>
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="font-bold text-sm flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-primary" />
+                      Voyex Commission (15%)
+                    </h2>
+                    <Button size="sm" variant="outline" onClick={() => setEarningsSheetOpen(true)}>
+                      View Details
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-primary/10 rounded-xl p-4 text-center">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">Today</p>
+                      <p className="text-xl font-black text-primary">${sum(todayEarnings).toFixed(2)}</p>
+                      <p className="text-[10px] text-muted-foreground">{countTrips(todayEarnings)} trips</p>
+                    </div>
+                    <div className="bg-primary/10 rounded-xl p-4 text-center">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">This Week</p>
+                      <p className="text-xl font-black text-primary">${sum(weekEarnings).toFixed(2)}</p>
+                      <p className="text-[10px] text-muted-foreground">{countTrips(weekEarnings)} trips</p>
+                    </div>
+                    <div className="bg-primary/10 rounded-xl p-4 text-center">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase">This Month</p>
+                      <p className="text-xl font-black text-primary">${sum(monthEarnings).toFixed(2)}</p>
+                      <p className="text-[10px] text-muted-foreground">{countTrips(monthEarnings)} trips</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
+
           {/* Live Map */}
           <Card>
             <CardContent className="pt-4">
