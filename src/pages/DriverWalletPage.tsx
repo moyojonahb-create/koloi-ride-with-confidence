@@ -18,16 +18,9 @@ export default function DriverWalletPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [balance, setBalance] = useState(0);
-  const [zarPerUsd, setZarPerUsd] = useState<number | null>(null);
   const [deposits, setDeposits] = useState<DepositRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
-
-  const feeZar = 4;
-  const feeUsdPreview = useMemo(() => {
-    if (!zarPerUsd) return null;
-    return Number((feeZar / zarPerUsd).toFixed(2));
-  }, [zarPerUsd]);
 
   const load = useCallback(async () => {
     if (!user) return;
