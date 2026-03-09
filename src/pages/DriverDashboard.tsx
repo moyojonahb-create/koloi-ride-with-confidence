@@ -618,11 +618,14 @@ export default function DriverDashboard() {
         {/* Navigation Map */}
         <Card className="overflow-hidden">
           <CardContent className="p-0">
-            <div className="h-56 rounded-xl overflow-hidden">
+            <div className="h-[45vh] min-h-[300px] rounded-xl overflow-hidden">
               <MapGoogle
                 driverLocation={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
                 pickup={activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : undefined}
                 dropoff={activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : undefined}
+                routeGeometry={pickupToDropoffRoute.route?.geometry ?? undefined}
+                secondaryRouteGeometry={driverToPickupRoute.route?.geometry ?? undefined}
+                drivers={nearbyDrivers}
                 defaultCenter={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
                 defaultZoom={15}
                 className="w-full h-full"
