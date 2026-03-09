@@ -1412,6 +1412,10 @@ export type Database = {
         Args: { p_trip_id: string }
         Returns: Json
       }
+      complete_trip_with_commission: {
+        Args: { p_trip_id: string }
+        Returns: Json
+      }
       expire_old_rides: { Args: never; Returns: number }
       get_driver_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
