@@ -275,9 +275,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                     selectedType={selectedVehicle}
                     onSelect={setSelectedVehicle}
                     distanceKm={routeInfo.distance}
-                    pickup={{ lat: pickupCoords.lat, lng: pickupCoords.lng }}
-                    dropoff={{ lat: dropoffCoords.lat, lng: dropoffCoords.lng }}
-                    routedDistanceKm={routeInfo.distance} // Authoritative distance from Google Routes
+                    fareUsd={currentFare ?? undefined}
                   />
                 </div>
               )}
