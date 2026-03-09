@@ -261,17 +261,11 @@ export default function DriverDashboard() {
           dropoff_lon: activeTripData.dropoff_lon,
         });
 
-        // Auto-open navigation on status transitions (once per status)
-        if (lastAutoNavStatus.current !== newStatus) {
-          if (newStatus === 'enroute_pickup' || (newStatus === 'accepted' && prevStatus !== 'accepted')) {
-            toast.info("Opening Maps for voice navigation...");
-            openNavTo(activeTripData.pickup_lat, activeTripData.pickup_lon, activeTripData.id, 'pickup');
-            lastAutoNavStatus.current = newStatus;
-          } else if (newStatus === 'in_progress' && prevStatus !== 'in_progress') {
-            toast.info("Opening Maps for voice navigation...");
-            openNavTo(activeTripData.dropoff_lat, activeTripData.dropoff_lon, activeTripData.id, 'dropoff');
-            lastAutoNavStatus.current = newStatus;
-          }
+        // Voice nav announcement on status transitions
+        if (newStatus === 'enroute_pickup' || (newStatus === 'accepted' && prevStatus !== 'accepted')) {
+          toast.info("Voice navigation active — follow in-app directions");
+        } else if (newStatus === 'in_progress' && prevStatus !== 'in_progress') {
+          toast.info("Navigating to drop-off — follow in-app directions");
         }
         // Fetch rider phone
         const { data: riderProfile } = await supabase
