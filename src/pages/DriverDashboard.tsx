@@ -365,16 +365,33 @@ export default function DriverDashboard() {
     return () => clearInterval(interval);
   }, [isOnline]);
 
+  const isZarTown = (townId?: string | null) => townId === 'gwanda' || townId === 'beitbridge';
+
   const chooseRide = (r: Ride) => {
     setSelectedRide(r);
-    const base = clampTo5((r.fare || 50) * mult);
-    setOfferPrice(base);
+    if (isZarTown(r.town_id)) {
+      const base = clampTo5((r.fare || 50) * mult);
+      setOfferPrice(base);
+    } else {
+      // USD: round to nearest $0.50
+      const base = Math.max(0.50, Math.round(((r.fare || 5) * mult) * 2) / 2);
+      setOfferPrice(base);
+    }
     setEta(Math.max(5, Math.round(r.duration_minutes / 2)));
     setNote(isNightLocal() ? "Night service" : "");
   };
 
-  const inc = () => setOfferPrice((p) => clampTo5(p + 5));
-  const dec = () => setOfferPrice((p) => clampTo5(p - 5, 5));
+  const fareStep = selectedRide && isZarTown(selectedRide.town_id) ? 5 : 0.50;
+  const fareMin = selectedRide && isZarTown(selectedRide.town_id) ? 5 : 0.50;
+
+  const inc = () => setOfferPrice((p) => {
+    if (selectedRide && isZarTown(selectedRide.town_id)) return clampTo5(p + 5);
+    return Math.round((p + 0.50) * 2) / 2;
+  });
+  const dec = () => setOfferPrice((p) => {
+    if (selectedRide && isZarTown(selectedRide.town_id)) return clampTo5(p - 5, 5);
+    return Math.max(0.50, Math.round((p - 0.50) * 2) / 2);
+  });
 
   const sendOffer = async () => {
     if (!selectedRide || submitting) return;
