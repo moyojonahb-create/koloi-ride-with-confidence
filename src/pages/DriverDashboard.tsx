@@ -437,7 +437,7 @@ export default function DriverDashboard() {
         eta_minutes: eta,
         message: note,
       });
-      toast.success("Offer sent!", { description: `$${offerPrice.toFixed(2)} for ${eta} min ETA` });
+      toast.success("Offer sent!", { description: `${fmtUSD(offerPrice)} for ${eta} min ETA` });
       setSelectedRide(null);
     } catch (e: unknown) {
       setError((e as Error).message);
