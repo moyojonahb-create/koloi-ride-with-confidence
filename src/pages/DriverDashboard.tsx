@@ -589,8 +589,23 @@ export default function DriverDashboard() {
           </div>
         </div>
 
-        {/* Earnings Dashboard */}
-        <DriverEarningsDashboard />
+        {/* Earnings Dashboard (toggled via icon) */}
+        {earningsOpen && (
+          <DriverEarningsDashboard />
+        )}
+
+        {/* Navigation Map */}
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="h-56 rounded-xl overflow-hidden">
+              <MapGoogle
+                center={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
+                zoom={15}
+                className="w-full h-full"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Trial Banner */}
         {profile && trialActive && (
