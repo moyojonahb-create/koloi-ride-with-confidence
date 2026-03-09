@@ -177,28 +177,26 @@ export default function OffersModal({
         {/* Viewing Section */}
         <section className="mt-4">
           <div className="font-bold text-foreground mb-2 text-sm">Drivers viewing your request</div>
-          {viewing.length === 0 ?
-          <div className="p-3 bg-muted/50 rounded-xl text-muted-foreground text-sm">
+          {viewing.length === 0 ? (
+            <div className="p-3 bg-muted/50 rounded-xl text-muted-foreground text-sm">
               Waiting for drivers to view your request…
-            </div> :
-
-          <div className="flex flex-col gap-2">
-              {viewing.map((d) => {}
-
-
-
-
-
-
-
-
-
-
-
-
-            )}
             </div>
-          }
+          ) : (
+            <div className="flex flex-col gap-2">
+              {viewing.map((d) => (
+                <div key={d.driverId} className="flex items-center gap-3 p-2 bg-muted/30 rounded-xl">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{d.name}</p>
+                    <p className="text-xs text-muted-foreground">{d.vehicleType} • {d.plateNumber}</p>
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">~{d.etaMinutes} min</span>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Offers Section */}
