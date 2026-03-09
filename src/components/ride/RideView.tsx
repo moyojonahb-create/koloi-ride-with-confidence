@@ -467,11 +467,13 @@ export default function RideView() {
 
           {/* ── Fare estimate & breakdown ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
-            const isZarTown = selectedTown.id === 'gwanda' || selectedTown.id === 'beitbridge';
+            const activeTown = selectedTown.name;
+            const isRandTown = activeTown?.toLowerCase() === 'gwanda' || activeTown?.toLowerCase() === 'beitbridge';
             const extraPassengers = Math.max(passengerCount - 3, 0);
-            const extraFee = isZarTown ? extraPassengers * 5 : extraPassengers * 0.50;
-            const baseFare = fareEstimate.fareR;
-            const totalFare = baseFare + extraFee;
+            const extraPassengerFee = isRandTown ? extraPassengers * 5 : extraPassengers * 0.5;
+            const baseFare = townPricing.base_fare;
+            const distanceFare = fareEstimate.fareR - baseFare;
+            const totalFare = baseFare + distanceFare + extraPassengerFee;
             const sym = fareEstimate.currencySymbol;
             const code = fareEstimate.currencyCode;
             const fmt = (v: number) => code === 'ZAR' ? `${sym}${Math.round(v)}` : `${sym}${v.toFixed(2)}`;
