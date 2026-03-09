@@ -921,7 +921,7 @@ export default function DriverDashboard() {
                 </Button>
                 <div className="text-center">
                   <p className="text-3xl font-black">
-                    ${offerPrice.toFixed(2)}
+                    {fmtUSD(offerPrice)}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     Increments of $0.50
