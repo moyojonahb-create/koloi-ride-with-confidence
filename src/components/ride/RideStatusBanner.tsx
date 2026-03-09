@@ -39,13 +39,13 @@ const STATUS_CONFIG: Record<RideStatus, {
   offers_received: {
     icon: <Car className="w-4 h-4" />,
     label: 'Offers received',
-    color: 'bg-emerald-500 text-white',
+    color: 'bg-accent/80 backdrop-blur-sm text-accent-foreground',
     pulse: true,
   },
   driver_assigned: {
     icon: <Check className="w-4 h-4" />,
     label: 'Driver assigned',
-    color: 'bg-emerald-500 text-white',
+    color: 'bg-accent/80 backdrop-blur-sm text-accent-foreground',
   },
   driver_arriving: {
     icon: <Car className="w-4 h-4" />,
@@ -56,7 +56,7 @@ const STATUS_CONFIG: Record<RideStatus, {
   driver_arrived: {
     icon: <Check className="w-4 h-4" />,
     label: 'Driver has arrived',
-    color: 'bg-emerald-500 text-white',
+    color: 'bg-accent/80 backdrop-blur-sm text-accent-foreground',
     pulse: true,
   },
   in_progress: {
@@ -67,7 +67,7 @@ const STATUS_CONFIG: Record<RideStatus, {
   completed: {
     icon: <Check className="w-4 h-4" />,
     label: 'Trip completed',
-    color: 'bg-emerald-500 text-white',
+    color: 'bg-accent/80 backdrop-blur-sm text-accent-foreground',
   },
 };
 

@@ -25,8 +25,8 @@ const ApplicationStatus = ({ status, vehicleInfo, documentsStatus }: Application
       case 'approved':
         return {
           icon: CheckCircle,
-          color: 'text-green-500',
-          bgColor: 'bg-green-500/10',
+          color: 'text-accent',
+          bgColor: 'bg-accent/10',
           label: 'Approved',
           description: 'Congratulations! You are now an approved driver.',
         };
@@ -87,8 +87,8 @@ const ApplicationStatus = ({ status, vehicleInfo, documentsStatus }: Application
               <p className="text-2xl font-bold">{documentsStatus.total}</p>
               <p className="text-xs text-muted-foreground">Total</p>
             </div>
-            <div className="p-3 bg-green-500/10 rounded-lg">
-              <p className="text-2xl font-bold text-green-600">{documentsStatus.approved}</p>
+            <div className="p-3 bg-accent/10 rounded-lg">
+              <p className="text-2xl font-bold text-accent">{documentsStatus.approved}</p>
               <p className="text-xs text-muted-foreground">Approved</p>
             </div>
             <div className="p-3 bg-yellow-500/10 rounded-lg">

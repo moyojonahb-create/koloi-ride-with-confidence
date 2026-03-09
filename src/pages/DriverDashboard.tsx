@@ -624,7 +624,7 @@ export default function DriverDashboard() {
         {/* Active Trip */}
         {activeTrip && (
           <>
-            <Card className="border-emerald-500 bg-emerald-500/5">
+            <Card className="border-accent/40 bg-accent/5 backdrop-blur-sm">
               <CardContent className="pt-4">
                 <div className="flex items-start gap-3 mb-3">
                   <div className="flex flex-col items-center">
@@ -639,7 +639,7 @@ export default function DriverDashboard() {
                   <p className="font-black text-lg">${Number(activeTrip.fare).toFixed(2)}</p>
                 </div>
                 <Button
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  className="w-full bg-accent text-accent-foreground hover:brightness-105"
                   size="lg"
                   onClick={handleCompleteTrip}
                   disabled={completing}
@@ -675,7 +675,7 @@ export default function DriverDashboard() {
                     href={riderPhone ? `https://wa.me/${riderPhone.replace(/[^\d]/g, "")}` : "#"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1 py-3 rounded-2xl bg-[hsl(142,70%,40%)] text-primary-foreground font-medium text-xs text-center active:scale-95 transition-all"
+                    className="flex items-center justify-center gap-1 py-3 rounded-2xl bg-accent/80 backdrop-blur-sm text-accent-foreground font-medium text-xs text-center active:scale-95 transition-all"
                   >
                     💬 <span>WhatsApp</span>
                   </a>

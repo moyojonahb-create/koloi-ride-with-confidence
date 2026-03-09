@@ -113,7 +113,7 @@ const DocumentUpload = ({ driverId }: DocumentUploadProps) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <Badge className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" /> Approved</Badge>;
+        return <Badge className="bg-accent/80 text-accent-foreground"><CheckCircle className="w-3 h-3 mr-1" /> Approved</Badge>;
       case 'rejected':
         return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> Rejected</Badge>;
       default:
