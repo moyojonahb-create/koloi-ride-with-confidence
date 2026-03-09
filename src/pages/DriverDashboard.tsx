@@ -103,7 +103,17 @@ export default function DriverDashboard() {
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { speak, isSupported: voiceSupported } = useVoiceNavigation({ enabled: voiceEnabled });
-  const { wallet, balance, transactions, deposit, refresh: refreshWallet } = useWallet();
+  const [driverBalance, setDriverBalance] = useState(0);
+  const fetchDriverBalance = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("driver_wallets")
+      .select("balance_usd")
+      .eq("driver_id", user.id)
+      .maybeSingle();
+    setDriverBalance(data?.balance_usd ?? 0);
+  }, [user]);
+  useEffect(() => { fetchDriverBalance(); }, [fetchDriverBalance]);
 
   // Agora voice calling for active trip
   
