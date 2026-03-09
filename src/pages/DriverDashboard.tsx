@@ -305,15 +305,14 @@ export default function DriverDashboard() {
         }
 
         if (hasNewRide) {
-          triggerFullAlert(
-            "🚗 NEW VOYEX RIDE REQUEST!",
-            "⚡ A rider is looking for a driver near you - respond NOW!",
+          // Simple beep for incoming rides
+          playNewRequestSound();
+          vibrateAlert();
+          showBrowserNotification(
+            "🚗 New Ride Request",
+            "A rider is looking for a driver near you",
             "/driver"
           );
-
-          if (voiceEnabled && voiceSupported) {
-            speak("Attention! New ride request received! Open Voyex to respond.");
-          }
 
           toast.info("🚗 NEW RIDE REQUEST!", {
             description: "A rider is looking for a driver - respond quickly!",
