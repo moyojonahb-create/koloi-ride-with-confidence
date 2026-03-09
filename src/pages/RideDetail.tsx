@@ -341,7 +341,7 @@ export default function RideDetail() {
                 pendingOffers.map((o) => (
                   <div key={o.id} className="glass-card rounded-2xl p-4 glass-glow-blue">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-2xl font-black text-primary">R{clampTo5(Number(o.price))}</span>
+                      <span className="text-2xl font-black text-primary">${Number(o.price).toFixed(2)}</span>
                       <OfferTimer offer={o} />
                     </div>
                     <div className="text-sm text-muted-foreground mb-3">
