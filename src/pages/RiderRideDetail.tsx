@@ -35,6 +35,8 @@ import VoiceCallButton from "@/components/ride/VoiceCallButton";
 
 import TripReceipt from "@/components/ride/TripReceipt";
 import ShareTripButton from "@/components/ride/ShareTripButton";
+import EcoCashPaymentModal from "@/components/wallet/EcoCashPaymentModal";
+import { useWallet } from "@/hooks/useWallet";
 
 type Ride = {
   id: string;
@@ -73,6 +75,17 @@ export default function RiderRideDetail() {
   const [showRating, setShowRating] = useState(false);
   const [hasRated, setHasRated] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(30);
+  const [showEcoCashPay, setShowEcoCashPay] = useState(false);
+
+  const { balance: walletBalance } = useWallet();
+
+  // Wallet PIN for payment
+  const [walletPin, setWalletPin] = useState<string | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('wallets').select('wallet_pin').eq('user_id', user.id).maybeSingle()
+      .then(({ data }) => { setWalletPin((data as Record<string, unknown>)?.wallet_pin as string | null); });
+  }, [user]);
 
   // Agora voice calling
   const {
@@ -479,20 +492,33 @@ export default function RiderRideDetail() {
               {/* Direct EcoCash Payment Option */}
               {(() => {
                 const ecocashNum = (driverProfile as Record<string, unknown>)?.ecocash_number as string | undefined;
-                const displayNumber = ecocashNum || '+263 778 553 169';
-                const isTrialNumber = !ecocashNum;
+                const driverName = (driverProfile as Record<string, unknown>)?.vehicle_make 
+                  ? `${(driverProfile as Record<string, unknown>)?.vehicle_make} Driver`
+                  : 'Driver';
                 return (
-                  <div className="bg-accent/10 rounded-xl p-3 mt-3 border border-accent/20">
-                    <p className="text-xs font-semibold text-accent mb-1">💰 Pay Driver via EcoCash</p>
-                    <p className="text-sm font-mono font-bold text-foreground">
-                      {displayNumber}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Send ${Number(ride.fare).toFixed(2)} to this EcoCash number
-                    </p>
-                    {isTrialNumber && (
-                      <p className="text-[10px] text-muted-foreground mt-1 italic">Voyex merchant number</p>
+                  <div className="bg-accent/10 rounded-xl p-3 mt-3 border border-accent/20 space-y-2">
+                    <p className="text-xs font-semibold text-accent-foreground">💰 Pay Driver via EcoCash</p>
+                    <Button
+                      onClick={() => setShowEcoCashPay(true)}
+                      className="w-full rounded-xl"
+                      style={{ background: 'var(--gradient-primary)' }}
+                    >
+                      Pay ${Number(ride.fare).toFixed(2)} with EcoCash
+                    </Button>
+                    {!walletPin && (
+                      <p className="text-[10px] text-muted-foreground">⚠️ Set up wallet PIN in Wallet → Settings first</p>
                     )}
+                    <EcoCashPaymentModal
+                      isOpen={showEcoCashPay}
+                      onClose={() => setShowEcoCashPay(false)}
+                      amount={Number(ride.fare)}
+                      currency="$"
+                      driverName={driverName}
+                      driverEcoCash={ecocashNum}
+                      walletPin={walletPin}
+                      onVerifyPin={async (pin) => pin === walletPin}
+                      onPaymentComplete={() => toast.success('Payment sent to driver!')}
+                    />
                   </div>
                 );
               })()}

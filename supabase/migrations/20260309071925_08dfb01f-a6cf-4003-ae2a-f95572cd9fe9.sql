@@ -1,0 +1,1 @@
+ALTER TABLE public.wallets ADD COLUMN IF NOT EXISTS wallet_pin TEXT DEFAULT NULL;

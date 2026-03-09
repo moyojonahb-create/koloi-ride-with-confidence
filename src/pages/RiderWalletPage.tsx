@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, RefreshCw, Wallet, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Plus, RefreshCw, Wallet, Clock, CheckCircle, XCircle, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useWallet } from '@/hooks/useWallet';
 import { supabase } from '@/integrations/supabase/client';
 import DepositModal from '@/components/wallet/DepositModal';
-
+import WalletPinModal from '@/components/wallet/WalletPinModal';
+import WalletSettings from '@/components/wallet/WalletSettings';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 interface RiderDeposit {
   id: string;
@@ -31,6 +33,55 @@ export default function RiderWalletPage() {
   const [showDeposit, setShowDeposit] = useState(false);
   const [deposits, setDeposits] = useState<RiderDeposit[]>([]);
   const [loadingDeposits, setLoadingDeposits] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
+
+  // PIN state
+  const [hasPin, setHasPin] = useState(false);
+  const [pinVerified, setPinVerified] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [walletPin, setWalletPin] = useState<string | null>(null);
+
+  // Check if user has a PIN set
+  const checkPin = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('wallets')
+      .select('wallet_pin')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const pin = (data as Record<string, unknown>)?.wallet_pin as string | null;
+    setWalletPin(pin);
+    setHasPin(!!pin);
+    if (!pin) setPinVerified(true); // No pin = no gate
+  }, [user]);
+
+  useEffect(() => { checkPin(); }, [checkPin]);
+
+  // Show PIN modal if PIN is set and not yet verified
+  useEffect(() => {
+    if (hasPin && !pinVerified) {
+      setShowPinModal(true);
+    }
+  }, [hasPin, pinVerified]);
+
+  const handleVerifyPin = async (enteredPin: string): Promise<boolean> => {
+    return enteredPin === walletPin;
+  };
+
+  const handleSetPin = async (newPin: string): Promise<boolean> => {
+    if (!user) return false;
+    // Ensure wallet exists
+    const { data: existing } = await supabase.from('wallets').select('id').eq('user_id', user.id).maybeSingle();
+    if (!existing) {
+      await supabase.from('wallets').insert({ user_id: user.id, balance: 0, wallet_pin: newPin });
+    } else {
+      await supabase.from('wallets').update({ wallet_pin: newPin } as Record<string, unknown>).eq('user_id', user.id);
+    }
+    setWalletPin(newPin);
+    setHasPin(true);
+    setPinVerified(true);
+    return true;
+  };
 
   const loadDeposits = useCallback(async () => {
     if (!user) return;
@@ -45,7 +96,7 @@ export default function RiderWalletPage() {
     setLoadingDeposits(false);
   }, [user]);
 
-  useEffect(() => { loadDeposits(); }, [loadDeposits]);
+  useEffect(() => { if (pinVerified) loadDeposits(); }, [loadDeposits, pinVerified]);
 
   const handleRefresh = () => { refreshWallet(); loadDeposits(); };
 
@@ -57,6 +108,21 @@ export default function RiderWalletPage() {
 
   useEffect(() => { if (!user) navigate('/auth'); }, [user, navigate]);
 
+  // PIN gate: show PIN modal overlay
+  if (hasPin && !pinVerified) {
+    return (
+      <div className="min-h-[100dvh] bg-background flex items-center justify-center">
+        <WalletPinModal
+          isOpen={showPinModal}
+          onClose={() => navigate(-1)}
+          onVerified={() => setPinVerified(true)}
+          mode="verify"
+          onVerifyPin={handleVerifyPin}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-[100dvh] bg-background">
       {/* Header */}
@@ -66,6 +132,9 @@ export default function RiderWalletPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-lg font-bold flex-1">My Wallet</h1>
+          <Button variant="ghost" size="icon" onClick={() => setShowSettings(!showSettings)}>
+            <Settings className="h-4 w-4" />
+          </Button>
           <Button variant="ghost" size="icon" onClick={handleRefresh} disabled={walletLoading}>
             <RefreshCw className={`h-4 w-4 ${walletLoading ? 'animate-spin' : ''}`} />
           </Button>
@@ -85,6 +154,15 @@ export default function RiderWalletPage() {
             <Plus className="h-4 w-4 mr-2" /> Top Up Wallet
           </Button>
         </div>
+
+        {/* Settings panel (collapsible) */}
+        {showSettings && (
+          <WalletSettings
+            hasPin={hasPin}
+            onSetPin={handleSetPin}
+            onVerifyPin={handleVerifyPin}
+          />
+        )}
 
         {/* Quick info */}
         <div className="bg-accent/30 rounded-xl p-3 text-sm text-muted-foreground">
@@ -135,8 +213,6 @@ export default function RiderWalletPage() {
         onDeposit={deposit}
         currentBalance={balance}
       />
-
-      
     </div>
   );
 }

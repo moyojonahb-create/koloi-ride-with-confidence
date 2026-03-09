@@ -3,8 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
+import { useWallet } from '@/hooks/useWallet';
 import { supabase } from '@/lib/supabaseClient';
-import { ArrowLeft, User, CreditCard, Calendar, Gift, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, Zap, ChevronRight, Edit3, History, Camera, Loader2 } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Calendar, Gift, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, Zap, ChevronRight, Edit3, History, Camera, Loader2, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
@@ -17,6 +18,7 @@ export default function RiderProfile() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useUserRole();
   const { isApproved: isApprovedDriver } = useDriverStatus();
+  const { balance } = useWallet();
   const navigate = useNavigate();
   const location = useLocation();
   const isMapp = location.pathname.startsWith('/mapp');
@@ -133,7 +135,7 @@ export default function RiderProfile() {
         {/* Quick actions row */}
         <div className="grid grid-cols-4 gap-2">
           <QuickAction icon={<MapPin className="w-5 h-5" />} label="Ride" onClick={() => navigate(`${prefix}/ride`)} accent />
-          <QuickAction icon={<Zap className="w-5 h-5" />} label="Negotiate" onClick={() => navigate(`${prefix}/negotiate/request`)} />
+          <QuickAction icon={<Wallet className="w-5 h-5" />} label={`$${balance.toFixed(0)}`} onClick={() => navigate(`${prefix}/wallet`)} />
           <QuickAction icon={<History className="w-5 h-5" />} label="History" onClick={() => navigate(`${prefix}/ride-history`)} />
           <QuickAction icon={<Car className="w-5 h-5" />} label="Drive" onClick={() => navigate(`${prefix}/driver-mode`)} />
         </div>
