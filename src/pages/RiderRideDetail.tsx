@@ -390,7 +390,7 @@ export default function RiderRideDetail() {
                     </Button>
                   </div>
                 ) : (
-                  <p className="font-black text-xl text-foreground">R{ride.fare}</p>
+                  <p className="font-black text-xl text-foreground">${ride.fare.toFixed(2)}</p>
                 )}
               </div>
               <div className="text-right">
