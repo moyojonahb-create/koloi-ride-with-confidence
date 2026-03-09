@@ -63,6 +63,7 @@ import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import DriverEarningsDashboard from "@/components/driver/DriverEarningsDashboard";
+import MapGoogle from "@/components/MapGoogle";
 type Ride = {
   id: string;
   user_id: string;
