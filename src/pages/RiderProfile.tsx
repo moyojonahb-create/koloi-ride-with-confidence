@@ -135,7 +135,7 @@ export default function RiderProfile() {
         {/* Quick actions row */}
         <div className="grid grid-cols-4 gap-2">
           <QuickAction icon={<MapPin className="w-5 h-5" />} label="Ride" onClick={() => navigate(`${prefix}/ride`)} accent />
-          <QuickAction icon={<Zap className="w-5 h-5" />} label="Negotiate" onClick={() => navigate(`${prefix}/negotiate/request`)} />
+          <QuickAction icon={<Wallet className="w-5 h-5" />} label={`$${balance.toFixed(0)}`} onClick={() => navigate(`${prefix}/wallet`)} />
           <QuickAction icon={<History className="w-5 h-5" />} label="History" onClick={() => navigate(`${prefix}/ride-history`)} />
           <QuickAction icon={<Car className="w-5 h-5" />} label="Drive" onClick={() => navigate(`${prefix}/driver-mode`)} />
         </div>
