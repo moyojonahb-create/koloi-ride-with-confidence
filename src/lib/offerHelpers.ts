@@ -28,12 +28,12 @@ export type DriverProfile = {
   total_trips: number | null;
 };
 
-// Round to nearest R5
+// Round to nearest $0.50
 export function roundTo5(n: number): number {
-  return Math.max(0, Math.round(n / 5) * 5);
+  return Math.round(Number(n) * 2) / 2;
 }
 
-export function clampTo5(n: number, min = 5, max = 5000): number {
+export function clampTo5(n: number, min = 0.50, max = 500): number {
   const rounded = roundTo5(n);
   return Math.min(max, Math.max(min, rounded));
 }

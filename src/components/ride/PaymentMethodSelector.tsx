@@ -39,7 +39,7 @@ export default function PaymentMethodSelector({ selected, onSelect, walletBalanc
               {m.label}
             </span>
             {m.id === "wallet" && walletBalance != null &&
-            <span className="text-[10px] text-muted-foreground">R{walletBalance.toFixed(0)}</span>
+            <span className="text-[10px] text-muted-foreground">${walletBalance.toFixed(2)}</span>
             }
             {isDisabled && <span className="text-[10px] text-muted-foreground">Soon</span>}
           </button>);

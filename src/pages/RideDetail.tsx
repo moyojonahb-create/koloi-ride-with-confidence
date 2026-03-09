@@ -254,7 +254,7 @@ export default function RideDetail() {
                 <span className="font-semibold text-foreground">Drop-off:</span> {ride.dropoff_address ?? "—"}
               </p>
             </div>
-            <div className="text-3xl font-black text-primary">R{clampTo5(Number(ride.fare ?? 35))}</div>
+            <div className="text-3xl font-black text-primary">${Number(ride.fare ?? 5).toFixed(2)}</div>
             {ride.status === "completed" && <SettlementInfo tripId={ride.id} />}
 
             {ride.driver_id && ride.pickup_lat != null && ride.dropoff_lat != null && (
@@ -341,7 +341,7 @@ export default function RideDetail() {
                 pendingOffers.map((o) => (
                   <div key={o.id} className="glass-card rounded-2xl p-4 glass-glow-blue">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-2xl font-black text-primary">R{clampTo5(Number(o.price))}</span>
+                      <span className="text-2xl font-black text-primary">${Number(o.price).toFixed(2)}</span>
                       <OfferTimer offer={o} />
                     </div>
                     <div className="text-sm text-muted-foreground mb-3">

@@ -324,19 +324,19 @@ const AdminReports = () => {
               <h3 className="font-semibold mb-4">Settlement Analytics</h3>
               <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 <div className="text-center p-3 bg-muted rounded-lg">
-                  <p className="text-2xl font-bold text-foreground">R{settlements.totalSettled.toFixed(0)}</p>
+                  <p className="text-2xl font-bold text-foreground">${settlements.totalSettled.toFixed(2)}</p>
                   <p className="text-xs text-muted-foreground">Total Settled</p>
                 </div>
                 <div className="text-center p-3 bg-muted rounded-lg">
-                  <p className="text-2xl font-bold text-foreground">R{settlements.settledToday.toFixed(0)}</p>
+                  <p className="text-2xl font-bold text-foreground">${settlements.settledToday.toFixed(2)}</p>
                   <p className="text-xs text-muted-foreground">Today</p>
                 </div>
                 <div className="text-center p-3 bg-muted rounded-lg">
-                  <p className="text-2xl font-bold text-foreground">R{settlements.settledWeek.toFixed(0)}</p>
+                  <p className="text-2xl font-bold text-foreground">${settlements.settledWeek.toFixed(2)}</p>
                   <p className="text-xs text-muted-foreground">This Week</p>
                 </div>
                 <div className="text-center p-3 bg-muted rounded-lg">
-                  <p className="text-2xl font-bold text-foreground">R{settlements.settledMonth.toFixed(0)}</p>
+                  <p className="text-2xl font-bold text-foreground">${settlements.settledMonth.toFixed(2)}</p>
                   <p className="text-xs text-muted-foreground">This Month</p>
                 </div>
                 <div className="text-center p-3 bg-muted rounded-lg">
