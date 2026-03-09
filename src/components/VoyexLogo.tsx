@@ -1,4 +1,4 @@
-import voyexIcon from '@/assets/voyex-icon-only.png';
+import voyexLogo from '@/assets/voyex-logo-full.png';
 
 interface VoyexLogoProps {
   className?: string;
@@ -17,13 +17,15 @@ const VoyexLogo = ({
 }: VoyexLogoProps) => {
   const isLight = variant === 'inverted' || variant === 'light';
   
-  const iconSizeClasses = {
-    sm: 'h-9 w-9',
-    md: 'h-12 w-12',
-    lg: 'h-14 w-14',
-    xl: 'h-20 w-20'
+  // Circle container sizes for iconOnly mode
+  const circleSizeClasses = {
+    sm: 'w-9 h-9',
+    md: 'w-12 h-12',
+    lg: 'w-14 h-14',
+    xl: 'w-20 h-20'
   };
 
+  // Full logo display sizes
   const fullLogoSizeClasses = {
     sm: 'h-10',
     md: 'h-12',
@@ -31,14 +33,26 @@ const VoyexLogo = ({
     xl: 'h-24'
   };
 
-  const sizeClass = iconOnly ? iconSizeClasses[size] : fullLogoSizeClasses[size];
-  
+  if (iconOnly) {
+    return (
+      <div className={`flex items-center gap-2 ${className}`}>
+        <div className={`${circleSizeClasses[size]} rounded-full bg-card overflow-hidden flex items-center justify-center shadow-sm ring-1 ring-border/20`}>
+          <img 
+            src={voyexLogo} 
+            alt="Voyex" 
+            className="w-[85%] h-[85%] object-contain"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <img 
-        src={voyexIcon} 
+        src={voyexLogo} 
         alt="Voyex" 
-        className={`${sizeClass} w-auto object-contain`}
+        className={`${fullLogoSizeClasses[size]} w-auto object-contain`}
       />
       
       {showTagline && (
