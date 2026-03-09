@@ -18,6 +18,7 @@ export default function RiderProfile() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useUserRole();
   const { isApproved: isApprovedDriver } = useDriverStatus();
+  const { balance } = useWallet();
   const navigate = useNavigate();
   const location = useLocation();
   const isMapp = location.pathname.startsWith('/mapp');
