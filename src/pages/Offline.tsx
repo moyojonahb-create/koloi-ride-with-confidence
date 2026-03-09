@@ -1,6 +1,6 @@
 import { WifiOff, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import voyexLogo from '@/assets/voyex-logo.png';
+import voyexIcon from '@/assets/voyex-icon-only.png';
 
 export default function Offline() {
   const handleRetry = () => {
