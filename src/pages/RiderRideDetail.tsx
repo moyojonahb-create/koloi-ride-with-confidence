@@ -488,17 +488,25 @@ export default function RiderRideDetail() {
                 </div>
               )}
               {/* Direct EcoCash Payment Option */}
-              {(driverProfile as Record<string, unknown>)?.ecocash_number && (
-                <div className="bg-accent/10 rounded-xl p-3 mt-3 border border-accent/20">
-                  <p className="text-xs font-semibold text-accent mb-1">💰 Pay Driver via EcoCash</p>
-                  <p className="text-sm font-mono font-bold text-foreground">
-                    {String((driverProfile as Record<string, unknown>).ecocash_number)}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Send ${Number(ride.fare).toFixed(2)} directly to this number
-                  </p>
-                </div>
-              )}
+              {(() => {
+                const ecocashNum = (driverProfile as Record<string, unknown>)?.ecocash_number as string | undefined;
+                const displayNumber = ecocashNum || '+263 778 553 169';
+                const isTrialNumber = !ecocashNum;
+                return (
+                  <div className="bg-accent/10 rounded-xl p-3 mt-3 border border-accent/20">
+                    <p className="text-xs font-semibold text-accent mb-1">💰 Pay Driver via EcoCash</p>
+                    <p className="text-sm font-mono font-bold text-foreground">
+                      {displayNumber}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Send ${Number(ride.fare).toFixed(2)} to this EcoCash number
+                    </p>
+                    {isTrialNumber && (
+                      <p className="text-[10px] text-muted-foreground mt-1 italic">Voyex merchant number</p>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
 

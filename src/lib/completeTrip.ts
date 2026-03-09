@@ -1,11 +1,19 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export async function completeTrip(tripId: string) {
-  const { data, error } = await supabase.rpc("complete_trip_and_charge_flat_r4", {
+  const { data, error } = await supabase.rpc("complete_trip_with_commission" as any, {
     p_trip_id: tripId,
   });
   if (error) throw error;
-  const result = data as { ok: boolean; fee_usd?: number; zar_per_usd?: number; reason?: string };
+  const result = data as {
+    ok: boolean;
+    fare_zar?: number;
+    commission_zar?: number;
+    commission_usd?: number;
+    driver_earnings_zar?: number;
+    zar_per_usd?: number;
+    reason?: string;
+  };
 
   // Auto-settle to platform ledger after successful completion
   if (result.ok) {
