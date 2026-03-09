@@ -555,7 +555,7 @@ export default function DriverDashboard() {
               <History className="h-5 w-5" />
             </Button>
             <WalletBalance
-              balance={balance}
+              balance={driverBalance}
               onClick={() => nav("/drivers/wallet")}
               size="sm"
             />
