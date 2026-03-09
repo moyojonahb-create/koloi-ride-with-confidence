@@ -278,6 +278,7 @@ export default function DriverDashboard() {
           pickup_lon: activeTripData.pickup_lon,
           dropoff_lat: activeTripData.dropoff_lat,
           dropoff_lon: activeTripData.dropoff_lon,
+          payment_method: activeTripData.payment_method || 'cash',
         });
 
         // Notify driver when rider accepts their offer
