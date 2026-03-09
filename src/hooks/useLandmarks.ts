@@ -122,6 +122,14 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
   const filteredLandmarks = useMemo(() => {
     let results = [...landmarks];
 
+    // Filter by town first — only show landmarks in the selected town
+    if (townCenter && townRadiusKm) {
+      results = results.filter(landmark => {
+        const dist = calculateDistance(townCenter.lat, townCenter.lng, landmark.latitude, landmark.longitude);
+        return dist <= townRadiusKm;
+      });
+    }
+
     // Calculate distances if user location is available
     if (userLocation) {
       results = results.map(landmark => ({
@@ -134,7 +142,7 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
         )
       }));
 
-      // Apply proximity filter first (before search, so we search within radius)
+      // Apply proximity filter (within user's radius)
       if (radiusKm !== null) {
         results = results.filter(landmark => (landmark.distance || 0) <= radiusKm);
       }
