@@ -584,12 +584,9 @@ export default function RideView() {
 
       {/* ═══ SEARCH OVERLAY ═══ */}
       {activeField &&
-      <div className="fixed inset-x-0 bottom-0 z-[60] flex flex-col" style={{ top: 0, background: 'hsl(var(--background) / 0.97)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)' }}>
-          {/* Map peek area — tappable to close */}
-          <button onClick={() => {setActiveField(null);setSearchQuery('');setNominatimResults([]);}} className="flex-shrink-0 h-[15vh] w-full" aria-label="Close search" />
-
-          {/* Search sheet rising from bottom */}
-          <div className="flex-1 flex flex-col glass-card-heavy overflow-hidden" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
+      <div className="fixed inset-0 z-[60] flex flex-col" style={{ background: 'hsl(var(--background) / 0.97)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)' }}>
+          {/* Search sheet — full screen */}
+          <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search header */}
           <div className="flex items-center gap-3 px-4 border-b border-border/30" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 14px)', paddingBottom: '14px' }}>
             <button onClick={() => {setActiveField(null);setSearchQuery('');setNominatimResults([]);}} className="w-11 h-11 flex items-center justify-center rounded-full glass-card active:scale-90 transition-all shrink-0">
