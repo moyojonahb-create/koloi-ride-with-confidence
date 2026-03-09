@@ -505,9 +505,6 @@ export default function RiderRideDetail() {
                     >
                       Pay ${Number(ride.fare).toFixed(2)} with EcoCash
                     </Button>
-                    {!walletPin && (
-                      <p className="text-[10px] text-muted-foreground">⚠️ Set up wallet PIN in Wallet → Settings first</p>
-                    )}
                     <EcoCashPaymentModal
                       isOpen={showEcoCashPay}
                       onClose={() => setShowEcoCashPay(false)}
@@ -517,6 +514,12 @@ export default function RiderRideDetail() {
                       driverEcoCash={ecocashNum}
                       walletPin={walletPin}
                       onVerifyPin={async (pin) => pin === walletPin}
+                      onSetPin={async (newPin) => {
+                        if (!user) return false;
+                        const { error } = await supabase.from('wallets').update({ wallet_pin: newPin }).eq('user_id', user.id);
+                        if (!error) { setWalletPin(newPin); return true; }
+                        return false;
+                      }}
                       onPaymentComplete={() => toast.success('Payment sent to driver!')}
                     />
                   </div>
