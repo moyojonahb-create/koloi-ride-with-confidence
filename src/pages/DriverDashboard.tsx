@@ -629,7 +629,7 @@ export default function DriverDashboard() {
                     <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
                     <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
                   </div>
-                  <p className="font-black text-lg">R{activeTrip.fare}</p>
+                  <p className="font-black text-lg">${Number(activeTrip.fare).toFixed(2)}</p>
                 </div>
                 <Button
                   className="w-full bg-emerald-600 hover:bg-emerald-700"
