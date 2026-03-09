@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useGooglePlacesAutocomplete } from '@/hooks/useGooglePlacesAutocomplete';
 import { useTownPricing, calculateRecommendedFare, formatFare } from '@/hooks/useTownPricing';
 import NegotiationCard from './NegotiationCard';
+import BottomNavBar from '@/components/BottomNavBar';
 import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
@@ -286,7 +287,7 @@ export default function RideView() {
         <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
 
         {/* Floating map buttons */}
-        <div className="absolute right-3 z-20" style={{ bottom: sheetExpanded ? 'calc(60vh + 16px)' : 'calc(28vh + 16px)', transition: 'bottom 0.3s cubic-bezier(0.32,0.72,0,1)' }}>
+        <div className="absolute right-3 z-20" style={{ bottom: sheetExpanded ? 'calc(70vh + 72px)' : 'calc(48vh + 72px)', transition: 'bottom 0.3s cubic-bezier(0.32,0.72,0,1)' }}>
           <div className="flex flex-col gap-2.5">
             <button onClick={handleUseMyLocation} className="w-11 h-11 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all glass-glow-blue">
               {gpsState.status === 'loading' ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <Locate className="w-5 h-5 text-primary" />}
@@ -372,13 +373,17 @@ export default function RideView() {
         </SheetContent>
       </Sheet>
 
+      {/* ── BOTTOM NAV BAR ── */}
+      <BottomNavBar />
+
       {/* ── BOTTOM SHEET ── */}
       <div
-        className="absolute left-0 right-0 bottom-0 z-50 flex flex-col glass-card-heavy"
+        className="absolute left-0 right-0 z-50 flex flex-col glass-card-heavy"
         style={{
-          height: sheetExpanded ? '75vh' : '44vh',
+          bottom: 56,
+          height: sheetExpanded ? '70vh' : '48vh',
           transition: 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
-          paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)',
+          paddingBottom: 8,
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
         }}
@@ -510,39 +515,35 @@ export default function RideView() {
                   </div>
                 </div>
 
-                {/* Negotiation + Payment only when expanded */}
-                {sheetExpanded && (
-                  <>
-                    <NegotiationCard
-                      pricing={townPricing}
-                      distanceKm={fareEstimate.distanceKm}
-                      durationMinutes={fareEstimate.durationMinutes}
-                      onSendOffer={(fare) => handleSendOffer(fare + extraPassengerFee)}
-                      isSubmitting={isRequesting} />
+                {/* Negotiation + Payment — always visible */}
+                <NegotiationCard
+                  pricing={townPricing}
+                  distanceKm={fareEstimate.distanceKm}
+                  durationMinutes={fareEstimate.durationMinutes}
+                  onSendOffer={(fare) => handleSendOffer(fare + extraPassengerFee)}
+                  isSubmitting={isRequesting} />
 
-                    <div>
-                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
-                      <div className="flex gap-2">
-                        {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
-                          <button
-                            key={pm.key}
-                            onClick={() => setPaymentMethod(pm.key)}
-                            className={cn(
-                              'flex-1 flex items-center gap-2 px-3 py-3 rounded-2xl transition-all active:scale-[0.98] glass-card',
-                              paymentMethod === pm.key ? 'ring-1 ring-primary/25' : ''
-                            )}>
-                            <pm.icon className={cn('w-4 h-4', paymentMethod === pm.key ? 'text-primary' : 'text-muted-foreground')} />
-                            <span className={cn('font-medium text-sm', paymentMethod === pm.key ? 'text-primary' : 'text-foreground')}>{pm.label}</span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
+                  <div className="flex gap-2">
+                    {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
+                      <button
+                        key={pm.key}
+                        onClick={() => setPaymentMethod(pm.key)}
+                        className={cn(
+                          'flex-1 flex items-center gap-2 px-3 py-3 rounded-2xl transition-all active:scale-[0.98] glass-card',
+                          paymentMethod === pm.key ? 'ring-1 ring-primary/25' : ''
+                        )}>
+                        <pm.icon className={cn('w-4 h-4', paymentMethod === pm.key ? 'text-primary' : 'text-muted-foreground')} />
+                        <span className={cn('font-medium text-sm', paymentMethod === pm.key ? 'text-primary' : 'text-foreground')}>{pm.label}</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
 
-                    {rideStatus !== 'idle' &&
-                      <button onClick={handleCancelRide} className="w-full text-center text-sm text-destructive font-medium py-1.5 hover:underline transition-colors">Cancel Ride</button>
-                    }
-                  </>
-                )}
+                {rideStatus !== 'idle' &&
+                  <button onClick={handleCancelRide} className="w-full text-center text-sm text-destructive font-medium py-1.5 hover:underline transition-colors">Cancel Ride</button>
+                }
               </>
             );
           })()}
