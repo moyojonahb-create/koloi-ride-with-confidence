@@ -15,6 +15,7 @@ import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
+import { haptic } from '@/lib/haptics';
 
 export default function RiderProfile() {
   const { user, signOut } = useAuth();
