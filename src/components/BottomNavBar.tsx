@@ -11,6 +11,12 @@ const tabs = [
   { label: 'Profile', icon: User, path: '/profile' },
 ];
 
+const pathAliases: Record<string, string[]> = {
+  '/history': ['/history', '/ride-history'],
+  '/wallet': ['/wallet'],
+  '/profile': ['/profile', '/edit-profile'],
+};
+
 export default function BottomNavBar() {
   const navigate = useNavigate();
   const location = useLocation();
