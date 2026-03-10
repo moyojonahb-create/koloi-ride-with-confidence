@@ -170,6 +170,7 @@ export default function RideView() {
   const handleSendOffer = async (customFare: number) => {
     if (!user) {setAuthMode('login');setAuthModalOpen(true);return;}
     if (!pickupLocation || !dropoffLocation || !fareEstimate) {toast({ title: 'Select pickup and destination', variant: 'destructive' });return;}
+    haptic('medium');
     setIsRequesting(true);setRideStatus('searching');
     try {
       const result = await requestRide({
