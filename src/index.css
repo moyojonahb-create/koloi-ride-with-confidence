@@ -128,6 +128,14 @@
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 217 80% 16%;
     --sidebar-ring: 45 100% 51%;
+
+    /* Glass overrides for dark */
+    --glass-bg: hsla(217, 80%, 14%, 0.7);
+    --glass-bg-heavy: hsla(217, 80%, 14%, 0.88);
+    --glass-border: hsla(217, 80%, 30%, 0.35);
+    --glass-border-light: hsl(45 100% 51% / 0.08);
+    --glass-shadow: 0 12px 30px hsl(0 0% 0% / 0.3);
+    --gradient-primary: linear-gradient(135deg, hsl(217 85% 22%), hsl(213 83% 40%));
   }
 }
 
