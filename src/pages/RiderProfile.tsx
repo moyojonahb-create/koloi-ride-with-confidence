@@ -12,6 +12,8 @@ import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/Pay
 import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
 import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
+import { Switch } from '@/components/ui/switch';
+import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 
 export default function RiderProfile() {
