@@ -56,7 +56,7 @@ export function useArrivalDetection({
         hasNotifiedPickupRef.current = true;
         
         // Notify rider
-        toast.success('🚗 Your Koloi has arrived!', {
+        toast.success('🚗 Your Voyex ride has arrived!', {
           description: 'Your driver is at the pickup location',
           duration: 10000,
         });

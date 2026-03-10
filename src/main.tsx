@@ -23,7 +23,7 @@ if ('serviceWorker' in navigator) {
         console.log('[Voyex] Tile cache SW registered:', registration.scope);
       })
       .catch((error) => {
-        console.log('[Koloi] Tile cache SW registration failed:', error);
+        console.log('[Voyex] Tile cache SW registration failed:', error);
       });
   });
 }

@@ -37,12 +37,12 @@ export default function TownSelectorSheet({ currentTown, onSelect }: TownSelecto
       {/* Sheet overlay */}
       {open && (
         <div className="fixed inset-0 z-[70] flex flex-col justify-end animate-fade-in" onClick={() => setOpen(false)}>
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" />
+          {/* Backdrop - fully opaque to hide content behind */}
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-md" />
 
           {/* Sheet content */}
           <div
-            className="relative glass-card-heavy animate-slide-up"
+            className="relative glass-card-heavy animate-slide-up overflow-hidden"
             style={{ borderTopLeftRadius: 28, borderTopRightRadius: 28, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, maxHeight: '70vh', paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}
             onClick={e => e.stopPropagation()}
           >
