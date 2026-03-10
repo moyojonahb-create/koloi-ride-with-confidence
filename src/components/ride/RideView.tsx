@@ -127,6 +127,7 @@ export default function RideView() {
     const loc: SelectedLocation = { name: landmark.name, lat: landmark.latitude, lng: landmark.longitude };
     if (activeField === 'pickup') setPickupLocation(loc);else setDropoffLocation(loc);
     setActiveField(null);setSearchQuery('');setNominatimResults([]);
+    haptic('light');
   };
 
   const handleNominatimSelect = (result: {name: string;lat: number;lng: number;}) => {
