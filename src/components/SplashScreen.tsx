@@ -1,5 +1,5 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
-import voyexLogo from '@/assets/voyex-logo-full.png';
+import voyexSplash from '@/assets/voyex-splash.png';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -28,9 +28,9 @@ const SplashScreen = ({ onComplete, duration = 5000 }: SplashScreenProps) => {
       }`}
     >
       <img
-        src={voyexLogo}
+        src={voyexSplash}
         alt="Voyex"
-        className={`w-72 h-72 sm:w-80 sm:h-80 object-contain transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+        className={`w-64 h-64 sm:w-72 sm:h-72 object-contain transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
           visible ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
         }`}
       />
