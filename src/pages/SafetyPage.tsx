@@ -32,7 +32,7 @@ export default function SafetyPage() {
         {!isMapp && <div className="w-12" />}
       </div>
 
-      <div className="flex-1 px-5 py-6 space-y-6">
+      <div className="flex-1 px-5 py-6 pb-24 space-y-6">
         {/* Quick actions */}
         <div className="grid grid-cols-2 gap-3">
           <button className="flex flex-col items-center gap-2 p-5 rounded-2xl bg-muted/50 hover:bg-muted transition-colors">
