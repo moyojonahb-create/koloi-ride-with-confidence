@@ -99,7 +99,7 @@ const RideHistorySheet = ({ isOpen, onClose }: RideHistorySheetProps) => {
           </SheetTitle>
         </SheetHeader>
 
-        <div className="mt-6 overflow-y-auto max-h-[calc(100vh-120px)]">
+        <div className="mt-6 overflow-y-auto max-h-[calc(100dvh-120px)]">
           {loading ? (
             <div className="flex justify-center py-8">
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />

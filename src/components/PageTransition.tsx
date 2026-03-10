@@ -39,7 +39,7 @@ const PageTransition = ({ children }: PageTransitionProps) => {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="min-h-screen"
+      className="min-h-[100dvh]"
     >
       {children}
     </motion.div>
