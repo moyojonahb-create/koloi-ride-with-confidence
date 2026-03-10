@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Clock, Wallet, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { haptic } from '@/lib/haptics';
 
 const tabs = [
   { label: 'Home', icon: Home, path: '/ride' },
