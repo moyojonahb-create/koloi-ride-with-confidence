@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
+import SwipeBack from '@/components/SwipeBack';
 
 const pageVariants = {
   initial: {
@@ -33,16 +34,18 @@ const PageTransition = ({ children }: PageTransitionProps) => {
   const location = useLocation();
 
   return (
-    <motion.div
-      key={location.pathname}
-      variants={pageVariants}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="min-h-[100dvh]"
-    >
-      {children}
-    </motion.div>
+    <SwipeBack>
+      <motion.div
+        key={location.pathname}
+        variants={pageVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        className="min-h-[100dvh]"
+      >
+        {children}
+      </motion.div>
+    </SwipeBack>
   );
 };
 
