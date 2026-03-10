@@ -33,11 +33,11 @@ export default function BottomNavBar() {
       return;
     }
     const mappPaths: Record<string, string> = {
-      '/history': '/mapp/ride',
-      '/wallet': '/mapp/ride',
+      '/history': '/mapp/ride-history',
+      '/wallet': '/mapp/wallet',
       '/profile': '/mapp/profile',
     };
-    navigate(isMapp ? mappPaths[path] || path : path);
+    navigate(isMapp ? mappPaths[path] || path : (path === '/history' ? '/ride-history' : path));
   };
 
   const isActive = (path: string) => {
