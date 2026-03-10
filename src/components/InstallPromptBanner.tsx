@@ -46,7 +46,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
 
     // Show modal after splash screen completes (delay of 3.5 seconds)
     const showTimer = setTimeout(() => {
-      localStorage.setItem('koloi_install_modal_last', String(Date.now()));
+      localStorage.setItem('voyex_install_modal_last', String(Date.now()));
       setShowModal(true);
     }, 3500);
 
