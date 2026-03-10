@@ -214,6 +214,8 @@ export default function RiderWalletPage() {
         onDeposit={deposit}
         currentBalance={balance}
       />
+
+      <BottomNavBar />
     </div>
   );
 }

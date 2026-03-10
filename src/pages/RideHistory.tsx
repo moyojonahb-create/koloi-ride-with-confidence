@@ -137,7 +137,7 @@ export default function RideHistory() {
         )}
       </div>
 
-      
+      <BottomNavBar />
     </div>
   );
 }
