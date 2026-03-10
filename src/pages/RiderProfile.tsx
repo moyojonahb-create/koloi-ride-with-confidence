@@ -208,8 +208,10 @@ export default function RiderProfile() {
           <LogOut className="w-4 h-4 mr-2" /> Sign Out
         </Button>
 
-        <div className="h-8" />
+        <div className="h-20" />
       </div>
+
+      <BottomNavBar />
     </div>
   );
 }
