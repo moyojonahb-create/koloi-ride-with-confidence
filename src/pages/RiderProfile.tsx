@@ -78,7 +78,7 @@ export default function RiderProfile() {
     }
   };
 
-  const handleSignOut = async () => { await signOut(); navigate('/'); };
+  const handleSignOut = async () => { haptic('medium'); await signOut(); navigate('/'); };
 
   return (
     <div className="min-h-[100dvh] bg-background">
