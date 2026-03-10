@@ -101,6 +101,7 @@ export default function DriverDashboard() {
   const [eta, setEta] = useState(10);
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [messagesOpen, setMessagesOpen] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [transactionsOpen, setTransactionsOpen] = useState(false);
