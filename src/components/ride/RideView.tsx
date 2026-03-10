@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { haptic } from '@/lib/haptics';
 import { useAuth } from '@/hooks/useAuth';
 import { useOSRMRoute } from '@/hooks/useOSRMRoute';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
@@ -126,6 +127,7 @@ export default function RideView() {
     const loc: SelectedLocation = { name: landmark.name, lat: landmark.latitude, lng: landmark.longitude };
     if (activeField === 'pickup') setPickupLocation(loc);else setDropoffLocation(loc);
     setActiveField(null);setSearchQuery('');setNominatimResults([]);
+    haptic('light');
   };
 
   const handleNominatimSelect = (result: {name: string;lat: number;lng: number;}) => {
@@ -168,6 +170,7 @@ export default function RideView() {
   const handleSendOffer = async (customFare: number) => {
     if (!user) {setAuthMode('login');setAuthModalOpen(true);return;}
     if (!pickupLocation || !dropoffLocation || !fareEstimate) {toast({ title: 'Select pickup and destination', variant: 'destructive' });return;}
+    haptic('medium');
     setIsRequesting(true);setRideStatus('searching');
     try {
       const result = await requestRide({

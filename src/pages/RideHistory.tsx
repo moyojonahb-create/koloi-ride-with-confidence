@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { ArrowLeft, MapPin, Navigation, Clock, Banknote, Car, ChevronRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import VoyexLogo from '@/components/VoyexLogo';
+import BottomNavBar from '@/components/BottomNavBar';
 
 
 interface RideRecord {
@@ -136,7 +137,7 @@ export default function RideHistory() {
         )}
       </div>
 
-      
+      <BottomNavBar />
     </div>
   );
 }

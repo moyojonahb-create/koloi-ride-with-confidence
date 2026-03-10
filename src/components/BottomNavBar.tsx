@@ -11,6 +11,12 @@ const tabs = [
   { label: 'Profile', icon: User, path: '/profile' },
 ];
 
+const pathAliases: Record<string, string[]> = {
+  '/history': ['/history', '/ride-history'],
+  '/wallet': ['/wallet'],
+  '/profile': ['/profile', '/edit-profile'],
+};
+
 export default function BottomNavBar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,16 +33,17 @@ export default function BottomNavBar() {
       return;
     }
     const mappPaths: Record<string, string> = {
-      '/history': '/mapp/ride',
-      '/wallet': '/mapp/ride',
+      '/history': '/mapp/ride-history',
+      '/wallet': '/mapp/wallet',
       '/profile': '/mapp/profile',
     };
-    navigate(isMapp ? mappPaths[path] || path : path);
+    navigate(isMapp ? mappPaths[path] || path : (path === '/history' ? '/ride-history' : path));
   };
 
   const isActive = (path: string) => {
     if (path === '/ride') return location.pathname === '/ride' || location.pathname === '/mapp/ride';
-    return location.pathname.startsWith(path) || location.pathname.startsWith(`/mapp${path}`);
+    const aliases = pathAliases[path] || [path];
+    return aliases.some(p => location.pathname.startsWith(p) || location.pathname.startsWith(`/mapp${p}`));
   };
 
   return (

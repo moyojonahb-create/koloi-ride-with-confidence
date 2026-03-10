@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { ArrowLeft, User, CreditCard, Calendar, Gift, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, Zap, ChevronRight, Edit3, History, Camera, Loader2, Wallet, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import BottomNavBar from '@/components/BottomNavBar';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
 import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
@@ -77,7 +78,7 @@ export default function RiderProfile() {
     }
   };
 
-  const handleSignOut = async () => { await signOut(); navigate('/'); };
+  const handleSignOut = async () => { haptic('medium'); await signOut(); navigate('/'); };
 
   return (
     <div className="min-h-[100dvh] bg-background">
@@ -207,8 +208,10 @@ export default function RiderProfile() {
           <LogOut className="w-4 h-4 mr-2" /> Sign Out
         </Button>
 
-        <div className="h-8" />
+        <div className="h-20" />
       </div>
+
+      <BottomNavBar />
     </div>
   );
 }
