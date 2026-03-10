@@ -30,7 +30,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
 
     // For testing: clear localStorage if forceShow is true
     if (forceShow) {
-      localStorage.removeItem('koloi_install_modal_last');
+      localStorage.removeItem('voyex_install_modal_last');
     }
 
     // Check if dismissed recently (within 3 days for better UX)
