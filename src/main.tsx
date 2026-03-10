@@ -14,7 +14,7 @@ if ('serviceWorker' in navigator) {
         console.log('[Voyex] PWA SW registered:', registration.scope);
       })
       .catch((error) => {
-        console.log('[Koloi] PWA SW registration failed:', error);
+        console.log('[Voyex] PWA SW registration failed:', error);
       });
 
     // Also register tile caching service worker
