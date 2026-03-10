@@ -177,6 +177,23 @@ export default function RiderProfile() {
             </div>
             <RiderSettingsPanel />
           </section>
+
+          {/* Dark Mode */}
+          <section className="glass-card p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {theme === 'dark' ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-accent" />}
+                <div>
+                  <p className="text-sm font-medium text-foreground">Dark Mode</p>
+                  <p className="text-xs text-muted-foreground">Easier on your eyes at night</p>
+                </div>
+              </div>
+              <Switch
+                checked={theme === 'dark'}
+                onCheckedChange={(v) => setTheme(v ? 'dark' : 'light')}
+              />
+            </div>
+          </section>
         </div>
 
         {/* Links */}
