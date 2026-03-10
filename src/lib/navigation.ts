@@ -1,9 +1,9 @@
 /**
- * External Maps navigation helper for Koloi drivers.
+ * External Maps navigation helper for Voyex drivers.
  * Opens Google Maps (Android/desktop) or Apple Maps (iOS) with driving directions.
  */
 
-const NAV_STORAGE_PREFIX = 'koloi_last_nav_';
+const NAV_STORAGE_PREFIX = 'voyex_last_nav_';
 
 export type NavTarget = 'pickup' | 'dropoff';
 

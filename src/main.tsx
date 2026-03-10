@@ -11,19 +11,19 @@ if ('serviceWorker' in navigator) {
     // Register main PWA service worker
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
-        console.log('[Koloi] PWA SW registered:', registration.scope);
+        console.log('[Voyex] PWA SW registered:', registration.scope);
       })
       .catch((error) => {
-        console.log('[Koloi] PWA SW registration failed:', error);
+        console.log('[Voyex] PWA SW registration failed:', error);
       });
 
     // Also register tile caching service worker
     navigator.serviceWorker.register('/sw-tiles.js')
       .then((registration) => {
-        console.log('[Koloi] Tile cache SW registered:', registration.scope);
+        console.log('[Voyex] Tile cache SW registered:', registration.scope);
       })
       .catch((error) => {
-        console.log('[Koloi] Tile cache SW registration failed:', error);
+        console.log('[Voyex] Tile cache SW registration failed:', error);
       });
   });
 }

@@ -30,11 +30,11 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
 
     // For testing: clear localStorage if forceShow is true
     if (forceShow) {
-      localStorage.removeItem('koloi_install_modal_last');
+      localStorage.removeItem('voyex_install_modal_last');
     }
 
     // Check if dismissed recently (within 3 days for better UX)
-    const lastShown = Number(localStorage.getItem('koloi_install_modal_last') || 0);
+    const lastShown = Number(localStorage.getItem('voyex_install_modal_last') || 0);
     const threeDays = 3 * 24 * 60 * 60 * 1000;
     if (!forceShow && Date.now() - lastShown < threeDays) {
       return;
@@ -46,7 +46,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
 
     // Show modal after splash screen completes (delay of 3.5 seconds)
     const showTimer = setTimeout(() => {
-      localStorage.setItem('koloi_install_modal_last', String(Date.now()));
+      localStorage.setItem('voyex_install_modal_last', String(Date.now()));
       setShowModal(true);
     }, 3500);
 

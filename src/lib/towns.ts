@@ -1,4 +1,4 @@
-// Multi-town configuration for Koloi
+// Multi-town configuration for Voyex
 // Each town has its own service area, bounds, and quick picks
 
 export interface TownConfig {
