@@ -553,7 +553,7 @@ export default function DriverDashboard() {
         />
       )}
 
-      {/* Header with Wallet */}
+      {/* Header with Wallet + Settings */}
       <div className="shrink-0 bg-background/95 backdrop-blur-lg border-b border-border/60 px-5 py-3.5 z-10">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <Button variant="ghost" size="icon" onClick={() => nav(-1)} className="w-11 h-11 rounded-2xl active:scale-90 transition-all">
@@ -582,6 +582,16 @@ export default function DriverDashboard() {
               balance={driverBalance}
               onClick={() => nav("/drivers/wallet")}
               size="sm"
+            />
+            <DriverSettingsSheet
+              profile={profile}
+              isOnline={isOnline}
+              togglingOnline={togglingOnline}
+              voiceEnabled={voiceEnabled}
+              voiceSupported={voiceSupported}
+              onToggleOnline={toggleOnline}
+              onToggleVoice={setVoiceEnabled}
+              onProfileUpdate={setProfile}
             />
           </div>
         </div>
