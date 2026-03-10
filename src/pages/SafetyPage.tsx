@@ -74,6 +74,8 @@ export default function SafetyPage() {
           </div>
         </div>
       </div>
+
+      <BottomNavBar />
     </div>
   );
 }
