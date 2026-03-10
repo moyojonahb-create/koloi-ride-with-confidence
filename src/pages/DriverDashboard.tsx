@@ -53,10 +53,8 @@ import WalletBalance from "@/components/wallet/WalletBalance";
 import DepositModal from "@/components/wallet/DepositModal";
 import TransactionsSheet from "@/components/wallet/TransactionsSheet";
 import { RideCommunication } from "@/components/ride/RideCommunication";
-import DriverAvatarUpload from "@/components/driver/DriverAvatarUpload";
-import DriverFeedback from "@/components/driver/DriverFeedback";
-import DriverSettingsPanel from "@/components/settings/DriverSettingsPanel";
 import DriverNavigationView from "@/components/driver/DriverNavigationView";
+import DriverSettingsSheet from "@/components/driver/DriverSettingsSheet";
 import type { Coordinates } from "@/lib/osrm";
 import { useAgoraCall } from "@/hooks/useAgoraCall";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
@@ -103,6 +101,7 @@ export default function DriverDashboard() {
   const [eta, setEta] = useState(10);
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [messagesOpen, setMessagesOpen] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [transactionsOpen, setTransactionsOpen] = useState(false);
@@ -554,7 +553,7 @@ export default function DriverDashboard() {
         />
       )}
 
-      {/* Header with Wallet */}
+      {/* Header with Wallet + Settings */}
       <div className="shrink-0 bg-background/95 backdrop-blur-lg border-b border-border/60 px-5 py-3.5 z-10">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <Button variant="ghost" size="icon" onClick={() => nav(-1)} className="w-11 h-11 rounded-2xl active:scale-90 transition-all">
@@ -583,6 +582,16 @@ export default function DriverDashboard() {
               balance={driverBalance}
               onClick={() => nav("/drivers/wallet")}
               size="sm"
+            />
+            <DriverSettingsSheet
+              profile={profile}
+              isOnline={isOnline}
+              togglingOnline={togglingOnline}
+              voiceEnabled={voiceEnabled}
+              voiceSupported={voiceSupported}
+              onToggleOnline={toggleOnline}
+              onToggleVoice={setVoiceEnabled}
+              onProfileUpdate={setProfile}
             />
           </div>
         </div>
@@ -615,25 +624,6 @@ export default function DriverDashboard() {
           <DriverEarningsDashboard />
         )}
 
-        {/* Navigation Map */}
-        <Card className="overflow-hidden">
-          <CardContent className="p-0">
-            <div className="h-[45vh] min-h-[300px] rounded-xl overflow-hidden">
-              <MapGoogle
-                driverLocation={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
-                pickup={activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : undefined}
-                dropoff={activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : undefined}
-                routeGeometry={pickupToDropoffRoute.route?.geometry ?? undefined}
-                secondaryRouteGeometry={driverToPickupRoute.route?.geometry ?? undefined}
-                drivers={nearbyDrivers}
-                defaultCenter={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
-                defaultZoom={15}
-                className="w-full h-full"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Trial Banner */}
         {profile && trialActive && (
           <Card className="border-amber-500 bg-amber-500/10">
@@ -651,182 +641,7 @@ export default function DriverDashboard() {
           </Card>
         )}
 
-
-        {/* Profile Photo Upload */}
-        <Card>
-          <CardContent className="pt-4">
-            <p className="font-semibold text-sm mb-3">Profile Photo</p>
-            <DriverAvatarUpload
-              currentAvatarUrl={profile.avatar_url}
-              gender={profile.gender}
-              onUploaded={(url) => setProfile(prev => prev ? { ...prev, avatar_url: url } : prev)}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Online Status Toggle */}
-        <Card className={isOnline ? "border-primary bg-primary/5" : ""}>
-          <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full ${isOnline ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-                  <Radio className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-bold text-lg">{isOnline ? "You're Online" : "You're Offline"}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {isOnline ? "Receiving ride requests" : "Go online to see ride requests"}
-                  </p>
-                </div>
-              </div>
-              <Switch checked={isOnline} onCheckedChange={toggleOnline} disabled={togglingOnline} />
-            </div>
-          </CardContent>
-        </Card>
-
-        {activeTrip && (
-          <DriverNavigationView
-            driverLocation={driverCoords}
-            pickupLocation={{ lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon }}
-            dropoffLocation={{ lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon }}
-            tripPhase={['accepted', 'enroute_pickup'].includes(activeTrip.status) ? 'to_pickup' : 'to_dropoff'}
-          />
-        )}
-
-        {/* Active Trip */}
-        {activeTrip && (
-          <>
-            <Card className="border-accent/40 bg-accent/5 backdrop-blur-sm">
-              <CardContent className="pt-4">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="flex flex-col items-center">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <div className="w-0.5 h-6 bg-border" />
-                    <Navigation className="h-4 w-4 text-destructive" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
-                    <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-black text-lg">{fmtUSD(Number(activeTrip.fare))}</p>
-                    {activeTrip.payment_method && activeTrip.payment_method !== 'cash' && (
-                      <div className="flex items-center gap-1 mt-1 justify-end">
-                        <CreditCard className="h-3 w-3 text-primary" />
-                        <span className="text-xs font-medium text-primary capitalize">{activeTrip.payment_method}</span>
-                      </div>
-                    )}
-                    {activeTrip.payment_method === 'cash' && (
-                      <span className="text-xs text-muted-foreground">Cash</span>
-                    )}
-                  </div>
-                </div>
-                <Button
-                  className="w-full bg-accent text-accent-foreground hover:brightness-105"
-                  size="lg"
-                  onClick={handleCompleteTrip}
-                  disabled={completing}
-                >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  {completing ? "Completing..." : "Complete Trip (15%)"}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Call Buttons: Data / Normal / WhatsApp */}
-            <Card className="glass-card border-0">
-              <CardContent className="pt-4 space-y-3">
-                <p className="font-medium text-sm text-foreground flex items-center gap-2">
-                  <PhoneCall className="h-4 w-4 text-primary" /> Contact Rider
-                </p>
-                <div className="grid grid-cols-3 gap-2">
-                  <VoiceCallButton
-                    onCall={startCall}
-                    disabled={callStatus !== "idle"}
-                    label="Data"
-                    className="w-full text-xs"
-                  />
-                  <a
-                    href={riderPhone ? `tel:${riderPhone.replace(/[^\d+]/g, "")}` : "#"}
-                    className="flex items-center justify-center gap-1 py-3 rounded-2xl font-medium text-xs text-center active:scale-95 transition-all"
-                    style={{ background: 'var(--gradient-primary)' }}
-                  >
-                    <Phone className="h-3.5 w-3.5 text-primary-foreground shrink-0" />
-                    <span className="text-primary-foreground">Phone</span>
-                  </a>
-                  <a
-                    href={riderPhone ? `https://wa.me/${riderPhone.replace(/[^\d]/g, "")}` : "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1 py-3 rounded-2xl bg-accent/80 backdrop-blur-sm text-accent-foreground font-medium text-xs text-center active:scale-95 transition-all"
-                  >
-                    💬 <span>WhatsApp</span>
-                  </a>
-                </div>
-                {!riderPhone && (
-                  <p className="text-xs text-muted-foreground">Rider phone not available — use Call (Data) for in-app voice.</p>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Communication with Rider */}
-            <Card className="glass-card border-0">
-              <CardContent className="pt-4">
-                <RideCommunication
-                  rideId={activeTrip.id}
-                  currentUserId={user!.id}
-                  otherUserPhone={riderPhone}
-                  riderId={activeTrip.user_id}
-                />
-              </CardContent>
-            </Card>
-          </>
-        )}
-
-
-        {isOnline && (
-          <Card>
-            <CardContent className="pt-4 space-y-4">
-              {/* Voice Navigation Toggle */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Volume2 className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-semibold">Voice Announcements</p>
-                    <p className="text-xs text-muted-foreground">
-                      {voiceSupported ? "Announce new rides" : "Not supported"}
-                    </p>
-                  </div>
-                </div>
-                <Switch checked={voiceEnabled} onCheckedChange={setVoiceEnabled} disabled={!voiceSupported} />
-              </div>
-
-              {/* Night Mode */}
-              <div className="flex items-center justify-between pt-2 border-t border-border">
-                <div>
-                  <p className="text-sm font-semibold">Night Mode</p>
-                  <p className="text-xs text-muted-foreground">
-                    {isNightLocal() ? "Active (20:00-05:00)" : "Inactive"}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">Multiplier:</span>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    min="1"
-                    max="2"
-                    value={mult}
-                    onChange={(e) => setMult(Math.max(1, Math.min(2, Number(e.target.value) || 1)))}
-                    className="w-20"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Available Rides */}
+        {/* Available Rides — top priority */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-bold text-lg">Available Rides</h2>
@@ -846,7 +661,7 @@ export default function DriverDashboard() {
                 <Radio className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-muted-foreground font-medium">You're currently offline</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Toggle the switch above to go online and see ride requests
+                  Go online from settings to see ride requests
                 </p>
               </CardContent>
             </Card>
@@ -960,19 +775,139 @@ export default function DriverDashboard() {
           </div>
         )}
 
-        {/* Driver Settings */}
-        <div>
-          <p className="font-semibold text-sm mb-3 text-muted-foreground uppercase tracking-wider">Settings</p>
-          <DriverSettingsPanel
-            driverId={profile.id}
-            initialArea={(profile as Record<string, unknown>).preferred_service_area as string || 'both'}
-            initialEarningNotif={(profile as Record<string, unknown>).earning_notifications as boolean ?? true}
-            initialEcocash={(profile as Record<string, unknown>).ecocash_number as string || ''}
-          />
-        </div>
+        {/* Contact Rider — collapsed message panel */}
+        {activeTrip && (
+          <>
+            <Card className="glass-card border-0">
+              <CardContent className="pt-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-sm text-foreground flex items-center gap-2">
+                    <PhoneCall className="h-4 w-4 text-primary" /> Contact Rider
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setMessagesOpen(!messagesOpen)}
+                    className="w-9 h-9 rounded-xl"
+                    title="Messages"
+                  >
+                    <MessageCircle className={`h-4 w-4 ${messagesOpen ? 'text-primary' : 'text-muted-foreground'}`} />
+                  </Button>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <VoiceCallButton
+                    onCall={startCall}
+                    disabled={callStatus !== "idle"}
+                    label="Data"
+                    className="w-full text-xs"
+                  />
+                  <a
+                    href={riderPhone ? `tel:${riderPhone.replace(/[^\d+]/g, "")}` : "#"}
+                    className="flex items-center justify-center gap-1 py-3 rounded-2xl font-medium text-xs text-center active:scale-95 transition-all"
+                    style={{ background: 'var(--gradient-primary)' }}
+                  >
+                    <Phone className="h-3.5 w-3.5 text-primary-foreground shrink-0" />
+                    <span className="text-primary-foreground">Phone</span>
+                  </a>
+                  <a
+                    href={riderPhone ? `https://wa.me/${riderPhone.replace(/[^\d]/g, "")}` : "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1 py-3 rounded-2xl bg-accent/80 backdrop-blur-sm text-accent-foreground font-medium text-xs text-center active:scale-95 transition-all"
+                  >
+                    💬 <span>WhatsApp</span>
+                  </a>
+                </div>
+                {!riderPhone && (
+                  <p className="text-xs text-muted-foreground">Rider phone not available — use Call (Data) for in-app voice.</p>
+                )}
+              </CardContent>
+            </Card>
 
-        {/* Suggestions & Complaints */}
-        <DriverFeedback />
+            {/* Messages Panel — only when toggled */}
+            {messagesOpen && (
+              <Card className="glass-card border-0">
+                <CardContent className="pt-4">
+                  <RideCommunication
+                    rideId={activeTrip.id}
+                    currentUserId={user!.id}
+                    otherUserPhone={riderPhone}
+                    riderId={activeTrip.user_id}
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
+
+        {/* Navigation View */}
+        {activeTrip && (
+          <DriverNavigationView
+            driverLocation={driverCoords}
+            pickupLocation={{ lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon }}
+            dropoffLocation={{ lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon }}
+            tripPhase={['accepted', 'enroute_pickup'].includes(activeTrip.status) ? 'to_pickup' : 'to_dropoff'}
+          />
+        )}
+
+        {/* Navigation Map */}
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="h-[45vh] min-h-[300px] rounded-xl overflow-hidden">
+              <MapGoogle
+                driverLocation={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
+                pickup={activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : undefined}
+                dropoff={activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : undefined}
+                routeGeometry={pickupToDropoffRoute.route?.geometry ?? undefined}
+                secondaryRouteGeometry={driverToPickupRoute.route?.geometry ?? undefined}
+                drivers={nearbyDrivers}
+                defaultCenter={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
+                defaultZoom={15}
+                className="w-full h-full"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Active Trip — fare + complete */}
+        {activeTrip && (
+          <Card className="border-accent/40 bg-accent/5 backdrop-blur-sm">
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="flex flex-col items-center">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <div className="w-0.5 h-6 bg-border" />
+                  <Navigation className="h-4 w-4 text-destructive" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
+                  <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-black text-lg">{fmtUSD(Number(activeTrip.fare))}</p>
+                  {activeTrip.payment_method && activeTrip.payment_method !== 'cash' && (
+                    <div className="flex items-center gap-1 mt-1 justify-end">
+                      <CreditCard className="h-3 w-3 text-primary" />
+                      <span className="text-xs font-medium text-primary capitalize">{activeTrip.payment_method}</span>
+                    </div>
+                  )}
+                  {activeTrip.payment_method === 'cash' && (
+                    <span className="text-xs text-muted-foreground">Cash</span>
+                  )}
+                </div>
+              </div>
+              <Button
+                className="w-full bg-accent text-accent-foreground hover:brightness-105"
+                size="lg"
+                onClick={handleCompleteTrip}
+                disabled={completing}
+              >
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                {completing ? "Completing..." : "Complete Trip (15%)"}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {error && <p className="text-sm text-destructive text-center">{error}</p>}
         </div>
@@ -983,7 +918,6 @@ export default function DriverDashboard() {
         isOpen={depositModalOpen}
         onClose={() => { setDepositModalOpen(false); fetchDriverBalance(); }}
         onDeposit={async (amount: number, desc?: string) => {
-          // Driver deposits go through the deposit request flow, not direct
           return { error: 'Use the deposit page at /drivers/deposit' };
         }}
         currentBalance={driverBalance}
