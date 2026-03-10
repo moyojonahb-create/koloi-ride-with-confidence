@@ -15,6 +15,7 @@ import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
+import { haptic } from '@/lib/haptics';
 
 export default function RiderProfile() {
   const { user, signOut } = useAuth();
@@ -215,7 +216,7 @@ export default function RiderProfile() {
 function QuickAction({ icon, label, onClick, accent }: { icon: React.ReactNode; label: string; onClick: () => void; accent?: boolean }) {
   return (
     <button
-      onClick={onClick}
+      onClick={() => { haptic('light'); onClick(); }}
       className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl active:scale-95 transition-all ${
         accent ? 'bg-primary text-primary-foreground shadow-md' : 'bg-accent text-accent-foreground shadow-sm'
       }`}

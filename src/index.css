@@ -149,6 +149,7 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: contain;
   }
 
   body {
@@ -156,6 +157,8 @@
     font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
     font-feature-settings: 'cv11', 'ss01';
     letter-spacing: -0.011em;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   input, select, textarea {

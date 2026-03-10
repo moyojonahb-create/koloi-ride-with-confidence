@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Clock, Wallet, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { haptic } from '@/lib/haptics';
 
 const tabs = [
   { label: 'Home', icon: Home, path: '/ride' },
@@ -46,7 +47,7 @@ export default function BottomNavBar() {
           return (
             <button
               key={tab.path}
-              onClick={() => handleNav(tab.path)}
+              onClick={() => { haptic('light'); handleNav(tab.path); }}
               className={cn(
                 'flex flex-col items-center gap-0.5 px-4 py-1.5 transition-colors',
                 active ? 'text-primary' : 'text-muted-foreground'
