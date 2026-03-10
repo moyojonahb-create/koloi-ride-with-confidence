@@ -47,7 +47,7 @@ export default function BottomNavBar() {
           return (
             <button
               key={tab.path}
-              onClick={() => handleNav(tab.path)}
+              onClick={() => { haptic('light'); handleNav(tab.path); }}
               className={cn(
                 'flex flex-col items-center gap-0.5 px-4 py-1.5 transition-colors',
                 active ? 'text-primary' : 'text-muted-foreground'
