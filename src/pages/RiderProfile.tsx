@@ -5,13 +5,15 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { useWallet } from '@/hooks/useWallet';
 import { supabase } from '@/lib/supabaseClient';
-import { ArrowLeft, User, CreditCard, Calendar, Gift, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, Zap, ChevronRight, Edit3, History, Camera, Loader2, Wallet } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Calendar, Gift, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, Zap, ChevronRight, Edit3, History, Camera, Loader2, Wallet, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
 import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
 import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
+import { Switch } from '@/components/ui/switch';
+import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 
 export default function RiderProfile() {
@@ -19,6 +21,7 @@ export default function RiderProfile() {
   const { isAdmin } = useUserRole();
   const { isApproved: isApprovedDriver } = useDriverStatus();
   const { balance } = useWallet();
+  const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const isMapp = location.pathname.startsWith('/mapp');
@@ -173,6 +176,23 @@ export default function RiderProfile() {
               <h2 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Notifications</h2>
             </div>
             <RiderSettingsPanel />
+          </section>
+
+          {/* Dark Mode */}
+          <section className="glass-card p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {theme === 'dark' ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-accent" />}
+                <div>
+                  <p className="text-sm font-medium text-foreground">Dark Mode</p>
+                  <p className="text-xs text-muted-foreground">Easier on your eyes at night</p>
+                </div>
+              </div>
+              <Switch
+                checked={theme === 'dark'}
+                onCheckedChange={(v) => setTheme(v ? 'dark' : 'light')}
+              />
+            </div>
           </section>
         </div>
 
