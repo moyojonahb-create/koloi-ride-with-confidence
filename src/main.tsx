@@ -11,7 +11,7 @@ if ('serviceWorker' in navigator) {
     // Register main PWA service worker
     navigator.serviceWorker.register('/sw.js')
       .then((registration) => {
-        console.log('[Koloi] PWA SW registered:', registration.scope);
+        console.log('[Voyex] PWA SW registered:', registration.scope);
       })
       .catch((error) => {
         console.log('[Koloi] PWA SW registration failed:', error);
