@@ -42,7 +42,8 @@ export default function BottomNavBar() {
 
   const isActive = (path: string) => {
     if (path === '/ride') return location.pathname === '/ride' || location.pathname === '/mapp/ride';
-    return location.pathname.startsWith(path) || location.pathname.startsWith(`/mapp${path}`);
+    const aliases = pathAliases[path] || [path];
+    return aliases.some(p => location.pathname.startsWith(p) || location.pathname.startsWith(`/mapp${p}`));
   };
 
   return (
