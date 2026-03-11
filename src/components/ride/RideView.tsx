@@ -553,14 +553,6 @@ export default function RideView() {
                 <span>{tab.label}</span>
               </button>
             ))}
-
-
-
-
-
-
-
-
             )}
           </div>
 
