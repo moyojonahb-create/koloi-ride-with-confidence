@@ -551,11 +551,7 @@ export default function RideView() {
                 <span>{tab.icon}</span>
                 <span>{tab.label}</span>
               </button>
-            ))
-
-
-
-
+            ))}
 
 
 
