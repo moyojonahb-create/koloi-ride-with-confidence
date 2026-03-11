@@ -102,22 +102,22 @@ const AnimatedRoutes = () => {
         <Route path="/drivers/deposit" element={<AuthGuard><PageTransition><DriverDepositPage /></PageTransition></AuthGuard>} />
         <Route path="/wallet" element={<AuthGuard><PageTransition><RiderWalletPage /></PageTransition></AuthGuard>} />
         
-        {/* Admin Routes */}
-        <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />
-        <Route path="/admin/drivers" element={<PageTransition><AdminDrivers /></PageTransition>} />
-        <Route path="/admin/drivers/map" element={<PageTransition><AdminDriversMap /></PageTransition>} />
-        <Route path="/admin/drivers/:driverId" element={<PageTransition><AdminDriverDetail /></PageTransition>} />
-        <Route path="/admin/trips" element={<PageTransition><AdminTrips /></PageTransition>} />
-        <Route path="/admin/landmarks" element={<PageTransition><AdminLandmarks /></PageTransition>} />
-        <Route path="/admin/reports" element={<PageTransition><AdminReports /></PageTransition>} />
-        <Route path="/admin/settings" element={<PageTransition><AdminSettings /></PageTransition>} />
-        <Route path="/admin/import-osm" element={<PageTransition><ImportOsmPlaces /></PageTransition>} />
-        <Route path="/admin/rate" element={<PageTransition><AdminRatePage /></PageTransition>} />
-        <Route path="/admin/deposits" element={<PageTransition><AdminDepositsPage /></PageTransition>} />
-        <Route path="/admin/ledger" element={<PageTransition><AdminLedger /></PageTransition>} />
-        <Route path="/admin/town-pricing" element={<PageTransition><AdminTownPricing /></PageTransition>} />
-        <Route path="/admin/promos" element={<PageTransition><AdminPromos /></PageTransition>} />
-        <Route path="/admin/rider-deposits" element={<PageTransition><AdminRiderDepositsPage /></PageTransition>} />
+        {/* Admin Routes - All protected by AdminGuard */}
+        <Route path="/admin" element={<AdminGuard><PageTransition><AdminDashboard /></PageTransition></AdminGuard>} />
+        <Route path="/admin/drivers" element={<AdminGuard><PageTransition><AdminDrivers /></PageTransition></AdminGuard>} />
+        <Route path="/admin/drivers/map" element={<AdminGuard><PageTransition><AdminDriversMap /></PageTransition></AdminGuard>} />
+        <Route path="/admin/drivers/:driverId" element={<AdminGuard><PageTransition><AdminDriverDetail /></PageTransition></AdminGuard>} />
+        <Route path="/admin/trips" element={<AdminGuard><PageTransition><AdminTrips /></PageTransition></AdminGuard>} />
+        <Route path="/admin/landmarks" element={<AdminGuard><PageTransition><AdminLandmarks /></PageTransition></AdminGuard>} />
+        <Route path="/admin/reports" element={<AdminGuard><PageTransition><AdminReports /></PageTransition></AdminGuard>} />
+        <Route path="/admin/settings" element={<AdminGuard><PageTransition><AdminSettings /></PageTransition></AdminGuard>} />
+        <Route path="/admin/import-osm" element={<AdminGuard><PageTransition><ImportOsmPlaces /></PageTransition></AdminGuard>} />
+        <Route path="/admin/rate" element={<AdminGuard><PageTransition><AdminRatePage /></PageTransition></AdminGuard>} />
+        <Route path="/admin/deposits" element={<AdminGuard><PageTransition><AdminDepositsPage /></PageTransition></AdminGuard>} />
+        <Route path="/admin/ledger" element={<AdminGuard><PageTransition><AdminLedger /></PageTransition></AdminGuard>} />
+        <Route path="/admin/town-pricing" element={<AdminGuard><PageTransition><AdminTownPricing /></PageTransition></AdminGuard>} />
+        <Route path="/admin/promos" element={<AdminGuard><PageTransition><AdminPromos /></PageTransition></AdminGuard>} />
+        <Route path="/admin/rider-deposits" element={<AdminGuard><PageTransition><AdminRiderDepositsPage /></PageTransition></AdminGuard>} />
 
         {/* Negotiate / inDrive-style */}
         <Route path="/negotiate/request" element={<PageTransition><RiderRequestScreen /></PageTransition>} />
