@@ -542,6 +542,23 @@ export default function DriverDashboard() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
+      {/* Selfie Verification */}
+      <DriverSelfieCheck
+        open={selfieCheckOpen}
+        onVerified={() => {
+          setSelfieCheckOpen(false);
+          sessionStorage.setItem('voyex-selfie-verified', Date.now().toString());
+          setPendingOnlineAfterSelfie(true);
+          toggleOnline(true);
+        }}
+        onSkip={() => {
+          setSelfieCheckOpen(false);
+          sessionStorage.setItem('voyex-selfie-verified', Date.now().toString());
+          setPendingOnlineAfterSelfie(true);
+          toggleOnline(true);
+        }}
+      />
+
       {/* Active Call Overlay */}
       {callStatus !== "idle" && (
         <ActiveCallOverlay
