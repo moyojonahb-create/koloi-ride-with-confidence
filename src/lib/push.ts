@@ -141,9 +141,8 @@ export function showLocalNotification(
       body,
       icon: "/icons/icon-192x192.png",
       badge: "/icons/icon-96x96.png",
-      vibrate: [200, 100, 200],
       tag: `voyex-${Date.now()}`,
-    });
+    } as NotificationOptions);
 
     if (url) {
       notification.onclick = () => {
