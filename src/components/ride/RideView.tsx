@@ -43,10 +43,21 @@ import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
 import TownSelectorSheet from './TownSelectorSheet';
 
 // ── types ──
+import { type ServiceType } from '@/components/VehicleTypeSelector';
+import IntercitySelector from './IntercitySelector';
+import { type IntercityRoute } from '@/lib/intercityRoutes';
+
 interface SelectedLocation {name: string;lat: number;lng: number;}
 interface GPSState {status: 'idle' | 'loading' | 'success' | 'denied' | 'unavailable';coords: {lat: number;lng: number;} | null;error: string | null;}
 type VehicleTier = 'standard';
 type PaymentMethod = 'cash' | 'wallet' | 'ecocash';
+
+const SERVICE_TABS: { id: ServiceType; label: string; icon: string }[] = [
+  { id: 'ride', label: 'Ride', icon: '🚗' },
+  { id: 'intercity', label: 'Intercity', icon: '🛣️' },
+  { id: 'courier', label: 'Courier', icon: '📦' },
+  { id: 'freight', label: 'Freight', icon: '🚛' },
+];
 
 const VEHICLE_TIERS: {id: VehicleTier;name: string;icon: typeof Car;priceRange: string;passengers: string;eta: string;multiplier: number;}[] = [
 { id: 'standard', name: 'Voyex Standard', icon: Car, priceRange: '$1.50 – $10', passengers: '1–4', eta: '3 min', multiplier: 1 }];
