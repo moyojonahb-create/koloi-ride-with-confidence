@@ -62,9 +62,11 @@ import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import DriverEarningsDashboard from "@/components/driver/DriverEarningsDashboard";
 import DriverSelfieCheck from "@/components/driver/DriverSelfieCheck";
+import DemandHeatmap from "@/components/driver/DemandHeatmap";
 import MapGoogle from "@/components/MapGoogle";
 import { useNearbyDrivers } from "@/hooks/useNearbyDrivers";
 import { useOSRMRoute } from "@/hooks/useOSRMRoute";
+import { runLocationFraudChecks } from "@/lib/fraudDetection";
 
 // Smart USD format: $4 for whole, $4.50 for halves
 function fmtUSD(n: number): string {
@@ -175,6 +177,8 @@ export default function DriverDashboard() {
     : false;
 
   // Location tracking for admin monitoring
+  const prevLocationRef = useRef<{ lat: number; lng: number; time: number } | null>(null);
+
   const startLocationTracking = () => {
     stopLocationTracking();
     if (!navigator.geolocation) return;
@@ -182,6 +186,16 @@ export default function DriverDashboard() {
       const { latitude, longitude } = pos.coords;
       updateDriverLocation(latitude, longitude);
       setDriverCoords({ lat: latitude, lng: longitude });
+
+      // Fraud detection: check for GPS spoofing
+      if (user && prevLocationRef.current) {
+        runLocationFraudChecks(
+          user.id,
+          prevLocationRef.current.lat, prevLocationRef.current.lng, prevLocationRef.current.time,
+          latitude, longitude, Date.now()
+        ).catch(() => {});
+      }
+      prevLocationRef.current = { lat: latitude, lng: longitude, time: Date.now() };
     };
     // Send initial location
     navigator.geolocation.getCurrentPosition(handlePos, () => {});
@@ -651,6 +665,13 @@ export default function DriverDashboard() {
         {/* Earnings Dashboard (toggled via icon) */}
         {earningsOpen && (
           <DriverEarningsDashboard />
+        )}
+
+        {/* Demand Heatmap */}
+        {isOnline && (
+          <div className="glass-card rounded-2xl p-4">
+            <DemandHeatmap townId="gwanda" />
+          </div>
         )}
 
         {/* Trial Banner */}

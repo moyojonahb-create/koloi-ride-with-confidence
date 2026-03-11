@@ -47,6 +47,7 @@ import { type ServiceType } from '@/components/VehicleTypeSelector';
 import IntercitySelector from './IntercitySelector';
 import { type IntercityRoute } from '@/lib/intercityRoutes';
 import { useNearbyDrivers } from '@/hooks/useNearbyDrivers';
+import GenderPreferenceToggle, { type GenderPreference } from './GenderPreferenceToggle';
 
 interface SelectedLocation {name: string;lat: number;lng: number;}
 interface GPSState {status: 'idle' | 'loading' | 'success' | 'denied' | 'unavailable';coords: {lat: number;lng: number;} | null;error: string | null;}
@@ -102,6 +103,7 @@ export default function RideView() {
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
   const [activeStopId, setActiveStopId] = useState<string | null>(null);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
+  const [genderPreference, setGenderPreference] = useState<GenderPreference>('any');
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
   const nearbyDrivers = useNearbyDrivers(rideStatus === 'idle' || rideStatus === 'searching');
@@ -211,6 +213,7 @@ export default function RideView() {
         route_polyline: routeData?.geometry || null, passenger_count: passengerCount,
         payment_method: paymentMethod, vehicle_type: selectedTier,
         town_id: selectedTown?.id ?? null,
+        gender_preference: genderPreference,
         ...(scheduledAt ? { scheduled_at: scheduledAt.toISOString() } : {})
       });
       if (!result.ok) throw new Error(result.error);
@@ -630,6 +633,9 @@ export default function RideView() {
           {passengerCount > 3 &&
           <p className="text-[11px] text-accent font-medium -mt-1.5 ml-1">⚡ Extra passenger charges applied</p>
           }
+
+          {/* Women-only ride toggle */}
+          <GenderPreferenceToggle value={genderPreference} onChange={setGenderPreference} />
 
           {/* ── Fare breakdown + Negotiation (expanded) ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {

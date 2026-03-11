@@ -1,5 +1,7 @@
-// ✅ Request Ride utility - RLS safe implementation
+// ✅ Request Ride utility - RLS safe implementation with offline support
 import { supabase } from '@/lib/supabaseClient';
+import { queueOfflineRide } from '@/lib/offlineQueue';
+import { detectSuspiciousPatterns, reportFraudFlag } from '@/lib/fraudDetection';
 
 type RequestRideInput = {
   pickup_address: string;
@@ -17,6 +19,7 @@ type RequestRideInput = {
   scheduled_at?: string;
   payment_method?: string;
   town_id?: string | null;
+  gender_preference?: string;
 };
 
 interface RideRow {
@@ -44,6 +47,11 @@ export async function requestRide(input: RequestRideInput) {
   if (!Number.isFinite(input.pickup_lat) || !Number.isFinite(input.pickup_lng)) return { ok: false as const, error: "Pickup coordinates are required." };
   if (!Number.isFinite(input.dropoff_lat) || !Number.isFinite(input.dropoff_lng)) return { ok: false as const, error: "Drop-off coordinates are required." };
 
+  // Run fraud checks in background (don't block ride request)
+  detectSuspiciousPatterns(user.id).then(flags => {
+    for (const flag of flags) reportFraudFlag(user.id, flag).catch(() => {});
+  }).catch(() => {});
+
   const insertPayload = {
     user_id: user.id,
     status: input.scheduled_at ? "scheduled" : "pending",
@@ -61,8 +69,24 @@ export async function requestRide(input: RequestRideInput) {
     passenger_count: input.passenger_count ?? 1,
     payment_method: input.payment_method ?? "cash",
     town_id: input.town_id ?? null,
+    gender_preference: input.gender_preference ?? "any",
     ...(input.scheduled_at ? { scheduled_at: input.scheduled_at } : {}),
   };
+
+  // If offline, queue the ride for later
+  if (!navigator.onLine) {
+    try {
+      const queuedId = await queueOfflineRide(insertPayload as Record<string, unknown>);
+      // Try to register background sync
+      if ('serviceWorker' in navigator && 'SyncManager' in window) {
+        const reg = await navigator.serviceWorker.ready;
+        await (reg as unknown as { sync: { register: (tag: string) => Promise<void> } }).sync.register('sync-rides');
+      }
+      return { ok: true as const, ride: { id: queuedId, _offline: true } as unknown as RideRow };
+    } catch {
+      return { ok: false as const, error: "Failed to save ride offline. Please try again." };
+    }
+  }
 
   const { data, error } = await supabase
     .from("rides")

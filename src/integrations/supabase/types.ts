@@ -475,6 +475,42 @@ export type Database = {
         }
         Relationships: []
       }
+      fraud_flags: {
+        Row: {
+          created_at: string
+          details: Json | null
+          flag_type: string
+          id: string
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          flag_type: string
+          id?: string
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          flag_type?: string
+          id?: string
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       fx_rates: {
         Row: {
           created_at: string
@@ -970,6 +1006,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ride_demand_zones: {
+        Row: {
+          demand_score: number
+          id: string
+          latitude: number
+          longitude: number
+          ride_count: number
+          time_bucket: string
+          town_id: string
+          updated_at: string
+        }
+        Insert: {
+          demand_score?: number
+          id?: string
+          latitude: number
+          longitude: number
+          ride_count?: number
+          time_bucket?: string
+          town_id: string
+          updated_at?: string
+        }
+        Update: {
+          demand_score?: number
+          id?: string
+          latitude?: number
+          longitude?: number
+          ride_count?: number
+          time_bucket?: string
+          town_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ride_offers: {
         Row: {
           created_at: string
@@ -1141,6 +1210,7 @@ export type Database = {
           duration_minutes: number
           expires_at: string | null
           fare: number
+          gender_preference: string | null
           id: string
           passenger_count: number
           payment_method: string
@@ -1165,6 +1235,7 @@ export type Database = {
           duration_minutes: number
           expires_at?: string | null
           fare: number
+          gender_preference?: string | null
           id?: string
           passenger_count?: number
           payment_method?: string
@@ -1189,6 +1260,7 @@ export type Database = {
           duration_minutes?: number
           expires_at?: string | null
           fare?: number
+          gender_preference?: string | null
           id?: string
           passenger_count?: number
           payment_method?: string
@@ -1528,6 +1600,7 @@ export type Database = {
       }
       is_top_driver: { Args: { _user_id: string }; Returns: boolean }
       is_user_driver: { Args: { _user_id: string }; Returns: boolean }
+      update_demand_zones: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
