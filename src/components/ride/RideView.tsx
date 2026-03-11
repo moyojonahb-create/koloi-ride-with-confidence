@@ -131,14 +131,22 @@ export default function RideView() {
 
   const handleLandmarkSelect = (landmark: Landmark) => {
     const loc: SelectedLocation = { name: landmark.name, lat: landmark.latitude, lng: landmark.longitude };
-    if (activeField === 'pickup') setPickupLocation(loc);else setDropoffLocation(loc);
+    if (activeStopId) {
+      setRideStops(prev => prev.map(s => s.id === activeStopId ? { ...s, address: loc.name, lat: loc.lat, lng: loc.lng } : s));
+      setActiveStopId(null);
+    } else if (activeField === 'pickup') setPickupLocation(loc);
+    else setDropoffLocation(loc);
     setActiveField(null);setSearchQuery('');setNominatimResults([]);
     haptic('light');
   };
 
   const handleNominatimSelect = (result: {name: string;lat: number;lng: number;}) => {
     const loc: SelectedLocation = { name: result.name, lat: result.lat, lng: result.lng };
-    if (activeField === 'pickup') setPickupLocation(loc);else setDropoffLocation(loc);
+    if (activeStopId) {
+      setRideStops(prev => prev.map(s => s.id === activeStopId ? { ...s, address: loc.name, lat: loc.lat, lng: loc.lng } : s));
+      setActiveStopId(null);
+    } else if (activeField === 'pickup') setPickupLocation(loc);
+    else setDropoffLocation(loc);
     setActiveField(null);setSearchQuery('');setNominatimResults([]);
   };
 
