@@ -15,7 +15,7 @@ const pageVariants = {
     scale: 1,
     transition: {
       duration: 0.3,
-      ease: [0.32, 0.72, 0, 1], // iOS-style spring approximation
+      ease: [0.32, 0.72, 0, 1] as [number, number, number, number],
     },
   },
   exit: {
@@ -24,7 +24,7 @@ const pageVariants = {
     scale: 0.99,
     transition: {
       duration: 0.2,
-      ease: [0.32, 0.72, 0, 1],
+      ease: [0.32, 0.72, 0, 1] as [number, number, number, number],
     },
   },
 };
