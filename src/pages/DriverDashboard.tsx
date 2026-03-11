@@ -214,10 +214,19 @@ export default function DriverDashboard() {
   const toggleOnline = async (online: boolean) => {
     if (!profile || togglingOnline) return;
 
+    // If going online, require selfie check first (once per session)
+    if (online && !pendingOnlineAfterSelfie) {
+      const lastSelfie = sessionStorage.getItem('voyex-selfie-verified');
+      if (!lastSelfie) {
+        setSelfieCheckOpen(true);
+        return;
+      }
+    }
+    setPendingOnlineAfterSelfie(false);
+
     setTogglingOnline(true);
     try {
       if (online) {
-        // Check if driver can operate (trial or wallet balance)
         const { data: canOperate, error: rpcErr } = await supabase.rpc("can_driver_operate", { p_driver_id: user!.id });
         if (rpcErr) throw new Error(rpcErr.message);
         if (!canOperate) {
