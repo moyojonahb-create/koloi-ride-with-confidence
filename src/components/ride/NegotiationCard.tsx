@@ -97,6 +97,36 @@ export default function NegotiationCard({
         </div>
       </div>
 
+      {/* Smart context tip */}
+      {smart.smartTip && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-accent/10"
+        >
+          <smart.tipIcon className="w-4 h-4 text-accent shrink-0" />
+          <span className="text-[11px] font-medium text-accent-foreground/80">{smart.smartTip}</span>
+        </motion.div>
+      )}
+
+      {/* Quick-pick fare chips */}
+      <div className="flex gap-2">
+        {quickPicks.map((pick) => (
+          <motion.button
+            key={pick.label}
+            whileTap={{ scale: 0.92 }}
+            onClick={() => { setCustomFare(pick.value); setDirection(pick.value > customFare ? 'up' : 'down'); }}
+            className={cn(
+              'flex-1 py-2 rounded-xl text-center transition-all',
+              customFare === pick.value ? 'glass-card ring-1 ring-primary/30 shadow-voyex-sm' : 'bg-muted/40'
+            )}
+          >
+            <p className={cn('text-[10px] font-bold uppercase tracking-wider', pick.color)}>{pick.label}</p>
+            <p className="text-sm font-bold text-foreground">{formatFare(pick.value, fareCalc.currencySymbol, fareCalc.currencyCode)}</p>
+          </motion.button>
+        ))}
+      </div>
+
       {/* Recommended fare */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
