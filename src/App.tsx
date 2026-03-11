@@ -50,6 +50,7 @@ import AdminDepositsPage from "./pages/admin/AdminDepositsPage";
 import AdminLedger from "./pages/admin/AdminLedger";
 import AdminTownPricing from "./pages/admin/AdminTownPricing";
 import AdminRiderDepositsPage from "./pages/admin/AdminRiderDepositsPage";
+import AdminPromos from "./pages/admin/AdminPromos";
 import RiderWalletPage from "./pages/RiderWalletPage";
 import RiderRequestScreen from "./pages/negotiate/RiderRequestScreen";
 import RiderOffersScreen from "./pages/negotiate/RiderOffersScreen";
@@ -110,6 +111,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/deposits" element={<PageTransition><AdminDepositsPage /></PageTransition>} />
         <Route path="/admin/ledger" element={<PageTransition><AdminLedger /></PageTransition>} />
         <Route path="/admin/town-pricing" element={<PageTransition><AdminTownPricing /></PageTransition>} />
+        <Route path="/admin/promos" element={<PageTransition><AdminPromos /></PageTransition>} />
         <Route path="/admin/rider-deposits" element={<PageTransition><AdminRiderDepositsPage /></PageTransition>} />
 
         {/* Negotiate / inDrive-style */}

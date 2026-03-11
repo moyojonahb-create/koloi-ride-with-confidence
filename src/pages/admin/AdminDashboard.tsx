@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { RefreshCw, Wallet, Car, Navigation, Users, MapPin, TrendingUp, Clock, Eye, DollarSign } from 'lucide-react';
-import { startOfDay, startOfWeek, startOfMonth, isAfter } from 'date-fns';
+import { RefreshCw, Wallet, Car, Navigation, Users, MapPin, TrendingUp, Clock, Eye, DollarSign, BarChart3 } from 'lucide-react';
+import { startOfDay, startOfWeek, startOfMonth, isAfter, subDays, format, eachDayOfInterval } from 'date-fns';
 import { supabase } from '@/lib/supabaseClient';
 import AdminGuard from '@/components/admin/AdminGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'recharts';
 
 interface DriverRow {
   id: string;
@@ -369,7 +371,42 @@ const AdminDashboard = () => {
             );
           })()}
 
-          {/* Live Map */}
+          {/* Revenue Trend Chart */}
+          {(() => {
+            const chartConfig = { revenue: { label: 'Revenue', color: 'hsl(var(--primary))' }, trips: { label: 'Trips', color: 'hsl(var(--accent-foreground))' } };
+            const days = eachDayOfInterval({ start: subDays(new Date(), 6), end: new Date() });
+            const dailyData = days.map(day => {
+              const dayStr = format(day, 'yyyy-MM-dd');
+              const dayEarnings = earnings.filter(e => format(new Date(e.created_at), 'yyyy-MM-dd') === dayStr);
+              return {
+                date: format(day, 'EEE'),
+                revenue: dayEarnings.reduce((s, e) => s + Number(e.platform_fee), 0),
+                trips: dayEarnings.length,
+              };
+            });
+            return (
+              <Card>
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="font-bold text-sm flex items-center gap-2">
+                      <BarChart3 className="h-4 w-4 text-primary" />
+                      7-Day Revenue Trend
+                    </h2>
+                  </div>
+                  <ChartContainer config={chartConfig} className="h-48 w-full">
+                    <BarChart data={dailyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
+                      <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                      <YAxis tick={{ fontSize: 11 }} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} name="Revenue ($)" />
+                    </BarChart>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+            );
+          })()}
+
           <Card>
             <CardContent className="pt-4">
               <h2 className="font-bold text-sm mb-3">Live Map — Drivers & Active Rides</h2>

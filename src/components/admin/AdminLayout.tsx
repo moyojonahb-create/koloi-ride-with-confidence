@@ -28,6 +28,7 @@ const navItems = [
   { label: 'Drivers', href: '/admin/drivers', icon: Car },
   { label: 'Trips', href: '/admin/trips', icon: Navigation },
   { label: 'Landmarks', href: '/admin/landmarks', icon: MapPin },
+  { label: 'Promos', href: '/admin/promos', icon: Bell },
   { label: 'Driver Deposits', href: '/admin/deposits', icon: Banknote },
   { label: 'Rider Deposits', href: '/admin/rider-deposits', icon: Banknote },
   { label: 'Ledger', href: '/admin/ledger', icon: Banknote },
