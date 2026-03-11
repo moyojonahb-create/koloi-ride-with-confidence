@@ -190,6 +190,33 @@ const AdminDriverDetail = () => {
     }
   };
 
+  const pendingDocs = documents.filter(d => d.status === 'pending');
+
+  const handleBatchApprove = async () => {
+    if (pendingDocs.length === 0) return;
+    setActionLoading(true);
+
+    try {
+      const pendingIds = pendingDocs.map(d => d.id);
+      const { error } = await supabase
+        .from('driver_documents')
+        .update({ status: 'approved', reviewed_at: new Date().toISOString() })
+        .in('id', pendingIds);
+
+      if (error) throw error;
+
+      setDocuments(documents.map(doc =>
+        pendingIds.includes(doc.id) ? { ...doc, status: 'approved' } : doc
+      ));
+      toast.success(`${pendingIds.length} document${pendingIds.length > 1 ? 's' : ''} approved`);
+    } catch (error) {
+      console.error('Error batch approving:', error);
+      toast.error('Failed to approve documents');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <AdminGuard>
@@ -338,7 +365,21 @@ const AdminDriverDetail = () => {
 
             {/* Documents */}
             <div className="lg:col-span-2 bg-card rounded-xl border border-border p-6">
-              <h2 className="font-semibold text-foreground mb-4">Verification Documents</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-semibold text-foreground">Verification Documents</h2>
+                {pendingDocs.length > 1 && (
+                  <Button
+                    size="sm"
+                    onClick={handleBatchApprove}
+                    disabled={actionLoading}
+                    className="font-bold gap-1.5"
+                  >
+                    {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    Approve All ({pendingDocs.length})
+                  </Button>
+                )}
+              </div>
               
               {documents.length === 0 ? (
                 <div className="text-center py-8">
