@@ -256,7 +256,7 @@ const AdminDashboard = () => {
                 onClick={() => setEarningsSheetOpen(true)}
               >
                 <Wallet className="w-4 h-4 mr-2" />
-                R{totalPlatformFees.toFixed(2)}
+                ${totalPlatformFees.toFixed(2)}
               </Button>
               <Button variant="outline" size="sm" onClick={() => { refreshAll(); refreshEarnings(); }} disabled={loading}>
                 <RefreshCw className={`w-4 h-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
