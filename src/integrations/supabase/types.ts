@@ -253,6 +253,57 @@ export type Database = {
         }
         Relationships: []
       }
+      driver_queue: {
+        Row: {
+          created_at: string
+          driver_id: string
+          id: string
+          notified_at: string | null
+          position: number
+          responded_at: string | null
+          response: string | null
+          ride_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          driver_id: string
+          id?: string
+          notified_at?: string | null
+          position?: number
+          responded_at?: string | null
+          response?: string | null
+          ride_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          driver_id?: string
+          id?: string
+          notified_at?: string | null
+          position?: number
+          responded_at?: string | null
+          response?: string | null
+          ride_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_queue_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_queue_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       driver_ratings: {
         Row: {
           comment: string | null
@@ -993,6 +1044,47 @@ export type Database = {
         }
         Relationships: []
       }
+      ride_stops: {
+        Row: {
+          address: string
+          arrived_at: string | null
+          created_at: string
+          id: string
+          latitude: number
+          longitude: number
+          ride_id: string
+          stop_order: number
+        }
+        Insert: {
+          address: string
+          arrived_at?: string | null
+          created_at?: string
+          id?: string
+          latitude: number
+          longitude: number
+          ride_id: string
+          stop_order?: number
+        }
+        Update: {
+          address?: string
+          arrived_at?: string | null
+          created_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          ride_id?: string
+          stop_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_stops_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rider_deposit_requests: {
         Row: {
           admin_note: string | null
@@ -1419,6 +1511,7 @@ export type Database = {
         Args: { p_trip_id: string }
         Returns: Json
       }
+      dispatch_scheduled_rides: { Args: never; Returns: number }
       expire_old_rides: { Args: never; Returns: number }
       get_driver_id: { Args: { _user_id: string }; Returns: string }
       has_role: {

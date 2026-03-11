@@ -34,6 +34,8 @@ import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 
 import RecentDestinations from './RecentDestinations';
+import MultiStopInput, { type RideStop } from './MultiStopInput';
+import ScheduleRide from './ScheduleRide';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
 import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
 import TownSelectorSheet from './TownSelectorSheet';
@@ -81,6 +83,9 @@ export default function RideView() {
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedTown, setSelectedTown] = useState<TownConfig>(DEFAULT_TOWN);
+  const [rideStops, setRideStops] = useState<RideStop[]>([]);
+  const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
+  const [activeStopId, setActiveStopId] = useState<string | null>(null);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
@@ -126,14 +131,22 @@ export default function RideView() {
 
   const handleLandmarkSelect = (landmark: Landmark) => {
     const loc: SelectedLocation = { name: landmark.name, lat: landmark.latitude, lng: landmark.longitude };
-    if (activeField === 'pickup') setPickupLocation(loc);else setDropoffLocation(loc);
+    if (activeStopId) {
+      setRideStops(prev => prev.map(s => s.id === activeStopId ? { ...s, address: loc.name, lat: loc.lat, lng: loc.lng } : s));
+      setActiveStopId(null);
+    } else if (activeField === 'pickup') setPickupLocation(loc);
+    else setDropoffLocation(loc);
     setActiveField(null);setSearchQuery('');setNominatimResults([]);
     haptic('light');
   };
 
   const handleNominatimSelect = (result: {name: string;lat: number;lng: number;}) => {
     const loc: SelectedLocation = { name: result.name, lat: result.lat, lng: result.lng };
-    if (activeField === 'pickup') setPickupLocation(loc);else setDropoffLocation(loc);
+    if (activeStopId) {
+      setRideStops(prev => prev.map(s => s.id === activeStopId ? { ...s, address: loc.name, lat: loc.lat, lng: loc.lng } : s));
+      setActiveStopId(null);
+    } else if (activeField === 'pickup') setPickupLocation(loc);
+    else setDropoffLocation(loc);
     setActiveField(null);setSearchQuery('');setNominatimResults([]);
   };
 
@@ -181,13 +194,47 @@ export default function RideView() {
         fare: customFare,
         route_polyline: routeData?.geometry || null, passenger_count: passengerCount,
         payment_method: paymentMethod, vehicle_type: selectedTier,
-        town_id: selectedTown?.id ?? null
+        town_id: selectedTown?.id ?? null,
+        ...(scheduledAt ? { scheduled_at: scheduledAt.toISOString() } : {}),
       });
       if (!result.ok) throw new Error(result.error);
+      
+      // Save multi-stops if any
+      if (rideStops.length > 0 && result.ride.id) {
+        const stopsToInsert = rideStops
+          .filter(s => s.address && s.lat && s.lng)
+          .map((s, i) => ({
+            ride_id: result.ride.id,
+            stop_order: i + 1,
+            address: s.address,
+            latitude: s.lat,
+            longitude: s.lng,
+          }));
+        if (stopsToInsert.length > 0) {
+          await supabase.from('ride_stops').insert(stopsToInsert);
+        }
+      }
+      
       setCurrentRideId(result.ride.id);
-      toast({ title: 'Offer sent!', description: `${fareEstimate.currencySymbol}${customFare} — waiting for drivers…` });
-      navigate(`/ride/${result.ride.id}`);
+      toast({ title: scheduledAt ? 'Ride scheduled!' : 'Offer sent!', description: `${fareEstimate.currencySymbol}${customFare} — ${scheduledAt ? 'scheduled for later' : 'waiting for drivers…'}` });
+      if (!scheduledAt) navigate(`/ride/${result.ride.id}`);
+      else { setRideStatus('idle'); setScheduledAt(null); setRideStops([]); }
     } catch (error: unknown) {toast({ title: 'Failed to send offer', description: (error as Error).message, variant: 'destructive' });setRideStatus('idle');} finally {setIsRequesting(false);}
+  };
+
+  const handleAddStop = () => {
+    if (rideStops.length >= 3) return;
+    setRideStops(prev => [...prev, { id: crypto.randomUUID(), address: '', lat: 0, lng: 0 }]);
+  };
+
+  const handleRemoveStop = (id: string) => {
+    setRideStops(prev => prev.filter(s => s.id !== id));
+  };
+
+  const handleStopClick = (id: string) => {
+    setActiveStopId(id);
+    setActiveField('dropoff'); // Reuse search overlay
+    setSearchQuery('');
   };
 
   const handleAcceptOffer = async (offerId: string) => {setRideStatus('driver_assigned');setOffersOpen(false);toast({ title: 'Driver accepted!' });setMatchedDriver({ name: 'Sipho Ndlovu', car: 'Toyota Corolla', plate: 'ACB 2345', rating: 4.8, eta: 3 });setTimeout(() => setRideStatus('driver_arriving'), 2000);};
@@ -480,6 +527,15 @@ export default function RideView() {
               }
             </button>
           </div>
+
+          {/* Multi-stop + Schedule */}
+          <MultiStopInput
+            stops={rideStops}
+            onAddStop={handleAddStop}
+            onRemoveStop={handleRemoveStop}
+            onStopClick={handleStopClick}
+          />
+          <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
 
           {/* Passenger selector — compact inline */}
           <div className="flex items-center justify-between glass-card rounded-2xl px-3 py-2">
