@@ -32,6 +32,8 @@ import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 import VoyexLogo from '@/components/VoyexLogo';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
+import EmergencyButton from './EmergencyButton';
+import { NotificationBell } from '@/components/NotificationCenter';
 
 import RecentDestinations from './RecentDestinations';
 import MultiStopInput, { type RideStop } from './MultiStopInput';
