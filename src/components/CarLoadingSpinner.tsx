@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface Props {
   message?: string;
@@ -6,82 +7,93 @@ interface Props {
 }
 
 export default function CarLoadingSpinner({ message = 'Processing...', onClose }: Props) {
-  const [rotation, setRotation] = useState(0);
+  const [dots, setDots] = useState('');
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setRotation(prev => (prev + 2) % 360);
-    }, 16);
+      setDots(prev => prev.length >= 3 ? '' : prev + '.');
+    }, 500);
     return () => clearInterval(interval);
   }, []);
 
-  // Car position along a circular arc
-  const radius = 100;
-  const angleRad = (rotation * Math.PI) / 180;
-  const carX = 150 + radius * Math.cos(angleRad);
-  const carY = 150 + radius * Math.sin(angleRad);
-  const carRotation = rotation + 90; // car faces forward along the arc
-
-  // Arc: draw the trail behind the car
-  const trailLength = 270; // degrees of trail
-  const trailStart = rotation - trailLength;
-
-  const polarToCart = (angleDeg: number) => {
-    const rad = (angleDeg * Math.PI) / 180;
-    return { x: 150 + radius * Math.cos(rad), y: 150 + radius * Math.sin(rad) };
-  };
-
-  const start = polarToCart(trailStart);
-  const end = polarToCart(rotation);
-  const largeArc = trailLength > 180 ? 1 : 0;
-
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center"
+    >
       {onClose && (
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-sm"
-        >
-          Close
+        <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-sm px-3 py-1.5 rounded-full glass-card">
+          Cancel
         </button>
       )}
 
-      <div className="w-[300px] h-[300px] relative">
-        <svg viewBox="0 0 300 300" className="w-full h-full">
-          {/* Gradient for the arc */}
+      <div className="relative w-48 h-48">
+        {/* Outer ring */}
+        <motion.div
+          className="absolute inset-0 rounded-full border-[3px] border-primary/10"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+        />
+
+        {/* Spinning arc */}
+        <motion.svg
+          viewBox="0 0 200 200"
+          className="absolute inset-0 w-full h-full"
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
+        >
           <defs>
-            <linearGradient id="arcGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity="0.1" />
-              <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="1" />
+            <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity="0" />
+              <stop offset="50%" stopColor="hsl(var(--accent))" stopOpacity="1" />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="1" />
             </linearGradient>
           </defs>
+          <circle cx="100" cy="100" r="80" fill="none" stroke="url(#arcGrad)" strokeWidth="4" strokeLinecap="round" strokeDasharray="150 350" />
+        </motion.svg>
 
-          {/* Trail arc */}
-          <path
-            d={`M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y}`}
-            fill="none"
-            stroke="url(#arcGradient)"
-            strokeWidth="6"
-            strokeLinecap="round"
-          />
-        </svg>
-
-        {/* Car emoji positioned on the arc */}
-        <div
-          className="absolute w-8 h-8 flex items-center justify-center text-2xl"
-          style={{
-            left: carX - 16,
-            top: carY - 16,
-            transform: `rotate(${carRotation}deg)`,
-          }}
+        {/* Car icon in center */}
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center"
+          animate={{ y: [0, -4, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
         >
-          🚗
-        </div>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-voyex-md" style={{ background: 'var(--gradient-primary)' }}>
+            <span className="text-3xl">🚗</span>
+          </div>
+        </motion.div>
+
+        {/* Pulse rings */}
+        {[0, 1, 2].map(i => (
+          <motion.div
+            key={i}
+            className="absolute inset-0 rounded-full border border-primary/20"
+            initial={{ scale: 0.5, opacity: 0.6 }}
+            animate={{ scale: 1.3, opacity: 0 }}
+            transition={{ repeat: Infinity, duration: 2, delay: i * 0.6, ease: 'easeOut' }}
+          />
+        ))}
       </div>
 
-      <p className="text-center text-muted-foreground mt-6 max-w-xs text-lg leading-relaxed">
-        {message}
-      </p>
-    </div>
+      <motion.p
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="text-center text-foreground mt-8 max-w-xs text-lg font-medium"
+      >
+        {message}{dots}
+      </motion.p>
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="text-center text-muted-foreground mt-2 text-sm"
+      >
+        This usually takes a few seconds
+      </motion.p>
+    </motion.div>
   );
 }
