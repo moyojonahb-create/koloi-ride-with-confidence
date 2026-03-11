@@ -1,8 +1,8 @@
-// inDrive-style fare negotiation card for rider
-import { useState } from 'react';
+// inDrive-style fare negotiation card with smart suggestions
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Minus, Plus, Send, Zap, TrendingUp, Info } from 'lucide-react';
+import { Minus, Plus, Send, Zap, TrendingUp, Info, Clock, Sun, Moon, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   type TownPricingConfig,
@@ -20,6 +20,36 @@ interface NegotiationCardProps {
   className?: string;
 }
 
+/** Smart fare context based on time/distance */
+function useSmartFareContext(distanceKm: number, durationMinutes: number) {
+  return useMemo(() => {
+    const hour = new Date().getHours();
+    const isNight = hour >= 20 || hour < 6;
+    const isPeak = (hour >= 7 && hour <= 9) || (hour >= 16 && hour <= 18);
+    const isShortTrip = distanceKm < 2;
+    const isLongTrip = distanceKm > 8;
+
+    let smartTip = '';
+    let tipIcon: typeof Sun = Sun;
+
+    if (isNight) {
+      smartTip = 'Night hours — drivers expect higher fares';
+      tipIcon = Moon;
+    } else if (isPeak) {
+      smartTip = 'Peak hour — demand is high, offer more to get matched faster';
+      tipIcon = Clock;
+    } else if (isShortTrip) {
+      smartTip = 'Short trip — a fair offer gets you matched quickly';
+      tipIcon = Zap;
+    } else if (isLongTrip) {
+      smartTip = 'Long trip — drivers prefer these, standard fare works well';
+      tipIcon = TrendingUp;
+    }
+
+    return { isNight, isPeak, isShortTrip, isLongTrip, smartTip, tipIcon };
+  }, [distanceKm, durationMinutes]);
+}
+
 export default function NegotiationCard({
   pricing, distanceKm, durationMinutes, onSendOffer, isSubmitting, className
 }: NegotiationCardProps) {
@@ -27,6 +57,7 @@ export default function NegotiationCard({
   const step = getFareStep(pricing.currency_code);
   const [customFare, setCustomFare] = useState(fareCalc.recommended);
   const [direction, setDirection] = useState<'up' | 'down'>('up');
+  const smart = useSmartFareContext(distanceKm, durationMinutes);
 
   const increment = () => { setDirection('up'); setCustomFare((prev) => Math.min(prev + step, fareCalc.ceiling)); };
   const decrement = () => { setDirection('down'); setCustomFare((prev) => Math.max(prev - step, fareCalc.floor)); };
@@ -34,6 +65,16 @@ export default function NegotiationCard({
   const isAboveRecommended = customFare > fareCalc.recommended;
   const isBelowRecommended = customFare < fareCalc.recommended;
   const progressPercent = Math.min(100, (customFare - fareCalc.floor) / (fareCalc.ceiling - fareCalc.floor) * 100);
+
+  // Quick-pick fare presets
+  const quickPicks = useMemo(() => {
+    const picks = [
+      { label: 'Budget', value: fareCalc.floor, color: 'text-accent' },
+      { label: 'Fair', value: fareCalc.recommended, color: 'text-foreground' },
+      { label: 'Priority', value: Math.min(fareCalc.recommended + step * 2, fareCalc.ceiling), color: 'text-primary' },
+    ];
+    return picks.filter((p, i, arr) => arr.findIndex(q => q.value === p.value) === i);
+  }, [fareCalc, step]);
 
   return (
     <motion.div
@@ -54,6 +95,36 @@ export default function NegotiationCard({
           <Info className="w-3.5 h-3.5" />
           <span>{distanceKm.toFixed(1)} km • ~{durationMinutes} min</span>
         </div>
+      </div>
+
+      {/* Smart context tip */}
+      {smart.smartTip && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-accent/10"
+        >
+          <smart.tipIcon className="w-4 h-4 text-accent shrink-0" />
+          <span className="text-[11px] font-medium text-accent-foreground/80">{smart.smartTip}</span>
+        </motion.div>
+      )}
+
+      {/* Quick-pick fare chips */}
+      <div className="flex gap-2">
+        {quickPicks.map((pick) => (
+          <motion.button
+            key={pick.label}
+            whileTap={{ scale: 0.92 }}
+            onClick={() => { setCustomFare(pick.value); setDirection(pick.value > customFare ? 'up' : 'down'); }}
+            className={cn(
+              'flex-1 py-2 rounded-xl text-center transition-all',
+              customFare === pick.value ? 'glass-card ring-1 ring-primary/30 shadow-voyex-sm' : 'bg-muted/40'
+            )}
+          >
+            <p className={cn('text-[10px] font-bold uppercase tracking-wider', pick.color)}>{pick.label}</p>
+            <p className="text-sm font-bold text-foreground">{formatFare(pick.value, fareCalc.currencySymbol, fareCalc.currencyCode)}</p>
+          </motion.button>
+        ))}
       </div>
 
       {/* Recommended fare */}
