@@ -46,6 +46,7 @@ import TownSelectorSheet from './TownSelectorSheet';
 import { type ServiceType } from '@/components/VehicleTypeSelector';
 import IntercitySelector from './IntercitySelector';
 import { type IntercityRoute } from '@/lib/intercityRoutes';
+import { useNearbyDrivers } from '@/hooks/useNearbyDrivers';
 
 interface SelectedLocation {name: string;lat: number;lng: number;}
 interface GPSState {status: 'idle' | 'loading' | 'success' | 'denied' | 'unavailable';coords: {lat: number;lng: number;} | null;error: string | null;}
