@@ -3,11 +3,11 @@ import {
   GoogleMap,
   DirectionsRenderer,
   Marker,
-  useJsApiLoader } from
-"@react-google-maps/api";
+  useJsApiLoader,
+} from "@react-google-maps/api";
 import { useGoogleMapsKey } from "@/hooks/useGoogleMapsKey";
 import { calculateDistance } from "@/lib/driverLocation";
-import { Car, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -21,11 +21,9 @@ interface Coords {
 export type TripPhase = "driver_to_pickup" | "pickup_to_dropoff" | "idle";
 
 interface TripGoogleMapProps {
-  /** Live driver position from realtime */
   driverLocation: Coords | null;
   pickup: Coords;
   dropoff: Coords;
-  /** Trip status string from DB */
   tripStatus: string;
   height?: string;
   className?: string;
@@ -44,19 +42,12 @@ const MAP_OPTIONS: google.maps.MapOptions = {
   mapTypeControl: false,
   fullscreenControl: false,
   styles: [
-  {
-    featureType: "poi",
-    stylers: [{ visibility: "off" }]
-  }]
-
+    { featureType: "poi", stylers: [{ visibility: "off" }] },
+  ],
 };
 
-const PICKUP_ICON_URL =
-"https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
-const DROPOFF_ICON_URL =
-"https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
-const DRIVER_ICON_URL =
-"https://maps.google.com/mapfiles/ms/icons/cabs.png";
+const PICKUP_ICON_URL = "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+const DROPOFF_ICON_URL = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
 
 function getPhase(status: string): TripPhase {
   if (["accepted", "enroute_pickup"].includes(status)) return "driver_to_pickup";
@@ -64,11 +55,100 @@ function getPhase(status: string): TripPhase {
   return "idle";
 }
 
-const MIN_MOVE_KM = 0.075; // 75 m
-const MIN_INTERVAL_MS = 20_000; // 20 s
+const MIN_MOVE_KM = 0.075;
+const MIN_INTERVAL_MS = 20_000;
+const LERP_DURATION_MS = 1500; // smooth animation duration
+
+/** Lerp between two coords */
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * Math.min(1, Math.max(0, t));
+}
 
 /* ------------------------------------------------------------------ */
-/*  Inner map (loaded after API key is ready)                          */
+/*  Smooth driver marker hook                                          */
+/* ------------------------------------------------------------------ */
+
+function useSmoothPosition(target: Coords | null): Coords | null {
+  const [display, setDisplay] = useState<Coords | null>(target);
+  const fromRef = useRef<Coords | null>(null);
+  const toRef = useRef<Coords | null>(null);
+  const startTimeRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!target) {
+      setDisplay(null);
+      fromRef.current = null;
+      toRef.current = null;
+      return;
+    }
+
+    // First position — snap immediately
+    if (!fromRef.current) {
+      fromRef.current = target;
+      toRef.current = target;
+      setDisplay(target);
+      return;
+    }
+
+    // Start new animation from current displayed position
+    fromRef.current = toRef.current ?? fromRef.current;
+    toRef.current = target;
+    startTimeRef.current = performance.now();
+
+    const animate = (now: number) => {
+      const elapsed = now - startTimeRef.current;
+      const t = Math.min(1, elapsed / LERP_DURATION_MS);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - t, 3);
+
+      if (fromRef.current && toRef.current) {
+        setDisplay({
+          lat: lerp(fromRef.current.lat, toRef.current.lat, eased),
+          lng: lerp(fromRef.current.lng, toRef.current.lng, eased),
+        });
+      }
+
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [target?.lat, target?.lng]);
+
+  return display;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Custom car SVG for driver marker                                   */
+/* ------------------------------------------------------------------ */
+
+function createCarIcon(): google.maps.Icon {
+  // SVG car icon encoded as data URL for a cleaner look
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+    <circle cx="24" cy="24" r="22" fill="#2563EB" stroke="white" stroke-width="3"/>
+    <path d="M16 28l2-8h12l2 8" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <rect x="14" y="28" width="20" height="6" rx="2" fill="white"/>
+    <circle cx="18" cy="34" r="2" fill="#2563EB"/>
+    <circle cx="30" cy="34" r="2" fill="#2563EB"/>
+    <rect x="20" y="22" width="8" height="5" rx="1" fill="white" opacity="0.6"/>
+  </svg>`;
+
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new google.maps.Size(44, 44),
+    anchor: new google.maps.Point(22, 22),
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Inner map                                                          */
 /* ------------------------------------------------------------------ */
 
 function InnerMap({
@@ -77,38 +157,39 @@ function InnerMap({
   pickup,
   dropoff,
   tripStatus,
-  height
-}: TripGoogleMapProps & {apiKey: string;}) {
+  height,
+}: TripGoogleMapProps & { apiKey: string }) {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: apiKey,
     id: "voyex-google-map",
-    libraries: ['places'] as ("places")[],
+    libraries: ["places"] as ("places")[],
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
-  const [directions, setDirections] =
-  useState<google.maps.DirectionsResult | null>(null);
+  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const lastFetchPos = useRef<Coords | null>(null);
   const lastFetchTime = useRef(0);
   const lastPhase = useRef<TripPhase>("idle");
   const hasFitBounds = useRef(false);
+  const carIconRef = useRef<google.maps.Icon | null>(null);
 
   const phase = getPhase(tripStatus);
+  const smoothDriverPos = useSmoothPosition(driverLocation);
 
   // Compute origin / destination for this phase
   const origin: Coords | null =
-  phase === "driver_to_pickup" ?
-  driverLocation :
-  phase === "pickup_to_dropoff" ?
-  driverLocation ?? pickup :
-  null;
+    phase === "driver_to_pickup"
+      ? driverLocation
+      : phase === "pickup_to_dropoff"
+      ? driverLocation ?? pickup
+      : null;
 
   const destination: Coords | null =
-  phase === "driver_to_pickup" ?
-  pickup :
-  phase === "pickup_to_dropoff" ?
-  dropoff :
-  null;
+    phase === "driver_to_pickup"
+      ? pickup
+      : phase === "pickup_to_dropoff"
+      ? dropoff
+      : null;
 
   // Fetch directions with throttle
   const fetchDirections = useCallback(() => {
@@ -116,13 +197,13 @@ function InnerMap({
 
     const now = Date.now();
     const moved =
-    lastFetchPos.current == null ||
-    calculateDistance(
-      lastFetchPos.current.lat,
-      lastFetchPos.current.lng,
-      origin.lat,
-      origin.lng
-    ) >= MIN_MOVE_KM;
+      lastFetchPos.current == null ||
+      calculateDistance(
+        lastFetchPos.current.lat,
+        lastFetchPos.current.lng,
+        origin.lat,
+        origin.lng
+      ) >= MIN_MOVE_KM;
     const elapsed = now - lastFetchTime.current >= MIN_INTERVAL_MS;
     const phaseChanged = lastPhase.current !== phase;
 
@@ -133,7 +214,7 @@ function InnerMap({
       {
         origin: { lat: origin.lat, lng: origin.lng },
         destination: { lat: destination.lat, lng: destination.lng },
-        travelMode: google.maps.TravelMode.DRIVING
+        travelMode: google.maps.TravelMode.DRIVING,
       },
       (result, status) => {
         if (status === google.maps.DirectionsStatus.OK && result) {
@@ -142,7 +223,6 @@ function InnerMap({
           lastFetchTime.current = Date.now();
           lastPhase.current = phase;
 
-          // Fit bounds on first fetch or phase change
           if ((!hasFitBounds.current || phaseChanged) && mapRef.current && result.routes[0]) {
             const bounds = result.routes[0].bounds;
             if (bounds) mapRef.current.fitBounds(bounds, 60);
@@ -153,12 +233,10 @@ function InnerMap({
     );
   }, [origin?.lat, origin?.lng, destination?.lat, destination?.lng, phase, isLoaded]);
 
-  // On phase change or driver move, try to fetch
   useEffect(() => {
     fetchDirections();
   }, [fetchDirections]);
 
-  // Clear directions when idle
   useEffect(() => {
     if (phase === "idle") {
       setDirections(null);
@@ -166,7 +244,13 @@ function InnerMap({
     }
   }, [phase]);
 
-  // Fit bounds on initial load when no directions yet
+  // Lazy-create car icon after API loads
+  useEffect(() => {
+    if (isLoaded && !carIconRef.current) {
+      carIconRef.current = createCarIcon();
+    }
+  }, [isLoaded]);
+
   const onMapLoad = useCallback(
     (map: google.maps.Map) => {
       mapRef.current = map;
@@ -183,13 +267,10 @@ function InnerMap({
 
   if (!isLoaded) {
     return (
-      <div
-        className="flex items-center justify-center bg-muted"
-        style={{ height: height ?? "300px" }}>
-        
+      <div className="flex items-center justify-center bg-muted" style={{ height: height ?? "300px" }}>
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>);
-
+      </div>
+    );
   }
 
   return (
@@ -201,7 +282,6 @@ function InnerMap({
         options={MAP_OPTIONS}
         onLoad={onMapLoad}
       >
-        {/* Directions polyline */}
         {directions && (
           <DirectionsRenderer
             directions={directions}
@@ -219,10 +299,7 @@ function InnerMap({
         {/* Pickup marker */}
         <Marker
           position={pickup}
-          icon={{
-            url: PICKUP_ICON_URL,
-            scaledSize: new google.maps.Size(40, 40),
-          }}
+          icon={{ url: PICKUP_ICON_URL, scaledSize: new google.maps.Size(40, 40) }}
           label={{ text: "P", color: "#000", fontWeight: "bold", fontSize: "11px" }}
           zIndex={10}
         />
@@ -230,23 +307,16 @@ function InnerMap({
         {/* Dropoff marker */}
         <Marker
           position={dropoff}
-          icon={{
-            url: DROPOFF_ICON_URL,
-            scaledSize: new google.maps.Size(40, 40),
-          }}
+          icon={{ url: DROPOFF_ICON_URL, scaledSize: new google.maps.Size(40, 40) }}
           label={{ text: "D", color: "#fff", fontWeight: "bold", fontSize: "11px" }}
           zIndex={10}
         />
 
-        {/* Driver marker */}
-        {driverLocation && (
+        {/* Smooth animated driver marker */}
+        {smoothDriverPos && (
           <Marker
-            position={driverLocation}
-            icon={{
-              url: DRIVER_ICON_URL,
-              scaledSize: new google.maps.Size(40, 40),
-              anchor: new google.maps.Point(20, 20),
-            }}
+            position={smoothDriverPos}
+            icon={carIconRef.current ?? undefined}
             zIndex={20}
           />
         )}
@@ -256,7 +326,7 @@ function InnerMap({
 }
 
 /* ------------------------------------------------------------------ */
-/*  Exported wrapper – fetches API key then renders InnerMap            */
+/*  Exported wrapper                                                   */
 /* ------------------------------------------------------------------ */
 
 export default function TripGoogleMap(props: TripGoogleMapProps) {
@@ -264,24 +334,18 @@ export default function TripGoogleMap(props: TripGoogleMapProps) {
 
   if (loading) {
     return (
-      <div
-        className="flex items-center justify-center bg-muted rounded-xl"
-        style={{ height: props.height ?? "300px" }}>
-        
+      <div className="flex items-center justify-center bg-muted rounded-xl" style={{ height: props.height ?? "300px" }}>
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>);
-
+      </div>
+    );
   }
 
   if (error || !apiKey) {
     return (
-      <div
-        className="flex items-center justify-center bg-muted rounded-xl text-sm text-muted-foreground"
-        style={{ height: props.height ?? "300px" }}>
-        
+      <div className="flex items-center justify-center bg-muted rounded-xl text-sm text-muted-foreground" style={{ height: props.height ?? "300px" }}>
         Map unavailable
-      </div>);
-
+      </div>
+    );
   }
 
   return <InnerMap {...props} apiKey={apiKey} />;
