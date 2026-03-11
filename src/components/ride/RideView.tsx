@@ -32,6 +32,8 @@ import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 import VoyexLogo from '@/components/VoyexLogo';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
+import EmergencyButton from './EmergencyButton';
+import { NotificationBell } from '@/components/NotificationCenter';
 
 import RecentDestinations from './RecentDestinations';
 import MultiStopInput, { type RideStop } from './MultiStopInput';
@@ -360,6 +362,14 @@ export default function RideView() {
                 </motion.button>
               ))}
             </div>
+            <div className="mt-3 flex justify-center">
+              <EmergencyButton
+                rideId={currentRideId ?? undefined}
+                pickupAddress={pickupLocation?.name}
+                dropoffAddress={dropoffLocation?.name}
+                driverName={matchedDriver.name}
+              />
+            </div>
           </div>
         </motion.div>
       </div>);
@@ -424,9 +434,12 @@ export default function RideView() {
         <button onClick={() => setMenuOpen(true)} className="w-12 h-12 flex items-center justify-center rounded-full bg-card shadow-sm active:scale-95 transition-all">
           <Menu className="w-5 h-5 text-primary" />
         </button>
-        <button onClick={() => user ? navigate(location.pathname.startsWith('/mapp') ? '/mapp/profile' : '/profile') : setAuthModalOpen(true)} className="w-12 h-12 flex items-center justify-center rounded-full bg-card shadow-sm active:scale-95 transition-all">
-          <User className="w-5 h-5 text-primary" />
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <button onClick={() => user ? navigate(location.pathname.startsWith('/mapp') ? '/mapp/profile' : '/profile') : setAuthModalOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full bg-card shadow-sm active:scale-95 transition-all">
+            <User className="w-5 h-5 text-primary" />
+          </button>
+        </div>
       </div>
 
       {/* ── HAMBURGER MENU ── */}
