@@ -52,12 +52,12 @@ interface GPSState {status: 'idle' | 'loading' | 'success' | 'denied' | 'unavail
 type VehicleTier = 'standard';
 type PaymentMethod = 'cash' | 'wallet' | 'ecocash';
 
-const SERVICE_TABS: { id: ServiceType; label: string; icon: string }[] = [
-  { id: 'ride', label: 'Ride', icon: '🚗' },
-  { id: 'intercity', label: 'Intercity', icon: '🛣️' },
-  { id: 'courier', label: 'Courier', icon: '📦' },
-  { id: 'freight', label: 'Freight', icon: '🚛' },
-];
+const SERVICE_TABS: {id: ServiceType;label: string;icon: string;}[] = [
+{ id: 'ride', label: 'Ride', icon: '🚗' },
+{ id: 'intercity', label: 'Intercity', icon: '🛣️' },
+{ id: 'courier', label: 'Courier', icon: '📦' },
+{ id: 'freight', label: 'Freight', icon: '🚛' }];
+
 
 const VEHICLE_TIERS: {id: VehicleTier;name: string;icon: typeof Car;priceRange: string;passengers: string;eta: string;multiplier: number;}[] = [
 { id: 'standard', name: 'Voyex Standard', icon: Car, priceRange: '$1.50 – $10', passengers: '1–4', eta: '3 min', multiplier: 1 }];
@@ -146,10 +146,10 @@ export default function RideView() {
   const handleLandmarkSelect = (landmark: Landmark) => {
     const loc: SelectedLocation = { name: landmark.name, lat: landmark.latitude, lng: landmark.longitude };
     if (activeStopId) {
-      setRideStops(prev => prev.map(s => s.id === activeStopId ? { ...s, address: loc.name, lat: loc.lat, lng: loc.lng } : s));
+      setRideStops((prev) => prev.map((s) => s.id === activeStopId ? { ...s, address: loc.name, lat: loc.lat, lng: loc.lng } : s));
       setActiveStopId(null);
-    } else if (activeField === 'pickup') setPickupLocation(loc);
-    else setDropoffLocation(loc);
+    } else if (activeField === 'pickup') setPickupLocation(loc);else
+    setDropoffLocation(loc);
     setActiveField(null);setSearchQuery('');setNominatimResults([]);
     haptic('light');
   };
@@ -157,10 +157,10 @@ export default function RideView() {
   const handleNominatimSelect = (result: {name: string;lat: number;lng: number;}) => {
     const loc: SelectedLocation = { name: result.name, lat: result.lat, lng: result.lng };
     if (activeStopId) {
-      setRideStops(prev => prev.map(s => s.id === activeStopId ? { ...s, address: loc.name, lat: loc.lat, lng: loc.lng } : s));
+      setRideStops((prev) => prev.map((s) => s.id === activeStopId ? { ...s, address: loc.name, lat: loc.lat, lng: loc.lng } : s));
       setActiveStopId(null);
-    } else if (activeField === 'pickup') setPickupLocation(loc);
-    else setDropoffLocation(loc);
+    } else if (activeField === 'pickup') setPickupLocation(loc);else
+    setDropoffLocation(loc);
     setActiveField(null);setSearchQuery('');setNominatimResults([]);
   };
 
@@ -209,40 +209,40 @@ export default function RideView() {
         route_polyline: routeData?.geometry || null, passenger_count: passengerCount,
         payment_method: paymentMethod, vehicle_type: selectedTier,
         town_id: selectedTown?.id ?? null,
-        ...(scheduledAt ? { scheduled_at: scheduledAt.toISOString() } : {}),
+        ...(scheduledAt ? { scheduled_at: scheduledAt.toISOString() } : {})
       });
       if (!result.ok) throw new Error(result.error);
-      
+
       // Save multi-stops if any
       if (rideStops.length > 0 && result.ride.id) {
-        const stopsToInsert = rideStops
-          .filter(s => s.address && s.lat && s.lng)
-          .map((s, i) => ({
-            ride_id: result.ride.id,
-            stop_order: i + 1,
-            address: s.address,
-            latitude: s.lat,
-            longitude: s.lng,
-          }));
+        const stopsToInsert = rideStops.
+        filter((s) => s.address && s.lat && s.lng).
+        map((s, i) => ({
+          ride_id: result.ride.id,
+          stop_order: i + 1,
+          address: s.address,
+          latitude: s.lat,
+          longitude: s.lng
+        }));
         if (stopsToInsert.length > 0) {
           await supabase.from('ride_stops').insert(stopsToInsert);
         }
       }
-      
+
       setCurrentRideId(result.ride.id);
       toast({ title: scheduledAt ? 'Ride scheduled!' : 'Offer sent!', description: `${fareEstimate.currencySymbol}${customFare} — ${scheduledAt ? 'scheduled for later' : 'waiting for drivers…'}` });
-      if (!scheduledAt) navigate(`/ride/${result.ride.id}`);
-      else { setRideStatus('idle'); setScheduledAt(null); setRideStops([]); }
+      if (!scheduledAt) navigate(`/ride/${result.ride.id}`);else
+      {setRideStatus('idle');setScheduledAt(null);setRideStops([]);}
     } catch (error: unknown) {toast({ title: 'Failed to send offer', description: (error as Error).message, variant: 'destructive' });setRideStatus('idle');} finally {setIsRequesting(false);}
   };
 
   const handleAddStop = () => {
     if (rideStops.length >= 3) return;
-    setRideStops(prev => [...prev, { id: crypto.randomUUID(), address: '', lat: 0, lng: 0 }]);
+    setRideStops((prev) => [...prev, { id: crypto.randomUUID(), address: '', lat: 0, lng: 0 }]);
   };
 
   const handleRemoveStop = (id: string) => {
-    setRideStops(prev => prev.filter(s => s.id !== id));
+    setRideStops((prev) => prev.filter((s) => s.id !== id));
   };
 
   const handleStopClick = (id: string) => {
@@ -298,15 +298,15 @@ export default function RideView() {
           initial={{ y: -30, opacity: 0, scale: 0.9 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.2 }}
-          className="absolute top-24 left-4 right-4 z-30"
-        >
+          className="absolute top-24 left-4 right-4 z-30">
+          
           <div className="glass-card-heavy p-5 flex items-center gap-4">
             <motion.div
               className="w-14 h-14 rounded-2xl flex items-center justify-center"
               style={{ background: 'var(--gradient-primary)' }}
               animate={{ scale: [1, 1.05, 1] }}
-              transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-            >
+              transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}>
+              
               <Clock className="w-7 h-7 text-primary-foreground" />
             </motion.div>
             <div>
@@ -315,8 +315,8 @@ export default function RideView() {
                 key={matchedDriver.eta}
                 initial={{ scale: 1.2, color: 'hsl(45 100% 51%)' }}
                 animate={{ scale: 1, color: 'hsl(var(--foreground))' }}
-                className="text-3xl font-bold font-display text-foreground tabular-nums"
-              >
+                className="text-3xl font-bold font-display text-foreground tabular-nums">
+                
                 {matchedDriver.eta} <span className="text-lg font-medium text-muted-foreground">min</span>
               </motion.p>
             </div>
@@ -328,8 +328,8 @@ export default function RideView() {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.4 }}
-          className="absolute bottom-0 left-0 right-0 z-50"
-        >
+          className="absolute bottom-0 left-0 right-0 z-50">
+          
           <div className="glass-card-heavy rounded-t-[28px] px-4 pt-4 pb-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
             <div className="w-10 h-1 rounded-full bg-foreground/10 mx-auto mb-4" />
             <div className="flex items-center gap-3 mb-5">
@@ -338,8 +338,8 @@ export default function RideView() {
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.6 }}
                 className="w-14 h-14 rounded-2xl flex items-center justify-center ring-2 ring-primary/20 shrink-0"
-                style={{ background: 'var(--gradient-primary)' }}
-              >
+                style={{ background: 'var(--gradient-primary)' }}>
+                
                 <User className="w-7 h-7 text-primary-foreground" />
               </motion.div>
               <div className="flex-1 min-w-0">
@@ -353,34 +353,34 @@ export default function RideView() {
             </div>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { icon: Phone, label: 'Call', bg: 'var(--gradient-primary)', textClass: 'text-primary-foreground' },
-                { icon: MessageCircle, label: 'Message', bg: undefined, textClass: 'text-primary' },
-                { icon: X, label: 'Cancel', bg: undefined, textClass: 'text-destructive' },
-              ].map((action, i) => (
-                <motion.button
-                  key={action.label}
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.7 + i * 0.1, type: 'spring', stiffness: 400, damping: 25 }}
-                  onClick={action.label === 'Cancel' ? handleCancelRide : undefined}
-                  className={cn(
-                    'flex flex-col items-center gap-1.5 py-3 rounded-2xl active:scale-95 transition-all',
-                    action.bg ? '' : action.label === 'Cancel' ? 'bg-destructive/8' : 'glass-card'
-                  )}
-                  style={action.bg ? { background: action.bg } : undefined}
-                >
+              { icon: Phone, label: 'Call', bg: 'var(--gradient-primary)', textClass: 'text-primary-foreground' },
+              { icon: MessageCircle, label: 'Message', bg: undefined, textClass: 'text-primary' },
+              { icon: X, label: 'Cancel', bg: undefined, textClass: 'text-destructive' }].
+              map((action, i) =>
+              <motion.button
+                key={action.label}
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.7 + i * 0.1, type: 'spring', stiffness: 400, damping: 25 }}
+                onClick={action.label === 'Cancel' ? handleCancelRide : undefined}
+                className={cn(
+                  'flex flex-col items-center gap-1.5 py-3 rounded-2xl active:scale-95 transition-all',
+                  action.bg ? '' : action.label === 'Cancel' ? 'bg-destructive/8' : 'glass-card'
+                )}
+                style={action.bg ? { background: action.bg } : undefined}>
+                
                   <action.icon className={cn('w-5 h-5', action.textClass)} />
                   <span className={cn('text-[11px] font-medium', action.bg ? 'text-primary-foreground' : action.textClass)}>{action.label}</span>
                 </motion.button>
-              ))}
+              )}
             </div>
             <div className="mt-3 flex justify-center">
               <EmergencyButton
                 rideId={currentRideId ?? undefined}
                 pickupAddress={pickupLocation?.name}
                 dropoffAddress={dropoffLocation?.name}
-                driverName={matchedDriver.name}
-              />
+                driverName={matchedDriver.name} />
+              
             </div>
           </div>
         </motion.div>
@@ -533,21 +533,21 @@ export default function RideView() {
 
           {/* Service type tabs */}
           <div className="flex gap-1 bg-muted/50 rounded-xl p-1">
-            {SERVICE_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setServiceType(tab.id)}
-                className={cn(
-                  'flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1',
-                  serviceType === tab.id
-                    ? 'bg-card text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
-              </button>
-            ))}
+            {SERVICE_TABS.map((tab) => {}
+
+
+
+
+
+
+
+
+
+
+
+
+
+            )}
           </div>
 
           {/* Town selector row */}
@@ -599,8 +599,8 @@ export default function RideView() {
             stops={rideStops}
             onAddStop={handleAddStop}
             onRemoveStop={handleRemoveStop}
-            onStopClick={handleStopClick}
-          />
+            onStopClick={handleStopClick} />
+          
           <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
 
           {/* Passenger selector — compact inline */}
