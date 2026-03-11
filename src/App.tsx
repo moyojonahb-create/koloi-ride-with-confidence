@@ -120,9 +120,9 @@ const AnimatedRoutes = () => {
         <Route path="/admin/rider-deposits" element={<AdminGuard><PageTransition><AdminRiderDepositsPage /></PageTransition></AdminGuard>} />
 
         {/* Negotiate / inDrive-style */}
-        <Route path="/negotiate/request" element={<PageTransition><RiderRequestScreen /></PageTransition>} />
-        <Route path="/negotiate/offers/:requestId" element={<PageTransition><RiderOffersScreen /></PageTransition>} />
-        <Route path="/negotiate/driver" element={<PageTransition><DriverRequestsScreen /></PageTransition>} />
+        <Route path="/negotiate/request" element={<AuthGuard><PageTransition><RiderRequestScreen /></PageTransition></AuthGuard>} />
+        <Route path="/negotiate/offers/:requestId" element={<AuthGuard><PageTransition><RiderOffersScreen /></PageTransition></AuthGuard>} />
+        <Route path="/negotiate/driver" element={<AuthGuard><PageTransition><DriverRequestsScreen /></PageTransition></AuthGuard>} />
 
         {/* ── /mapp – Mobile App Shell for Median.co ── */}
         <Route path="/mapp" element={<MappRedirect />} />
