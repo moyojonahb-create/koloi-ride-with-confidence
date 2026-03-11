@@ -167,7 +167,14 @@ const Auth = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="you@example.com" {...field} />
+                        <Input
+                          type="email"
+                          placeholder="you@example.com"
+                          name={field.name}
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -180,7 +187,14 @@ const Auth = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          name={field.name}
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -202,7 +216,13 @@ const Auth = () => {
                     <FormItem>
                       <FormLabel>Full Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="John Doe" {...field} />
+                        <Input
+                          placeholder="John Doe"
+                          name={field.name}
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -215,7 +235,14 @@ const Auth = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="you@example.com" {...field} />
+                        <Input
+                          type="email"
+                          placeholder="you@example.com"
+                          name={field.name}
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -228,7 +255,14 @@ const Auth = () => {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          name={field.name}
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -241,7 +275,14 @@ const Auth = () => {
                     <FormItem>
                       <FormLabel>Confirm Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          name={field.name}
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
