@@ -516,7 +516,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
             type="text"
             placeholder="Enter 6-digit code"
             value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            onChange={(e) => setOtp(e.target.value.slice(0, 6))}
             className="text-center text-2xl tracking-widest"
             maxLength={6}
             required
