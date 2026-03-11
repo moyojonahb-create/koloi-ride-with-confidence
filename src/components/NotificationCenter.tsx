@@ -53,7 +53,10 @@ export function NotificationBell() {
         table: 'notifications',
         filter: `user_id=eq.${user.id}`,
       }, (payload) => {
-        setNotifications(prev => [payload.new as Notification, ...prev]);
+        const notif = payload.new as Notification;
+        setNotifications(prev => [notif, ...prev]);
+        // Show browser notification for new items
+        showLocalNotification(notif.title, notif.body);
       })
       .subscribe();
 
