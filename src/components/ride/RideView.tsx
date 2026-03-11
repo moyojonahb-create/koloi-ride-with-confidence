@@ -213,6 +213,7 @@ export default function RideView() {
         route_polyline: routeData?.geometry || null, passenger_count: passengerCount,
         payment_method: paymentMethod, vehicle_type: selectedTier,
         town_id: selectedTown?.id ?? null,
+        gender_preference: genderPreference,
         ...(scheduledAt ? { scheduled_at: scheduledAt.toISOString() } : {})
       });
       if (!result.ok) throw new Error(result.error);
