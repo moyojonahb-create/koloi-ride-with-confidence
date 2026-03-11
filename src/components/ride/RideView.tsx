@@ -509,6 +509,25 @@ export default function RideView() {
         {/* Scrollable content */}
         <div className="flex-1 px-4 pb-2 space-y-3 min-h-0 overflow-y-auto overscroll-contain">
 
+          {/* Service type tabs */}
+          <div className="flex gap-1 bg-muted/50 rounded-xl p-1">
+            {SERVICE_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setServiceType(tab.id)}
+                className={cn(
+                  'flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1',
+                  serviceType === tab.id
+                    ? 'bg-card text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
+
           {/* Town selector row */}
           <div className="flex items-center justify-between">
             <TownSelectorSheet currentTown={selectedTown} onSelect={(town) => {setSelectedTown(town);setPickupLocation(null);setDropoffLocation(null);}} />
