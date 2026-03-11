@@ -6,6 +6,7 @@ import { ArrowLeft, MapPin, Navigation, Clock, Banknote, Car, ChevronRight, Load
 import { format } from 'date-fns';
 import VoyexLogo from '@/components/VoyexLogo';
 import BottomNavBar from '@/components/BottomNavBar';
+import RiderSpendingAnalytics from '@/components/ride/RiderSpendingAnalytics';
 
 
 interface RideRecord {
@@ -72,8 +73,9 @@ export default function RideHistory() {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="px-4 py-4 pb-28 space-y-3">
+      <div className="px-4 py-4 pb-28 space-y-4">
+        {!loading && rides.length > 0 && <RiderSpendingAnalytics rides={rides} />}
+        
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
