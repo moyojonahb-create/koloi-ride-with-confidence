@@ -5,6 +5,7 @@ import BottomNavBar from '@/components/BottomNavBar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useWallet } from '@/hooks/useWallet';
+import { useWalletPin } from '@/hooks/useWalletPin';
 import { supabase } from '@/integrations/supabase/client';
 import DepositModal from '@/components/wallet/DepositModal';
 import WalletPinModal from '@/components/wallet/WalletPinModal';
@@ -31,57 +32,48 @@ export default function RiderWalletPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { balance, deposit, refresh: refreshWallet, loading: walletLoading } = useWallet();
+  const { hasPin, loading: pinLoading, setPin, verifyPin, refresh: refreshPin } = useWalletPin();
   const [showDeposit, setShowDeposit] = useState(false);
   const [deposits, setDeposits] = useState<RiderDeposit[]>([]);
   const [loadingDeposits, setLoadingDeposits] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
 
-  // PIN state
-  const [hasPin, setHasPin] = useState(false);
+  // PIN gate state
   const [pinVerified, setPinVerified] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
-  const [walletPin, setWalletPin] = useState<string | null>(null);
 
-  // Check if user has a PIN set
-  const checkPin = useCallback(async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from('wallets')
-      .select('wallet_pin')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    const pin = (data as Record<string, unknown>)?.wallet_pin as string | null;
-    setWalletPin(pin);
-    setHasPin(!!pin);
-    if (!pin) setPinVerified(true); // No pin = no gate
-  }, [user]);
-
-  useEffect(() => { checkPin(); }, [checkPin]);
+  // If no PIN set, skip the gate
+  useEffect(() => {
+    if (!pinLoading && !hasPin) {
+      setPinVerified(true);
+    }
+  }, [pinLoading, hasPin]);
 
   // Show PIN modal if PIN is set and not yet verified
   useEffect(() => {
-    if (hasPin && !pinVerified) {
+    if (!pinLoading && hasPin && !pinVerified) {
       setShowPinModal(true);
     }
-  }, [hasPin, pinVerified]);
+  }, [hasPin, pinVerified, pinLoading]);
 
   const handleVerifyPin = async (enteredPin: string): Promise<boolean> => {
-    return enteredPin === walletPin;
+    try {
+      return await verifyPin(enteredPin);
+    } catch (err) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      }
+      return false;
+    }
   };
 
   const handleSetPin = async (newPin: string): Promise<boolean> => {
-    if (!user) return false;
-    // Ensure wallet exists
-    const { data: existing } = await supabase.from('wallets').select('id').eq('user_id', user.id).maybeSingle();
-    if (!existing) {
-      await supabase.from('wallets').insert({ user_id: user.id, balance: 0, wallet_pin: newPin });
-    } else {
-      await supabase.from('wallets').update({ wallet_pin: newPin } as Record<string, unknown>).eq('user_id', user.id);
+    const ok = await setPin(newPin);
+    if (ok) {
+      setPinVerified(true);
+      refreshPin();
     }
-    setWalletPin(newPin);
-    setHasPin(true);
-    setPinVerified(true);
-    return true;
+    return ok;
   };
 
   const loadDeposits = useCallback(async () => {
@@ -110,7 +102,7 @@ export default function RiderWalletPage() {
   useEffect(() => { if (!user) navigate('/auth'); }, [user, navigate]);
 
   // PIN gate: show PIN modal overlay
-  if (hasPin && !pinVerified) {
+  if ((pinLoading) || (hasPin && !pinVerified)) {
     return (
       <div className="min-h-[100dvh] bg-background flex items-center justify-center">
         <WalletPinModal
