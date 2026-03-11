@@ -37,6 +37,7 @@ import DeleteAccount from "./pages/DeleteAccount";
 import { useOnlineStatus } from "./hooks/useOnlineStatus";
 
 // Admin pages
+import AdminGuard from "@/components/admin/AdminGuard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDrivers from "./pages/admin/AdminDrivers";
 import AdminDriverDetail from "./pages/admin/AdminDriverDetail";
