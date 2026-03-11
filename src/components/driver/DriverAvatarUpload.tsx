@@ -53,16 +53,16 @@ export default function DriverAvatarUpload({ currentAvatarUrl, gender, onUploade
 
       const avatarUrl = signedData.signedUrl;
 
-      // Update driver record
+      // Update driver record with file path (not signed URL, as signed URLs expire)
       const { error: updateErr } = await supabase
         .from("drivers")
-        .update({ avatar_url: publicUrl })
+        .update({ avatar_url: filePath })
         .eq("user_id", user.id);
 
       if (updateErr) throw updateErr;
 
-      setPreviewUrl(publicUrl);
-      onUploaded(publicUrl);
+      setPreviewUrl(avatarUrl);
+      onUploaded(avatarUrl);
       toast.success("Profile photo updated!");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
