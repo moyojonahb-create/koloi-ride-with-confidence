@@ -106,7 +106,8 @@ const AdminPromos = () => {
   };
 
   const toggleActive = async (id: string, current: boolean) => {
-    await supabase.from('promo_codes').update({ is_active: !current }).eq('id', id);
+    const { error } = await supabase.from('promo_codes').update({ is_active: !current }).eq('id', id);
+    if (error) { toast.error(error.message); return; }
     setPromos(prev => prev.map(p => p.id === id ? { ...p, is_active: !current } : p));
   };
 
