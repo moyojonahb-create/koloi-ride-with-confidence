@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { RefreshCw, Wallet, Car, Navigation, Users, MapPin, TrendingUp, Clock, Eye, DollarSign } from 'lucide-react';
-import { startOfDay, startOfWeek, startOfMonth, isAfter } from 'date-fns';
+import { RefreshCw, Wallet, Car, Navigation, Users, MapPin, TrendingUp, Clock, Eye, DollarSign, BarChart3 } from 'lucide-react';
+import { startOfDay, startOfWeek, startOfMonth, isAfter, subDays, format, eachDayOfInterval } from 'date-fns';
 import { supabase } from '@/lib/supabaseClient';
 import AdminGuard from '@/components/admin/AdminGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from 'recharts';
 
 interface DriverRow {
   id: string;
