@@ -231,27 +231,55 @@ export default function RideView() {
           <div className="w-12" />
         </div>
 
-        {/* ETA pill */}
-        <div className="absolute top-24 left-4 right-4 z-30">
+        {/* ETA pill - animated */}
+        <motion.div
+          initial={{ y: -30, opacity: 0, scale: 0.9 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.2 }}
+          className="absolute top-24 left-4 right-4 z-30"
+        >
           <div className="glass-card-heavy p-5 flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: 'var(--gradient-primary)' }}>
+            <motion.div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center"
+              style={{ background: 'var(--gradient-primary)' }}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+            >
               <Clock className="w-7 h-7 text-primary-foreground" />
-            </div>
+            </motion.div>
             <div>
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Arriving in</p>
-              <p className="text-3xl font-bold font-display text-foreground">{matchedDriver.eta} <span className="text-lg font-medium text-muted-foreground">min</span></p>
+              <motion.p
+                key={matchedDriver.eta}
+                initial={{ scale: 1.2, color: 'hsl(45 100% 51%)' }}
+                animate={{ scale: 1, color: 'hsl(var(--foreground))' }}
+                className="text-3xl font-bold font-display text-foreground tabular-nums"
+              >
+                {matchedDriver.eta} <span className="text-lg font-medium text-muted-foreground">min</span>
+              </motion.p>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Driver card bottom */}
-        <div className="absolute bottom-0 left-0 right-0 z-50">
-          <div className="glass-card-heavy rounded-t-[24px] px-4 pt-4 pb-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+        {/* Driver card bottom - slide up animation */}
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.4 }}
+          className="absolute bottom-0 left-0 right-0 z-50"
+        >
+          <div className="glass-card-heavy rounded-t-[28px] px-4 pt-4 pb-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
             <div className="w-10 h-1 rounded-full bg-foreground/10 mx-auto mb-4" />
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center ring-2 ring-primary/20 shrink-0" style={{ background: 'var(--gradient-primary)' }}>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15, delay: 0.6 }}
+                className="w-14 h-14 rounded-2xl flex items-center justify-center ring-2 ring-primary/20 shrink-0"
+                style={{ background: 'var(--gradient-primary)' }}
+              >
                 <User className="w-7 h-7 text-primary-foreground" />
-              </div>
+              </motion.div>
               <div className="flex-1 min-w-0">
                 <p className="text-base font-semibold font-display text-foreground truncate">{matchedDriver.name}</p>
                 <p className="text-sm text-muted-foreground truncate">{matchedDriver.car} · {matchedDriver.plate}</p>
@@ -262,23 +290,31 @@ export default function RideView() {
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2">
-              <button className="flex flex-col items-center gap-1.5 py-3 rounded-2xl active:scale-95 transition-all" style={{ background: 'var(--gradient-primary)' }}>
-                <Phone className="w-5 h-5 text-primary-foreground" />
-                <span className="text-[11px] font-medium text-primary-foreground">Call</span>
-              </button>
-              <button className="flex flex-col items-center gap-1.5 py-3 rounded-2xl glass-card active:scale-95 transition-all">
-                <MessageCircle className="w-5 h-5 text-primary" />
-                <span className="text-[11px] font-medium text-foreground">Message</span>
-              </button>
-              <button onClick={handleCancelRide} className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-destructive/8 active:scale-95 transition-all">
-                <X className="w-5 h-5 text-destructive" />
-                <span className="text-[11px] font-medium text-destructive">Cancel</span>
-              </button>
+              {[
+                { icon: Phone, label: 'Call', bg: 'var(--gradient-primary)', textClass: 'text-primary-foreground' },
+                { icon: MessageCircle, label: 'Message', bg: undefined, textClass: 'text-primary' },
+                { icon: X, label: 'Cancel', bg: undefined, textClass: 'text-destructive' },
+              ].map((action, i) => (
+                <motion.button
+                  key={action.label}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.7 + i * 0.1, type: 'spring', stiffness: 400, damping: 25 }}
+                  onClick={action.label === 'Cancel' ? handleCancelRide : undefined}
+                  className={cn(
+                    'flex flex-col items-center gap-1.5 py-3 rounded-2xl active:scale-95 transition-all',
+                    action.bg ? '' : action.label === 'Cancel' ? 'bg-destructive/8' : 'glass-card'
+                  )}
+                  style={action.bg ? { background: action.bg } : undefined}
+                >
+                  <action.icon className={cn('w-5 h-5', action.textClass)} />
+                  <span className={cn('text-[11px] font-medium', action.bg ? 'text-primary-foreground' : action.textClass)}>{action.label}</span>
+                </motion.button>
+              ))}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>);
-
   }
 
   // ═══════════════════════════════════════════
