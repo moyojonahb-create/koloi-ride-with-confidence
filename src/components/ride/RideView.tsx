@@ -104,6 +104,7 @@ export default function RideView() {
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
+  const nearbyDrivers = useNearbyDrivers(rideStatus === 'idle' || rideStatus === 'searching');
   const { suggestions: googleSuggestions, loading: googleLoading, search: searchGoogle, getPlaceDetails, clear: clearGoogleSuggestions } = useGooglePlacesAutocomplete();
 
   // ── effects ──
