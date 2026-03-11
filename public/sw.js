@@ -1,5 +1,5 @@
 // Bump cache name to force clients to pick up fresh assets after updates
-const CACHE_NAME = 'koloi-v4';
+const CACHE_NAME = 'voyex-v5';
 const STATIC_ASSETS = [
   '/',
   '/ride',
@@ -11,7 +11,7 @@ const STATIC_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Koloi SW] Caching static assets');
+      console.log('[Voyex SW] Caching static assets');
       return cache.addAll(STATIC_ASSETS);
     })
   );
@@ -35,7 +35,7 @@ self.addEventListener('activate', (event) => {
 // Push notification handler
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'Koloi';
+  const title = data.title || 'Voyex';
   const options = {
     body: data.body || 'New update',
     icon: '/icons/icon-192x192.png',
@@ -64,8 +64,10 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api')) return;
 
+  // NEVER cache OAuth callback routes – must always hit the network
+  if (url.pathname.startsWith('/~oauth')) return;
+
   // IMPORTANT: Don't cache dev/ESM module assets (can cause stale bundles and missing env vars)
-  // Vite serves these paths in preview builds.
   if (
     url.pathname.startsWith('/src/') ||
     url.pathname.startsWith('/node_modules/') ||
@@ -78,7 +80,6 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone the response before caching
         const responseClone = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, responseClone);
@@ -86,12 +87,10 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        // Fallback to cache
         return caches.match(event.request).then((cachedResponse) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          // Return offline page for navigation requests
           if (event.request.mode === 'navigate') {
             return caches.match('/');
           }
