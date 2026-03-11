@@ -1,5 +1,5 @@
 // Bump cache name to force clients to pick up fresh assets after updates
-const CACHE_NAME = 'voyex-v5';
+const CACHE_NAME = 'voyex-v6';
 const STATIC_ASSETS = [
   '/',
   '/ride',
@@ -32,17 +32,32 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Push notification handler
+// Push notification handler — native push from server
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
   const title = data.title || 'Voyex';
   const options = {
     body: data.body || 'New update',
     icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-192x192.png',
-    data: data.url || '/',
-    requireInteraction: true,
-    vibrate: [200, 100, 200, 100, 400],
+    badge: '/icons/icon-96x96.png',
+    image: data.image || undefined,
+    data: {
+      url: data.url || '/',
+      rideId: data.rideId || null,
+      type: data.type || 'general',
+    },
+    requireInteraction: data.type === 'ride_request',
+    vibrate: data.type === 'ride_request'
+      ? [200, 100, 200, 100, 400]
+      : [200, 100, 200],
+    actions: data.type === 'ride_request'
+      ? [
+          { action: 'view', title: '🚗 View Ride' },
+          { action: 'dismiss', title: 'Dismiss' },
+        ]
+      : [],
+    tag: data.tag || `voyex-${Date.now()}`,
+    renotify: true,
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
@@ -50,24 +65,43 @@ self.addEventListener('push', (event) => {
 // Notification click handler
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = event.notification.data || '/';
-  event.waitUntil(clients.openWindow(url));
+
+  const { url, rideId } = event.notification.data || {};
+  let targetUrl = url || '/';
+
+  // Handle action buttons
+  if (event.action === 'view' && rideId) {
+    targetUrl = `/ride-detail/${rideId}`;
+  } else if (event.action === 'dismiss') {
+    return;
+  }
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Focus existing window if available
+      for (const client of windowClients) {
+        if (client.url.includes(self.location.origin)) {
+          client.focus();
+          client.navigate(targetUrl);
+          return;
+        }
+      }
+      // Otherwise open new window
+      return clients.openWindow(targetUrl);
+    })
+  );
 });
 
 // Fetch event - network first, fallback to cache
 self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // Skip API requests and external URLs
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api')) return;
-
-  // NEVER cache OAuth callback routes – must always hit the network
   if (url.pathname.startsWith('/~oauth')) return;
 
-  // IMPORTANT: Don't cache dev/ESM module assets (can cause stale bundles and missing env vars)
+  // Don't cache dev assets
   if (
     url.pathname.startsWith('/src/') ||
     url.pathname.startsWith('/node_modules/') ||
