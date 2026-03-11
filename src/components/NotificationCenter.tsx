@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, X, Check, Car, DollarSign, AlertTriangle, Star, Gift } from 'lucide-react';
+import { Bell, X, Check, Car, DollarSign, AlertTriangle, Star, Gift, MapPin, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { showLocalNotification } from '@/lib/push';
 
 interface Notification {
   id: string;
@@ -19,6 +20,13 @@ interface Notification {
 
 const typeIcons: Record<string, typeof Bell> = {
   ride: Car,
+  ride_request: Car,
+  ride_accepted: CheckCircle,
+  ride_completed: CheckCircle,
+  ride_cancelled: X,
+  driver_arrived: MapPin,
+  new_offer: DollarSign,
+  deposit_approved: DollarSign,
   payment: DollarSign,
   alert: AlertTriangle,
   rating: Star,
@@ -45,7 +53,10 @@ export function NotificationBell() {
         table: 'notifications',
         filter: `user_id=eq.${user.id}`,
       }, (payload) => {
-        setNotifications(prev => [payload.new as Notification, ...prev]);
+        const notif = payload.new as Notification;
+        setNotifications(prev => [notif, ...prev]);
+        // Show browser notification for new items
+        showLocalNotification(notif.title, notif.body);
       })
       .subscribe();
 

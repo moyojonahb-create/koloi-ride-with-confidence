@@ -83,15 +83,21 @@ export default function EcoCashPaymentModal({
 
   const verifyAndPay = async (enteredPin: string) => {
     setLoading(true);
-    const ok = await onVerifyPin(enteredPin);
-    if (!ok) {
-      setError('Incorrect PIN');
+    try {
+      const ok = await onVerifyPin(enteredPin);
+      if (!ok) {
+        setError('Incorrect PIN');
+        setPin('');
+        setLoading(false);
+        return;
+      }
+      setStep('processing');
+      await processPayment();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verification failed');
       setPin('');
       setLoading(false);
-      return;
     }
-    setStep('processing');
-    await processPayment();
   };
 
   const processPayment = async () => {
