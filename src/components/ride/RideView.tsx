@@ -46,6 +46,7 @@ import TownSelectorSheet from './TownSelectorSheet';
 import { type ServiceType } from '@/components/VehicleTypeSelector';
 import IntercitySelector from './IntercitySelector';
 import { type IntercityRoute } from '@/lib/intercityRoutes';
+import { useNearbyDrivers } from '@/hooks/useNearbyDrivers';
 
 interface SelectedLocation {name: string;lat: number;lng: number;}
 interface GPSState {status: 'idle' | 'loading' | 'success' | 'denied' | 'unavailable';coords: {lat: number;lng: number;} | null;error: string | null;}
@@ -103,6 +104,7 @@ export default function RideView() {
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
+  const nearbyDrivers = useNearbyDrivers(rideStatus === 'idle' || rideStatus === 'searching');
   const { suggestions: googleSuggestions, loading: googleLoading, search: searchGoogle, getPlaceDetails, clear: clearGoogleSuggestions } = useGooglePlacesAutocomplete();
 
   // ── effects ──
@@ -394,7 +396,7 @@ export default function RideView() {
     <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
       {/* ── MAP ── */}
       <div className="absolute inset-0">
-        <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
+        <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" drivers={nearbyDrivers} />
 
         {/* Floating map buttons */}
         <div className="absolute right-3 z-20" style={{ bottom: sheetExpanded ? 'calc(70vh + 16px)' : 'calc(48vh + 16px)', transition: 'bottom 0.3s cubic-bezier(0.32,0.72,0,1)' }}>
@@ -533,21 +535,21 @@ export default function RideView() {
 
           {/* Service type tabs */}
           <div className="flex gap-1 bg-muted/50 rounded-xl p-1">
-            {SERVICE_TABS.map((tab) => {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-            )}
+            {SERVICE_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setServiceType(tab.id)}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all",
+                  serviceType === tab.id
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            ))}
           </div>
 
           {/* Town selector row */}
