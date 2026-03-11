@@ -668,9 +668,9 @@ export default function DriverDashboard() {
         )}
 
         {/* Demand Heatmap */}
-        {isOnline && profile.preferred_service_area && (
+        {isOnline && (
           <div className="glass-card rounded-2xl p-4">
-            <DemandHeatmap townId={profile.preferred_service_area === 'both' ? 'gwanda' : profile.preferred_service_area} />
+            <DemandHeatmap townId="gwanda" />
           </div>
         )}
 
