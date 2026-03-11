@@ -74,6 +74,7 @@ export default function RideView() {
   // ── state ──
   const [pickupLocation, setPickupLocation] = useState<SelectedLocation | null>(null);
   const [dropoffLocation, setDropoffLocation] = useState<SelectedLocation | null>(null);
+  const [serviceType, setServiceType] = useState<ServiceType>('ride');
   const [gpsState, setGpsState] = useState<GPSState>({ status: 'idle', coords: null, error: null });
   const [activeField, setActiveField] = useState<'pickup' | 'dropoff' | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
