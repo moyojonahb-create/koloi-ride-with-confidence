@@ -633,6 +633,9 @@ export default function RideView() {
           <p className="text-[11px] text-accent font-medium -mt-1.5 ml-1">⚡ Extra passenger charges applied</p>
           }
 
+          {/* Women-only ride toggle */}
+          <GenderPreferenceToggle value={genderPreference} onChange={setGenderPreference} />
+
           {/* ── Fare breakdown + Negotiation (expanded) ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
             const activeTown = selectedTown.name;
