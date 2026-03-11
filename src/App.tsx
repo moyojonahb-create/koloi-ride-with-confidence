@@ -62,6 +62,8 @@ import MappRedirect from "./components/mapp/MappRedirect";
 import MappAuthGuard from "./components/mapp/MappAuthGuard";
 import MappDriverGuard from "./components/mapp/MappDriverGuard";
 import MappAdminGuard from "./components/mapp/MappAdminGuard";
+import DriverLeaderboard from "./pages/DriverLeaderboard";
+import { I18nProvider } from "./lib/i18n";
 
 const queryClient = new QueryClient();
 
