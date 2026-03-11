@@ -112,6 +112,8 @@ export default function DriverDashboard() {
   const [riderPhone, setRiderPhone] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
   const [isTopDriver, setIsTopDriver] = useState(false);
+  const [selfieCheckOpen, setSelfieCheckOpen] = useState(false);
+  const [pendingOnlineAfterSelfie, setPendingOnlineAfterSelfie] = useState(false);
   const [townPricingMap, setTownPricingMap] = useState<Record<string, TownPricingConfig>>({});
 
   const lastRideIds = useRef<Set<string>>(new Set());
