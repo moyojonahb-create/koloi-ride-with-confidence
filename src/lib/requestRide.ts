@@ -102,5 +102,29 @@ export async function requestRide(input: RequestRideInput) {
     return { ok: false as const, error: msg };
   }
 
+  // Send push notification to online drivers (fire-and-forget)
+  try {
+    const session = (await supabase.auth.getSession()).data.session;
+    if (session?.access_token) {
+      fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-notification`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            type: 'ride_requested',
+            title: `New ride: ${input.pickup_address} → ${input.dropoff_address}`,
+            rideId: (data as RideRow).id,
+          }),
+        }
+      ).catch(() => {}); // Don't block on notification failure
+    }
+  } catch {
+    // Notification is best-effort
+  }
+
   return { ok: true as const, ride: data as RideRow };
 }
