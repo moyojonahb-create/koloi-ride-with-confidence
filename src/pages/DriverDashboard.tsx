@@ -177,6 +177,8 @@ export default function DriverDashboard() {
     : false;
 
   // Location tracking for admin monitoring
+  const prevLocationRef = useRef<{ lat: number; lng: number; time: number } | null>(null);
+
   const startLocationTracking = () => {
     stopLocationTracking();
     if (!navigator.geolocation) return;
@@ -184,6 +186,16 @@ export default function DriverDashboard() {
       const { latitude, longitude } = pos.coords;
       updateDriverLocation(latitude, longitude);
       setDriverCoords({ lat: latitude, lng: longitude });
+
+      // Fraud detection: check for GPS spoofing
+      if (user && prevLocationRef.current) {
+        runLocationFraudChecks(
+          user.id,
+          prevLocationRef.current.lat, prevLocationRef.current.lng, prevLocationRef.current.time,
+          latitude, longitude, Date.now()
+        ).catch(() => {});
+      }
+      prevLocationRef.current = { lat: latitude, lng: longitude, time: Date.now() };
     };
     // Send initial location
     navigator.geolocation.getCurrentPosition(handlePos, () => {});
