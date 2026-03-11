@@ -73,7 +73,7 @@ export async function enablePush(): Promise<boolean> {
       
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: vapidKey,
+        applicationServerKey: vapidKey.buffer as ArrayBuffer,
       });
     }
 
