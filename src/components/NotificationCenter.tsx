@@ -20,6 +20,13 @@ interface Notification {
 
 const typeIcons: Record<string, typeof Bell> = {
   ride: Car,
+  ride_request: Car,
+  ride_accepted: CheckCircle,
+  ride_completed: CheckCircle,
+  ride_cancelled: X,
+  driver_arrived: MapPin,
+  new_offer: DollarSign,
+  deposit_approved: DollarSign,
   payment: DollarSign,
   alert: AlertTriangle,
   rating: Star,
