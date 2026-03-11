@@ -133,6 +133,7 @@ function InnerMapGoogle({
   const mapRef = useRef<google.maps.Map | null>(null);
   const [routePath, setRoutePath] = useState<Coords[]>([]);
   const [secondaryPath, setSecondaryPath] = useState<Coords[]>([]);
+  const smoothDrivers = useSmoothDrivers(drivers);
 
   useEffect(() => {
     if (routeGeometry) {
