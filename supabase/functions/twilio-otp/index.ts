@@ -104,8 +104,8 @@ serve(async (req) => {
       const result = await response.json();
       
       if (!response.ok) {
-        console.error('Twilio error:', result);
-        throw new Error(result.message || 'Failed to send SMS');
+        console.error('[twilio-otp] SMS send error:', result?.message);
+        throw new Error('Failed to send SMS');
       }
 
       console.log('SMS sent successfully:', result.sid);
@@ -163,7 +163,7 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Error in twilio-otp function:', error);
+    console.error('[twilio-otp] Internal error:', error instanceof Error ? error.message : error);
     return new Response(
       JSON.stringify({ success: false, error: 'An error occurred' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

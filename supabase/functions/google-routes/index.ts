@@ -147,9 +147,9 @@ serve(async (req: Request) => {
     );
 
   } catch (error) {
-    console.error('Google Routes function error:', error);
+    console.error('[google-routes] Internal error:', error instanceof Error ? error.message : error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: 'Route calculation failed' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

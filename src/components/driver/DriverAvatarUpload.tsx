@@ -44,23 +44,25 @@ export default function DriverAvatarUpload({ currentAvatarUrl, gender, onUploade
 
       if (uploadErr) throw uploadErr;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
+      // Get signed URL (bucket is private)
+      const { data: signedData, error: signedErr } = await supabase.storage
         .from("driver-avatars")
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 60 * 60 * 24 * 365); // 1 year
 
-      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      if (signedErr || !signedData?.signedUrl) throw signedErr || new Error("Failed to get URL");
 
-      // Update driver record
+      const avatarUrl = signedData.signedUrl;
+
+      // Update driver record with file path (not signed URL, as signed URLs expire)
       const { error: updateErr } = await supabase
         .from("drivers")
-        .update({ avatar_url: publicUrl })
+        .update({ avatar_url: filePath })
         .eq("user_id", user.id);
 
       if (updateErr) throw updateErr;
 
-      setPreviewUrl(publicUrl);
-      onUploaded(publicUrl);
+      setPreviewUrl(avatarUrl);
+      onUploaded(avatarUrl);
       toast.success("Profile photo updated!");
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';

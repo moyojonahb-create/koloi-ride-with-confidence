@@ -135,7 +135,8 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      return new Response(JSON.stringify({ error: error.message }), {
+      console.error("[settle-trip] Database error:", error.message);
+      return new Response(JSON.stringify({ error: "Settlement failed" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -146,7 +147,8 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e: unknown) {
-    return new Response(JSON.stringify({ error: (e as Error)?.message ?? "Server error" }), {
+    console.error("[settle-trip] Unexpected error:", (e as Error)?.message);
+    return new Response(JSON.stringify({ error: "An error occurred" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

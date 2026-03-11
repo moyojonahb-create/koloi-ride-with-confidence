@@ -167,26 +167,49 @@ const AdminDashboard = () => {
 
   const setDriverStatus = async (driverId: string, status: 'approved' | 'suspended') => {
     setError('');
-    const { error: updateErr } = await supabase.from('drivers').update({ status }).eq('id', driverId);
-    if (updateErr) { setError(updateErr.message); return; }
-
-    await supabase.from('system_events').insert({
-      event_type: status === 'approved' ? 'driver_approved' : 'driver_suspended',
-      entity_type: 'driver',
-      entity_id: driverId,
-      details: { status }
-    });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) { setError('Not authenticated'); return; }
+      const action = status === 'approved' ? 'approve_driver' : 'suspend_driver';
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-api?action=${action}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ driverId }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok || data?.error) { setError(data?.error || 'Operation failed'); return; }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Operation failed');
+      return;
+    }
     await refreshAll();
   };
 
   const forceDriverOffline = async (userId: string, driverId: string) => {
-    await supabase.from('drivers').update({ is_online: false }).eq('id', driverId);
-    await supabase.from('live_locations').update({ is_online: false }).eq('user_id', userId);
-    await supabase.from('system_events').insert({
-      event_type: 'force_driver_offline',
-      entity_type: 'driver',
-      entity_id: driverId,
-    });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-api?action=force_driver_offline`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({ userId, driverId }),
+        }
+      );
+      if (!res.ok) { const d = await res.json(); setError(d?.error || 'Failed'); return; }
+    } catch { /* ignore */ }
     await refreshAll();
   };
 
