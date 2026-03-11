@@ -6,6 +6,7 @@ import { ArrowLeft, MapPin, Navigation, Clock, Banknote, Car, ChevronRight, Load
 import { format } from 'date-fns';
 import VoyexLogo from '@/components/VoyexLogo';
 import BottomNavBar from '@/components/BottomNavBar';
+import RiderSpendingAnalytics from '@/components/ride/RiderSpendingAnalytics';
 
 
 interface RideRecord {
