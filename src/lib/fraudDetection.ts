@@ -95,7 +95,7 @@ export async function reportFraudFlag(userId: string, check: FraudCheck) {
     user_id: userId,
     flag_type: check.type,
     severity: check.severity,
-    details: check.details as Record<string, unknown>,
+    details: JSON.parse(JSON.stringify(check.details)),
   }]);
 }
 
