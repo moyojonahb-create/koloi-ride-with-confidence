@@ -482,6 +482,28 @@ export default function RideView() {
               <History className="w-5 h-5 text-primary" />
               <span className="text-[15px] font-semibold text-foreground">History</span>
             </button>
+
+            <div className="border-t border-border/30 my-1 mx-2" />
+            <p className="px-4 pt-1 pb-0.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Services</p>
+
+            <button
+              onClick={() => {setMenuOpen(false);setServiceType('intercity');}}
+              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all">
+              <Route className="w-5 h-5 text-primary" />
+              <span className="text-[15px] font-semibold text-foreground">Intercity</span>
+            </button>
+            <button
+              onClick={() => {setMenuOpen(false);setServiceType('courier');}}
+              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all">
+              <Zap className="w-5 h-5 text-primary" />
+              <span className="text-[15px] font-semibold text-foreground">Courier</span>
+            </button>
+            <button
+              onClick={() => {setMenuOpen(false);setServiceType('freight');}}
+              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all">
+              <CarFront className="w-5 h-5 text-primary" />
+              <span className="text-[15px] font-semibold text-foreground">Freight</span>
+            </button>
           </nav>
         </SheetContent>
       </Sheet>
