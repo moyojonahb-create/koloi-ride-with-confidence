@@ -34,7 +34,8 @@ import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 
 import RecentDestinations from './RecentDestinations';
-import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
+import MultiStopInput, { type RideStop } from './MultiStopInput';
+import ScheduleRide from './ScheduleRide';
 import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
 import TownSelectorSheet from './TownSelectorSheet';
 
