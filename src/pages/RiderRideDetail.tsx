@@ -313,7 +313,16 @@ export default function RiderRideDetail() {
 
       {/* Map background */}
       <div className="absolute inset-0">
-        {ride.pickup_lat && (
+        {ride.pickup_lat && isAccepted ? (
+          <TripGoogleMap
+            driverLocation={driverLocation}
+            pickup={{ lat: ride.pickup_lat, lng: ride.pickup_lon }}
+            dropoff={{ lat: ride.dropoff_lat, lng: ride.dropoff_lon }}
+            tripStatus={ride.status}
+            height="100%"
+            className="w-full h-full"
+          />
+        ) : ride.pickup_lat ? (
           <MapGoogle
             pickup={{ lat: ride.pickup_lat, lng: ride.pickup_lon }}
             dropoff={{ lat: ride.dropoff_lat, lng: ride.dropoff_lon }}
@@ -323,7 +332,7 @@ export default function RiderRideDetail() {
             className="w-full h-full"
             height="100%"
           />
-        )}
+        ) : null}
         {/* Top gradient */}
         <div className="absolute top-0 left-0 right-0 h-28 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, hsl(217 85% 29% / 0.12), transparent)' }} />
       </div>
