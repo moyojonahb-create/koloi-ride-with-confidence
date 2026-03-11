@@ -61,6 +61,7 @@ import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import DriverEarningsDashboard from "@/components/driver/DriverEarningsDashboard";
+import DriverSelfieCheck from "@/components/driver/DriverSelfieCheck";
 import MapGoogle from "@/components/MapGoogle";
 import { useNearbyDrivers } from "@/hooks/useNearbyDrivers";
 import { useOSRMRoute } from "@/hooks/useOSRMRoute";
@@ -111,6 +112,8 @@ export default function DriverDashboard() {
   const [riderPhone, setRiderPhone] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
   const [isTopDriver, setIsTopDriver] = useState(false);
+  const [selfieCheckOpen, setSelfieCheckOpen] = useState(false);
+  const [pendingOnlineAfterSelfie, setPendingOnlineAfterSelfie] = useState(false);
   const [townPricingMap, setTownPricingMap] = useState<Record<string, TownPricingConfig>>({});
 
   const lastRideIds = useRef<Set<string>>(new Set());
@@ -211,10 +214,19 @@ export default function DriverDashboard() {
   const toggleOnline = async (online: boolean) => {
     if (!profile || togglingOnline) return;
 
+    // If going online, require selfie check first (once per session)
+    if (online && !pendingOnlineAfterSelfie) {
+      const lastSelfie = sessionStorage.getItem('voyex-selfie-verified');
+      if (!lastSelfie) {
+        setSelfieCheckOpen(true);
+        return;
+      }
+    }
+    setPendingOnlineAfterSelfie(false);
+
     setTogglingOnline(true);
     try {
       if (online) {
-        // Check if driver can operate (trial or wallet balance)
         const { data: canOperate, error: rpcErr } = await supabase.rpc("can_driver_operate", { p_driver_id: user!.id });
         if (rpcErr) throw new Error(rpcErr.message);
         if (!canOperate) {
@@ -530,6 +542,23 @@ export default function DriverDashboard() {
 
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
+      {/* Selfie Verification */}
+      <DriverSelfieCheck
+        open={selfieCheckOpen}
+        onVerified={() => {
+          setSelfieCheckOpen(false);
+          sessionStorage.setItem('voyex-selfie-verified', Date.now().toString());
+          setPendingOnlineAfterSelfie(true);
+          toggleOnline(true);
+        }}
+        onSkip={() => {
+          setSelfieCheckOpen(false);
+          sessionStorage.setItem('voyex-selfie-verified', Date.now().toString());
+          setPendingOnlineAfterSelfie(true);
+          toggleOnline(true);
+        }}
+      />
+
       {/* Active Call Overlay */}
       {callStatus !== "idle" && (
         <ActiveCallOverlay

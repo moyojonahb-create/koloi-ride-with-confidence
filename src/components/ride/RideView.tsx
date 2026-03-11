@@ -43,10 +43,21 @@ import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
 import TownSelectorSheet from './TownSelectorSheet';
 
 // ── types ──
+import { type ServiceType } from '@/components/VehicleTypeSelector';
+import IntercitySelector from './IntercitySelector';
+import { type IntercityRoute } from '@/lib/intercityRoutes';
+
 interface SelectedLocation {name: string;lat: number;lng: number;}
 interface GPSState {status: 'idle' | 'loading' | 'success' | 'denied' | 'unavailable';coords: {lat: number;lng: number;} | null;error: string | null;}
 type VehicleTier = 'standard';
 type PaymentMethod = 'cash' | 'wallet' | 'ecocash';
+
+const SERVICE_TABS: { id: ServiceType; label: string; icon: string }[] = [
+  { id: 'ride', label: 'Ride', icon: '🚗' },
+  { id: 'intercity', label: 'Intercity', icon: '🛣️' },
+  { id: 'courier', label: 'Courier', icon: '📦' },
+  { id: 'freight', label: 'Freight', icon: '🚛' },
+];
 
 const VEHICLE_TIERS: {id: VehicleTier;name: string;icon: typeof Car;priceRange: string;passengers: string;eta: string;multiplier: number;}[] = [
 { id: 'standard', name: 'Voyex Standard', icon: Car, priceRange: '$1.50 – $10', passengers: '1–4', eta: '3 min', multiplier: 1 }];
@@ -63,6 +74,7 @@ export default function RideView() {
   // ── state ──
   const [pickupLocation, setPickupLocation] = useState<SelectedLocation | null>(null);
   const [dropoffLocation, setDropoffLocation] = useState<SelectedLocation | null>(null);
+  const [serviceType, setServiceType] = useState<ServiceType>('ride');
   const [gpsState, setGpsState] = useState<GPSState>({ status: 'idle', coords: null, error: null });
   const [activeField, setActiveField] = useState<'pickup' | 'dropoff' | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -496,6 +508,25 @@ export default function RideView() {
 
         {/* Scrollable content */}
         <div className="flex-1 px-4 pb-2 space-y-3 min-h-0 overflow-y-auto overscroll-contain">
+
+          {/* Service type tabs */}
+          <div className="flex gap-1 bg-muted/50 rounded-xl p-1">
+            {SERVICE_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setServiceType(tab.id)}
+                className={cn(
+                  'flex-1 py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1',
+                  serviceType === tab.id
+                    ? 'bg-card text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
 
           {/* Town selector row */}
           <div className="flex items-center justify-between">
