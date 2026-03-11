@@ -44,12 +44,14 @@ export default function DriverAvatarUpload({ currentAvatarUrl, gender, onUploade
 
       if (uploadErr) throw uploadErr;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
+      // Get signed URL (bucket is private)
+      const { data: signedData, error: signedErr } = await supabase.storage
         .from("driver-avatars")
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 60 * 60 * 24 * 365); // 1 year
 
-      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      if (signedErr || !signedData?.signedUrl) throw signedErr || new Error("Failed to get URL");
+
+      const avatarUrl = signedData.signedUrl;
 
       // Update driver record
       const { error: updateErr } = await supabase
