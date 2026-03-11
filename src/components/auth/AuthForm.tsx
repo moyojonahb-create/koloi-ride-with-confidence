@@ -210,7 +210,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
     setLoading(true);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: window.location.origin + '/app',
       });
       if (result?.error) {
         toast.error('Google sign-in failed. Please try again.');
