@@ -22,7 +22,6 @@ import Auth from "./pages/Auth";
 import Signup from "./pages/Signup";
 import AppDashboard from "./pages/AppDashboard";
 import RiderProfile from "./pages/RiderProfile";
-import PilotTest from "./pages/PilotTest";
 import DriverWalletPage from "./pages/DriverWalletPage";
 import DriverDepositPage from "./pages/DriverDepositPage";
 import SafetyPage from "./pages/SafetyPage";
@@ -31,6 +30,9 @@ import RideHistory from "./pages/RideHistory";
 import EditProfile from "./pages/EditProfile";
 import Install from "./pages/Install";
 import Offline from "./pages/Offline";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import DeleteAccount from "./pages/DeleteAccount";
 import { useOnlineStatus } from "./hooks/useOnlineStatus";
 
 // Admin pages
