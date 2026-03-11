@@ -667,6 +667,13 @@ export default function DriverDashboard() {
           <DriverEarningsDashboard />
         )}
 
+        {/* Demand Heatmap */}
+        {isOnline && profile.preferred_service_area && (
+          <div className="glass-card rounded-2xl p-4">
+            <DemandHeatmap townId={profile.preferred_service_area === 'both' ? 'gwanda' : profile.preferred_service_area} />
+          </div>
+        )}
+
         {/* Trial Banner */}
         {profile && trialActive && (
           <Card className="border-amber-500 bg-amber-500/10">
