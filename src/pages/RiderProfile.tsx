@@ -203,6 +203,7 @@ export default function RiderProfile() {
         <div className="space-y-1.5">
           <NavRow icon={<User className="w-4 h-4 text-primary" />} label="Edit Profile" onClick={() => navigate(`${prefix}/edit-profile`)} />
           <NavRow icon={<Shield className="w-4 h-4 text-primary" />} label="Safety" onClick={() => navigate(`${prefix}/safety`)} />
+          <NavRow icon={<Trash2 className="w-4 h-4 text-destructive" />} label="Delete Account" onClick={() => navigate('/delete-account')} />
         </div>
 
         <Button variant="outline" className="w-full h-11 rounded-2xl text-destructive border-destructive/20 hover:bg-destructive/5 glass-card text-sm" onClick={handleSignOut}>

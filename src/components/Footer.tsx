@@ -120,9 +120,8 @@ const Footer = () => {
             </div>
             <div className="flex flex-wrap gap-4 text-sm text-primary-foreground/60">
               <span>© 2026 Voyex. Powered by Tautona Tek</span>
-              <a href="#" className="hover:text-primary-foreground transition-colors">Privacy</a>
-              <a href="#" className="hover:text-primary-foreground transition-colors">Accessibility</a>
-              <a href="#" className="hover:text-primary-foreground transition-colors">Terms</a>
+              <a href="/privacy" className="hover:text-primary-foreground transition-colors">Privacy</a>
+              <a href="/terms" className="hover:text-primary-foreground transition-colors">Terms</a>
             </div>
           </div>
         </div>
