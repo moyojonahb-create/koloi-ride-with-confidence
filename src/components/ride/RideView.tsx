@@ -82,6 +82,9 @@ export default function RideView() {
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedTown, setSelectedTown] = useState<TownConfig>(DEFAULT_TOWN);
+  const [rideStops, setRideStops] = useState<RideStop[]>([]);
+  const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
+  const [activeStopId, setActiveStopId] = useState<string | null>(null);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
