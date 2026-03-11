@@ -190,6 +190,33 @@ const AdminDriverDetail = () => {
     }
   };
 
+  const pendingDocs = documents.filter(d => d.status === 'pending');
+
+  const handleBatchApprove = async () => {
+    if (pendingDocs.length === 0) return;
+    setActionLoading(true);
+
+    try {
+      const pendingIds = pendingDocs.map(d => d.id);
+      const { error } = await supabase
+        .from('driver_documents')
+        .update({ status: 'approved', reviewed_at: new Date().toISOString() })
+        .in('id', pendingIds);
+
+      if (error) throw error;
+
+      setDocuments(documents.map(doc =>
+        pendingIds.includes(doc.id) ? { ...doc, status: 'approved' } : doc
+      ));
+      toast.success(`${pendingIds.length} document${pendingIds.length > 1 ? 's' : ''} approved`);
+    } catch (error) {
+      console.error('Error batch approving:', error);
+      toast.error('Failed to approve documents');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <AdminGuard>
