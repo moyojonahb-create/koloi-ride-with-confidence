@@ -165,6 +165,7 @@ const App = () => {
   const isOnline = useOnlineStatus();
 
   return (
+  <I18nProvider>
   <ThemeProvider attribute="class" defaultTheme="light" storageKey="voyex-theme">
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
