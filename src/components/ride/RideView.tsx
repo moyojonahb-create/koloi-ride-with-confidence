@@ -520,6 +520,15 @@ export default function RideView() {
             </button>
           </div>
 
+          {/* Multi-stop + Schedule */}
+          <MultiStopInput
+            stops={rideStops}
+            onAddStop={handleAddStop}
+            onRemoveStop={handleRemoveStop}
+            onStopClick={handleStopClick}
+          />
+          <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
+
           {/* Passenger selector — compact inline */}
           <div className="flex items-center justify-between glass-card rounded-2xl px-3 py-2">
             <div className="flex items-center gap-2">
