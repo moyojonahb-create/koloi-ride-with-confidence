@@ -163,7 +163,7 @@ serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Error in twilio-otp function:', error);
+    console.error('[twilio-otp] Internal error:', error instanceof Error ? error.message : error);
     return new Response(
       JSON.stringify({ success: false, error: 'An error occurred' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
