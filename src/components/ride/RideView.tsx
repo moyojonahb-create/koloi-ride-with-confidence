@@ -186,13 +186,47 @@ export default function RideView() {
         fare: customFare,
         route_polyline: routeData?.geometry || null, passenger_count: passengerCount,
         payment_method: paymentMethod, vehicle_type: selectedTier,
-        town_id: selectedTown?.id ?? null
+        town_id: selectedTown?.id ?? null,
+        ...(scheduledAt ? { scheduled_at: scheduledAt.toISOString() } : {}),
       });
       if (!result.ok) throw new Error(result.error);
+      
+      // Save multi-stops if any
+      if (rideStops.length > 0 && result.ride.id) {
+        const stopsToInsert = rideStops
+          .filter(s => s.address && s.lat && s.lng)
+          .map((s, i) => ({
+            ride_id: result.ride.id,
+            stop_order: i + 1,
+            address: s.address,
+            latitude: s.lat,
+            longitude: s.lng,
+          }));
+        if (stopsToInsert.length > 0) {
+          await supabase.from('ride_stops').insert(stopsToInsert);
+        }
+      }
+      
       setCurrentRideId(result.ride.id);
-      toast({ title: 'Offer sent!', description: `${fareEstimate.currencySymbol}${customFare} — waiting for drivers…` });
-      navigate(`/ride/${result.ride.id}`);
+      toast({ title: scheduledAt ? 'Ride scheduled!' : 'Offer sent!', description: `${fareEstimate.currencySymbol}${customFare} — ${scheduledAt ? 'scheduled for later' : 'waiting for drivers…'}` });
+      if (!scheduledAt) navigate(`/ride/${result.ride.id}`);
+      else { setRideStatus('idle'); setScheduledAt(null); setRideStops([]); }
     } catch (error: unknown) {toast({ title: 'Failed to send offer', description: (error as Error).message, variant: 'destructive' });setRideStatus('idle');} finally {setIsRequesting(false);}
+  };
+
+  const handleAddStop = () => {
+    if (rideStops.length >= 3) return;
+    setRideStops(prev => [...prev, { id: crypto.randomUUID(), address: '', lat: 0, lng: 0 }]);
+  };
+
+  const handleRemoveStop = (id: string) => {
+    setRideStops(prev => prev.filter(s => s.id !== id));
+  };
+
+  const handleStopClick = (id: string) => {
+    setActiveStopId(id);
+    setActiveField('dropoff'); // Reuse search overlay
+    setSearchQuery('');
   };
 
   const handleAcceptOffer = async (offerId: string) => {setRideStatus('driver_assigned');setOffersOpen(false);toast({ title: 'Driver accepted!' });setMatchedDriver({ name: 'Sipho Ndlovu', car: 'Toyota Corolla', plate: 'ACB 2345', rating: 4.8, eta: 3 });setTimeout(() => setRideStatus('driver_arriving'), 2000);};
