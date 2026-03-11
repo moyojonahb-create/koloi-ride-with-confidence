@@ -469,7 +469,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
               type="tel"
               placeholder="Phone number"
               value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => setPhone(e.target.value)}
               onBlur={validatePhone}
               className="flex-1"
               required
