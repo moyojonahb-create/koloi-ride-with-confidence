@@ -362,6 +362,14 @@ export default function RideView() {
                 </motion.button>
               ))}
             </div>
+            <div className="mt-3 flex justify-center">
+              <EmergencyButton
+                rideId={currentRideId ?? undefined}
+                pickupAddress={pickupLocation?.name}
+                dropoffAddress={dropoffLocation?.name}
+                driverName={matchedDriver.name}
+              />
+            </div>
           </div>
         </motion.div>
       </div>);
