@@ -233,8 +233,8 @@ function InnerMapGoogle({
         {driverLocation && (
           <Marker position={driverLocation} icon={{ url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(CAR_ICON_SVG), scaledSize: new google.maps.Size(36, 36), anchor: new google.maps.Point(18, 18) }} zIndex={20} />
         )}
-        {/* Nearby drivers as car icons */}
-        {drivers?.map((d) => (
+        {/* Nearby drivers as animated car icons */}
+        {smoothDrivers.map((d) => (
           <Marker key={d.id} position={{ lat: d.lat, lng: d.lng }} icon={{
             url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(d.isOnline ? NEARBY_CAR_SVG : OFFLINE_CAR_SVG),
             scaledSize: new google.maps.Size(d.isOnline ? 32 : 28, d.isOnline ? 32 : 28),
