@@ -104,8 +104,8 @@ serve(async (req) => {
       const result = await response.json();
       
       if (!response.ok) {
-        console.error('Twilio error:', result);
-        throw new Error(result.message || 'Failed to send SMS');
+        console.error('[twilio-otp] SMS send error:', result?.message);
+        throw new Error('Failed to send SMS');
       }
 
       console.log('SMS sent successfully:', result.sid);
