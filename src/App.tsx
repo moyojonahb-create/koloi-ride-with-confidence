@@ -78,29 +78,29 @@ const AnimatedRoutes = () => {
       <Routes location={location}>
         {/* ── Existing web routes ── */}
         <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-        <Route path="/ride" element={<PageTransition><Ride /></PageTransition>} />
-        <Route path="/ride/:rideId" element={<PageTransition><RiderRideDetail /></PageTransition>} />
-        <Route path="/ride-detail/:rideId" element={<PageTransition><RideDetail /></PageTransition>} />
-        <Route path="/driver" element={<PageTransition><DriverDashboard /></PageTransition>} />
+        <Route path="/ride" element={<AuthGuard><PageTransition><Ride /></PageTransition></AuthGuard>} />
+        <Route path="/ride/:rideId" element={<AuthGuard><PageTransition><RiderRideDetail /></PageTransition></AuthGuard>} />
+        <Route path="/ride-detail/:rideId" element={<AuthGuard><PageTransition><RideDetail /></PageTransition></AuthGuard>} />
+        <Route path="/driver" element={<AuthGuard><PageTransition><DriverDashboard /></PageTransition></AuthGuard>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/login" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
-        <Route path="/dashboard" element={<PageTransition><AppDashboard /></PageTransition>} />
-        <Route path="/profile" element={<PageTransition><RiderProfile /></PageTransition>} />
-        <Route path="/app" element={<PageTransition><AppDashboard /></PageTransition>} />
-        <Route path="/drive" element={<PageTransition><DriverApplication /></PageTransition>} />
+        <Route path="/dashboard" element={<AuthGuard><PageTransition><AppDashboard /></PageTransition></AuthGuard>} />
+        <Route path="/profile" element={<AuthGuard><PageTransition><RiderProfile /></PageTransition></AuthGuard>} />
+        <Route path="/app" element={<AuthGuard><PageTransition><AppDashboard /></PageTransition></AuthGuard>} />
+        <Route path="/drive" element={<AuthGuard><PageTransition><DriverApplication /></PageTransition></AuthGuard>} />
         <Route path="/driver-mode" element={<PageTransition><DriverModeLanding /></PageTransition>} />
         <Route path="/safety" element={<PageTransition><SafetyPage /></PageTransition>} />
-        <Route path="/history" element={<PageTransition><RideHistory /></PageTransition>} />
-        <Route path="/leaderboard" element={<PageTransition><DriverLeaderboard /></PageTransition>} />
-        <Route path="/edit-profile" element={<PageTransition><EditProfile /></PageTransition>} />
+        <Route path="/history" element={<AuthGuard><PageTransition><RideHistory /></PageTransition></AuthGuard>} />
+        <Route path="/leaderboard" element={<AuthGuard><PageTransition><DriverLeaderboard /></PageTransition></AuthGuard>} />
+        <Route path="/edit-profile" element={<AuthGuard><PageTransition><EditProfile /></PageTransition></AuthGuard>} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
         <Route path="/privacy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
         <Route path="/terms" element={<PageTransition><TermsOfService /></PageTransition>} />
-        <Route path="/delete-account" element={<PageTransition><DeleteAccount /></PageTransition>} />
-        <Route path="/drivers/wallet" element={<PageTransition><DriverWalletPage /></PageTransition>} />
-        <Route path="/drivers/deposit" element={<PageTransition><DriverDepositPage /></PageTransition>} />
-        <Route path="/wallet" element={<PageTransition><RiderWalletPage /></PageTransition>} />
+        <Route path="/delete-account" element={<AuthGuard><PageTransition><DeleteAccount /></PageTransition></AuthGuard>} />
+        <Route path="/drivers/wallet" element={<AuthGuard><PageTransition><DriverWalletPage /></PageTransition></AuthGuard>} />
+        <Route path="/drivers/deposit" element={<AuthGuard><PageTransition><DriverDepositPage /></PageTransition></AuthGuard>} />
+        <Route path="/wallet" element={<AuthGuard><PageTransition><RiderWalletPage /></PageTransition></AuthGuard>} />
         
         {/* Admin Routes */}
         <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />
