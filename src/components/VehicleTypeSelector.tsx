@@ -1,21 +1,49 @@
-import { Car } from 'lucide-react';
+import { Car, Truck, Package, MapPinned } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+export type ServiceType = 'ride' | 'intercity' | 'courier' | 'freight';
+
 export interface VehicleType {
-  id: 'standard';
+  id: ServiceType;
   name: string;
   description: string;
   icon: React.ElementType;
   eta: string;
+  priceHint: string;
 }
 
 export const VEHICLE_TYPES: VehicleType[] = [
   {
-    id: 'standard',
+    id: 'ride',
     name: 'Voyex',
     description: 'Affordable town rides',
     icon: Car,
     eta: '3 min',
+    priceHint: '$1.50+',
+  },
+  {
+    id: 'intercity',
+    name: 'Intercity',
+    description: 'Long-distance between cities',
+    icon: MapPinned,
+    eta: '15 min',
+    priceHint: '$10+',
+  },
+  {
+    id: 'courier',
+    name: 'Courier',
+    description: 'Small packages & documents',
+    icon: Package,
+    eta: '5 min',
+    priceHint: '$2+',
+  },
+  {
+    id: 'freight',
+    name: 'Freight',
+    description: 'Large items & bulk deliveries',
+    icon: Truck,
+    eta: '20 min',
+    priceHint: '$15+',
   },
 ];
 
@@ -34,7 +62,7 @@ const VehicleTypeSelector = ({
 }: VehicleTypeSelectorProps) => {
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium text-muted-foreground">Your ride</p>
+      <p className="text-sm font-medium text-muted-foreground">Choose service</p>
       <div className="space-y-2">
         {VEHICLE_TYPES.map((vehicle) => {
           const Icon = vehicle.icon;
@@ -67,10 +95,10 @@ const VehicleTypeSelector = ({
               </div>
               
               <div className="text-right shrink-0">
-                {fareUsd ? (
+                {isSelected && fareUsd ? (
                   <span className="font-bold text-foreground">${fareUsd.toFixed(2)}</span>
                 ) : (
-                  <span className="text-sm text-muted-foreground">$1.50+</span>
+                  <span className="text-sm text-muted-foreground">{vehicle.priceHint}</span>
                 )}
               </div>
             </button>
@@ -80,7 +108,10 @@ const VehicleTypeSelector = ({
       
       {/* Pricing info */}
       <div className="text-xs text-muted-foreground text-center pt-2 border-t border-border">
-        $1.50 – $50.00 in town ($0.50 increments)
+        {selectedType.id === 'ride' && '$1.50 – $50.00 in town ($0.50 increments)'}
+        {selectedType.id === 'intercity' && '$10 – $200 between cities (negotiable)'}
+        {selectedType.id === 'courier' && '$2 – $30 for packages'}
+        {selectedType.id === 'freight' && '$15 – $500 for bulk deliveries'}
       </div>
     </div>
   );
