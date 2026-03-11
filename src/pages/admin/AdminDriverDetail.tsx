@@ -350,70 +350,100 @@ const AdminDriverDetail = () => {
                   {documents.map((doc) => (
                     <div 
                       key={doc.id}
-                      className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg"
+                      className="p-4 bg-secondary/50 rounded-lg space-y-3"
                     >
-                      <div className="flex items-center gap-4">
-                        <FileText className="w-8 h-8 text-muted-foreground" />
-                        <div>
-                          <p className="font-medium">
-                            {documentLabels[doc.document_type] || doc.document_type}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Uploaded {format(new Date(doc.created_at), 'MMM d, yyyy')}
-                          </p>
-                          {doc.rejection_reason && (
-                            <p className="text-sm text-red-600 mt-1">
-                              Rejected: {doc.rejection_reason}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <FileText className="w-8 h-8 text-muted-foreground" />
+                          <div>
+                            <p className="font-medium">
+                              {documentLabels[doc.document_type] || doc.document_type}
                             </p>
+                            <p className="text-sm text-muted-foreground">
+                              Uploaded {format(new Date(doc.created_at), 'MMM d, yyyy')}
+                            </p>
+                            {doc.rejection_reason && (
+                              <p className="text-sm text-destructive mt-1">
+                                Rejected: {doc.rejection_reason}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge className={cn("capitalize", statusColors[doc.status])}>
+                            {doc.status}
+                          </Badge>
+                          {doc.status === 'pending' && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleDocumentAction(doc.id, 'approved')}
+                                disabled={actionLoading}
+                              >
+                                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button size="sm" variant="ghost" disabled={actionLoading}>
+                                    <XCircle className="w-4 h-4 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Reject Document</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Please provide a reason for rejecting this document.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <Textarea
+                                    placeholder="Enter rejection reason..."
+                                    value={rejectionReason}
+                                    onChange={(e) => setRejectionReason(e.target.value)}
+                                  />
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleDocumentAction(doc.id, 'rejected')}
+                                      className="bg-destructive hover:bg-destructive/90"
+                                    >
+                                      Reject
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </>
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={cn("capitalize", statusColors[doc.status])}>
-                          {doc.status}
-                        </Badge>
-                        {doc.status === 'pending' && (
-                          <>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDocumentAction(doc.id, 'approved')}
-                              disabled={actionLoading}
-                            >
-                              <CheckCircle className="w-4 h-4 text-emerald-600" />
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button size="sm" variant="ghost" disabled={actionLoading}>
-                                  <XCircle className="w-4 h-4 text-red-600" />
-                                </Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Reject Document</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Please provide a reason for rejecting this document.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <Textarea
-                                  placeholder="Enter rejection reason..."
-                                  value={rejectionReason}
-                                  onChange={(e) => setRejectionReason(e.target.value)}
-                                />
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction
-                                    onClick={() => handleDocumentAction(doc.id, 'rejected')}
-                                    className="bg-red-600 hover:bg-red-700"
-                                  >
-                                    Reject
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </>
-                        )}
-                      </div>
+                      
+                      {/* Document Preview */}
+                      {doc.file_url && (
+                        <div className="rounded-lg overflow-hidden border border-border bg-muted/30">
+                          {doc.file_url.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? (
+                            <img
+                              src={doc.file_url}
+                              alt={documentLabels[doc.document_type] || doc.document_type}
+                              className="w-full max-h-64 object-contain"
+                              loading="lazy"
+                            />
+                          ) : doc.file_url.match(/\.pdf$/i) ? (
+                            <div className="p-4 flex items-center justify-center gap-3">
+                              <FileText className="w-6 h-6 text-primary" />
+                              <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-primary hover:underline">
+                                View PDF Document
+                              </a>
+                            </div>
+                          ) : (
+                            <div className="p-4 flex items-center justify-center gap-3">
+                              <FileText className="w-6 h-6 text-muted-foreground" />
+                              <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-primary hover:underline">
+                                Download Document
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
