@@ -22,7 +22,6 @@ import Auth from "./pages/Auth";
 import Signup from "./pages/Signup";
 import AppDashboard from "./pages/AppDashboard";
 import RiderProfile from "./pages/RiderProfile";
-import PilotTest from "./pages/PilotTest";
 import DriverWalletPage from "./pages/DriverWalletPage";
 import DriverDepositPage from "./pages/DriverDepositPage";
 import SafetyPage from "./pages/SafetyPage";
@@ -31,6 +30,9 @@ import RideHistory from "./pages/RideHistory";
 import EditProfile from "./pages/EditProfile";
 import Install from "./pages/Install";
 import Offline from "./pages/Offline";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import DeleteAccount from "./pages/DeleteAccount";
 import { useOnlineStatus } from "./hooks/useOnlineStatus";
 
 // Admin pages
@@ -87,7 +89,9 @@ const AnimatedRoutes = () => {
         <Route path="/history" element={<PageTransition><RideHistory /></PageTransition>} />
         <Route path="/edit-profile" element={<PageTransition><EditProfile /></PageTransition>} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
-        <Route path="/pilot-test" element={<PageTransition><PilotTest /></PageTransition>} />
+        <Route path="/privacy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
+        <Route path="/terms" element={<PageTransition><TermsOfService /></PageTransition>} />
+        <Route path="/delete-account" element={<PageTransition><DeleteAccount /></PageTransition>} />
         <Route path="/drivers/wallet" element={<PageTransition><DriverWalletPage /></PageTransition>} />
         <Route path="/drivers/deposit" element={<PageTransition><DriverDepositPage /></PageTransition>} />
         <Route path="/wallet" element={<PageTransition><RiderWalletPage /></PageTransition>} />

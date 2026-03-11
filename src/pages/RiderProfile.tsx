@@ -5,7 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { useWallet } from '@/hooks/useWallet';
 import { supabase } from '@/lib/supabaseClient';
-import { ArrowLeft, User, CreditCard, Calendar, Gift, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, Zap, ChevronRight, Edit3, History, Camera, Loader2, Wallet, Moon, Sun } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Calendar, Gift, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, Zap, ChevronRight, Edit3, History, Camera, Loader2, Wallet, Moon, Sun, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import BottomNavBar from '@/components/BottomNavBar';
@@ -65,11 +65,12 @@ export default function RiderProfile() {
         .from('driver-avatars')
         .upload(path, file, { upsert: true });
       if (uploadErr) throw uploadErr;
-      const { data: urlData } = supabase.storage
+      const { data: signedData, error: signedErr } = await supabase.storage
         .from('driver-avatars')
-        .getPublicUrl(path);
-      setAvatarUrl(urlData.publicUrl);
-      await supabase.from('profiles').update({ avatar_url: urlData.publicUrl }).eq('user_id', user.id);
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      if (signedErr || !signedData?.signedUrl) throw signedErr || new Error('Failed to get URL');
+      setAvatarUrl(signedData.signedUrl);
+      await supabase.from('profiles').update({ avatar_url: path }).eq('user_id', user.id);
       toast.success('Photo updated!');
     } catch (err: unknown) {
       toast.error('Upload failed', { description: (err as Error).message });
@@ -202,6 +203,7 @@ export default function RiderProfile() {
         <div className="space-y-1.5">
           <NavRow icon={<User className="w-4 h-4 text-primary" />} label="Edit Profile" onClick={() => navigate(`${prefix}/edit-profile`)} />
           <NavRow icon={<Shield className="w-4 h-4 text-primary" />} label="Safety" onClick={() => navigate(`${prefix}/safety`)} />
+          <NavRow icon={<Trash2 className="w-4 h-4 text-destructive" />} label="Delete Account" onClick={() => navigate('/delete-account')} />
         </div>
 
         <Button variant="outline" className="w-full h-11 rounded-2xl text-destructive border-destructive/20 hover:bg-destructive/5 glass-card text-sm" onClick={handleSignOut}>
