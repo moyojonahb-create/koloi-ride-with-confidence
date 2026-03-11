@@ -50,6 +50,7 @@ import AdminDepositsPage from "./pages/admin/AdminDepositsPage";
 import AdminLedger from "./pages/admin/AdminLedger";
 import AdminTownPricing from "./pages/admin/AdminTownPricing";
 import AdminRiderDepositsPage from "./pages/admin/AdminRiderDepositsPage";
+import AdminPromos from "./pages/admin/AdminPromos";
 import RiderWalletPage from "./pages/RiderWalletPage";
 import RiderRequestScreen from "./pages/negotiate/RiderRequestScreen";
 import RiderOffersScreen from "./pages/negotiate/RiderOffersScreen";
