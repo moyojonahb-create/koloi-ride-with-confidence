@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { Toaster } from "@/components/ui/toaster";
+import AuthGuard from "@/components/AuthGuard";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -36,6 +37,7 @@ import DeleteAccount from "./pages/DeleteAccount";
 import { useOnlineStatus } from "./hooks/useOnlineStatus";
 
 // Admin pages
+import AdminGuard from "@/components/admin/AdminGuard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminDrivers from "./pages/admin/AdminDrivers";
 import AdminDriverDetail from "./pages/admin/AdminDriverDetail";
@@ -76,51 +78,51 @@ const AnimatedRoutes = () => {
       <Routes location={location}>
         {/* ── Existing web routes ── */}
         <Route path="/" element={<PageTransition><Index /></PageTransition>} />
-        <Route path="/ride" element={<PageTransition><Ride /></PageTransition>} />
-        <Route path="/ride/:rideId" element={<PageTransition><RiderRideDetail /></PageTransition>} />
-        <Route path="/ride-detail/:rideId" element={<PageTransition><RideDetail /></PageTransition>} />
-        <Route path="/driver" element={<PageTransition><DriverDashboard /></PageTransition>} />
+        <Route path="/ride" element={<AuthGuard><PageTransition><Ride /></PageTransition></AuthGuard>} />
+        <Route path="/ride/:rideId" element={<AuthGuard><PageTransition><RiderRideDetail /></PageTransition></AuthGuard>} />
+        <Route path="/ride-detail/:rideId" element={<AuthGuard><PageTransition><RideDetail /></PageTransition></AuthGuard>} />
+        <Route path="/driver" element={<AuthGuard><PageTransition><DriverDashboard /></PageTransition></AuthGuard>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/login" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
-        <Route path="/dashboard" element={<PageTransition><AppDashboard /></PageTransition>} />
-        <Route path="/profile" element={<PageTransition><RiderProfile /></PageTransition>} />
-        <Route path="/app" element={<PageTransition><AppDashboard /></PageTransition>} />
-        <Route path="/drive" element={<PageTransition><DriverApplication /></PageTransition>} />
+        <Route path="/dashboard" element={<AuthGuard><PageTransition><AppDashboard /></PageTransition></AuthGuard>} />
+        <Route path="/profile" element={<AuthGuard><PageTransition><RiderProfile /></PageTransition></AuthGuard>} />
+        <Route path="/app" element={<AuthGuard><PageTransition><AppDashboard /></PageTransition></AuthGuard>} />
+        <Route path="/drive" element={<AuthGuard><PageTransition><DriverApplication /></PageTransition></AuthGuard>} />
         <Route path="/driver-mode" element={<PageTransition><DriverModeLanding /></PageTransition>} />
         <Route path="/safety" element={<PageTransition><SafetyPage /></PageTransition>} />
-        <Route path="/history" element={<PageTransition><RideHistory /></PageTransition>} />
-        <Route path="/leaderboard" element={<PageTransition><DriverLeaderboard /></PageTransition>} />
-        <Route path="/edit-profile" element={<PageTransition><EditProfile /></PageTransition>} />
+        <Route path="/history" element={<AuthGuard><PageTransition><RideHistory /></PageTransition></AuthGuard>} />
+        <Route path="/leaderboard" element={<AuthGuard><PageTransition><DriverLeaderboard /></PageTransition></AuthGuard>} />
+        <Route path="/edit-profile" element={<AuthGuard><PageTransition><EditProfile /></PageTransition></AuthGuard>} />
         <Route path="/install" element={<PageTransition><Install /></PageTransition>} />
         <Route path="/privacy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
         <Route path="/terms" element={<PageTransition><TermsOfService /></PageTransition>} />
-        <Route path="/delete-account" element={<PageTransition><DeleteAccount /></PageTransition>} />
-        <Route path="/drivers/wallet" element={<PageTransition><DriverWalletPage /></PageTransition>} />
-        <Route path="/drivers/deposit" element={<PageTransition><DriverDepositPage /></PageTransition>} />
-        <Route path="/wallet" element={<PageTransition><RiderWalletPage /></PageTransition>} />
+        <Route path="/delete-account" element={<AuthGuard><PageTransition><DeleteAccount /></PageTransition></AuthGuard>} />
+        <Route path="/drivers/wallet" element={<AuthGuard><PageTransition><DriverWalletPage /></PageTransition></AuthGuard>} />
+        <Route path="/drivers/deposit" element={<AuthGuard><PageTransition><DriverDepositPage /></PageTransition></AuthGuard>} />
+        <Route path="/wallet" element={<AuthGuard><PageTransition><RiderWalletPage /></PageTransition></AuthGuard>} />
         
-        {/* Admin Routes */}
-        <Route path="/admin" element={<PageTransition><AdminDashboard /></PageTransition>} />
-        <Route path="/admin/drivers" element={<PageTransition><AdminDrivers /></PageTransition>} />
-        <Route path="/admin/drivers/map" element={<PageTransition><AdminDriversMap /></PageTransition>} />
-        <Route path="/admin/drivers/:driverId" element={<PageTransition><AdminDriverDetail /></PageTransition>} />
-        <Route path="/admin/trips" element={<PageTransition><AdminTrips /></PageTransition>} />
-        <Route path="/admin/landmarks" element={<PageTransition><AdminLandmarks /></PageTransition>} />
-        <Route path="/admin/reports" element={<PageTransition><AdminReports /></PageTransition>} />
-        <Route path="/admin/settings" element={<PageTransition><AdminSettings /></PageTransition>} />
-        <Route path="/admin/import-osm" element={<PageTransition><ImportOsmPlaces /></PageTransition>} />
-        <Route path="/admin/rate" element={<PageTransition><AdminRatePage /></PageTransition>} />
-        <Route path="/admin/deposits" element={<PageTransition><AdminDepositsPage /></PageTransition>} />
-        <Route path="/admin/ledger" element={<PageTransition><AdminLedger /></PageTransition>} />
-        <Route path="/admin/town-pricing" element={<PageTransition><AdminTownPricing /></PageTransition>} />
-        <Route path="/admin/promos" element={<PageTransition><AdminPromos /></PageTransition>} />
-        <Route path="/admin/rider-deposits" element={<PageTransition><AdminRiderDepositsPage /></PageTransition>} />
+        {/* Admin Routes - All protected by AdminGuard */}
+        <Route path="/admin" element={<AdminGuard><PageTransition><AdminDashboard /></PageTransition></AdminGuard>} />
+        <Route path="/admin/drivers" element={<AdminGuard><PageTransition><AdminDrivers /></PageTransition></AdminGuard>} />
+        <Route path="/admin/drivers/map" element={<AdminGuard><PageTransition><AdminDriversMap /></PageTransition></AdminGuard>} />
+        <Route path="/admin/drivers/:driverId" element={<AdminGuard><PageTransition><AdminDriverDetail /></PageTransition></AdminGuard>} />
+        <Route path="/admin/trips" element={<AdminGuard><PageTransition><AdminTrips /></PageTransition></AdminGuard>} />
+        <Route path="/admin/landmarks" element={<AdminGuard><PageTransition><AdminLandmarks /></PageTransition></AdminGuard>} />
+        <Route path="/admin/reports" element={<AdminGuard><PageTransition><AdminReports /></PageTransition></AdminGuard>} />
+        <Route path="/admin/settings" element={<AdminGuard><PageTransition><AdminSettings /></PageTransition></AdminGuard>} />
+        <Route path="/admin/import-osm" element={<AdminGuard><PageTransition><ImportOsmPlaces /></PageTransition></AdminGuard>} />
+        <Route path="/admin/rate" element={<AdminGuard><PageTransition><AdminRatePage /></PageTransition></AdminGuard>} />
+        <Route path="/admin/deposits" element={<AdminGuard><PageTransition><AdminDepositsPage /></PageTransition></AdminGuard>} />
+        <Route path="/admin/ledger" element={<AdminGuard><PageTransition><AdminLedger /></PageTransition></AdminGuard>} />
+        <Route path="/admin/town-pricing" element={<AdminGuard><PageTransition><AdminTownPricing /></PageTransition></AdminGuard>} />
+        <Route path="/admin/promos" element={<AdminGuard><PageTransition><AdminPromos /></PageTransition></AdminGuard>} />
+        <Route path="/admin/rider-deposits" element={<AdminGuard><PageTransition><AdminRiderDepositsPage /></PageTransition></AdminGuard>} />
 
         {/* Negotiate / inDrive-style */}
-        <Route path="/negotiate/request" element={<PageTransition><RiderRequestScreen /></PageTransition>} />
-        <Route path="/negotiate/offers/:requestId" element={<PageTransition><RiderOffersScreen /></PageTransition>} />
-        <Route path="/negotiate/driver" element={<PageTransition><DriverRequestsScreen /></PageTransition>} />
+        <Route path="/negotiate/request" element={<AuthGuard><PageTransition><RiderRequestScreen /></PageTransition></AuthGuard>} />
+        <Route path="/negotiate/offers/:requestId" element={<AuthGuard><PageTransition><RiderOffersScreen /></PageTransition></AuthGuard>} />
+        <Route path="/negotiate/driver" element={<AuthGuard><PageTransition><DriverRequestsScreen /></PageTransition></AuthGuard>} />
 
         {/* ── /mapp – Mobile App Shell for Median.co ── */}
         <Route path="/mapp" element={<MappRedirect />} />
