@@ -91,12 +91,12 @@ export async function detectSuspiciousPatterns(userId: string): Promise<FraudChe
  * Report a fraud flag to the database.
  */
 export async function reportFraudFlag(userId: string, check: FraudCheck) {
-  await supabase.from('fraud_flags').insert({
+  await supabase.from('fraud_flags').insert([{
     user_id: userId,
     flag_type: check.type,
     severity: check.severity,
-    details: check.details,
-  } as Record<string, unknown>);
+    details: check.details as Record<string, unknown>,
+  }]);
 }
 
 /**
