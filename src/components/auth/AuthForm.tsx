@@ -23,6 +23,8 @@ const passwordSchema = z.string().min(6, 'Password must be at least 6 characters
 const phoneSchema = z.string().min(9, 'Please enter a valid phone number');
 const nameSchema = z.string().min(2, 'Name must be at least 2 characters');
 
+const digitsOnly = (value: string) => value.replace(/\D/g, '');
+
 const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
   const { signUp, signIn, signInWithPhone, verifyOtp } = useAuth();
   
@@ -75,7 +77,8 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
   };
 
   const validatePhone = () => {
-    const result = phoneSchema.safeParse(phone);
+    const normalizedPhone = digitsOnly(phone);
+    const result = phoneSchema.safeParse(normalizedPhone);
     if (!result.success) {
       setErrors(prev => ({ ...prev, phone: result.error.errors[0].message }));
       return false;
@@ -120,7 +123,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
     
     try {
       if (mode === 'signup') {
-        const fullPhone = `${countryCode}${phone}`;
+        const fullPhone = `${countryCode}${digitsOnly(phone)}`;
         const { error } = await signUp(email, password, fullName);
         if (error) {
           if (error.message.includes('already registered')) {
@@ -165,7 +168,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
     setLoading(true);
     
     try {
-      const fullPhone = `${countryCode}${phone}`;
+      const fullPhone = `${countryCode}${digitsOnly(phone)}`;
       const { error } = await signInWithPhone(fullPhone);
       if (error) {
         toast.error(error.message);
@@ -180,8 +183,9 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (otp.length !== 6) {
+
+    const normalizedOtp = digitsOnly(otp).slice(0, 6);
+    if (normalizedOtp.length !== 6) {
       setErrors(prev => ({ ...prev, otp: 'Please enter the 6-digit code' }));
       return;
     }
@@ -189,8 +193,8 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
     setLoading(true);
     
     try {
-      const fullPhone = `${countryCode}${phone}`;
-      const { error } = await verifyOtp(fullPhone, otp);
+      const fullPhone = `${countryCode}${digitsOnly(phone)}`;
+      const { error } = await verifyOtp(fullPhone, normalizedOtp);
       if (error) {
         toast.error('Invalid verification code. Please try again.');
         return;
@@ -359,7 +363,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
                     type="tel"
                     placeholder="Phone number"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) => setPhone(e.target.value)}
                     onBlur={validatePhone}
                     className="flex-1"
                     required
@@ -465,7 +469,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
               type="tel"
               placeholder="Phone number"
               value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => setPhone(e.target.value)}
               onBlur={validatePhone}
               className="flex-1"
               required
@@ -512,7 +516,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
             type="text"
             placeholder="Enter 6-digit code"
             value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            onChange={(e) => setOtp(e.target.value.slice(0, 6))}
             className="text-center text-2xl tracking-widest"
             maxLength={6}
             required
