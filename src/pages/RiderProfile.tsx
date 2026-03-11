@@ -65,11 +65,12 @@ export default function RiderProfile() {
         .from('driver-avatars')
         .upload(path, file, { upsert: true });
       if (uploadErr) throw uploadErr;
-      const { data: urlData } = supabase.storage
+      const { data: signedData, error: signedErr } = await supabase.storage
         .from('driver-avatars')
-        .getPublicUrl(path);
-      setAvatarUrl(urlData.publicUrl);
-      await supabase.from('profiles').update({ avatar_url: urlData.publicUrl }).eq('user_id', user.id);
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      if (signedErr || !signedData?.signedUrl) throw signedErr || new Error('Failed to get URL');
+      setAvatarUrl(signedData.signedUrl);
+      await supabase.from('profiles').update({ avatar_url: path }).eq('user_id', user.id);
       toast.success('Photo updated!');
     } catch (err: unknown) {
       toast.error('Upload failed', { description: (err as Error).message });
