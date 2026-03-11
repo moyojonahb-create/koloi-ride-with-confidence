@@ -36,6 +36,7 @@ import ProximityFilter from './ProximityFilter';
 import RecentDestinations from './RecentDestinations';
 import MultiStopInput, { type RideStop } from './MultiStopInput';
 import ScheduleRide from './ScheduleRide';
+import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
 import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
 import TownSelectorSheet from './TownSelectorSheet';
 
