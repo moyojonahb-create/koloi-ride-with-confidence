@@ -184,6 +184,7 @@ const App = () => {
     </AuthProvider>
   </QueryClientProvider>
   </ThemeProvider>
+  </I18nProvider>
   );
 };
 
