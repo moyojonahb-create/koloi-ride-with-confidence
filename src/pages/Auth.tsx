@@ -20,6 +20,7 @@ const Auth = () => {
 
   // Form state - plain controlled inputs
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
