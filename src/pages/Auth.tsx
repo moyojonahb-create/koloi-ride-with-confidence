@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,7 @@ const Auth = () => {
 
   // Form state - plain controlled inputs
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -51,41 +53,51 @@ const Auth = () => {
     }
   };
 
+  const formatPhone = (p: string) => {
+    let cleaned = p.replace(/[\s-]/g, '');
+    if (cleaned.startsWith('0')) cleaned = '+263' + cleaned.substring(1);
+    if (!cleaned.startsWith('+')) cleaned = '+' + cleaned;
+    return cleaned;
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName || fullName.length < 2) {
       toast({ title: 'Name must be at least 2 characters', variant: 'destructive' });
       return;
     }
-    if (!email) {
-      toast({ title: 'Please enter a valid email', variant: 'destructive' });
+    if (!phone || phone.replace(/\D/g, '').length < 9) {
+      toast({ title: 'Please enter a valid phone number', variant: 'destructive' });
       return;
     }
     if (!password || password.length < 6) {
       toast({ title: 'Password must be at least 6 characters', variant: 'destructive' });
       return;
     }
-    if (password !== confirmPassword) {
-      toast({ title: "Passwords don't match", variant: 'destructive' });
-      return;
-    }
 
     setIsSubmitting(true);
     try {
-      const { error } = await signUp(email, password, fullName);
+      const formattedPhone = formatPhone(phone);
+      const signupEmail = email.trim() || `${formattedPhone.replace(/\+/g, '')}@voyex.phone`;
+
+      const { error } = await signUp(signupEmail, password, fullName);
       if (error) {
         let message = error.message;
         if (message.includes('already registered')) {
-          message = 'An account with this email already exists. Please sign in.';
+          message = 'An account with this email/phone already exists. Please sign in.';
         }
         toast({ title: 'Signup failed', description: message, variant: 'destructive' });
-      } else {
-        toast({ title: 'Account created!', description: 'You can now sign in with your credentials.' });
-        setMode('login');
-        setEmail(email);
-        setPassword('');
-        setConfirmPassword('');
+        return;
       }
+
+      // Update profile with phone number
+      const { data: authData } = await supabase.auth.getUser();
+      if (authData?.user) {
+        await supabase.from('profiles').update({ phone: formattedPhone }).eq('user_id', authData.user.id);
+      }
+
+      toast({ title: 'Account created!', description: 'Welcome to Voyex.' });
+      navigate('/app');
     } finally {
       setIsSubmitting(false);
     }
@@ -189,7 +201,19 @@ const Auth = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="signup-email">Email</Label>
+                <Label htmlFor="signup-phone">Phone Number</Label>
+                <Input
+                  id="signup-phone"
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="+263 77 123 4567"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  autoComplete="tel"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-email">Email <span className="text-muted-foreground font-normal">(optional)</span></Label>
                 <Input
                   id="signup-email"
                   type="email"
@@ -207,17 +231,6 @@ const Auth = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="new-password"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="signup-confirm">Confirm Password</Label>
-                <Input
-                  id="signup-confirm"
-                  type="password"
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
                   autoComplete="new-password"
                 />
               </div>
