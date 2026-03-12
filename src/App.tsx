@@ -169,6 +169,7 @@ const App = () => {
 
   return (
   <I18nProvider>
+  <FemaleThemeProvider>
   <ThemeProvider attribute="class" defaultTheme="light" storageKey="voyex-theme">
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -187,6 +188,7 @@ const App = () => {
     </AuthProvider>
   </QueryClientProvider>
   </ThemeProvider>
+  </FemaleThemeProvider>
   </I18nProvider>
   );
 };
