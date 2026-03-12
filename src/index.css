@@ -99,6 +99,45 @@
     --gradient-accent: linear-gradient(135deg, hsl(45 100% 51%), hsl(40 100% 60%));
   }
 
+  /* ─── Female / Women-Only Theme ─── */
+  [data-theme="female"] {
+    --primary: 330 75% 45%;
+    --primary-light: 330 80% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --ring: 330 75% 45%;
+
+    --sidebar-background: 330 75% 45%;
+    --sidebar-accent: 330 60% 55%;
+    --sidebar-border: 330 60% 40%;
+
+    --voyex-blue: 330 75% 45%;
+    --voyex-blue-dark: 330 80% 35%;
+    --voyex-blue-light: 330 80% 60%;
+
+    --glass-border-light: hsl(330 75% 45% / 0.08);
+    --glass-glow-blue: 0 0 0 1px hsl(330 75% 45% / 0.12), 0 0 20px hsl(330 75% 45% / 0.06);
+
+    --gradient-primary: linear-gradient(135deg, hsl(330 75% 45%), hsl(330 80% 60%));
+  }
+
+  [data-theme="female"].dark,
+  .dark[data-theme="female"] {
+    --primary: 330 80% 60%;
+    --primary-light: 330 80% 65%;
+    --ring: 330 80% 60%;
+
+    --sidebar-background: 330 70% 20%;
+    --sidebar-accent: 330 60% 30%;
+    --sidebar-border: 330 60% 25%;
+
+    --voyex-blue: 330 80% 60%;
+    --voyex-blue-dark: 330 70% 20%;
+    --voyex-blue-light: 330 80% 65%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(330 70% 20%), hsl(330 80% 60%));
+  }
+
   .dark {
     --background: 217 85% 10%;
     --foreground: 0 0% 98%;
