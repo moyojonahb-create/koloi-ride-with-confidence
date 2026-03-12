@@ -66,6 +66,7 @@ import MappDriverGuard from "./components/mapp/MappDriverGuard";
 import MappAdminGuard from "./components/mapp/MappAdminGuard";
 import DriverLeaderboard from "./pages/DriverLeaderboard";
 import { I18nProvider } from "./lib/i18n";
+import { FemaleThemeProvider } from "./hooks/useFemaleTheme";
 
 const queryClient = new QueryClient();
 
@@ -168,6 +169,7 @@ const App = () => {
 
   return (
   <I18nProvider>
+  <FemaleThemeProvider>
   <ThemeProvider attribute="class" defaultTheme="light" storageKey="voyex-theme">
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -186,6 +188,7 @@ const App = () => {
     </AuthProvider>
   </QueryClientProvider>
   </ThemeProvider>
+  </FemaleThemeProvider>
   </I18nProvider>
   );
 };

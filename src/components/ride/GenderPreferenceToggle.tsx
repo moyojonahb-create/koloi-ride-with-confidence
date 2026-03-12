@@ -1,5 +1,6 @@
 import { Shield, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFemaleTheme } from '@/hooks/useFemaleTheme';
 
 export type GenderPreference = 'any' | 'female_only';
 
@@ -10,11 +11,18 @@ interface GenderPreferenceToggleProps {
 
 export default function GenderPreferenceToggle({ value, onChange }: GenderPreferenceToggleProps) {
   const isFemaleOnly = value === 'female_only';
+  const { setFemaleMode } = useFemaleTheme();
+
+  const handleToggle = () => {
+    const next = isFemaleOnly ? 'any' : 'female_only';
+    onChange(next);
+    setFemaleMode(next === 'female_only');
+  };
 
   return (
     <button
       type="button"
-      onClick={() => onChange(isFemaleOnly ? 'any' : 'female_only')}
+      onClick={handleToggle}
       className={cn(
         "flex items-center gap-2.5 px-3 py-2.5 rounded-xl border-2 transition-all text-left w-full",
         isFemaleOnly
