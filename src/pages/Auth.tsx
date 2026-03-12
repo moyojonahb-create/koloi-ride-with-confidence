@@ -117,9 +117,7 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <Link to="/" className="mx-auto mb-4">
-            <div className="p-3 rounded-full bg-accent/10 w-fit mx-auto">
-              <Car className="h-8 w-8 text-accent" />
-            </div>
+            <VoyexLogo size="lg" />
           </Link>
           <CardTitle className="text-2xl">
             {mode === 'login' ? 'Welcome back' : 'Create an account'}
