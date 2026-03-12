@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Car } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { lovable } from '@/integrations/lovable/index';
+import VoyexLogo from '@/components/VoyexLogo';
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -116,9 +117,7 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <Link to="/" className="mx-auto mb-4">
-            <div className="p-3 rounded-full bg-accent/10 w-fit mx-auto">
-              <Car className="h-8 w-8 text-accent" />
-            </div>
+            <VoyexLogo size="lg" />
           </Link>
           <CardTitle className="text-2xl">
             {mode === 'login' ? 'Welcome back' : 'Create an account'}
