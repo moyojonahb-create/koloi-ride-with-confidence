@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Voyex Design System — Tesla glass × Uber map-first */
+/* Voyex Design System — iOS 18 Frosted Glass */
 
 @layer base {
   :root {
@@ -42,7 +42,7 @@
     --input: 217 20% 90%;
     --ring: 217 85% 29%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
     /* Sidebar */
     --sidebar-background: 217 85% 29%;
@@ -72,31 +72,39 @@
     --voyex-gray-800: 217 20% 20%;
     --voyex-gray-900: 0 0% 10%;
 
-    /* ─── Shadows ─── */
-    --shadow-xs: 0 1px 2px 0 hsl(217 25% 0% / 0.03);
-    --shadow-sm: 0 2px 4px -1px hsl(217 25% 0% / 0.06), 0 1px 2px -1px hsl(217 25% 0% / 0.04);
-    --shadow-md: 0 6px 16px -4px hsl(217 25% 0% / 0.08), 0 2px 6px -2px hsl(217 25% 0% / 0.05);
-    --shadow-lg: 0 12px 28px -8px hsl(217 25% 0% / 0.12), 0 4px 10px -4px hsl(217 25% 0% / 0.06);
-    --shadow-xl: 0 24px 48px -12px hsl(217 25% 0% / 0.15), 0 12px 24px -8px hsl(217 25% 0% / 0.08);
-    --shadow-card: 0 12px 30px -8px hsl(0 0% 0% / 0.08);
+    /* ─── Shadows — iOS-style layered ─── */
+    --shadow-xs: 0 0.5px 1px 0 hsl(217 25% 0% / 0.02), 0 0 0 0.5px hsl(217 25% 0% / 0.02);
+    --shadow-sm: 0 1px 3px hsl(217 25% 0% / 0.04), 0 0 0 0.5px hsl(217 25% 0% / 0.02);
+    --shadow-md: 0 4px 12px -2px hsl(217 25% 0% / 0.06), 0 0 0 0.5px hsl(217 25% 0% / 0.02);
+    --shadow-lg: 0 8px 24px -4px hsl(217 25% 0% / 0.08), 0 0 0 0.5px hsl(217 25% 0% / 0.03);
+    --shadow-xl: 0 16px 40px -8px hsl(217 25% 0% / 0.12), 0 0 0 0.5px hsl(217 25% 0% / 0.03);
+    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.05), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
     --shadow-phone: 0 32px 64px -16px hsl(217 25% 0% / 0.35);
     --shadow-glow: 0 0 24px hsl(var(--accent) / 0.25);
 
-    /* ─── Glassmorphism ─── */
-    --glass-bg: hsla(0, 0%, 100%, 0.65);
-    --glass-bg-heavy: hsla(0, 0%, 100%, 0.82);
-    --glass-border: hsla(0, 0%, 100%, 0.35);
-    --glass-border-light: hsl(217 85% 29% / 0.08);
-    --glass-blur: blur(18px);
-    --glass-blur-heavy: blur(28px);
-    --glass-shadow: 0 12px 30px hsl(0 0% 0% / 0.08);
-    --glass-shadow-lg: 0 16px 48px hsl(217 85% 29% / 0.10), 0 4px 16px hsl(0 0% 0% / 0.06);
-    --glass-glow-blue: 0 0 0 1px hsl(217 85% 29% / 0.12), 0 0 20px hsl(217 85% 29% / 0.06);
-    --glass-glow-yellow: 0 0 0 1px hsl(45 100% 51% / 0.15), 0 0 20px hsl(45 100% 51% / 0.08);
+    /* ─── Glassmorphism — iOS Frosted ─── */
+    --glass-bg: hsla(0, 0%, 100%, 0.72);
+    --glass-bg-heavy: hsla(0, 0%, 100%, 0.88);
+    --glass-bg-ultra: hsla(0, 0%, 100%, 0.95);
+    --glass-border: hsla(0, 0%, 100%, 0.5);
+    --glass-border-subtle: hsla(217, 25%, 80%, 0.2);
+    --glass-border-light: hsl(217 85% 29% / 0.06);
+    --glass-blur: blur(24px) saturate(1.8);
+    --glass-blur-heavy: blur(40px) saturate(2);
+    --glass-blur-nav: blur(20px) saturate(1.6);
+    --glass-shadow: 0 1px 3px hsl(0 0% 0% / 0.04), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
+    --glass-shadow-lg: 0 8px 32px hsl(217 85% 29% / 0.06), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
+    --glass-shadow-elevated: 0 12px 40px hsl(0 0% 0% / 0.1), 0 0 0 0.5px hsl(0 0% 0% / 0.04);
+    --glass-glow-blue: 0 0 0 0.5px hsl(217 85% 29% / 0.15), 0 0 16px hsl(217 85% 29% / 0.06);
+    --glass-glow-yellow: 0 0 0 0.5px hsl(45 100% 51% / 0.15), 0 0 16px hsl(45 100% 51% / 0.08);
+
+    /* iOS-style inset separator */
+    --glass-separator: 0.5px solid hsla(0, 0%, 0%, 0.06);
 
     /* ─── Gradients ─── */
     --gradient-primary: linear-gradient(135deg, hsl(217 85% 29%), hsl(213 83% 56%));
     --gradient-accent: linear-gradient(135deg, hsl(45 100% 51%), hsl(40 100% 60%));
+    --gradient-glass-shine: linear-gradient(180deg, hsla(0, 0%, 100%, 0.15) 0%, hsla(0, 0%, 100%, 0) 100%);
   }
 
   /* ─── Female / Women-Only Theme — Glassy Pink ─── */
@@ -116,14 +124,16 @@
     --voyex-blue-light: 330 80% 60%;
 
     /* Glassy pink overrides */
-    --glass-bg: hsla(330, 75%, 97%, 0.7);
-    --glass-bg-heavy: hsla(330, 75%, 97%, 0.85);
-    --glass-border: hsla(330, 75%, 80%, 0.35);
-    --glass-border-light: hsl(330 75% 45% / 0.1);
-    --glass-shadow: 0 12px 30px hsl(330 75% 45% / 0.08);
-    --glass-shadow-lg: 0 16px 48px hsl(330 75% 45% / 0.12), 0 4px 16px hsl(330 75% 45% / 0.06);
-    --glass-glow-blue: 0 0 0 1px hsl(330 75% 45% / 0.18), 0 0 24px hsl(330 75% 45% / 0.1);
-    --glass-glow-yellow: 0 0 0 1px hsl(330 80% 60% / 0.15), 0 0 20px hsl(330 80% 60% / 0.08);
+    --glass-bg: hsla(330, 75%, 97%, 0.72);
+    --glass-bg-heavy: hsla(330, 75%, 97%, 0.88);
+    --glass-bg-ultra: hsla(330, 75%, 98%, 0.95);
+    --glass-border: hsla(330, 75%, 80%, 0.4);
+    --glass-border-subtle: hsla(330, 75%, 70%, 0.2);
+    --glass-shadow: 0 1px 3px hsl(330 75% 45% / 0.06), 0 0 0 0.5px hsl(330 75% 45% / 0.04);
+    --glass-shadow-lg: 0 8px 32px hsl(330 75% 45% / 0.08), 0 0 0 0.5px hsl(330 75% 45% / 0.04);
+    --glass-shadow-elevated: 0 12px 40px hsl(330 75% 45% / 0.12), 0 0 0 0.5px hsl(330 75% 45% / 0.04);
+    --glass-glow-blue: 0 0 0 0.5px hsl(330 75% 45% / 0.2), 0 0 16px hsl(330 75% 45% / 0.08);
+    --glass-glow-yellow: 0 0 0 0.5px hsl(330 80% 60% / 0.15), 0 0 16px hsl(330 80% 60% / 0.08);
 
     --gradient-primary: linear-gradient(135deg, hsl(330 75% 45%), hsl(330 80% 60%));
   }
@@ -143,53 +153,62 @@
     --voyex-blue-light: 330 80% 65%;
 
     /* Glassy pink dark overrides */
-    --glass-bg: hsla(330, 60%, 12%, 0.75);
-    --glass-bg-heavy: hsla(330, 60%, 14%, 0.9);
+    --glass-bg: hsla(330, 60%, 12%, 0.72);
+    --glass-bg-heavy: hsla(330, 60%, 14%, 0.88);
+    --glass-bg-ultra: hsla(330, 60%, 14%, 0.95);
     --glass-border: hsla(330, 60%, 40%, 0.3);
-    --glass-border-light: hsl(330 80% 60% / 0.1);
-    --glass-shadow: 0 12px 30px hsl(330 60% 10% / 0.3);
-    --glass-glow-blue: 0 0 0 1px hsl(330 80% 60% / 0.15), 0 0 24px hsl(330 80% 60% / 0.08);
+    --glass-border-subtle: hsla(330, 60%, 35%, 0.15);
+    --glass-shadow: 0 1px 3px hsl(330 60% 10% / 0.2), 0 0 0 0.5px hsl(330 60% 30% / 0.1);
+    --glass-shadow-lg: 0 8px 32px hsl(330 60% 10% / 0.3), 0 0 0 0.5px hsl(330 60% 30% / 0.1);
+    --glass-shadow-elevated: 0 12px 40px hsl(330 60% 10% / 0.4), 0 0 0 0.5px hsl(330 60% 30% / 0.1);
+    --glass-glow-blue: 0 0 0 0.5px hsl(330 80% 60% / 0.2), 0 0 16px hsl(330 80% 60% / 0.06);
 
     --gradient-primary: linear-gradient(135deg, hsl(330 70% 20%), hsl(330 80% 60%));
   }
 
   .dark {
-    --background: 217 85% 10%;
+    --background: 220 20% 7%;
     --foreground: 0 0% 98%;
-    --card: 217 80% 16%;
+    --card: 220 18% 12%;
     --card-foreground: 0 0% 98%;
-    --popover: 217 80% 16%;
+    --popover: 220 18% 12%;
     --popover-foreground: 0 0% 98%;
     --primary: 45 100% 51%;
     --primary-foreground: 0 0% 10%;
     --primary-light: 213 83% 56%;
-    --secondary: 217 70% 20%;
+    --secondary: 220 16% 16%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 217 70% 20%;
-    --muted-foreground: 217 20% 70%;
+    --muted: 220 16% 16%;
+    --muted-foreground: 217 20% 65%;
     --accent: 45 100% 51%;
     --accent-foreground: 0 0% 10%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 98%;
-    --border: 217 70% 22%;
-    --input: 217 70% 22%;
+    --border: 220 16% 18%;
+    --input: 220 16% 18%;
     --ring: 45 100% 51%;
-    --sidebar-background: 217 85% 8%;
+    --sidebar-background: 220 20% 6%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 45 100% 51%;
     --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 217 80% 16%;
+    --sidebar-accent: 220 18% 14%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 217 80% 16%;
+    --sidebar-border: 220 18% 14%;
     --sidebar-ring: 45 100% 51%;
 
-    /* Glass overrides for dark */
-    --glass-bg: hsla(217, 80%, 14%, 0.7);
-    --glass-bg-heavy: hsla(217, 80%, 14%, 0.88);
-    --glass-border: hsla(217, 80%, 30%, 0.35);
-    --glass-border-light: hsl(45 100% 51% / 0.08);
-    --glass-shadow: 0 12px 30px hsl(0 0% 0% / 0.3);
+    /* iOS dark glass */
+    --glass-bg: hsla(220, 18%, 10%, 0.72);
+    --glass-bg-heavy: hsla(220, 18%, 10%, 0.88);
+    --glass-bg-ultra: hsla(220, 18%, 10%, 0.95);
+    --glass-border: hsla(0, 0%, 100%, 0.08);
+    --glass-border-subtle: hsla(0, 0%, 100%, 0.05);
+    --glass-shadow: 0 1px 3px hsl(0 0% 0% / 0.2), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
+    --glass-shadow-lg: 0 8px 32px hsl(0 0% 0% / 0.3), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
+    --glass-shadow-elevated: 0 12px 40px hsl(0 0% 0% / 0.4), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
+    --glass-glow-blue: 0 0 0 0.5px hsl(213 83% 56% / 0.2), 0 0 16px hsl(213 83% 56% / 0.06);
+    --glass-separator: 0.5px solid hsla(0, 0%, 100%, 0.06);
     --gradient-primary: linear-gradient(135deg, hsl(217 85% 22%), hsl(213 83% 40%));
+    --gradient-glass-shine: linear-gradient(180deg, hsla(0, 0%, 100%, 0.06) 0%, hsla(0, 0%, 100%, 0) 100%);
   }
 }
 
@@ -226,32 +245,84 @@
   }
 }
 
-/* ─── Glass utility classes ─── */
+/* ─── iOS-style Glass utility classes ─── */
 @layer components {
   .glass-card {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
+    border: 0.5px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
-    border-radius: 22px;
+    border-radius: 16px;
   }
 
   .glass-card-heavy {
     background: var(--glass-bg-heavy);
     backdrop-filter: var(--glass-blur-heavy);
     -webkit-backdrop-filter: var(--glass-blur-heavy);
-    border: 1px solid var(--glass-border);
+    border: 0.5px solid var(--glass-border);
     box-shadow: var(--glass-shadow-lg);
-    border-radius: 22px;
+    border-radius: 16px;
+  }
+
+  .glass-card-ultra {
+    background: var(--glass-bg-ultra);
+    backdrop-filter: var(--glass-blur-heavy);
+    -webkit-backdrop-filter: var(--glass-blur-heavy);
+    border: 0.5px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 16px;
+  }
+
+  .glass-nav {
+    background: var(--glass-bg-heavy);
+    backdrop-filter: var(--glass-blur-nav);
+    -webkit-backdrop-filter: var(--glass-blur-nav);
+    border-bottom: var(--glass-separator);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-bar {
+    background: var(--glass-bg-heavy);
+    backdrop-filter: var(--glass-blur-nav);
+    -webkit-backdrop-filter: var(--glass-blur-nav);
+    border-top: var(--glass-separator);
+    box-shadow: 0 -1px 3px hsl(0 0% 0% / 0.03);
   }
 
   .glass-btn {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
+    border: 0.5px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
+  }
+
+  .glass-input {
+    background: var(--glass-bg-ultra);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 0.5px solid var(--glass-border-subtle);
+    box-shadow: inset 0 0.5px 1px hsl(0 0% 0% / 0.04);
+    transition: all 0.2s ease;
+  }
+  .glass-input:focus-within {
+    border-color: hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.08), inset 0 0.5px 1px hsl(0 0% 0% / 0.03);
+  }
+
+  .glass-sheet {
+    background: var(--glass-bg-heavy);
+    backdrop-filter: var(--glass-blur-heavy);
+    -webkit-backdrop-filter: var(--glass-blur-heavy);
+    border: 0.5px solid var(--glass-border);
+    box-shadow: var(--glass-shadow-elevated);
+  }
+
+  .glass-modal-overlay {
+    background: hsla(0, 0%, 0%, 0.3);
+    backdrop-filter: blur(4px) saturate(1.2);
+    -webkit-backdrop-filter: blur(4px) saturate(1.2);
   }
 
   .glass-glow-blue {
@@ -262,37 +333,74 @@
     box-shadow: var(--glass-glow-yellow);
   }
 
+  .glass-shine::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--gradient-glass-shine);
+    pointer-events: none;
+  }
+
   .voyex-container {
     @apply max-w-7xl mx-auto px-5 sm:px-6 lg:px-8;
   }
 
   .voyex-card {
-    @apply bg-card rounded-2xl shadow-[var(--shadow-card)] p-5 transition-shadow duration-200 hover:shadow-[var(--shadow-lg)];
+    @apply rounded-2xl p-5 transition-shadow duration-200;
+    background: var(--glass-bg-ultra);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 0.5px solid var(--glass-border);
+    box-shadow: var(--shadow-card);
+  }
+  .voyex-card:hover {
+    box-shadow: var(--shadow-lg);
   }
 
   .voyex-card-glass {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-border);
+    border: 0.5px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
     @apply rounded-2xl p-5;
   }
 
   .voyex-input {
-    @apply w-full h-[52px] px-4 bg-voyex-gray-100 border-0 rounded-2xl text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary focus:bg-background transition-all duration-200;
+    @apply w-full h-[52px] px-4 rounded-2xl text-foreground placeholder:text-muted-foreground transition-all duration-200;
+    background: var(--glass-bg-ultra);
+    border: 0.5px solid var(--glass-border-subtle);
+    box-shadow: inset 0 0.5px 1px hsl(0 0% 0% / 0.04);
+  }
+  .voyex-input:focus {
+    @apply ring-2 ring-primary;
+    background: hsl(var(--background));
   }
 
   .voyex-btn-primary {
-    @apply h-[52px] px-8 bg-primary text-primary-foreground font-semibold rounded-full hover:brightness-105 hover:shadow-[var(--shadow-md)] active:scale-[0.97] transition-all duration-150;
+    @apply h-[52px] px-8 bg-primary text-primary-foreground font-semibold rounded-full active:scale-[0.97] transition-all duration-150;
+    box-shadow: var(--shadow-sm);
+  }
+  .voyex-btn-primary:hover {
+    filter: brightness(1.05);
+    box-shadow: var(--shadow-md);
   }
 
   .voyex-btn-secondary {
-    @apply h-12 px-6 bg-secondary text-secondary-foreground font-medium rounded-full hover:brightness-98 hover:shadow-[var(--shadow-sm)] active:scale-[0.97] transition-all duration-150;
+    @apply h-12 px-6 text-secondary-foreground font-medium rounded-full active:scale-[0.97] transition-all duration-150;
+    background: var(--glass-bg-ultra);
+    border: 0.5px solid var(--glass-border-subtle);
+    box-shadow: var(--shadow-xs);
   }
 
   .voyex-btn-accent {
-    @apply h-[52px] px-8 bg-accent text-accent-foreground font-bold rounded-full hover:brightness-105 hover:shadow-[var(--shadow-glow)] active:scale-[0.97] transition-all duration-150;
+    @apply h-[52px] px-8 bg-accent text-accent-foreground font-bold rounded-full active:scale-[0.97] transition-all duration-150;
+    box-shadow: var(--shadow-sm);
+  }
+  .voyex-btn-accent:hover {
+    filter: brightness(1.05);
+    box-shadow: var(--shadow-glow);
   }
 
   .voyex-link {
@@ -300,7 +408,7 @@
   }
 
   .voyex-link-nav {
-    @apply text-[15px] font-medium text-foreground hover:bg-voyex-gray-100 px-5 py-3 rounded-full transition-all duration-150;
+    @apply text-[15px] font-medium text-foreground hover:bg-muted/60 px-5 py-3 rounded-xl transition-all duration-150;
   }
 
   .voyex-stat-card {
@@ -308,7 +416,15 @@
   }
 
   .voyex-feature-card {
-    @apply bg-card rounded-2xl p-5 shadow-[var(--shadow-sm)] transition-all duration-200 hover:shadow-[var(--shadow-md)] hover:-translate-y-0.5;
+    @apply rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5;
+    background: var(--glass-bg-ultra);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 0.5px solid var(--glass-border);
+    box-shadow: var(--shadow-sm);
+  }
+  .voyex-feature-card:hover {
+    box-shadow: var(--shadow-md);
   }
 
   .voyex-badge {
@@ -320,7 +436,9 @@
   }
 
   .native-card {
-    @apply bg-card rounded-2xl border border-border/60 p-4 transition-all duration-150 active:scale-[0.98];
+    @apply rounded-2xl p-4 transition-all duration-150 active:scale-[0.98];
+    background: var(--glass-bg-ultra);
+    border: 0.5px solid var(--glass-border-subtle);
   }
 
   .section-gap {

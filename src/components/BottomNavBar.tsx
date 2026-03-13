@@ -48,8 +48,8 @@ export default function BottomNavBar() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[55] glass-card-heavy border-t border-border/20" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <div className="flex items-center justify-around h-[60px]">
+    <div className="fixed bottom-0 left-0 right-0 z-[55] glass-bar" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="flex items-center justify-around h-[56px]">
         {tabs.map((tab) => {
           const active = isActive(tab.path);
           return (
@@ -64,7 +64,7 @@ export default function BottomNavBar() {
               {active && (
                 <motion.div
                   layoutId="nav-indicator"
-                  className="absolute -top-[1px] left-3 right-3 h-[3px] rounded-full bg-primary"
+                  className="absolute -top-[1px] left-4 right-4 h-[2.5px] rounded-full bg-primary"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 />
               )}
@@ -72,11 +72,11 @@ export default function BottomNavBar() {
                 animate={active ? { scale: 1, y: 0 } : { scale: 0.9, y: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 20 }}
               >
-                <tab.icon className={cn("w-5 h-5", active && "stroke-[2.5px]")} />
+                <tab.icon className={cn("w-[22px] h-[22px]", active && "stroke-[2.5px]")} />
               </motion.div>
               <span className={cn(
                 "text-[10px] transition-all",
-                active ? "font-bold" : "font-medium"
+                active ? "font-bold" : "font-medium opacity-70"
               )}>{tab.label}</span>
             </button>
           );
