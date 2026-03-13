@@ -157,9 +157,11 @@
     --glass-bg-heavy: hsla(330, 60%, 14%, 0.88);
     --glass-bg-ultra: hsla(330, 60%, 14%, 0.95);
     --glass-border: hsla(330, 60%, 40%, 0.3);
-    --glass-border-light: hsl(330 80% 60% / 0.1);
-    --glass-shadow: 0 12px 30px hsl(330 60% 10% / 0.3);
-    --glass-glow-blue: 0 0 0 1px hsl(330 80% 60% / 0.15), 0 0 24px hsl(330 80% 60% / 0.08);
+    --glass-border-subtle: hsla(330, 60%, 35%, 0.15);
+    --glass-shadow: 0 1px 3px hsl(330 60% 10% / 0.2), 0 0 0 0.5px hsl(330 60% 30% / 0.1);
+    --glass-shadow-lg: 0 8px 32px hsl(330 60% 10% / 0.3), 0 0 0 0.5px hsl(330 60% 30% / 0.1);
+    --glass-shadow-elevated: 0 12px 40px hsl(330 60% 10% / 0.4), 0 0 0 0.5px hsl(330 60% 30% / 0.1);
+    --glass-glow-blue: 0 0 0 0.5px hsl(330 80% 60% / 0.2), 0 0 16px hsl(330 80% 60% / 0.06);
 
     --gradient-primary: linear-gradient(135deg, hsl(330 70% 20%), hsl(330 80% 60%));
   }
