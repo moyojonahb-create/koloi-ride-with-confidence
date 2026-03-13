@@ -162,42 +162,48 @@
   }
 
   .dark {
-    --background: 217 85% 10%;
+    --background: 220 20% 7%;
     --foreground: 0 0% 98%;
-    --card: 217 80% 16%;
+    --card: 220 18% 12%;
     --card-foreground: 0 0% 98%;
-    --popover: 217 80% 16%;
+    --popover: 220 18% 12%;
     --popover-foreground: 0 0% 98%;
     --primary: 45 100% 51%;
     --primary-foreground: 0 0% 10%;
     --primary-light: 213 83% 56%;
-    --secondary: 217 70% 20%;
+    --secondary: 220 16% 16%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 217 70% 20%;
-    --muted-foreground: 217 20% 70%;
+    --muted: 220 16% 16%;
+    --muted-foreground: 217 20% 65%;
     --accent: 45 100% 51%;
     --accent-foreground: 0 0% 10%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 98%;
-    --border: 217 70% 22%;
-    --input: 217 70% 22%;
+    --border: 220 16% 18%;
+    --input: 220 16% 18%;
     --ring: 45 100% 51%;
-    --sidebar-background: 217 85% 8%;
+    --sidebar-background: 220 20% 6%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 45 100% 51%;
     --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 217 80% 16%;
+    --sidebar-accent: 220 18% 14%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 217 80% 16%;
+    --sidebar-border: 220 18% 14%;
     --sidebar-ring: 45 100% 51%;
 
-    /* Glass overrides for dark */
-    --glass-bg: hsla(217, 80%, 14%, 0.7);
-    --glass-bg-heavy: hsla(217, 80%, 14%, 0.88);
-    --glass-border: hsla(217, 80%, 30%, 0.35);
-    --glass-border-light: hsl(45 100% 51% / 0.08);
-    --glass-shadow: 0 12px 30px hsl(0 0% 0% / 0.3);
+    /* iOS dark glass */
+    --glass-bg: hsla(220, 18%, 10%, 0.72);
+    --glass-bg-heavy: hsla(220, 18%, 10%, 0.88);
+    --glass-bg-ultra: hsla(220, 18%, 10%, 0.95);
+    --glass-border: hsla(0, 0%, 100%, 0.08);
+    --glass-border-subtle: hsla(0, 0%, 100%, 0.05);
+    --glass-shadow: 0 1px 3px hsl(0 0% 0% / 0.2), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
+    --glass-shadow-lg: 0 8px 32px hsl(0 0% 0% / 0.3), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
+    --glass-shadow-elevated: 0 12px 40px hsl(0 0% 0% / 0.4), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
+    --glass-glow-blue: 0 0 0 0.5px hsl(213 83% 56% / 0.2), 0 0 16px hsl(213 83% 56% / 0.06);
+    --glass-separator: 0.5px solid hsla(0, 0%, 100%, 0.06);
     --gradient-primary: linear-gradient(135deg, hsl(217 85% 22%), hsl(213 83% 40%));
+    --gradient-glass-shine: linear-gradient(180deg, hsla(0, 0%, 100%, 0.06) 0%, hsla(0, 0%, 100%, 0) 100%);
   }
 }
 
