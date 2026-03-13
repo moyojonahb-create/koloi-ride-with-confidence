@@ -6,33 +6,30 @@ interface SplashScreenProps {
   duration?: number;
 }
 
-const SplashScreen = ({ onComplete, duration = 2500 }: SplashScreenProps) => {
-  const [visible, setVisible] = useState(false);
-  const [exiting, setExiting] = useState(false);
+const SplashScreen = ({ onComplete, duration = 1200 }: SplashScreenProps) => {
+  const [phase, setPhase] = useState<'enter' | 'exit'>('enter');
 
   useLayoutEffect(() => {
     document.getElementById('instant-splash')?.remove();
   }, []);
 
   useEffect(() => {
-    requestAnimationFrame(() => setVisible(true));
-    const t1 = setTimeout(() => setExiting(true), duration - 500);
-    const t2 = setTimeout(onComplete, duration);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    // Kick enter animation on next frame
+    const exitTimer = setTimeout(() => setPhase('exit'), duration - 300);
+    const doneTimer = setTimeout(onComplete, duration);
+    return () => { clearTimeout(exitTimer); clearTimeout(doneTimer); };
   }, [duration, onComplete]);
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-white transition-opacity duration-500 ${
-        exiting ? 'opacity-0' : 'opacity-100'
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-white transition-opacity duration-300 ${
+        phase === 'exit' ? 'opacity-0' : 'opacity-100'
       }`}
     >
       <img
         src={voyexSplash}
         alt="Voyex"
-        className={`w-64 h-64 sm:w-72 sm:h-72 object-contain transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-          visible ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
-        }`}
+        className="w-56 h-56 object-contain animate-[splash-pop_0.4s_ease-out_both]"
       />
     </div>
   );
