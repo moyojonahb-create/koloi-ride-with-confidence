@@ -491,24 +491,19 @@ export default function RideView() {
             <div className="border-t border-border/30 my-1 mx-2" />
             <p className="px-4 pt-1 pb-0.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Services</p>
 
-            <button
-              onClick={() => {setMenuOpen(false);setServiceType('intercity');}}
-              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all">
-              <Route className="w-5 h-5 text-primary" />
-              <span className="text-[15px] font-semibold text-foreground">Intercity</span>
-            </button>
-            <button
-              onClick={() => {setMenuOpen(false);setServiceType('courier');}}
-              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all">
-              <Zap className="w-5 h-5 text-primary" />
-              <span className="text-[15px] font-semibold text-foreground">Courier</span>
-            </button>
-            <button
-              onClick={() => {setMenuOpen(false);setServiceType('freight');}}
-              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all">
-              <CarFront className="w-5 h-5 text-primary" />
-              <span className="text-[15px] font-semibold text-foreground">Freight</span>
-            </button>
+            {SERVICE_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {setMenuOpen(false);setServiceType(tab.id);}}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all",
+                  serviceType === tab.id && "bg-primary/10"
+                )}>
+                <span className="text-lg">{tab.icon}</span>
+                <span className={cn("text-[15px] font-semibold", serviceType === tab.id ? "text-primary" : "text-foreground")}>{tab.label}</span>
+                {serviceType === tab.id && <span className="ml-auto text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">Active</span>}
+              </button>
+            ))}
           </nav>
         </SheetContent>
       </Sheet>
@@ -536,23 +531,15 @@ export default function RideView() {
         {/* Scrollable content */}
         <div className="flex-1 px-4 pb-2 space-y-3 min-h-0 overflow-y-auto overscroll-contain">
 
-          {/* Service type tabs */}
-          <div className="flex gap-1 bg-muted/50 rounded-xl p-1">
-            {SERVICE_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setServiceType(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all ${
-                  serviceType === tab.id
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </div>
+          {/* Service type indicator */}
+          {serviceType !== 'ride' && (
+            <div className="flex items-center justify-between px-1">
+              <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                {SERVICE_TABS.find(t => t.id === serviceType)?.icon} {SERVICE_TABS.find(t => t.id === serviceType)?.label} Mode
+              </span>
+              <button onClick={() => setServiceType('ride')} className="text-xs text-muted-foreground underline">Switch to Ride</button>
+            </div>
+          )}
 
           {/* Town selector row */}
           <div className="flex items-center justify-between">
