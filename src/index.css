@@ -153,8 +153,9 @@
     --voyex-blue-light: 330 80% 65%;
 
     /* Glassy pink dark overrides */
-    --glass-bg: hsla(330, 60%, 12%, 0.75);
-    --glass-bg-heavy: hsla(330, 60%, 14%, 0.9);
+    --glass-bg: hsla(330, 60%, 12%, 0.72);
+    --glass-bg-heavy: hsla(330, 60%, 14%, 0.88);
+    --glass-bg-ultra: hsla(330, 60%, 14%, 0.95);
     --glass-border: hsla(330, 60%, 40%, 0.3);
     --glass-border-light: hsl(330 80% 60% / 0.1);
     --glass-shadow: 0 12px 30px hsl(330 60% 10% / 0.3);
