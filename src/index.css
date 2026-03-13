@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Voyex Design System — Tesla glass × Uber map-first */
+/* Voyex Design System — iOS 18 Frosted Glass */
 
 @layer base {
   :root {
@@ -42,7 +42,7 @@
     --input: 217 20% 90%;
     --ring: 217 85% 29%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
     /* Sidebar */
     --sidebar-background: 217 85% 29%;
@@ -72,31 +72,39 @@
     --voyex-gray-800: 217 20% 20%;
     --voyex-gray-900: 0 0% 10%;
 
-    /* ─── Shadows ─── */
-    --shadow-xs: 0 1px 2px 0 hsl(217 25% 0% / 0.03);
-    --shadow-sm: 0 2px 4px -1px hsl(217 25% 0% / 0.06), 0 1px 2px -1px hsl(217 25% 0% / 0.04);
-    --shadow-md: 0 6px 16px -4px hsl(217 25% 0% / 0.08), 0 2px 6px -2px hsl(217 25% 0% / 0.05);
-    --shadow-lg: 0 12px 28px -8px hsl(217 25% 0% / 0.12), 0 4px 10px -4px hsl(217 25% 0% / 0.06);
-    --shadow-xl: 0 24px 48px -12px hsl(217 25% 0% / 0.15), 0 12px 24px -8px hsl(217 25% 0% / 0.08);
-    --shadow-card: 0 12px 30px -8px hsl(0 0% 0% / 0.08);
+    /* ─── Shadows — iOS-style layered ─── */
+    --shadow-xs: 0 0.5px 1px 0 hsl(217 25% 0% / 0.02), 0 0 0 0.5px hsl(217 25% 0% / 0.02);
+    --shadow-sm: 0 1px 3px hsl(217 25% 0% / 0.04), 0 0 0 0.5px hsl(217 25% 0% / 0.02);
+    --shadow-md: 0 4px 12px -2px hsl(217 25% 0% / 0.06), 0 0 0 0.5px hsl(217 25% 0% / 0.02);
+    --shadow-lg: 0 8px 24px -4px hsl(217 25% 0% / 0.08), 0 0 0 0.5px hsl(217 25% 0% / 0.03);
+    --shadow-xl: 0 16px 40px -8px hsl(217 25% 0% / 0.12), 0 0 0 0.5px hsl(217 25% 0% / 0.03);
+    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.05), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
     --shadow-phone: 0 32px 64px -16px hsl(217 25% 0% / 0.35);
     --shadow-glow: 0 0 24px hsl(var(--accent) / 0.25);
 
-    /* ─── Glassmorphism ─── */
-    --glass-bg: hsla(0, 0%, 100%, 0.65);
-    --glass-bg-heavy: hsla(0, 0%, 100%, 0.82);
-    --glass-border: hsla(0, 0%, 100%, 0.35);
-    --glass-border-light: hsl(217 85% 29% / 0.08);
-    --glass-blur: blur(18px);
-    --glass-blur-heavy: blur(28px);
-    --glass-shadow: 0 12px 30px hsl(0 0% 0% / 0.08);
-    --glass-shadow-lg: 0 16px 48px hsl(217 85% 29% / 0.10), 0 4px 16px hsl(0 0% 0% / 0.06);
-    --glass-glow-blue: 0 0 0 1px hsl(217 85% 29% / 0.12), 0 0 20px hsl(217 85% 29% / 0.06);
-    --glass-glow-yellow: 0 0 0 1px hsl(45 100% 51% / 0.15), 0 0 20px hsl(45 100% 51% / 0.08);
+    /* ─── Glassmorphism — iOS Frosted ─── */
+    --glass-bg: hsla(0, 0%, 100%, 0.72);
+    --glass-bg-heavy: hsla(0, 0%, 100%, 0.88);
+    --glass-bg-ultra: hsla(0, 0%, 100%, 0.95);
+    --glass-border: hsla(0, 0%, 100%, 0.5);
+    --glass-border-subtle: hsla(217, 25%, 80%, 0.2);
+    --glass-border-light: hsl(217 85% 29% / 0.06);
+    --glass-blur: blur(24px) saturate(1.8);
+    --glass-blur-heavy: blur(40px) saturate(2);
+    --glass-blur-nav: blur(20px) saturate(1.6);
+    --glass-shadow: 0 1px 3px hsl(0 0% 0% / 0.04), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
+    --glass-shadow-lg: 0 8px 32px hsl(217 85% 29% / 0.06), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
+    --glass-shadow-elevated: 0 12px 40px hsl(0 0% 0% / 0.1), 0 0 0 0.5px hsl(0 0% 0% / 0.04);
+    --glass-glow-blue: 0 0 0 0.5px hsl(217 85% 29% / 0.15), 0 0 16px hsl(217 85% 29% / 0.06);
+    --glass-glow-yellow: 0 0 0 0.5px hsl(45 100% 51% / 0.15), 0 0 16px hsl(45 100% 51% / 0.08);
+
+    /* iOS-style inset separator */
+    --glass-separator: 0.5px solid hsla(0, 0%, 0%, 0.06);
 
     /* ─── Gradients ─── */
     --gradient-primary: linear-gradient(135deg, hsl(217 85% 29%), hsl(213 83% 56%));
     --gradient-accent: linear-gradient(135deg, hsl(45 100% 51%), hsl(40 100% 60%));
+    --gradient-glass-shine: linear-gradient(180deg, hsla(0, 0%, 100%, 0.15) 0%, hsla(0, 0%, 100%, 0) 100%);
   }
 
   /* ─── Female / Women-Only Theme — Glassy Pink ─── */
