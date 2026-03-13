@@ -491,24 +491,19 @@ export default function RideView() {
             <div className="border-t border-border/30 my-1 mx-2" />
             <p className="px-4 pt-1 pb-0.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Services</p>
 
-            <button
-              onClick={() => {setMenuOpen(false);setServiceType('intercity');}}
-              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all">
-              <Route className="w-5 h-5 text-primary" />
-              <span className="text-[15px] font-semibold text-foreground">Intercity</span>
-            </button>
-            <button
-              onClick={() => {setMenuOpen(false);setServiceType('courier');}}
-              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all">
-              <Zap className="w-5 h-5 text-primary" />
-              <span className="text-[15px] font-semibold text-foreground">Courier</span>
-            </button>
-            <button
-              onClick={() => {setMenuOpen(false);setServiceType('freight');}}
-              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all">
-              <CarFront className="w-5 h-5 text-primary" />
-              <span className="text-[15px] font-semibold text-foreground">Freight</span>
-            </button>
+            {SERVICE_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {setMenuOpen(false);setServiceType(tab.id);}}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all",
+                  serviceType === tab.id && "bg-primary/10"
+                )}>
+                <span className="text-lg">{tab.icon}</span>
+                <span className={cn("text-[15px] font-semibold", serviceType === tab.id ? "text-primary" : "text-foreground")}>{tab.label}</span>
+                {serviceType === tab.id && <span className="ml-auto text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">Active</span>}
+              </button>
+            ))}
           </nav>
         </SheetContent>
       </Sheet>
