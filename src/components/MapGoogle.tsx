@@ -67,6 +67,17 @@ function decodePolyline(encoded: string): Coords[] {
   return points;
 }
 
+/** Haversine distance in km */
+function getDistanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const sinLat = Math.sin(dLat / 2);
+  const sinLng = Math.sin(dLng / 2);
+  const h = sinLat * sinLat + Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * sinLng * sinLng;
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+
 // ── Smooth driver position interpolation ──
 const LERP_MS = 1200;
 function lerpVal(a: number, b: number, t: number) { return a + (b - a) * Math.min(1, Math.max(0, t)); }
