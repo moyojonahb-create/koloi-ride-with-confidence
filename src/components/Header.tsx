@@ -14,7 +14,7 @@ interface HeaderProps {
   transparent?: boolean;
 }
 
-const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick }: HeaderProps) => {
+const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick, transparent = false }: HeaderProps) => {
   const { user, loading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
