@@ -45,6 +45,7 @@ const Index = () => {
         onSignupClick={handleSignupClick}
         onFavoritesClick={() => setFavoritesOpen(true)}
         onHistoryClick={() => setHistoryOpen(true)}
+        transparent
       />
       
       <main>
