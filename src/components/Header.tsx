@@ -11,6 +11,7 @@ interface HeaderProps {
   onSignupClick: () => void;
   onFavoritesClick: () => void;
   onHistoryClick: () => void;
+  transparent?: boolean;
 }
 
 const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick }: HeaderProps) => {
