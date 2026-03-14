@@ -82,7 +82,6 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick,
           >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-          </button>
         </nav>
 
         {/* Mobile Menu */}
