@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState, memo } from 'react';
+import { useCallback, useEffect, useRef, useState, memo, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
 import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import DistanceGradientLine from '@/components/map/DistanceGradientLine';
 
 // ── Types ──
 interface Coords {
