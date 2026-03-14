@@ -313,6 +313,15 @@ function InnerMap({
           zIndex={10}
         />
 
+        {/* Distance gradient connector: driver → target */}
+        {smoothDriverPos && (phase === "driver_to_pickup" || phase === "pickup_to_dropoff") && (() => {
+          const target = phase === "driver_to_pickup" ? pickup : dropoff;
+          const distKm = calculateDistance(smoothDriverPos.lat, smoothDriverPos.lng, target.lat, target.lng);
+          return (
+            <DistanceGradientLine from={smoothDriverPos} to={target} distanceKm={distKm} />
+          );
+        })()}
+
         {/* Smooth animated driver marker */}
         {smoothDriverPos && (
           <Marker
