@@ -8,6 +8,7 @@ import {
 import { useGoogleMapsKey } from "@/hooks/useGoogleMapsKey";
 import { calculateDistance } from "@/lib/driverLocation";
 import { Loader2 } from "lucide-react";
+import DistanceGradientLine from "@/components/map/DistanceGradientLine";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -311,6 +312,15 @@ function InnerMap({
           label={{ text: "D", color: "#fff", fontWeight: "bold", fontSize: "11px" }}
           zIndex={10}
         />
+
+        {/* Distance gradient connector: driver → target */}
+        {smoothDriverPos && (phase === "driver_to_pickup" || phase === "pickup_to_dropoff") && (() => {
+          const target = phase === "driver_to_pickup" ? pickup : dropoff;
+          const distKm = calculateDistance(smoothDriverPos.lat, smoothDriverPos.lng, target.lat, target.lng);
+          return (
+            <DistanceGradientLine from={smoothDriverPos} to={target} distanceKm={distKm} />
+          );
+        })()}
 
         {/* Smooth animated driver marker */}
         {smoothDriverPos && (

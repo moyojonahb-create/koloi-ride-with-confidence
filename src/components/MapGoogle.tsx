@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState, memo } from 'react';
+import { useCallback, useEffect, useRef, useState, memo, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
 import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import DistanceGradientLine from '@/components/map/DistanceGradientLine';
 
 // ── Types ──
 interface Coords {
@@ -64,6 +65,17 @@ function decodePolyline(encoded: string): Coords[] {
     points.push({ lat: lat / 1e5, lng: lng / 1e5 });
   }
   return points;
+}
+
+/** Haversine distance in km */
+function getDistanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const sinLat = Math.sin(dLat / 2);
+  const sinLng = Math.sin(dLng / 2);
+  const h = sinLat * sinLat + Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * sinLng * sinLng;
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
 
 // ── Smooth driver position interpolation ──
@@ -241,6 +253,14 @@ function InnerMapGoogle({
             anchor: new google.maps.Point(d.isOnline ? 16 : 14, d.isOnline ? 16 : 14),
           }} zIndex={5} />
         ))}
+        {/* Distance gradient connector: driver → pickup */}
+        {driverLocation && pickup && (
+          <DistanceGradientLine
+            from={driverLocation}
+            to={pickup}
+            distanceKm={getDistanceKm(driverLocation, pickup)}
+          />
+        )}
         {/* Secondary route: driver → pickup (dashed blue) */}
         {secondaryPath.length > 1 && (
           <Polyline path={secondaryPath} options={{ strokeColor: '#60a5fa', strokeWeight: 4, strokeOpacity: 0.7, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '15px' }] }} />
