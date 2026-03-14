@@ -8,6 +8,7 @@ import {
 import { useGoogleMapsKey } from "@/hooks/useGoogleMapsKey";
 import { calculateDistance } from "@/lib/driverLocation";
 import { Loader2 } from "lucide-react";
+import DistanceGradientLine from "@/components/map/DistanceGradientLine";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
