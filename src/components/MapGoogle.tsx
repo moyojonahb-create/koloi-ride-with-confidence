@@ -242,6 +242,14 @@ function InnerMapGoogle({
             anchor: new google.maps.Point(d.isOnline ? 16 : 14, d.isOnline ? 16 : 14),
           }} zIndex={5} />
         ))}
+        {/* Distance gradient connector: driver → pickup */}
+        {driverLocation && pickup && (
+          <DistanceGradientLine
+            from={driverLocation}
+            to={pickup}
+            distanceKm={getDistanceKm(driverLocation, pickup)}
+          />
+        )}
         {/* Secondary route: driver → pickup (dashed blue) */}
         {secondaryPath.length > 1 && (
           <Polyline path={secondaryPath} options={{ strokeColor: '#60a5fa', strokeWeight: 4, strokeOpacity: 0.7, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '15px' }] }} />
