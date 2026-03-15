@@ -100,11 +100,17 @@ const AdminDashboard = () => {
 
       const onlineWithDetails = await Promise.all(
         (online || []).map(async (driver) => {
-          const [profileRes, locationRes] = await Promise.all([
+          const [profileRes, locationRes, activeTripRes] = await Promise.all([
             supabase.from('profiles').select('full_name, phone').eq('user_id', driver.user_id).single(),
-            supabase.from('live_locations').select('latitude, longitude, updated_at').eq('user_id', driver.user_id).single()
+            supabase.from('live_locations').select('latitude, longitude, updated_at').eq('user_id', driver.user_id).single(),
+            supabase.from('rides').select('status').eq('driver_id', driver.id).in('status', ['accepted', 'enroute', 'in_progress', 'arrived']).limit(1).maybeSingle(),
           ]);
-          return { ...driver, profile: profileRes.data || undefined, location: locationRes.data || null };
+          return {
+            ...driver,
+            profile: profileRes.data || undefined,
+            location: locationRes.data || null,
+            tripStatus: activeTripRes.data?.status || null,
+          };
         })
       );
 
