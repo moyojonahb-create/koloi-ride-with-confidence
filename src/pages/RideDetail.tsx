@@ -88,6 +88,7 @@ export default function RideDetail() {
   const [msgText, setMsgText] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const [showOffersModal, setShowOffersModal] = useState(false);
+  const [premiumOffers, setPremiumOffers] = useState<PremiumOffer[]>([]);
   const [driverUserIdForTracking, setDriverUserIdForTracking] = useState<string | null>(null);
 
   useEffect(() => {
