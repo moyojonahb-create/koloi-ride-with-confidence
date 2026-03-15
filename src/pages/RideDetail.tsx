@@ -366,51 +366,25 @@ export default function RideDetail() {
         </div>
       </div>
 
-      {/* Offers Modal */}
-      {showOffersModal && (
-        <div className="fixed inset-0 z-[60] bg-foreground/20 backdrop-blur-sm flex items-end justify-center" onClick={() => setShowOffersModal(false)}>
-          <div className="glass-card-heavy w-full max-w-lg rounded-t-3xl max-h-[80vh] overflow-hidden animate-slide-up" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-5" style={{ background: 'var(--gradient-primary)', borderTopLeftRadius: 28, borderTopRightRadius: 28 }}>
-              <div>
-                <h2 className="font-semibold text-lg font-display text-primary-foreground">Driver Offers</h2>
-                <p className="text-xs text-primary-foreground/70">Drivers viewing: {driversViewing}</p>
-              </div>
-              <button onClick={() => setShowOffersModal(false)} className="px-4 py-2 rounded-xl bg-primary-foreground/15 font-medium text-sm text-primary-foreground active:scale-95 transition-all">Close</button>
-            </div>
-            <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
-              {pendingOffers.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No offers yet. Drivers will appear here when they bid.</p>
-              ) : (
-                pendingOffers.map((o) => (
-                  <div key={o.id} className="glass-card rounded-2xl p-4 glass-glow-blue">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-2xl font-black text-primary">${Number(o.price).toFixed(2)}</span>
-                      <OfferTimer offer={o} />
-                    </div>
-                    <div className="text-sm text-muted-foreground mb-3">
-                      <p>ETA: {o.eta_minutes ?? 5} min</p>
-                      {o.message && <p className="italic">"{o.message}"</p>}
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => acceptOffer(o)} disabled={!canAcceptNow(o) || acceptingOfferId === o.id}
-                        className={`flex-1 py-3 rounded-2xl font-bold active:scale-95 transition-all ${
-                          canAcceptNow(o) ? "bg-accent text-accent-foreground shadow-[0_4px_16px_hsl(45_100%_51%/0.3)]" : "bg-muted text-muted-foreground cursor-not-allowed"
-                        }`}>
-                        {acceptingOfferId === o.id ? "Accepting..." : "Accept"}
-                      </button>
-                      <button onClick={() => supabase.from("offers").update({ status: "rejected" }).eq("id", o.id)}
-                        className="flex-1 py-3 rounded-2xl glass-card font-bold active:scale-95 transition-all">Decline</button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground text-center p-4 border-t border-border/30">
-              Accept is available for 10 seconds.
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Premium Offers Sheet */}
+      <PremiumOffersSheet
+        isOpen={showOffersModal}
+        offers={premiumOffers}
+        riderFare={Number(ride.fare ?? 0)}
+        onAccept={async (offerId) => {
+          const offer = offers.find(o => o.id === offerId);
+          if (offer) await acceptOffer(offer);
+        }}
+        onDecline={async (offerId) => {
+          await supabase.from("offers").update({ status: "rejected" }).eq("id", offerId);
+          setPremiumOffers(prev => prev.filter(o => o.offerId !== offerId));
+        }}
+        onCancel={async () => {
+          if (rideId) await supabase.from("rides").update({ status: "cancelled" }).eq("id", rideId);
+          nav("/ride");
+        }}
+        onClose={() => setShowOffersModal(false)}
+      />
 
       {/* Toast */}
       {toast && (
