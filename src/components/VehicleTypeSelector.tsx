@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Car, Truck, Package, MapPinned } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

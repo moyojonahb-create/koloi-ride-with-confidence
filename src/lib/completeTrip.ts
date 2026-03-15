@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export async function completeTrip(tripId: string) {
-  const { data, error } = await supabase.rpc("complete_trip_with_commission" as any, {
+  const { data, error } = await supabase.rpc("complete_trip_with_commission", {
     p_trip_id: tripId,
   });
   if (error) throw error;

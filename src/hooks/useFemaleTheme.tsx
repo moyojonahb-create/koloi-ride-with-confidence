@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 
 interface FemaleThemeContextType {
@@ -17,6 +18,7 @@ export const FemaleThemeProvider = ({ children }: { children: ReactNode }) => {
     try {
       return localStorage.getItem('voyex-female-mode') === 'true';
     } catch {
+      // ignore errors (e.g., localStorage not available)
       return false;
     }
   });
@@ -30,7 +32,9 @@ export const FemaleThemeProvider = ({ children }: { children: ReactNode }) => {
     }
     try {
       localStorage.setItem('voyex-female-mode', String(isFemaleMode));
-    } catch {}
+    } catch {
+      // ignore errors (e.g., localStorage not available)
+    }
   }, [isFemaleMode]);
 
   const setFemaleMode = useCallback((enabled: boolean) => setIsFemaleMode(enabled), []);

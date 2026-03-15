@@ -15,11 +15,10 @@ const ZWPlacesAutocomplete: React.FC<ZWPlacesAutocompleteProps> = ({
 }) => {
   const [value, setValue] = useState(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
-  
-  try {
-    const { landmarks, loading, error } = useLandmarks({ searchQuery: value, limit: 5 });
 
-    return (
+  const { landmarks, loading, error } = useLandmarks({ searchQuery: value, limit: 5 });
+
+  return (
       <div className="relative">
         <div className="flex items-center gap-2 px-3 py-3 border border-gray-300 rounded-lg bg-white">
           <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0" />
@@ -73,17 +72,6 @@ const ZWPlacesAutocomplete: React.FC<ZWPlacesAutocompleteProps> = ({
         )}
       </div>
     );
-  } catch (err) {
-    console.error('ZWPlacesAutocomplete error:', err);
-    return (
-      <div className="relative">
-        <div className="flex items-center gap-2 px-3 py-3 border border-red-300 rounded-lg bg-red-50">
-          <AlertCircle className="w-4 h-4 text-red-600" />
-          <span className="text-xs text-red-600">Error loading autocomplete</span>
-        </div>
-      </div>
-    );
-  }
 };
 
 export default ZWPlacesAutocomplete;

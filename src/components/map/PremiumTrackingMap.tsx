@@ -102,12 +102,16 @@ const CAR_SVG = `
 /*  Custom OverlayView – driver marker + ETA badge                     */
 /* ------------------------------------------------------------------ */
 
-let CachedDriverOverlayClass: any = null;
+type DriverOverlayClass = typeof google.maps.OverlayView & {
+  new (position: LatLng, etaMinutes: number, bearing?: number): google.maps.OverlayView;
+};
 
-function getDriverOverlayClass(): any {
+let CachedDriverOverlayClass: DriverOverlayClass | null = null;
+
+function getDriverOverlayClass(): DriverOverlayClass {
   if (CachedDriverOverlayClass) return CachedDriverOverlayClass;
 
-  const g = (window as any).google;
+  const g = (window as unknown as { google?: typeof google }).google;
   if (!g || !g.maps) {
     throw new Error("Google Maps JS API not loaded yet");
   }

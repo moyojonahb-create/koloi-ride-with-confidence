@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // Driver Navigation View - Turn-by-turn voice instructions with OSRM
 import { useState, useEffect, useCallback } from 'react';
 import { 

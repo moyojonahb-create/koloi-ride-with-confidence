@@ -3,6 +3,8 @@ import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { haptic } from '@/lib/haptics';
 
+type PanInfoWithPoint = PanInfo & { point?: { x: number; y: number } };
+
 /**
  * Wrap a page to enable edge-swipe-right → navigate back.
  * Only triggers when the swipe starts within 24px of the left edge.
@@ -20,8 +22,8 @@ export default function SwipeBack({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  const handlePanStart = (_: unknown, info: PanInfo) => {
-    startXRef.current = (info as any).point?.x ?? 999;
+  const handlePanStart = (_: unknown, info: PanInfoWithPoint) => {
+    startXRef.current = info.point?.x ?? 999;
   };
 
   const handlePan = (_: unknown, info: PanInfo) => {

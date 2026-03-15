@@ -1,44 +1,47 @@
-﻿import { useState } from "react";
+﻿import { Suspense, lazy, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import SplashScreen from "./components/SplashScreen";
 import AuthGuard from "./components/AuthGuard";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Signup from "./pages/Signup";
-import AppDashboard from "./pages/AppDashboard";
-import Ride from "./pages/Ride";
-import RideDetail from "./pages/RideDetail";
-import RideHistory from "./pages/RideHistory";
-import RiderProfile from "./pages/RiderProfile";
-import RiderWalletPage from "./pages/RiderWalletPage";
-import SafetyPage from "./pages/SafetyPage";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import Offline from "./pages/Offline";
-import Install from "./pages/Install";
-import DeleteAccount from "./pages/DeleteAccount";
-import DriverApplication from "./pages/DriverApplication";
-import DriverDashboard from "./pages/DriverDashboard";
-import DriverDepositPage from "./pages/DriverDepositPage";
-import DriverLeaderboard from "./pages/DriverLeaderboard";
-import DriverModeLanding from "./pages/DriverModeLanding";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminDrivers from "./pages/admin/AdminDrivers";
-import AdminDriverDetail from "./pages/admin/AdminDriverDetail";
-import AdminDriversMap from "./pages/admin/AdminDriversMap";
-import AdminLandmarks from "./pages/admin/AdminLandmarks";
-import AdminLedger from "./pages/admin/AdminLedger";
-import AdminPromos from "./pages/admin/AdminPromos";
-import AdminRatePage from "./pages/admin/AdminRatePage";
-import AdminReports from "./pages/admin/AdminReports";
-import AdminTrips from "./pages/admin/AdminTrips";
-import AdminDepositsPage from "./pages/admin/AdminDepositsPage";
-import AdminRiderDepositsPage from "./pages/admin/AdminRiderDepositsPage";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminTownPricing from "./pages/admin/AdminTownPricing";
-import ImportOsmPlaces from "./pages/admin/ImportOsmPlaces";
-import NotFound from "./pages/NotFound";
 import AdminGuard from "./components/admin/AdminGuard";
+
+// Lazy-loaded pages (code-split)
+const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Signup = lazy(() => import("./pages/Signup"));
+const AppDashboard = lazy(() => import("./pages/AppDashboard"));
+const Ride = lazy(() => import("./pages/Ride"));
+const RideDetail = lazy(() => import("./pages/RideDetail"));
+const RideHistory = lazy(() => import("./pages/RideHistory"));
+const RiderProfile = lazy(() => import("./pages/RiderProfile"));
+const RiderWalletPage = lazy(() => import("./pages/RiderWalletPage"));
+const SafetyPage = lazy(() => import("./pages/SafetyPage"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const Offline = lazy(() => import("./pages/Offline"));
+const Install = lazy(() => import("./pages/Install"));
+const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
+const DriverApplication = lazy(() => import("./pages/DriverApplication"));
+const DriverDashboard = lazy(() => import("./pages/DriverDashboard"));
+const DriverDepositPage = lazy(() => import("./pages/DriverDepositPage"));
+const DriverLeaderboard = lazy(() => import("./pages/DriverLeaderboard"));
+const DriverModeLanding = lazy(() => import("./pages/DriverModeLanding"));
+
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminDrivers = lazy(() => import("./pages/admin/AdminDrivers"));
+const AdminDriverDetail = lazy(() => import("./pages/admin/AdminDriverDetail"));
+const AdminDriversMap = lazy(() => import("./pages/admin/AdminDriversMap"));
+const AdminLandmarks = lazy(() => import("./pages/admin/AdminLandmarks"));
+const AdminLedger = lazy(() => import("./pages/admin/AdminLedger"));
+const AdminPromos = lazy(() => import("./pages/admin/AdminPromos"));
+const AdminRatePage = lazy(() => import("./pages/admin/AdminRatePage"));
+const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
+const AdminTrips = lazy(() => import("./pages/admin/AdminTrips"));
+const AdminDepositsPage = lazy(() => import("./pages/admin/AdminDepositsPage"));
+const AdminRiderDepositsPage = lazy(() => import("./pages/admin/AdminRiderDepositsPage"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminTownPricing = lazy(() => import("./pages/admin/AdminTownPricing"));
+const ImportOsmPlaces = lazy(() => import("./pages/admin/ImportOsmPlaces"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -49,12 +52,13 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/ride" replace />} />
-        <Route path="/home" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/login" element={<Navigate to="/auth" replace />} />
-        <Route path="/signup" element={<Signup />} />
+      <Suspense fallback={<div className="h-full w-full flex items-center justify-center">Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/ride" replace />} />
+          <Route path="/home" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/login" element={<Navigate to="/auth" replace />} />
+          <Route path="/signup" element={<Signup />} />
 
         <Route
           path="/ride"
@@ -278,6 +282,7 @@ export default function App() {
 
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

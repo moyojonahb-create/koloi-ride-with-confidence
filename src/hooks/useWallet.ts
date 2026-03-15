@@ -48,11 +48,12 @@ export const useWallet = () => {
       setError(null);
       
       // Try to fetch existing wallet
-      let { data: walletData, error: walletError } = await supabase
+      const { data: initialWalletData, error: walletError } = await supabase
         .from('wallets')
         .select('*')
         .eq('user_id', user.id)
         .single();
+      let walletData = initialWalletData;
 
       // If no wallet exists, create one
       if (walletError && walletError.code === 'PGRST116') {

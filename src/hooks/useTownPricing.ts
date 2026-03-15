@@ -39,7 +39,7 @@ const DEFAULT_PRICING: TownPricingConfig = {
   is_negotiation_enabled: true,
 };
 
-let pricingCache: Record<string, TownPricingConfig> = {};
+const pricingCache: Record<string, TownPricingConfig> = {};
 
 export function useTownPricing(townId: string | null) {
   const [pricing, setPricing] = useState<TownPricingConfig>(

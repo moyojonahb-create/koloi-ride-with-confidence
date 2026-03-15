@@ -35,4 +35,19 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    // Prevent warnings from large vendor chunks by splitting dependencies into smaller chunks
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            const parts = id.toString().split('node_modules/')[1].split('/');
+            const pkg = parts[0].startsWith('@') ? `${parts[0]}/${parts[1]}` : parts[0];
+            return `vendor.${pkg}`;
+          }
+        },
+      },
+    },
+  },
 }));

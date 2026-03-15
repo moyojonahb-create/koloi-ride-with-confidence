@@ -25,7 +25,7 @@ export default function DriverFeedback() {
   const [submitting, setSubmitting] = useState(false);
   const [items, setItems] = useState<FeedbackItem[]>([]);
 
-  const fetchFeedback = async () => {
+  const fetchFeedback = useCallback(async () => {
     if (!user) return;
     const { data } = await supabase
       .from('driver_feedback')
@@ -33,11 +33,11 @@ export default function DriverFeedback() {
       .eq('driver_id', user.id)
       .order('created_at', { ascending: false });
     setItems(data || []);
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchFeedback();
-  }, [user]);
+  }, [fetchFeedback]);
 
   const handleSubmit = async () => {
     if (!user || !message.trim()) return;

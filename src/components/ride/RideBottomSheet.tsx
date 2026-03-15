@@ -141,7 +141,7 @@ export default function RideBottomSheet({
       className={cn(
         'fixed bottom-0 left-0 right-0 bg-background rounded-t-[28px] shadow-[0_-4px_32px_rgba(0,0,0,0.1)] z-40',
         'transition-[height] border-t border-border/40',
-        isDragging ? 'duration-0' : 'duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
+        isDragging ? 'duration-0' : 'duration-300 ease-&lsqb;cubic-bezier(0.32,0.72,0,1)&rsqb; ',
         className
       )}
       style={{ height: sheetHeight }}

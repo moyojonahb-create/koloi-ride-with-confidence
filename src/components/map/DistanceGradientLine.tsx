@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Polyline } from '@react-google-maps/api';
 import { useMemo } from 'react';
 

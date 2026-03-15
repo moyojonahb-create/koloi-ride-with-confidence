@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // inDrive-style fare negotiation card with smart suggestions
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';

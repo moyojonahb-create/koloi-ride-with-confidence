@@ -66,7 +66,14 @@ export default function RiderRideDetail() {
   const [ride, setRide] = useState<Ride | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [driversById, setDriversById] = useState<Record<string, DriverProfile>>({});
-  const [driverProfile, setDriverProfile] = useState<unknown>(null);
+  interface DriverProfile {
+    id?: string;
+    user_id?: string;
+    vehicle_make?: string;
+    [key: string]: unknown;
+  }
+
+  const [driverProfile, setDriverProfile] = useState<DriverProfile | null>(null);
   const [driverPhone, setDriverPhone] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -115,7 +122,9 @@ export default function RiderRideDetail() {
         if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
           new Notification("🎉 Driver Accepted!", { body: "Your ride has been confirmed.", icon: "/icons/icon-192x192.png" });
         }
-      } catch (_) {}
+      } catch (_) {
+        // ignore notification errors
+      }
     }
     if (wasCompleted && !hasRated) setShowRating(true);
 
@@ -141,7 +150,9 @@ export default function RiderRideDetail() {
           if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
             new Notification("New Driver Offer!", { body: "A driver has made an offer.", icon: "/icons/icon-192x192.png" });
           }
-        } catch (_) {}
+        } catch (_) {
+          // ignore notification errors
+        }
       }
       setLastOfferCount(list.length);
       setOffers(list);
@@ -155,8 +166,12 @@ export default function RiderRideDetail() {
 
   useEffect(() => {
     try {
-      if (typeof globalThis.Notification !== "undefined" && Notification.permission === "default") Notification.requestPermission();
-    } catch (_) {}
+      if (typeof globalThis.Notification !== "undefined" && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    } catch (_) {
+      // ignore permission errors
+    }
   }, []);
 
   const driverLocation = useDriverTracking(
@@ -382,7 +397,7 @@ export default function RiderRideDetail() {
               <div className="mt-4">
                 <TripReceipt
                   ride={{ ...ride, payment_method: 'cash', vehicle_type: 'standard', created_at: new Date().toISOString() }}
-                  driverName={(driverProfile as any)?.vehicle_make ? `${(driverProfile as any)?.vehicle_make} Driver` : undefined}
+                  driverName={driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined}
                   onRateDriver={!hasRated && ride.driver_id ? () => setShowRating(true) : undefined}
                   hasRated={hasRated}
                 />

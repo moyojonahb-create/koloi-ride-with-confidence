@@ -59,7 +59,7 @@ const AdminTownPricing = () => {
     setSaving(town.id);
     const { error } = await supabase
       .from('town_pricing')
-      .update(changes as any)
+      .update(changes as Partial<TownPricingConfig>)
       .eq('id', town.id);
     if (error) {
       toast.error(`Failed to save ${town.town_name}`);

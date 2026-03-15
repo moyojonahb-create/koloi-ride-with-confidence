@@ -102,18 +102,18 @@ const PhoneMockup = () => {
             <div className="space-y-2.5 mb-5">
               <div className="flex items-center gap-3 p-3 bg-voyex-gray-100 rounded-2xl">
                 <div className="w-3 h-3 rounded-full bg-accent shadow-sm" />
-                <span className="text-sm text-voyex-gray-800 font-medium">​Harare City </span>
+                <span className="text-sm text-voyex-gray-800 font-medium">Harare City</span>
               </div>
               <div className="flex items-center gap-3 p-3 bg-voyex-gray-100 rounded-2xl">
                 <div className="w-3 h-3 rounded-full bg-primary shadow-sm" />
-                <span className="text-sm text-voyex-gray-800 font-medium">​Bulawayo City  </span>
+                <span className="text-sm text-voyex-gray-800 font-medium">Bulawayo City</span>
               </div>
             </div>
 
             {/* Fare and CTA */}
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xl font-bold text-foreground">​$5</p>
+                <p className="text-xl font-bold text-foreground">$5</p>
                 <p className="text-xs text-muted-foreground">2.1 km • 6 min</p>
               </div>
               <button className="px-6 py-3 bg-accent text-accent-foreground font-bold rounded-full text-sm shadow-voyex-sm hover:brightness-105 transition-all">

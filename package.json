@@ -52,6 +52,7 @@
     "@tanstack/react-query": "^5.83.0",
     "@types/leaflet": "^1.9.21",
     "agora-rtc-sdk-ng": "^4.24.2",
+    "caniuse-lite": "^1.0.30001779",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

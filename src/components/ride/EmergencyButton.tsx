@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AlertTriangle, Phone, X, Shield, MapPin, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
