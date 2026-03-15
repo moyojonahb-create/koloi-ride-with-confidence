@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   GoogleMap,
-  DirectionsRenderer,
   Marker,
   useJsApiLoader,
 } from "@react-google-maps/api";
 import { useGoogleMapsKey } from "@/hooks/useGoogleMapsKey";
 import { calculateDistance } from "@/lib/driverLocation";
 import { Loader2 } from "lucide-react";
-import DistanceGradientLine from "@/components/map/DistanceGradientLine";
+import PremiumTrackingMap from "@/components/map/PremiumTrackingMap";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -37,11 +36,13 @@ interface TripGoogleMapProps {
 const CONTAINER_STYLE: React.CSSProperties = { width: "100%", height: "100%" };
 
 const MAP_OPTIONS: google.maps.MapOptions = {
-  disableDefaultUI: false,
+  disableDefaultUI: true,
   zoomControl: true,
   streetViewControl: false,
   mapTypeControl: false,
   fullscreenControl: false,
+  clickableIcons: false,
+  gestureHandling: "greedy",
   styles: [
     { featureType: "poi", stylers: [{ visibility: "off" }] },
   ],
@@ -58,15 +59,14 @@ function getPhase(status: string): TripPhase {
 
 const MIN_MOVE_KM = 0.075;
 const MIN_INTERVAL_MS = 20_000;
-const LERP_DURATION_MS = 1500; // smooth animation duration
+const LERP_DURATION_MS = 1500;
 
-/** Lerp between two coords */
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * Math.min(1, Math.max(0, t));
 }
 
 /* ------------------------------------------------------------------ */
-/*  Smooth driver marker hook                                          */
+/*  Smooth driver position hook                                        */
 /* ------------------------------------------------------------------ */
 
 function useSmoothPosition(target: Coords | null): Coords | null {
@@ -84,7 +84,6 @@ function useSmoothPosition(target: Coords | null): Coords | null {
       return;
     }
 
-    // First position — snap immediately
     if (!fromRef.current) {
       fromRef.current = target;
       toRef.current = target;
@@ -92,7 +91,6 @@ function useSmoothPosition(target: Coords | null): Coords | null {
       return;
     }
 
-    // Start new animation from current displayed position
     fromRef.current = toRef.current ?? fromRef.current;
     toRef.current = target;
     startTimeRef.current = performance.now();
@@ -100,7 +98,6 @@ function useSmoothPosition(target: Coords | null): Coords | null {
     const animate = (now: number) => {
       const elapsed = now - startTimeRef.current;
       const t = Math.min(1, elapsed / LERP_DURATION_MS);
-      // Ease out cubic
       const eased = 1 - Math.pow(1 - t, 3);
 
       if (fromRef.current && toRef.current) {
@@ -110,42 +107,16 @@ function useSmoothPosition(target: Coords | null): Coords | null {
         });
       }
 
-      if (t < 1) {
-        rafRef.current = requestAnimationFrame(animate);
-      }
+      if (t < 1) rafRef.current = requestAnimationFrame(animate);
     };
 
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(animate);
 
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [target?.lat, target?.lng]);
 
   return display;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Custom car SVG for driver marker                                   */
-/* ------------------------------------------------------------------ */
-
-function createCarIcon(): google.maps.Icon {
-  // SVG car icon encoded as data URL for a cleaner look
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-    <circle cx="24" cy="24" r="22" fill="#2563EB" stroke="white" stroke-width="3"/>
-    <path d="M16 28l2-8h12l2 8" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
-    <rect x="14" y="28" width="20" height="6" rx="2" fill="white"/>
-    <circle cx="18" cy="34" r="2" fill="#2563EB"/>
-    <circle cx="30" cy="34" r="2" fill="#2563EB"/>
-    <rect x="20" y="22" width="8" height="5" rx="1" fill="white" opacity="0.6"/>
-  </svg>`;
-
-  return {
-    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(44, 44),
-    anchor: new google.maps.Point(22, 22),
-  };
 }
 
 /* ------------------------------------------------------------------ */
@@ -167,17 +138,16 @@ function InnerMap({
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
-  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+  const [routePath, setRoutePath] = useState<Coords[]>([]);
+  const [etaMinutes, setEtaMinutes] = useState(0);
   const lastFetchPos = useRef<Coords | null>(null);
   const lastFetchTime = useRef(0);
   const lastPhase = useRef<TripPhase>("idle");
   const hasFitBounds = useRef(false);
-  const carIconRef = useRef<google.maps.Icon | null>(null);
 
   const phase = getPhase(tripStatus);
   const smoothDriverPos = useSmoothPosition(driverLocation);
 
-  // Compute origin / destination for this phase
   const origin: Coords | null =
     phase === "driver_to_pickup"
       ? driverLocation
@@ -192,19 +162,14 @@ function InnerMap({
       ? dropoff
       : null;
 
-  // Fetch directions with throttle
+  // Fetch directions and extract route path + ETA
   const fetchDirections = useCallback(() => {
     if (!origin || !destination || !isLoaded) return;
 
     const now = Date.now();
     const moved =
       lastFetchPos.current == null ||
-      calculateDistance(
-        lastFetchPos.current.lat,
-        lastFetchPos.current.lng,
-        origin.lat,
-        origin.lng
-      ) >= MIN_MOVE_KM;
+      calculateDistance(lastFetchPos.current.lat, lastFetchPos.current.lng, origin.lat, origin.lng) >= MIN_MOVE_KM;
     const elapsed = now - lastFetchTime.current >= MIN_INTERVAL_MS;
     const phaseChanged = lastPhase.current !== phase;
 
@@ -219,10 +184,22 @@ function InnerMap({
       },
       (result, status) => {
         if (status === google.maps.DirectionsStatus.OK && result) {
-          setDirections(result);
           lastFetchPos.current = { ...origin };
           lastFetchTime.current = Date.now();
           lastPhase.current = phase;
+
+          // Extract path from the overview polyline
+          const path = result.routes[0]?.overview_path?.map((p) => ({
+            lat: p.lat(),
+            lng: p.lng(),
+          })) ?? [];
+          setRoutePath(path);
+
+          // Extract ETA
+          const leg = result.routes[0]?.legs[0];
+          if (leg?.duration?.value) {
+            setEtaMinutes(Math.round(leg.duration.value / 60));
+          }
 
           if ((!hasFitBounds.current || phaseChanged) && mapRef.current && result.routes[0]) {
             const bounds = result.routes[0].bounds;
@@ -234,23 +211,15 @@ function InnerMap({
     );
   }, [origin?.lat, origin?.lng, destination?.lat, destination?.lng, phase, isLoaded]);
 
-  useEffect(() => {
-    fetchDirections();
-  }, [fetchDirections]);
+  useEffect(() => { fetchDirections(); }, [fetchDirections]);
 
   useEffect(() => {
     if (phase === "idle") {
-      setDirections(null);
+      setRoutePath([]);
+      setEtaMinutes(0);
       hasFitBounds.current = false;
     }
   }, [phase]);
-
-  // Lazy-create car icon after API loads
-  useEffect(() => {
-    if (isLoaded && !carIconRef.current) {
-      carIconRef.current = createCarIcon();
-    }
-  }, [isLoaded]);
 
   const onMapLoad = useCallback(
     (map: google.maps.Map) => {
@@ -274,6 +243,8 @@ function InnerMap({
     );
   }
 
+  const target = phase === "driver_to_pickup" ? pickup : dropoff;
+
   return (
     <div style={{ width: "100%", height: height ?? "300px" }}>
       <GoogleMap
@@ -283,20 +254,6 @@ function InnerMap({
         options={MAP_OPTIONS}
         onLoad={onMapLoad}
       >
-        {directions && (
-          <DirectionsRenderer
-            directions={directions}
-            options={{
-              suppressMarkers: true,
-              polylineOptions: {
-                strokeColor: "#2563EB",
-                strokeWeight: 5,
-                strokeOpacity: 0.85,
-              },
-            }}
-          />
-        )}
-
         {/* Pickup marker */}
         <Marker
           position={pickup}
@@ -313,21 +270,14 @@ function InnerMap({
           zIndex={10}
         />
 
-        {/* Distance gradient connector: driver → target */}
-        {smoothDriverPos && (phase === "driver_to_pickup" || phase === "pickup_to_dropoff") && (() => {
-          const target = phase === "driver_to_pickup" ? pickup : dropoff;
-          const distKm = calculateDistance(smoothDriverPos.lat, smoothDriverPos.lng, target.lat, target.lng);
-          return (
-            <DistanceGradientLine from={smoothDriverPos} to={target} distanceKm={distKm} />
-          );
-        })()}
-
-        {/* Smooth animated driver marker */}
-        {smoothDriverPos && (
-          <Marker
-            position={smoothDriverPos}
-            icon={carIconRef.current ?? undefined}
-            zIndex={20}
+        {/* Premium driver tracking overlay with distance-based route coloring */}
+        {smoothDriverPos && mapRef.current && phase !== "idle" && routePath.length > 1 && (
+          <PremiumTrackingMap
+            map={mapRef.current}
+            driverPosition={smoothDriverPos}
+            riderPosition={target}
+            routePath={routePath}
+            etaMinutes={etaMinutes}
           />
         )}
       </GoogleMap>

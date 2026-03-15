@@ -4,7 +4,7 @@ import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import DistanceGradientLine from '@/components/map/DistanceGradientLine';
+import PremiumTrackingMap from '@/components/map/PremiumTrackingMap';
 
 // ── Types ──
 interface Coords {
@@ -17,7 +17,6 @@ interface MapGoogleProps {
   dropoff?: Coords | null;
   driverLocation?: Coords | null;
   routeGeometry?: string | null;
-  /** Secondary route polyline (e.g. driver→pickup) */
   secondaryRouteGeometry?: string | null;
   onMapClick?: (coords: Coords) => void;
   className?: string;
@@ -25,6 +24,8 @@ interface MapGoogleProps {
   drivers?: Array<{ id: string; lat: number; lng: number; isOnline?: boolean }>;
   defaultCenter?: Coords;
   defaultZoom?: number;
+  /** ETA in minutes for the premium driver overlay */
+  etaMinutes?: number;
 }
 
 const ZW_CENTER: Coords = { lat: -19.015, lng: 29.155 };
@@ -46,8 +47,6 @@ const mapOptions: google.maps.MapOptions = {
   ],
 };
 
-const CAR_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="16" fill="hsl(215,80%,25%)" stroke="white" stroke-width="3"/><path d="M25.92 13.01C25.72 12.42 25.16 12 24.5 12h-13c-.66 0-1.21.42-1.42 1.01L8 19v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h14v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM12.5 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM11 18l1.5-4.5h11L25 18H11z" fill="white"/></svg>`;
-
 const NEARBY_CAR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="#22c55e" stroke="white" stroke-width="2.5"/><path d="M25.92 13.01C25.72 12.42 25.16 12 24.5 12h-13c-.66 0-1.21.42-1.42 1.01L8 19v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h14v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM12.5 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM11 18l1.5-4.5h11L25 18H11z" fill="white"/></svg>`;
 
 const OFFLINE_CAR_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="#9ca3af" stroke="white" stroke-width="2.5"/><path d="M25.92 13.01C25.72 12.42 25.16 12 24.5 12h-13c-.66 0-1.21.42-1.42 1.01L8 19v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h14v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM12.5 23c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM11 18l1.5-4.5h11L25 18H11z" fill="white"/></svg>`;
@@ -67,17 +66,6 @@ function decodePolyline(encoded: string): Coords[] {
   return points;
 }
 
-/** Haversine distance in km */
-function getDistanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
-  const R = 6371;
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
-  const sinLat = Math.sin(dLat / 2);
-  const sinLng = Math.sin(dLng / 2);
-  const h = sinLat * sinLat + Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * sinLng * sinLng;
-  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-}
-
 // ── Smooth driver position interpolation ──
 const LERP_MS = 1200;
 function lerpVal(a: number, b: number, t: number) { return a + (b - a) * Math.min(1, Math.max(0, t)); }
@@ -92,7 +80,7 @@ function useSmoothDrivers(drivers?: Array<{ id: string; lat: number; lng: number
 
     const targets = new Map<string, { lat: number; lng: number; isOnline?: boolean }>();
     const froms = new Map<string, Coords>();
-    
+
     for (const d of drivers) {
       targets.set(d.id, { lat: d.lat, lng: d.lng, isOnline: d.isOnline });
       froms.set(d.id, prevRef.current.get(d.id) ?? { lat: d.lat, lng: d.lng });
@@ -103,7 +91,7 @@ function useSmoothDrivers(drivers?: Array<{ id: string; lat: number; lng: number
       const t = Math.min(1, (now - start) / LERP_MS);
       const eased = 1 - Math.pow(1 - t, 3);
       const result: Array<{ id: string; lat: number; lng: number; isOnline?: boolean }> = [];
-      
+
       for (const d of drivers) {
         const from = froms.get(d.id)!;
         const to = targets.get(d.id)!;
@@ -117,7 +105,6 @@ function useSmoothDrivers(drivers?: Array<{ id: string; lat: number; lng: number
       setSmoothed(result);
       if (t < 1) rafRef.current = requestAnimationFrame(animate);
       else {
-        // Store final positions
         for (const d of drivers) prevRef.current.set(d.id, { lat: d.lat, lng: d.lng });
       }
     };
@@ -131,10 +118,10 @@ function useSmoothDrivers(drivers?: Array<{ id: string; lat: number; lng: number
   return smoothed;
 }
 
-// ── Inner map component (only rendered when API key is available) ──
+// ── Inner map component ──
 function InnerMapGoogle({
   pickup, dropoff, driverLocation, routeGeometry, secondaryRouteGeometry, onMapClick,
-  className = '', height = '100%', drivers, defaultCenter, defaultZoom = 13, apiKey,
+  className = '', height = '100%', drivers, defaultCenter, defaultZoom = 13, apiKey, etaMinutes = 0,
 }: MapGoogleProps & { apiKey: string }) {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: apiKey,
@@ -146,6 +133,9 @@ function InnerMapGoogle({
   const [routePath, setRoutePath] = useState<Coords[]>([]);
   const [secondaryPath, setSecondaryPath] = useState<Coords[]>([]);
   const smoothDrivers = useSmoothDrivers(drivers);
+
+  // Whether the premium overlay is active (driver + pickup present)
+  const hasPremiumOverlay = !!(driverLocation && pickup && mapRef.current);
 
   useEffect(() => {
     if (routeGeometry) {
@@ -161,7 +151,6 @@ function InnerMapGoogle({
     } else { setSecondaryPath([]); }
   }, [secondaryRouteGeometry]);
 
-  // Re-center map when defaultCenter changes (town switch) and no markers set
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -242,9 +231,18 @@ function InnerMapGoogle({
         {dropoff && (
           <Marker position={dropoff} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#2563EB', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }} label={{ text: 'D', color: '#fff', fontWeight: 'bold', fontSize: '11px' }} zIndex={10} />
         )}
-        {driverLocation && (
-          <Marker position={driverLocation} icon={{ url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(CAR_ICON_SVG), scaledSize: new google.maps.Size(36, 36), anchor: new google.maps.Point(18, 18) }} zIndex={20} />
+
+        {/* Premium tracking overlay: replaces plain driver marker + gradient line */}
+        {driverLocation && pickup && mapRef.current && (
+          <PremiumTrackingMap
+            map={mapRef.current}
+            driverPosition={driverLocation}
+            riderPosition={pickup}
+            routePath={secondaryPath.length > 1 ? secondaryPath : (routePath.length > 1 ? routePath : [driverLocation, pickup])}
+            etaMinutes={etaMinutes}
+          />
         )}
+
         {/* Nearby drivers as animated car icons */}
         {smoothDrivers.map((d) => (
           <Marker key={d.id} position={{ lat: d.lat, lng: d.lng }} icon={{
@@ -253,16 +251,9 @@ function InnerMapGoogle({
             anchor: new google.maps.Point(d.isOnline ? 16 : 14, d.isOnline ? 16 : 14),
           }} zIndex={5} />
         ))}
-        {/* Distance gradient connector: driver → pickup */}
-        {driverLocation && pickup && (
-          <DistanceGradientLine
-            from={driverLocation}
-            to={pickup}
-            distanceKm={getDistanceKm(driverLocation, pickup)}
-          />
-        )}
-        {/* Secondary route: driver → pickup (dashed blue) */}
-        {secondaryPath.length > 1 && (
+
+        {/* Secondary route (only when premium overlay is NOT handling it) */}
+        {!hasPremiumOverlay && secondaryPath.length > 1 && (
           <Polyline path={secondaryPath} options={{ strokeColor: '#60a5fa', strokeWeight: 4, strokeOpacity: 0.7, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '15px' }] }} />
         )}
         {/* Primary route: pickup → dropoff (solid blue) */}
@@ -274,7 +265,7 @@ function InnerMapGoogle({
   );
 }
 
-// ── Outer wrapper that gates on API key ──
+// ── Outer wrapper ──
 function MapGoogle(props: MapGoogleProps) {
   const { apiKey, loading: keyLoading, error: keyError } = useGoogleMapsKey();
   const { className = '', height = '100%' } = props;
