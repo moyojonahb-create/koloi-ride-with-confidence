@@ -10,6 +10,8 @@ import NavigationCard from "@/components/driver/NavigationCard";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
+import PremiumOffersSheet from "@/components/ride/PremiumOffersSheet";
+import { type PremiumOffer } from "@/components/ride/PremiumOfferCard";
 import { ArrowLeft, Eye, Users, MessageCircle, Clock, Phone } from "lucide-react";
 
 function SettlementInfo({ tripId }: { tripId: string }) {
@@ -66,7 +68,7 @@ type OfferRow = {
 };
 type MessageRow = { id: string; ride_id: string; sender_id: string; text: string; created_at?: string | null; };
 
-function msLeftFromCreatedAt(created_at?: string | null, windowMs = 10_000) {
+function msLeftFromCreatedAt(created_at?: string | null, windowMs = 60_000) {
   if (!created_at) return 0;
   const t = new Date(created_at).getTime();
   return Math.max(0, windowMs - (Date.now() - t));
@@ -86,6 +88,7 @@ export default function RideDetail() {
   const [msgText, setMsgText] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const [showOffersModal, setShowOffersModal] = useState(false);
+  const [premiumOffers, setPremiumOffers] = useState<PremiumOffer[]>([]);
   const [driverUserIdForTracking, setDriverUserIdForTracking] = useState<string | null>(null);
 
   useEffect(() => {
@@ -113,7 +116,47 @@ export default function RideDetail() {
       if (rErr) throw new Error(rErr.message);
       setRide(r as RideRow);
       const { data: o } = await supabase.from("offers").select("*").eq("ride_id", rideId).order("created_at", { ascending: false });
-      setOffers((o as OfferRow[]) || []);
+      const rawOffers = (o as OfferRow[]) || [];
+      setOffers(rawOffers);
+
+      // Enrich pending offers with driver profile data
+      const pendingRaw = rawOffers.filter(off => off.status === "pending");
+      if (pendingRaw.length > 0) {
+        const driverIds = pendingRaw.map(off => off.driver_id);
+        const [driversRes, profilesRes] = await Promise.all([
+          supabase.from("drivers").select("user_id, vehicle_make, vehicle_model, plate_number, rating_avg, total_trips, gender, avatar_url").in("user_id", driverIds),
+          supabase.from("profiles").select("user_id, full_name").in("user_id", driverIds),
+        ]);
+        const driverMap: Record<string, typeof driversRes.data extends (infer T)[] ? T : never> = {};
+        for (const d of (driversRes.data ?? [])) driverMap[d.user_id] = d;
+        const profileMap: Record<string, string> = {};
+        for (const p of (profilesRes.data ?? [])) if (p.full_name) profileMap[p.user_id] = p.full_name;
+
+        const OFFER_WINDOW_MS = 60_000;
+        const premium: PremiumOffer[] = pendingRaw.map(off => {
+          const d = driverMap[off.driver_id];
+          const createdMs = off.created_at ? new Date(off.created_at).getTime() : Date.now();
+          return {
+            offerId: off.id,
+            driverId: off.driver_id,
+            driverName: profileMap[off.driver_id] || 'Driver',
+            avatarUrl: d?.avatar_url ?? null,
+            ratingAvg: Number(d?.rating_avg ?? 0),
+            totalTrips: Number(d?.total_trips ?? 0),
+            carModel: d ? `${d.vehicle_make || ''} ${d.vehicle_model || ''}`.trim() || 'Vehicle' : 'Vehicle',
+            plateNumber: d?.plate_number || '—',
+            etaMinutes: off.eta_minutes ?? 5,
+            fare: off.price,
+            gender: d?.gender ?? null,
+            acceptedAt: createdMs,
+            expiresAt: createdMs + OFFER_WINDOW_MS,
+          };
+        });
+        setPremiumOffers(premium);
+      } else {
+        setPremiumOffers([]);
+      }
+
       const { data: m } = await supabase.from("messages").select("*").eq("ride_id", rideId).order("created_at", { ascending: true });
       setMessages((m as MessageRow[]) || []);
     } catch (e: unknown) { setToast((e as Error)?.message || "Failed to load ride."); }
@@ -145,7 +188,7 @@ export default function RideDetail() {
     return () => { if (pres) supabase.removeChannel(pres); };
   }, [rideId]);
 
-  const canAcceptNow = (offer: OfferRow) => msLeftFromCreatedAt(offer.created_at, 10_000) > 0 && offer.status === "pending" && !accepted;
+  const canAcceptNow = (offer: OfferRow) => msLeftFromCreatedAt(offer.created_at, 60_000) > 0 && offer.status === "pending" && !accepted;
 
   const acceptOffer = async (offer: OfferRow) => {
     if (!ride || !rideId || !canAcceptNow(offer)) { setToast("This offer expired."); return; }
@@ -173,10 +216,10 @@ export default function RideDetail() {
   };
 
   const OfferTimer = ({ offer }: { offer: OfferRow }) => {
-    const [leftMs, setLeftMs] = useState(msLeftFromCreatedAt(offer.created_at, 10_000));
-    useEffect(() => { const t = setInterval(() => setLeftMs(msLeftFromCreatedAt(offer.created_at, 10_000)), 200); return () => clearInterval(t); }, [offer.created_at]);
+    const [leftMs, setLeftMs] = useState(msLeftFromCreatedAt(offer.created_at, 60_000));
+    useEffect(() => { const t = setInterval(() => setLeftMs(msLeftFromCreatedAt(offer.created_at, 60_000)), 200); return () => clearInterval(t); }, [offer.created_at]);
     const sec = Math.ceil(leftMs / 1000);
-    return <span className={`text-sm font-bold ${sec > 0 ? "text-primary" : "text-muted-foreground"}`}>{sec > 0 ? `Accept in ${sec}s` : "Expired"}</span>;
+    return <span className={`text-sm font-bold ${sec > 0 ? "text-primary" : "text-muted-foreground"}`}>{sec > 0 ? `${sec}s` : "Expired"}</span>;
   };
 
   if (loading) {
@@ -269,7 +312,7 @@ export default function RideDetail() {
             {!accepted ? (
               <button onClick={() => setShowOffersModal(true)}
                 className="w-full mt-4 py-4 rounded-2xl bg-accent text-accent-foreground font-black text-lg active:scale-[0.97] transition-all shadow-[0_4px_20px_hsl(45_100%_51%/0.3)]">
-                View Offers ({pendingOffers.length})
+                View Offers ({premiumOffers.filter(o => o.expiresAt > Date.now()).length})
               </button>
             ) : (
               <div className="mt-4 space-y-3">
@@ -323,51 +366,25 @@ export default function RideDetail() {
         </div>
       </div>
 
-      {/* Offers Modal */}
-      {showOffersModal && (
-        <div className="fixed inset-0 z-[60] bg-foreground/20 backdrop-blur-sm flex items-end justify-center" onClick={() => setShowOffersModal(false)}>
-          <div className="glass-card-heavy w-full max-w-lg rounded-t-3xl max-h-[80vh] overflow-hidden animate-slide-up" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between p-5" style={{ background: 'var(--gradient-primary)', borderTopLeftRadius: 28, borderTopRightRadius: 28 }}>
-              <div>
-                <h2 className="font-semibold text-lg font-display text-primary-foreground">Driver Offers</h2>
-                <p className="text-xs text-primary-foreground/70">Drivers viewing: {driversViewing}</p>
-              </div>
-              <button onClick={() => setShowOffersModal(false)} className="px-4 py-2 rounded-xl bg-primary-foreground/15 font-medium text-sm text-primary-foreground active:scale-95 transition-all">Close</button>
-            </div>
-            <div className="p-4 space-y-3 overflow-y-auto max-h-[60vh]">
-              {pendingOffers.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No offers yet. Drivers will appear here when they bid.</p>
-              ) : (
-                pendingOffers.map((o) => (
-                  <div key={o.id} className="glass-card rounded-2xl p-4 glass-glow-blue">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-2xl font-black text-primary">${Number(o.price).toFixed(2)}</span>
-                      <OfferTimer offer={o} />
-                    </div>
-                    <div className="text-sm text-muted-foreground mb-3">
-                      <p>ETA: {o.eta_minutes ?? 5} min</p>
-                      {o.message && <p className="italic">"{o.message}"</p>}
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => acceptOffer(o)} disabled={!canAcceptNow(o) || acceptingOfferId === o.id}
-                        className={`flex-1 py-3 rounded-2xl font-bold active:scale-95 transition-all ${
-                          canAcceptNow(o) ? "bg-accent text-accent-foreground shadow-[0_4px_16px_hsl(45_100%_51%/0.3)]" : "bg-muted text-muted-foreground cursor-not-allowed"
-                        }`}>
-                        {acceptingOfferId === o.id ? "Accepting..." : "Accept"}
-                      </button>
-                      <button onClick={() => supabase.from("offers").update({ status: "rejected" }).eq("id", o.id)}
-                        className="flex-1 py-3 rounded-2xl glass-card font-bold active:scale-95 transition-all">Decline</button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground text-center p-4 border-t border-border/30">
-              Accept is available for 10 seconds.
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Premium Offers Sheet */}
+      <PremiumOffersSheet
+        isOpen={showOffersModal}
+        offers={premiumOffers}
+        riderFare={Number(ride.fare ?? 0)}
+        onAccept={async (offerId) => {
+          const offer = offers.find(o => o.id === offerId);
+          if (offer) await acceptOffer(offer);
+        }}
+        onDecline={async (offerId) => {
+          await supabase.from("offers").update({ status: "rejected" }).eq("id", offerId);
+          setPremiumOffers(prev => prev.filter(o => o.offerId !== offerId));
+        }}
+        onCancel={async () => {
+          if (rideId) await supabase.from("rides").update({ status: "cancelled" }).eq("id", rideId);
+          nav("/ride");
+        }}
+        onClose={() => setShowOffersModal(false)}
+      />
 
       {/* Toast */}
       {toast && (
