@@ -1,3 +1,5 @@
+/// <reference types="@types/google.maps" />
+
 import { useEffect, useMemo, useRef } from "react";
 
 /* ------------------------------------------------------------------ */
@@ -100,116 +102,129 @@ const CAR_SVG = `
 /*  Custom OverlayView – driver marker + ETA badge                     */
 /* ------------------------------------------------------------------ */
 
-class DriverOverlay extends google.maps.OverlayView {
-  position: LatLng;
-  etaMinutes: number;
-  bearing: number;
-  div: HTMLDivElement | null = null;
+let CachedDriverOverlayClass: any = null;
 
-  constructor(position: LatLng, etaMinutes: number, bearing = 0) {
-    super();
-    this.position = position;
-    this.etaMinutes = etaMinutes;
-    this.bearing = bearing;
+function getDriverOverlayClass(): any {
+  if (CachedDriverOverlayClass) return CachedDriverOverlayClass;
+
+  const g = (window as any).google;
+  if (!g || !g.maps) {
+    throw new Error("Google Maps JS API not loaded yet");
   }
 
-  onAdd() {
-    const div = document.createElement("div");
-    div.style.position = "absolute";
-    div.style.transform = "translate(-50%, -50%)";
-    div.style.pointerEvents = "none";
-    div.style.zIndex = "30";
+  class DriverOverlay extends g.maps.OverlayView {
+    position: LatLng;
+    etaMinutes: number;
+    bearing: number;
+    div: HTMLDivElement | null = null;
 
-    div.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
-        <!-- ETA badge -->
-        <div data-role="eta" style="
-          background:linear-gradient(135deg,#0B3C8A,#2F80ED);
-          color:#fff;
-          font-size:11px;
-          font-weight:700;
-          padding:2px 8px;
-          border-radius:10px;
-          box-shadow:0 2px 8px rgba(0,0,0,.25);
-          letter-spacing:.5px;
-          white-space:nowrap;
-        ">${getEtaLabel(this.etaMinutes)}</div>
+    constructor(position: LatLng, etaMinutes: number, bearing = 0) {
+      super();
+      this.position = position;
+      this.etaMinutes = etaMinutes;
+      this.bearing = bearing;
+    }
 
-        <!-- Car shell (rotates) -->
-        <div data-role="shell" style="
-          transform:rotate(${this.bearing}deg);
-          transition:transform .3s ease-out;
-          position:relative;
-          width:44px;
-          height:44px;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-        ">
-          <!-- Pulse ring -->
-          <div style="
-            position:absolute;
-            inset:-6px;
-            border-radius:50%;
-            background:rgba(47,128,237,.25);
-            animation:voyexPulse 2s ease-in-out infinite;
-          "></div>
-          <!-- Car icon -->
-          <div style="position:relative;z-index:2">${CAR_SVG}</div>
-        </div>
-      </div>
-    `;
+    onAdd() {
+      const div = document.createElement("div");
+      div.style.position = "absolute";
+      div.style.transform = "translate(-50%, -50%)";
+      div.style.pointerEvents = "none";
+      div.style.zIndex = "30";
 
-    const panes = this.getPanes();
-    panes?.overlayMouseTarget.appendChild(div);
-    this.div = div;
+      div.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+          <!-- ETA badge -->
+          <div data-role="eta" style="
+            background:linear-gradient(135deg,#0B3C8A,#2F80ED);
+            color:#fff;
+            font-size:11px;
+            font-weight:700;
+            padding:2px 8px;
+            border-radius:10px;
+            box-shadow:0 2px 8px rgba(0,0,0,.25);
+            letter-spacing:.5px;
+            white-space:nowrap;
+          ">${getEtaLabel(this.etaMinutes)}</div>
 
-    // Inject animation keyframes once
-    if (!document.getElementById("voyex-driver-overlay-styles")) {
-      const style = document.createElement("style");
-      style.id = "voyex-driver-overlay-styles";
-      style.innerHTML = `
-        @keyframes voyexPulse {
-          0%   { transform:scale(0.95); opacity:0.35; }
-          50%  { transform:scale(1.12); opacity:0.18; }
-          100% { transform:scale(0.95); opacity:0.35; }
-        }
-      `;
-      document.head.appendChild(style);
+          <!-- Car shell (rotates) -->
+          <div data-role="shell" style="
+            transform:rotate(${this.bearing}deg);
+            transition:transform .3s ease-out;
+            position:relative;
+            width:44px;
+            height:44px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+          ">
+            <!-- Pulse ring -->
+            <div style="
+              position:absolute;
+              inset:-6px;
+              border-radius:50%;
+              background:rgba(47,128,237,.25);
+              animation:voyexPulse 2s ease-in-out infinite;
+            "></div>
+            <!-- Car icon -->
+            <div style="position:relative;z-index:2">${CAR_SVG}</div>
+          </div>
+        </div>`;
+
+      const panes = this.getPanes();
+      panes?.overlayMouseTarget.appendChild(div);
+      this.div = div;
+
+      // Inject animation keyframes once
+      if (!document.getElementById("voyex-driver-overlay-styles")) {
+        const style = document.createElement("style");
+        style.id = "voyex-driver-overlay-styles";
+        style.innerHTML = `
+          @keyframes voyexPulse {
+            0%   { transform:scale(0.95); opacity:0.35; }
+            50%  { transform:scale(1.12); opacity:0.18; }
+            100% { transform:scale(0.95); opacity:0.35; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+
+    draw() {
+      if (!this.div) return;
+      const projection = this.getProjection();
+      const point = projection?.fromLatLngToDivPixel(
+        new g.maps.LatLng(this.position.lat, this.position.lng)
+      );
+      if (!point) return;
+      this.div.style.left = `${point.x}px`;
+      this.div.style.top = `${point.y - 10}px`;
+    }
+
+    onRemove() {
+      this.div?.parentNode?.removeChild(this.div);
+      this.div = null;
+    }
+
+    update(position: LatLng, etaMinutes: number, bearing: number) {
+      this.position = position;
+      this.etaMinutes = etaMinutes;
+      this.bearing = bearing;
+
+      if (this.div) {
+        const badge = this.div.querySelector('[data-role="eta"]') as HTMLDivElement | null;
+        if (badge) badge.textContent = getEtaLabel(etaMinutes);
+
+        const shell = this.div.querySelector('[data-role="shell"]') as HTMLDivElement | null;
+        if (shell) shell.style.transform = `rotate(${bearing}deg)`;
+      }
+
+      this.draw();
     }
   }
 
-  draw() {
-    if (!this.div) return;
-    const projection = this.getProjection();
-    const point = projection?.fromLatLngToDivPixel(
-      new google.maps.LatLng(this.position.lat, this.position.lng)
-    );
-    if (!point) return;
-    this.div.style.left = `${point.x}px`;
-    this.div.style.top = `${point.y - 10}px`;
-  }
-
-  onRemove() {
-    this.div?.parentNode?.removeChild(this.div);
-    this.div = null;
-  }
-
-  update(position: LatLng, etaMinutes: number, bearing: number) {
-    this.position = position;
-    this.etaMinutes = etaMinutes;
-    this.bearing = bearing;
-
-    if (this.div) {
-      const badge = this.div.querySelector('[data-role="eta"]') as HTMLDivElement | null;
-      if (badge) badge.textContent = getEtaLabel(etaMinutes);
-
-      const shell = this.div.querySelector('[data-role="shell"]') as HTMLDivElement | null;
-      if (shell) shell.style.transform = `rotate(${bearing}deg)`;
-    }
-
-    this.draw();
-  }
+  CachedDriverOverlayClass = DriverOverlay;
+  return DriverOverlay;
 }
 
 /* ------------------------------------------------------------------ */
@@ -284,6 +299,7 @@ export default function PremiumTrackingMap({
     prevDriverRef.current = driverPosition;
 
     if (!overlayRef.current) {
+      const DriverOverlay = getDriverOverlayClass();
       overlayRef.current = new DriverOverlay(driverPosition, etaMinutes, nextBearing);
       overlayRef.current.setMap(map);
     } else {

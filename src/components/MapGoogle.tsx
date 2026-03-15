@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, memo, useMemo } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, Polyline } from '@react-google-maps/api';
+import { GoogleMap, Marker, Polyline } from '@react-google-maps/api';
+import { Loader } from '@googlemaps/js-api-loader';
 import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -123,11 +124,23 @@ function InnerMapGoogle({
   pickup, dropoff, driverLocation, routeGeometry, secondaryRouteGeometry, onMapClick,
   className = '', height = '100%', drivers, defaultCenter, defaultZoom = 13, apiKey, etaMinutes = 0,
 }: MapGoogleProps & { apiKey: string }) {
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: apiKey,
-    id: GOOGLE_MAPS_LOADER_ID,
-    libraries: GOOGLE_MAPS_LIBRARIES,
-  });
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!apiKey) return;
+
+    const loader = new Loader({
+      apiKey,
+      version: 'weekly',
+      libraries: GOOGLE_MAPS_LIBRARIES as any,
+    });
+
+    loader
+      .load()
+      .then(() => setIsLoaded(true))
+      .catch((err) => setLoadError(err as Error));
+  }, [apiKey]);
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const [routePath, setRoutePath] = useState<Coords[]>([]);
