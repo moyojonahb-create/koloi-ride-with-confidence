@@ -13,6 +13,7 @@
    lat: number;
    lng: number;
    isOnline: boolean;
+   tripStatus?: string | null; // offline | available | accepted | enroute | in_progress | completed
  }
  
  interface RideMarker {
