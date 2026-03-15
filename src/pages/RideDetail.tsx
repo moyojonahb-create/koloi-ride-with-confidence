@@ -188,7 +188,7 @@ export default function RideDetail() {
     return () => { if (pres) supabase.removeChannel(pres); };
   }, [rideId]);
 
-  const canAcceptNow = (offer: OfferRow) => msLeftFromCreatedAt(offer.created_at, 10_000) > 0 && offer.status === "pending" && !accepted;
+  const canAcceptNow = (offer: OfferRow) => msLeftFromCreatedAt(offer.created_at, 60_000) > 0 && offer.status === "pending" && !accepted;
 
   const acceptOffer = async (offer: OfferRow) => {
     if (!ride || !rideId || !canAcceptNow(offer)) { setToast("This offer expired."); return; }
