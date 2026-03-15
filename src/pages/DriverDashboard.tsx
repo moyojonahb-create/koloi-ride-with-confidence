@@ -304,7 +304,7 @@ export default function DriverDashboard() {
         .from("rides")
         .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, payment_method")
         .eq("driver_id", p.id)
-        .in("status", ["accepted", "enroute_pickup", "in_progress", "arrived"])
+        .in("status", ["accepted", "enroute", "enroute_pickup", "in_progress", "arrived"])
         .order("updated_at", { ascending: false })
         .limit(1)
         .maybeSingle();

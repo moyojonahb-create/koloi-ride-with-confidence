@@ -34,22 +34,32 @@
    height?: string;
  }
  
- // Driver marker - green pulsing car
- const createDriverIcon = (name: string) => L.divIcon({
-   html: `
-     <div class="flex flex-col items-center">
-       <div class="w-9 h-9 rounded-full bg-emerald-500 border-3 border-white shadow-lg flex items-center justify-center" style="animation: pulse 2s infinite">
-         <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-           <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
-         </svg>
+ // Driver marker with status-based colors
+ function getDriverMarkerColor(tripStatus?: string | null, isOnline?: boolean): { bg: string; border: string; label: string } {
+   if (tripStatus === 'enroute' || tripStatus === 'in_progress') return { bg: '#ef4444', border: '#dc2626', label: 'bg-red-600' };
+   if (tripStatus === 'accepted' || tripStatus === 'arrived') return { bg: '#f59e0b', border: '#d97706', label: 'bg-amber-500' };
+   if (isOnline) return { bg: '#3b82f6', border: '#2563eb', label: 'bg-blue-500' };
+   return { bg: '#6b7280', border: '#4b5563', label: 'bg-gray-500' };
+ }
+
+ const createDriverIcon = (name: string, tripStatus?: string | null, isOnline?: boolean) => {
+   const { bg, label } = getDriverMarkerColor(tripStatus, isOnline);
+   return L.divIcon({
+     html: `
+       <div class="flex flex-col items-center">
+         <div class="w-9 h-9 rounded-full border-3 border-white shadow-lg flex items-center justify-center" style="background:${bg}; animation: pulse 2s infinite">
+           <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+             <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
+           </svg>
+         </div>
+         <span class="mt-0.5 px-1.5 py-0.5 ${label} text-white text-[10px] font-bold rounded shadow max-w-20 truncate">${name}</span>
        </div>
-       <span class="mt-0.5 px-1.5 py-0.5 bg-emerald-600 text-white text-[10px] font-bold rounded shadow max-w-20 truncate">${name}</span>
-     </div>
-   `,
-   className: 'admin-driver-marker',
-   iconSize: [80, 55],
-   iconAnchor: [40, 45],
- });
+     `,
+     className: 'admin-driver-marker',
+     iconSize: [80, 55],
+     iconAnchor: [40, 45],
+   });
+ };
  
  // Ride pickup marker - yellow
  const ridePickupIcon = L.divIcon({
