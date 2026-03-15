@@ -115,7 +115,47 @@ export default function RideDetail() {
       if (rErr) throw new Error(rErr.message);
       setRide(r as RideRow);
       const { data: o } = await supabase.from("offers").select("*").eq("ride_id", rideId).order("created_at", { ascending: false });
-      setOffers((o as OfferRow[]) || []);
+      const rawOffers = (o as OfferRow[]) || [];
+      setOffers(rawOffers);
+
+      // Enrich pending offers with driver profile data
+      const pendingRaw = rawOffers.filter(off => off.status === "pending");
+      if (pendingRaw.length > 0) {
+        const driverIds = pendingRaw.map(off => off.driver_id);
+        const [driversRes, profilesRes] = await Promise.all([
+          supabase.from("drivers").select("user_id, vehicle_make, vehicle_model, plate_number, rating_avg, total_trips, gender, avatar_url").in("user_id", driverIds),
+          supabase.from("profiles").select("user_id, full_name").in("user_id", driverIds),
+        ]);
+        const driverMap: Record<string, typeof driversRes.data extends (infer T)[] ? T : never> = {};
+        for (const d of (driversRes.data ?? [])) driverMap[d.user_id] = d;
+        const profileMap: Record<string, string> = {};
+        for (const p of (profilesRes.data ?? [])) if (p.full_name) profileMap[p.user_id] = p.full_name;
+
+        const OFFER_WINDOW_MS = 60_000;
+        const premium: PremiumOffer[] = pendingRaw.map(off => {
+          const d = driverMap[off.driver_id];
+          const createdMs = off.created_at ? new Date(off.created_at).getTime() : Date.now();
+          return {
+            offerId: off.id,
+            driverId: off.driver_id,
+            driverName: profileMap[off.driver_id] || 'Driver',
+            avatarUrl: d?.avatar_url ?? null,
+            ratingAvg: Number(d?.rating_avg ?? 0),
+            totalTrips: Number(d?.total_trips ?? 0),
+            carModel: d ? `${d.vehicle_make || ''} ${d.vehicle_model || ''}`.trim() || 'Vehicle' : 'Vehicle',
+            plateNumber: d?.plate_number || '—',
+            etaMinutes: off.eta_minutes ?? 5,
+            fare: off.price,
+            gender: d?.gender ?? null,
+            acceptedAt: createdMs,
+            expiresAt: createdMs + OFFER_WINDOW_MS,
+          };
+        });
+        setPremiumOffers(premium);
+      } else {
+        setPremiumOffers([]);
+      }
+
       const { data: m } = await supabase.from("messages").select("*").eq("ride_id", rideId).order("created_at", { ascending: true });
       setMessages((m as MessageRow[]) || []);
     } catch (e: unknown) { setToast((e as Error)?.message || "Failed to load ride."); }
