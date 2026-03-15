@@ -13,13 +13,14 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
 
   if (showSplash) {
-    return <SplashScreen onComplete={() => setShowSplash(false)} duration={1500} />;
+    return <SplashScreen onComplete={() => setShowSplash(false)} duration={2000} />;
   }
 
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Index />} />
+        <Route path="/" element={<Navigate to="/ride" replace />} />
+        <Route path="/home" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/login" element={<Navigate to="/auth" replace />} />
         <Route path="/signup" element={<Signup />} />
