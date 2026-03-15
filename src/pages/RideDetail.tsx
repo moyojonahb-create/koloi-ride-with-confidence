@@ -68,7 +68,7 @@ type OfferRow = {
 };
 type MessageRow = { id: string; ride_id: string; sender_id: string; text: string; created_at?: string | null; };
 
-function msLeftFromCreatedAt(created_at?: string | null, windowMs = 10_000) {
+function msLeftFromCreatedAt(created_at?: string | null, windowMs = 60_000) {
   if (!created_at) return 0;
   const t = new Date(created_at).getTime();
   return Math.max(0, windowMs - (Date.now() - t));
