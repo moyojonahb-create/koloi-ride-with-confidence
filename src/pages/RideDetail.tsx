@@ -216,10 +216,10 @@ export default function RideDetail() {
   };
 
   const OfferTimer = ({ offer }: { offer: OfferRow }) => {
-    const [leftMs, setLeftMs] = useState(msLeftFromCreatedAt(offer.created_at, 10_000));
-    useEffect(() => { const t = setInterval(() => setLeftMs(msLeftFromCreatedAt(offer.created_at, 10_000)), 200); return () => clearInterval(t); }, [offer.created_at]);
+    const [leftMs, setLeftMs] = useState(msLeftFromCreatedAt(offer.created_at, 60_000));
+    useEffect(() => { const t = setInterval(() => setLeftMs(msLeftFromCreatedAt(offer.created_at, 60_000)), 200); return () => clearInterval(t); }, [offer.created_at]);
     const sec = Math.ceil(leftMs / 1000);
-    return <span className={`text-sm font-bold ${sec > 0 ? "text-primary" : "text-muted-foreground"}`}>{sec > 0 ? `Accept in ${sec}s` : "Expired"}</span>;
+    return <span className={`text-sm font-bold ${sec > 0 ? "text-primary" : "text-muted-foreground"}`}>{sec > 0 ? `${sec}s` : "Expired"}</span>;
   };
 
   if (loading) {
