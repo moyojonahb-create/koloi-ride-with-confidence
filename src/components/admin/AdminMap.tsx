@@ -191,10 +191,10 @@
      driverMarkersRef.current = [];
  
      // Add new markers
-     drivers.forEach(driver => {
-       const marker = L.marker([driver.lat, driver.lng], { 
-         icon: createDriverIcon(driver.name.split(' ')[0] || 'Driver')
-       })
+      drivers.forEach(driver => {
+        const marker = L.marker([driver.lat, driver.lng], { 
+          icon: createDriverIcon(driver.name.split(' ')[0] || 'Driver', driver.tripStatus, driver.isOnline)
+        })
          .bindPopup(`
            <div style="font-family: system-ui; min-width: 140px;">
              <div style="font-weight: 800; font-size: 14px;">${driver.name}</div>
