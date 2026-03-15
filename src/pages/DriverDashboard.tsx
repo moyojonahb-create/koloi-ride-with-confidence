@@ -946,6 +946,34 @@ export default function DriverDashboard() {
                   )}
                 </div>
               </div>
+              {activeTrip.status === 'accepted' && (
+                <Button
+                  className="w-full bg-amber-500 text-white hover:bg-amber-600 mb-2"
+                  size="lg"
+                  onClick={async () => {
+                    await supabase.from("rides").update({ status: "enroute" }).eq("id", activeTrip.id);
+                    setActiveTrip({ ...activeTrip, status: "enroute" });
+                    toast.info("Status: Enroute — heading to pickup");
+                  }}
+                >
+                  <Navigation className="h-4 w-4 mr-2" />
+                  Enroute to Pickup
+                </Button>
+              )}
+              {activeTrip.status === 'enroute' && (
+                <Button
+                  className="w-full bg-primary text-primary-foreground hover:brightness-105 mb-2"
+                  size="lg"
+                  onClick={async () => {
+                    await supabase.from("rides").update({ status: "in_progress" }).eq("id", activeTrip.id);
+                    setActiveTrip({ ...activeTrip, status: "in_progress" });
+                    toast.info("Rider picked up — navigating to dropoff");
+                  }}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Picked Up Rider
+                </Button>
+              )}
               <Button
                 className="w-full bg-accent text-accent-foreground hover:brightness-105"
                 size="lg"
