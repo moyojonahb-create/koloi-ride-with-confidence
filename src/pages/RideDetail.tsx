@@ -10,7 +10,8 @@ import NavigationCard from "@/components/driver/NavigationCard";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
-import PremiumOffersSheet, { type PremiumOffer } from "@/components/ride/PremiumOffersSheet";
+import PremiumOffersSheet from "@/components/ride/PremiumOffersSheet";
+import { type PremiumOffer } from "@/components/ride/PremiumOfferCard";
 import { ArrowLeft, Eye, Users, MessageCircle, Clock, Phone } from "lucide-react";
 
 function SettlementInfo({ tripId }: { tripId: string }) {
