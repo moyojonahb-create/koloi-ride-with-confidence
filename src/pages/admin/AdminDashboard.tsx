@@ -140,7 +140,7 @@ const AdminDashboard = () => {
       const { data: active } = await supabase
         .from('rides')
         .select('id, pickup_address, dropoff_address, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, fare, status, created_at, driver_id')
-        .in('status', ['pending', 'requested', 'accepted', 'in_progress', 'arrived'])
+        .in('status', ['pending', 'requested', 'accepted', 'enroute', 'in_progress', 'arrived'])
         .limit(50);
 
       setPendingDrivers(pendingWithProfiles);
