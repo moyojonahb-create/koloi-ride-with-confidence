@@ -230,6 +230,7 @@ const AdminDashboard = () => {
         lat: d.location!.latitude,
         lng: d.location!.longitude,
         isOnline: true,
+        tripStatus: (d as unknown as Record<string, unknown>).tripStatus as string | null,
       }))
   , [onlineDrivers]);
 
