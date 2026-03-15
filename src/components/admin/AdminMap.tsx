@@ -295,21 +295,35 @@
            </div>
            
            {/* Legend */}
-           <div className="absolute top-3 right-12 z-[1000] bg-background/95 backdrop-blur-sm rounded-lg shadow-lg p-3 text-xs">
-             <div className="font-bold mb-2">Legend</div>
-             <div className="flex items-center gap-2 mb-1">
-               <div className="w-3 h-3 rounded-full bg-emerald-500" />
-               <span>Online Driver ({drivers.length})</span>
-             </div>
-             <div className="flex items-center gap-2 mb-1">
-               <div className="w-3 h-3 rounded-full bg-amber-400" />
-               <span>Ride Pickup</span>
-             </div>
-             <div className="flex items-center gap-2">
-               <div className="w-3 h-3 rounded-full bg-blue-600" />
-               <span>Ride Dropoff ({rides.length})</span>
-             </div>
-           </div>
+            <div className="absolute top-3 right-12 z-[1000] bg-background/95 backdrop-blur-sm rounded-lg shadow-lg p-3 text-xs">
+              <div className="font-bold mb-2">Fleet Status</div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-3 h-3 rounded-full bg-blue-500" />
+                <span>Available</span>
+              </div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-3 h-3 rounded-full bg-amber-500" />
+                <span>Heading to Pickup</span>
+              </div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-3 h-3 rounded-full bg-red-500" />
+                <span>Enroute (Rider Onboard)</span>
+              </div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-3 h-3 rounded-full bg-gray-400" />
+                <span>Offline</span>
+              </div>
+              <div className="border-t border-border mt-2 pt-2">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-3 h-3 rounded-full bg-amber-400" />
+                  <span>Pickup</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-600" />
+                  <span>Dropoff ({rides.length})</span>
+                </div>
+              </div>
+            </div>
          </>
        )}
      </div>
