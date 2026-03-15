@@ -312,7 +312,7 @@ export default function RideDetail() {
             {!accepted ? (
               <button onClick={() => setShowOffersModal(true)}
                 className="w-full mt-4 py-4 rounded-2xl bg-accent text-accent-foreground font-black text-lg active:scale-[0.97] transition-all shadow-[0_4px_20px_hsl(45_100%_51%/0.3)]">
-                View Offers ({pendingOffers.length})
+                View Offers ({premiumOffers.filter(o => o.expiresAt > Date.now()).length})
               </button>
             ) : (
               <div className="mt-4 space-y-3">
