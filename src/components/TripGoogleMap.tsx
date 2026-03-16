@@ -286,9 +286,25 @@ function InnerMap({
 /* ------------------------------------------------------------------ */
 
 export default function TripGoogleMap(props: TripGoogleMapProps) {
-  const { apiKey, loading, error } = useGoogleMapsKey();
+  const { isLoaded, loadError, apiKey } = useGoogleMaps();
 
-  if (loading) {
+  if (!apiKey) {
+    return (
+      <div className="flex items-center justify-center bg-muted rounded-xl text-sm text-muted-foreground" style={{ height: props.height ?? "300px" }}>
+        Map API key missing
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex items-center justify-center bg-muted rounded-xl text-sm text-muted-foreground" style={{ height: props.height ?? "300px" }}>
+        Map failed to load
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
     return (
       <div className="flex items-center justify-center bg-muted rounded-xl" style={{ height: props.height ?? "300px" }}>
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -296,13 +312,5 @@ export default function TripGoogleMap(props: TripGoogleMapProps) {
     );
   }
 
-  if (error || !apiKey) {
-    return (
-      <div className="flex items-center justify-center bg-muted rounded-xl text-sm text-muted-foreground" style={{ height: props.height ?? "300px" }}>
-        Map unavailable
-      </div>
-    );
-  }
-
-  return <InnerMap {...props} apiKey={apiKey} />;
+  return <InnerMap {...props} />;
 }
