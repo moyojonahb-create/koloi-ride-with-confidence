@@ -131,9 +131,11 @@ function InnerMapGoogle({
   useEffect(() => {
     if (!apiKey) return;
 
-    setOptions({
-      key: apiKey,
-    } as any);
+    // Use the new functional API (v2+)
+    (setOptions as any)({
+      apiKey,
+      version: 'weekly',
+    });
 
     Promise.all(
       GOOGLE_MAPS_LIBRARIES.map((lib) => importLibrary(lib))
