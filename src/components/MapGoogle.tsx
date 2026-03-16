@@ -138,7 +138,7 @@ function InnerMapGoogle({
     });
 
     loader
-      .load()
+      .importLibrary('maps')
       .then(() => setIsLoaded(true))
       .catch((err) => setLoadError(err as Error));
   }, [apiKey]);

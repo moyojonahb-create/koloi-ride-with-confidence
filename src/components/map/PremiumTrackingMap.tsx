@@ -250,7 +250,7 @@ export default function PremiumTrackingMap({
 }: PremiumTrackingMapProps) {
   const glowPolyRef = useRef<google.maps.Polyline | null>(null);
   const mainPolyRef = useRef<google.maps.Polyline | null>(null);
-  const overlayRef = useRef<DriverOverlay | null>(null);
+  const overlayRef = useRef<DriverOverlayInstance | null>(null);
   const prevDriverRef = useRef<LatLng | null>(null);
   const bearingRef = useRef(0);
 

@@ -55,7 +55,7 @@ export default function RecentDestinations({ onSelect, field }: RecentDestinatio
       const lat = typeof r[`${col}_lat`] === 'number' ? r[`${col}_lat`] as number : Number(r[`${col}_lat`]);
       const lng = typeof r[`${col}_lon`] === 'number' ? r[`${col}_lon`] as number : Number(r[`${col}_lon`]);
       if (!name) continue;
-      const existing = map.get(name);
+      const existing = map.get(name as string);
       if (existing) {
         existing.count++;
       } else {
