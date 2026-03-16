@@ -253,7 +253,7 @@ export default function RiderRideDetail() {
       name: d?.vehicle_make ? `${d.vehicle_make} ${d.vehicle_model}` : "Driver",
       phone: "+263",
       vehicleType: d?.vehicle_type as "Car" | "Taxi" | "Motorbike" || "Car",
-      plateNumber: d?.plate_number || "—",
+      plateNumber: (d?.plate_number as string) || "—",
       languages: ["English"],
       distanceKm: 0,
       etaMinutes: o.eta_minutes || 10
