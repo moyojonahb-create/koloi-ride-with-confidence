@@ -133,8 +133,7 @@ function InnerMapGoogle({
 
     setOptions({
       key: apiKey,
-      version: 'weekly',
-    });
+    } as any);
 
     Promise.all(
       GOOGLE_MAPS_LIBRARIES.map((lib) => importLibrary(lib))
