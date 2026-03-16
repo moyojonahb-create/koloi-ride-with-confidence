@@ -10,7 +10,7 @@ export interface PlaceSuggestion {
 
 /**
  * Hook that provides Google Places Autocomplete suggestions restricted to Zimbabwe.
- * Requires the Google Maps JS API with 'places' library to be loaded.
+ * Requires the Google Maps JS API with 'places' library to be loaded via useGoogleMaps.
  */
 export function useGooglePlacesAutocomplete() {
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
@@ -22,9 +22,13 @@ export function useGooglePlacesAutocomplete() {
 
   // Initialize service when Google Maps is loaded
   const ensureService = useCallback(() => {
-    if (!window.google?.maps?.places) return false;
+    if (!window.google?.maps?.places) {
+      console.warn('[Voyex Places] Google Maps Places API not available yet');
+      return false;
+    }
     if (!serviceRef.current) {
       serviceRef.current = new google.maps.places.AutocompleteService();
+      console.info('[Voyex Places] AutocompleteService initialized');
     }
     if (!geocoderRef.current) {
       geocoderRef.current = new google.maps.Geocoder();
@@ -52,6 +56,8 @@ export function useGooglePlacesAutocomplete() {
         return;
       }
 
+      console.info('[Voyex Places] Searching:', query.trim());
+
       serviceRef.current!.getPlacePredictions(
         {
           input: query.trim(),
@@ -70,8 +76,12 @@ export function useGooglePlacesAutocomplete() {
               description: p.structured_formatting.secondary_text || p.description,
             }));
             setSuggestions(mapped);
+            console.info('[Voyex Places] Found', mapped.length, 'suggestions');
           } else {
             setSuggestions([]);
+            if (status !== google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+              console.warn('[Voyex Places] Search status:', status);
+            }
           }
           setLoading(false);
         }
@@ -93,12 +103,15 @@ export function useGooglePlacesAutocomplete() {
             const loc = results[0].geometry.location;
             // Reset session token after selection
             sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken();
-            resolve({
+            const detail = {
               lat: loc.lat(),
               lng: loc.lng(),
               name: results[0].formatted_address?.split(',')[0] || '',
-            });
+            };
+            console.info('[Voyex Places] Selected place:', detail.name, detail.lat, detail.lng);
+            resolve(detail);
           } else {
+            console.warn('[Voyex Places] Geocode failed:', status);
             resolve(null);
           }
         });
