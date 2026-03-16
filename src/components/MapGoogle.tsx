@@ -131,14 +131,14 @@ function InnerMapGoogle({
   useEffect(() => {
     if (!apiKey) return;
 
-    const loader = new Loader({
+    setOptions({
       apiKey,
       version: 'weekly',
-      libraries: GOOGLE_MAPS_LIBRARIES,
     });
 
-    (loader as any)
-      .load()
+    Promise.all(
+      GOOGLE_MAPS_LIBRARIES.map((lib) => importLibrary(lib))
+    )
       .then(() => setIsLoaded(true))
       .catch((err: Error) => setLoadError(err));
   }, [apiKey]);
