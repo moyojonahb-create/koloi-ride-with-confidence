@@ -132,7 +132,7 @@ function InnerMapGoogle({
     if (!apiKey) return;
 
     setOptions({
-      apiKey,
+      key: apiKey,
       version: 'weekly',
     });
 
