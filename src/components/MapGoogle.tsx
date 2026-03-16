@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState, memo, useMemo } from 'react';
 import { GoogleMap, Marker, Polyline } from '@react-google-maps/api';
-import { Loader } from '@googlemaps/js-api-loader';
+import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -131,14 +131,13 @@ function InnerMapGoogle({
   useEffect(() => {
     if (!apiKey) return;
 
-    const loader = new Loader({
-      apiKey,
-      version: 'weekly',
-      libraries: GOOGLE_MAPS_LIBRARIES,
-    });
+    setOptions({
+      key: apiKey,
+    } as any);
 
-    (loader as any)
-      .load()
+    Promise.all(
+      GOOGLE_MAPS_LIBRARIES.map((lib) => importLibrary(lib))
+    )
       .then(() => setIsLoaded(true))
       .catch((err: Error) => setLoadError(err));
   }, [apiKey]);
