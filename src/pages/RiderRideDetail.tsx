@@ -276,12 +276,12 @@ export default function RiderRideDetail() {
       offeredFareR: o.price,
       createdAt: o.created_at || new Date().toISOString(),
       driverName: driverFullName || (d?.vehicle_make ? `${d.vehicle_make} Driver` : "Driver"),
-      vehicleMake: d?.vehicle_make || undefined,
-      vehicleModel: d?.vehicle_model || undefined,
-      gender: d?.gender || null,
-      avatarUrl: d?.avatar_url || null,
-      ratingAvg: (d as Record<string, unknown>)?.rating_avg as number || null,
-      totalTrips: (d as Record<string, unknown>)?.total_trips as number || null
+      vehicleMake: (d?.vehicle_make as string) || undefined,
+      vehicleModel: (d?.vehicle_model as string) || undefined,
+      gender: (d?.gender as string) || null,
+      avatarUrl: (d?.avatar_url as string) || null,
+      ratingAvg: ((d as Record<string, unknown>)?.rating_avg as number) || null,
+      totalTrips: ((d as Record<string, unknown>)?.total_trips as number) || null
     };
   });
 

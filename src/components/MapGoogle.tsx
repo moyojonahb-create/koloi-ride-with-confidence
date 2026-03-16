@@ -137,10 +137,10 @@ function InnerMapGoogle({
       libraries: GOOGLE_MAPS_LIBRARIES,
     });
 
-    loader
-      .importLibrary('maps')
+    (loader as any)
+      .load()
       .then(() => setIsLoaded(true))
-      .catch((err) => setLoadError(err as Error));
+      .catch((err: Error) => setLoadError(err));
   }, [apiKey]);
 
   const mapRef = useRef<google.maps.Map | null>(null);
