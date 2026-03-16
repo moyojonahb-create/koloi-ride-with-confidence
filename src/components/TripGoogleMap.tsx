@@ -3,9 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   GoogleMap,
   Marker,
-  useJsApiLoader,
 } from "@react-google-maps/api";
-import { useGoogleMapsKey } from "@/hooks/useGoogleMapsKey";
+import { useGoogleMaps } from "@/hooks/useGoogleMaps";
 import { calculateDistance } from "@/lib/driverLocation";
 import { Loader2 } from "lucide-react";
 import PremiumTrackingMap from "@/components/map/PremiumTrackingMap";
@@ -125,18 +124,14 @@ function useSmoothPosition(target: Coords | null): Coords | null {
 /* ------------------------------------------------------------------ */
 
 function InnerMap({
-  apiKey,
   driverLocation,
   pickup,
   dropoff,
   tripStatus,
   height,
-}: TripGoogleMapProps & { apiKey: string }) {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: apiKey,
-    id: "voyex-google-map",
-    libraries: ["places"] as ("places")[],
-  });
+}: TripGoogleMapProps) {
+  // API is already loaded by the wrapper via useGoogleMaps
+  const isLoaded = !!window.google?.maps;
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const [routePath, setRoutePath] = useState<Coords[]>([]);
@@ -291,9 +286,25 @@ function InnerMap({
 /* ------------------------------------------------------------------ */
 
 export default function TripGoogleMap(props: TripGoogleMapProps) {
-  const { apiKey, loading, error } = useGoogleMapsKey();
+  const { isLoaded, loadError, apiKey } = useGoogleMaps();
 
-  if (loading) {
+  if (!apiKey) {
+    return (
+      <div className="flex items-center justify-center bg-muted rounded-xl text-sm text-muted-foreground" style={{ height: props.height ?? "300px" }}>
+        Map API key missing
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex items-center justify-center bg-muted rounded-xl text-sm text-muted-foreground" style={{ height: props.height ?? "300px" }}>
+        Map failed to load
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
     return (
       <div className="flex items-center justify-center bg-muted rounded-xl" style={{ height: props.height ?? "300px" }}>
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -301,13 +312,5 @@ export default function TripGoogleMap(props: TripGoogleMapProps) {
     );
   }
 
-  if (error || !apiKey) {
-    return (
-      <div className="flex items-center justify-center bg-muted rounded-xl text-sm text-muted-foreground" style={{ height: props.height ?? "300px" }}>
-        Map unavailable
-      </div>
-    );
-  }
-
-  return <InnerMap {...props} apiKey={apiKey} />;
+  return <InnerMap {...props} />;
 }
