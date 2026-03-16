@@ -102,11 +102,17 @@ const CAR_SVG = `
 /*  Custom OverlayView – driver marker + ETA badge                     */
 /* ------------------------------------------------------------------ */
 
-type DriverOverlayClass = typeof google.maps.OverlayView & {
-  new (position: LatLng, etaMinutes: number, bearing?: number): google.maps.OverlayView;
-};
+interface DriverOverlayInstance extends google.maps.OverlayView {
+  position: LatLng;
+  etaMinutes: number;
+  bearing: number;
+  div: HTMLDivElement | null;
+  update(position: LatLng, etaMinutes: number, bearing: number): void;
+}
 
-let CachedDriverOverlayClass: DriverOverlayClass | null = null;
+type DriverOverlayConstructor = new (position: LatLng, etaMinutes: number, bearing?: number) => DriverOverlayInstance;
+
+let CachedDriverOverlayClass: DriverOverlayConstructor | null = null;
 
 function getDriverOverlayClass(): DriverOverlayClass {
   if (CachedDriverOverlayClass) return CachedDriverOverlayClass;
