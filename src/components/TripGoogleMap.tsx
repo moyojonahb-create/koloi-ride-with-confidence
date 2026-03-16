@@ -124,18 +124,14 @@ function useSmoothPosition(target: Coords | null): Coords | null {
 /* ------------------------------------------------------------------ */
 
 function InnerMap({
-  apiKey,
   driverLocation,
   pickup,
   dropoff,
   tripStatus,
   height,
-}: TripGoogleMapProps & { apiKey: string }) {
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: apiKey,
-    id: "voyex-google-map",
-    libraries: ["places"] as ("places")[],
-  });
+}: TripGoogleMapProps) {
+  // API is already loaded by the wrapper via useGoogleMaps
+  const isLoaded = !!window.google?.maps;
 
   const mapRef = useRef<google.maps.Map | null>(null);
   const [routePath, setRoutePath] = useState<Coords[]>([]);
