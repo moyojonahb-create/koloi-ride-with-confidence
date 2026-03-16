@@ -114,7 +114,7 @@ type DriverOverlayConstructor = new (position: LatLng, etaMinutes: number, beari
 
 let CachedDriverOverlayClass: DriverOverlayConstructor | null = null;
 
-function getDriverOverlayClass(): DriverOverlayClass {
+function getDriverOverlayClass(): DriverOverlayConstructor {
   if (CachedDriverOverlayClass) return CachedDriverOverlayClass;
 
   const g = (window as unknown as { google?: typeof google }).google;
