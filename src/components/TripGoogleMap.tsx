@@ -3,9 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   GoogleMap,
   Marker,
-  useJsApiLoader,
 } from "@react-google-maps/api";
-import { useGoogleMapsKey } from "@/hooks/useGoogleMapsKey";
+import { useGoogleMaps } from "@/hooks/useGoogleMaps";
 import { calculateDistance } from "@/lib/driverLocation";
 import { Loader2 } from "lucide-react";
 import PremiumTrackingMap from "@/components/map/PremiumTrackingMap";
