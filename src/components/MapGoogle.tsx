@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState, memo, useMemo } from 'react';
 import { GoogleMap, Marker, Polyline } from '@react-google-maps/api';
-import { Loader, type LoaderOptions } from '@googlemaps/js-api-loader';
+import { Loader } from '@googlemaps/js-api-loader';
 import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -33,7 +33,7 @@ interface MapGoogleProps {
 const ZW_CENTER: Coords = { lat: -19.015, lng: 29.155 };
 const containerStyle = { width: '100%', height: '100%' };
 const GOOGLE_MAPS_LOADER_ID = 'voyex-google-map';
-const GOOGLE_MAPS_LIBRARIES: LoaderOptions['libraries'] = ['places'];
+const GOOGLE_MAPS_LIBRARIES: string[] = ['places'];
 
 const mapOptions: google.maps.MapOptions = {
   disableDefaultUI: true,
@@ -137,10 +137,10 @@ function InnerMapGoogle({
       libraries: GOOGLE_MAPS_LIBRARIES,
     });
 
-    loader
+    (loader as any)
       .load()
       .then(() => setIsLoaded(true))
-      .catch((err) => setLoadError(err as Error));
+      .catch((err: Error) => setLoadError(err));
   }, [apiKey]);
 
   const mapRef = useRef<google.maps.Map | null>(null);

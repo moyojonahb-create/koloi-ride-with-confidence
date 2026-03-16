@@ -2,9 +2,12 @@
 import './lib/envPolyfill';
 
 import { createRoot } from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import { AuthProvider } from "./hooks/useAuth";
 import "./index.css";
+
+const queryClient = new QueryClient();
 
 // Register PWA service worker
 if ('serviceWorker' in navigator) {
@@ -30,7 +33,9 @@ if ('serviceWorker' in navigator) {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <AuthProvider>
-    <App />
-  </AuthProvider>
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </QueryClientProvider>
 );

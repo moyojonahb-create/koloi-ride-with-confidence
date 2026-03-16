@@ -102,13 +102,19 @@ const CAR_SVG = `
 /*  Custom OverlayView – driver marker + ETA badge                     */
 /* ------------------------------------------------------------------ */
 
-type DriverOverlayClass = typeof google.maps.OverlayView & {
-  new (position: LatLng, etaMinutes: number, bearing?: number): google.maps.OverlayView;
-};
+interface DriverOverlayInstance extends google.maps.OverlayView {
+  position: LatLng;
+  etaMinutes: number;
+  bearing: number;
+  div: HTMLDivElement | null;
+  update(position: LatLng, etaMinutes: number, bearing: number): void;
+}
 
-let CachedDriverOverlayClass: DriverOverlayClass | null = null;
+type DriverOverlayConstructor = new (position: LatLng, etaMinutes: number, bearing?: number) => DriverOverlayInstance;
 
-function getDriverOverlayClass(): DriverOverlayClass {
+let CachedDriverOverlayClass: DriverOverlayConstructor | null = null;
+
+function getDriverOverlayClass(): DriverOverlayConstructor {
   if (CachedDriverOverlayClass) return CachedDriverOverlayClass;
 
   const g = (window as unknown as { google?: typeof google }).google;
@@ -227,8 +233,8 @@ function getDriverOverlayClass(): DriverOverlayClass {
     }
   }
 
-  CachedDriverOverlayClass = DriverOverlay;
-  return DriverOverlay;
+  CachedDriverOverlayClass = DriverOverlay as unknown as DriverOverlayConstructor;
+  return CachedDriverOverlayClass;
 }
 
 /* ------------------------------------------------------------------ */
@@ -244,7 +250,7 @@ export default function PremiumTrackingMap({
 }: PremiumTrackingMapProps) {
   const glowPolyRef = useRef<google.maps.Polyline | null>(null);
   const mainPolyRef = useRef<google.maps.Polyline | null>(null);
-  const overlayRef = useRef<DriverOverlay | null>(null);
+  const overlayRef = useRef<DriverOverlayInstance | null>(null);
   const prevDriverRef = useRef<LatLng | null>(null);
   const bearingRef = useRef(0);
 
