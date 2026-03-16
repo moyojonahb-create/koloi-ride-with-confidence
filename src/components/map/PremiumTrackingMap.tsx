@@ -233,8 +233,8 @@ function getDriverOverlayClass(): DriverOverlayConstructor {
     }
   }
 
-  CachedDriverOverlayClass = DriverOverlay;
-  return DriverOverlay;
+  CachedDriverOverlayClass = DriverOverlay as unknown as DriverOverlayConstructor;
+  return CachedDriverOverlayClass;
 }
 
 /* ------------------------------------------------------------------ */
