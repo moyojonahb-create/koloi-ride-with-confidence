@@ -53,11 +53,12 @@ export default function DriverRegistrationIntro() {
           <div className="flex-1 h-1 bg-accent rounded-full" />
           <div className="text-xs">Step 1 of 6</div>
         </div>
-        <Button className="w-full h-14 rounded-2xl text-lg" onClick={() => navigate('/driver/register/step1')}>
+        <Button className="w-full h-14 rounded-2xl text-lg" onClick={() => navigate('/driver/register')}>
           Start
         </Button>
       </div>
     </div>
   );
 }
+
 

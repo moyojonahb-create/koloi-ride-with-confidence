@@ -10,10 +10,25 @@
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 const SCRIPT_ID = 'voyex-google-maps-script';
 const LIBRARIES = ['places', 'geometry'];
+const MAPS_CALLBACK = '__voyexGmapsInit' as const;
+
+type WindowWithMapsCallback = Window & {
+  [MAPS_CALLBACK]?: () => void;
+};
 
 let loadPromise: Promise<void> | null = null;
 let loaded = false;
 let loadError: Error | null = null;
+
+export function resetGoogleMapsLoader() {
+  loadPromise = null;
+  loaded = false;
+  loadError = null;
+  const existing = document.getElementById(SCRIPT_ID);
+  if (existing?.parentNode) {
+    existing.parentNode.removeChild(existing);
+  }
+}
 
 function loadGoogleMapsScript(apiKey: string): Promise<void> {
   if (loaded) return Promise.resolve();
@@ -36,17 +51,17 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
       return;
     }
 
-    const callbackName = '__voyexGmapsInit';
-    (window as Record<string, unknown>)[callbackName] = () => {
+    const callbackWindow = window as WindowWithMapsCallback;
+    callbackWindow[MAPS_CALLBACK] = () => {
       loaded = true;
-      delete (window as Record<string, unknown>)[callbackName];
+      delete callbackWindow[MAPS_CALLBACK];
       console.info('[Voyex Maps] API loaded successfully');
       resolve();
     };
 
     const script = document.createElement('script');
     script.id = SCRIPT_ID;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=${LIBRARIES.join(',')}&callback=${callbackName}&v=weekly`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=${LIBRARIES.join(',')}&callback=${MAPS_CALLBACK}&v=weekly`;
     script.async = true;
     script.defer = true;
     script.onerror = () => {
@@ -54,6 +69,8 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
         'Google Maps failed to load. Check: billing enabled, Maps JS API enabled, Places API enabled, and HTTP referrer restrictions.'
       );
       loadError = err;
+      loadPromise = null;
+      loaded = false;
       reject(err);
     };
 
@@ -71,7 +88,7 @@ export interface GoogleMapsState {
   apiKey: string | null;
 }
 
-export function useGoogleMaps(): GoogleMapsState {
+export function useGoogleMaps(retryKey = 0): GoogleMapsState {
   const [state, setState] = useState<GoogleMapsState>({
     isLoaded: loaded,
     loadError: loadError,
@@ -110,7 +127,7 @@ export function useGoogleMaps(): GoogleMapsState {
         console.error('[Voyex Maps] Load error:', err.message);
         setState({ isLoaded: false, loadError: err as Error, apiKey: GOOGLE_MAPS_API_KEY });
       });
-  }, []);
+  }, [retryKey]);
 
   return state;
 }

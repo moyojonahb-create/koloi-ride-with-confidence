@@ -9,7 +9,7 @@ interface FileData {
   type: string;
 }
 
-export default function DriverDocumentsForm({ onNext }: { onNext: (files: Record<string, FileData | null>) => void }) {
+export default function DriverDocumentsForm({ onNext, onBack }: { onNext: (files: Record<string, FileData | null>) => void; onBack?: () => void }) {
   const navigate = useNavigate();
   const [files, setFiles] = useState<Record<string, File | null>>({
     license: null,
@@ -85,7 +85,7 @@ export default function DriverDocumentsForm({ onNext }: { onNext: (files: Record
       </div>
 
       <div className="flex gap-3 pt-4">
-        <Button type="button" variant="outline" className="flex-1 h-14 rounded-xl" onClick={() => navigate('/driver/register/step2')}>
+        <Button type="button" variant="outline" className="flex-1 h-14 rounded-xl" onClick={() => onBack ? onBack() : navigate('/driver/register')}>
           Back
         </Button>
         <Button 
@@ -100,4 +100,6 @@ export default function DriverDocumentsForm({ onNext }: { onNext: (files: Record
     </div>
   );
 }
+
+
 

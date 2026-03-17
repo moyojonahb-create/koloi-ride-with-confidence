@@ -18,7 +18,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-export default function DriverVehicleForm({ onNext }: { onNext: (data: FormData) => void }) {
+export default function DriverVehicleForm({ onNext, onBack }: { onNext: (data: FormData) => void; onBack?: () => void }) {
   const navigate = useNavigate();
 
   const form = useForm<FormData>({
@@ -113,7 +113,7 @@ export default function DriverVehicleForm({ onNext }: { onNext: (data: FormData)
           )} />
 
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" className="flex-1 h-14 rounded-xl" onClick={() => navigate('/driver/register/step1')}>
+            <Button type="button" variant="outline" className="flex-1 h-14 rounded-xl" onClick={() => onBack ? onBack() : navigate('/driver/register')}>
               Back
             </Button>
             <Button type="submit" className="flex-1 h-14 rounded-xl bg-primary text-primary-foreground">
@@ -125,4 +125,5 @@ export default function DriverVehicleForm({ onNext }: { onNext: (data: FormData)
     </div>
   );
 }
+
 

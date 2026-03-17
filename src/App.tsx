@@ -1,5 +1,6 @@
 ﻿import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 import AuthGuard from "./components/AuthGuard";
 import AdminGuard from "./components/admin/AdminGuard";
 
@@ -12,6 +13,7 @@ const Ride = lazy(() => import("./pages/Ride"));
 const RideDetail = lazy(() => import("./pages/RideDetail"));
 const RideHistory = lazy(() => import("./pages/RideHistory"));
 const RiderProfile = lazy(() => import("./pages/RiderProfile"));
+const EditProfile = lazy(() => import("./pages/EditProfile"));
 const RiderWalletPage = lazy(() => import("./pages/RiderWalletPage"));
 const SafetyPage = lazy(() => import("./pages/SafetyPage"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
@@ -44,15 +46,31 @@ const ImportOsmPlaces = lazy(() => import("./pages/admin/ImportOsmPlaces"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 export default function App() {
+  const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
+
   return (
-    <BrowserRouter>
-      <Suspense fallback={<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white"><img src="/icons/voyex-splash.png" alt="Voyex" className="w-56 h-56 object-contain" /></div>}>
+    <Router>
+      <Suspense fallback={null}>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/login" element={<Navigate to="/auth" replace />} />
           <Route path="/signup" element={<Signup />} />
+
+          {/* Legacy / mapp compatibility redirects */}
+          <Route path="/mapp" element={<Navigate to="/ride" replace />} />
+          <Route path="/mapp/login" element={<Navigate to="/auth" replace />} />
+          <Route path="/mapp/ride" element={<Navigate to="/ride" replace />} />
+          <Route path="/mapp/history" element={<Navigate to="/history" replace />} />
+          <Route path="/mapp/ride-history" element={<Navigate to="/history" replace />} />
+          <Route path="/mapp/wallet" element={<Navigate to="/wallet" replace />} />
+          <Route path="/mapp/profile" element={<Navigate to="/profile" replace />} />
+          <Route path="/mapp/edit-profile" element={<Navigate to="/edit-profile" replace />} />
+          <Route path="/mapp/driver" element={<Navigate to="/driver" replace />} />
+          <Route path="/mapp/admin" element={<Navigate to="/admin" replace />} />
+          <Route path="/mapp/safety" element={<Navigate to="/safety" replace />} />
+          <Route path="/mapp/*" element={<Navigate to="/ride" replace />} />
 
           <Route path="/ride" element={
             <AuthGuard>
@@ -75,12 +93,21 @@ export default function App() {
               </AuthGuard>
             }
           />
+          <Route path="/ride-history" element={<Navigate to="/history" replace />} />
 
           <Route
             path="/profile"
             element={
               <AuthGuard>
                 <RiderProfile />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="/edit-profile"
+            element={
+              <AuthGuard>
+                <EditProfile />
               </AuthGuard>
             }
           />
@@ -94,6 +121,7 @@ export default function App() {
           />
 
   <Route path="/driver" element={<DriverModeLanding />} />
+  <Route path="/driver-mode" element={<Navigate to="/driver" replace />} />
   <Route path="/driver/register" element={<DriverRegistrationPage />} />
   <Route path="/driver/application" element={<DriverApplication />} />
   <Route
@@ -261,7 +289,12 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
-    </BrowserRouter>
+    </Router>
   );
 }
+
+
+
+
+
 

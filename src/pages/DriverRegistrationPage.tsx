@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import DriverRegistrationIntro from '@/components/driver/DriverRegistrationIntro';
 import DriverPersonalForm from '@/components/driver/DriverPersonalForm';
 import DriverVehicleForm from '@/components/driver/DriverVehicleForm';
@@ -10,7 +9,6 @@ import DriverSuccessScreen from '@/components/driver/DriverSuccessScreen';
 type Step = 'intro' | 'personal' | 'vehicle' | 'documents' | 'review' | 'success';
 
 export default function DriverRegistrationPage() {
-  const navigate = useNavigate();
   const [step, setStep] = useState<Step>('intro');
   const [formData, setFormData] = useState({
     personal: null as any,
@@ -46,17 +44,18 @@ export default function DriverRegistrationPage() {
     }
   };
 
-  const goToStep = (newStep: Step) => setStep(newStep);
-
   const currentComponent = {
-    intro: <DriverRegistrationIntro onNext={() => {}} />, // placeholder
-    personal: <DriverPersonalForm onNext={goToNext} />,
-    vehicle: <DriverVehicleForm onNext={goToNext} />,
-    documents: <DriverDocumentsForm onNext={goToNext} />,
+    intro: <DriverRegistrationIntro onNext={() => goToNext(null)} />,
+    personal: <DriverPersonalForm onNext={goToNext} onBack={() => setStep('intro')} />,
+    vehicle: <DriverVehicleForm onNext={goToNext} onBack={() => setStep('personal')} />,
+    documents: <DriverDocumentsForm onNext={goToNext} onBack={() => setStep('vehicle')} />,
     review: <DriverReviewForm data={formData} onBack={() => setStep('documents')} />,
     success: <DriverSuccessScreen />,
   }[step];
 
   return currentComponent;
 }
+
+
+
 

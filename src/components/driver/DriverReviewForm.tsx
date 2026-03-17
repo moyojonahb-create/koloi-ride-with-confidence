@@ -29,34 +29,61 @@ interface ReviewData {
 export default function DriverReviewForm({ data, onBack }: { data: ReviewData; onBack: () => void }) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const { user } = useAuth();
       if (!user) throw new Error('Not logged in');
 
-      // Insert driver record
-      const driverData = {
-        user_id: user.id,
-        full_name: data.personal.fullName,
-        phone: data.personal.phone,
-        email: data.personal.email,
-        city: data.personal.city,
-        national_id: data.personal.nationalId,
-        car_make: data.vehicle.carMake,
-        car_model: data.vehicle.carModel,
-        car_year: data.vehicle.carYear,
-        plate_number: data.vehicle.plateNumber,
-        vehicle_color: data.vehicle.vehicleColor,
-        seats: data.vehicle.seats,
-        status: 'pending' as const,
-      };
+      // Keep profile details in profiles table (schema-safe fields only)
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert(
+          {
+            user_id: user.id,
+            full_name: data.personal.fullName,
+            phone: data.personal.phone,
+          },
+          { onConflict: 'user_id' }
+        );
+      if (profileError) throw profileError;
 
-      const { error } = await supabase.from('drivers').insert(driverData);
+      // Upsert driver record with current drivers schema fields
+      const { data: existingDriver, error: existingDriverError } = await supabase
+        .from('drivers')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (existingDriverError) throw existingDriverError;
 
-      if (error) throw error;
+      if (existingDriver?.id) {
+        const { error: updateError } = await supabase
+          .from('drivers')
+          .update({
+            vehicle_make: data.vehicle.carMake,
+            vehicle_model: data.vehicle.carModel,
+            vehicle_year: data.vehicle.carYear,
+            plate_number: data.vehicle.plateNumber,
+            status: 'pending',
+            is_online: false,
+          })
+          .eq('id', existingDriver.id);
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase.from('drivers').insert({
+          user_id: user.id,
+          vehicle_make: data.vehicle.carMake,
+          vehicle_model: data.vehicle.carModel,
+          vehicle_year: data.vehicle.carYear,
+          plate_number: data.vehicle.plateNumber,
+          vehicle_type: 'economy',
+          status: 'pending',
+          is_online: false,
+        });
+        if (insertError) throw insertError;
+      }
 
       // TODO: Upload files to storage
       // ...
@@ -70,7 +97,7 @@ export default function DriverReviewForm({ data, onBack }: { data: ReviewData; o
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to submit application. Try again.',
+        description: error instanceof Error ? error.message : 'Failed to submit application. Try again.',
         variant: 'destructive',
       });
     } finally {
@@ -159,4 +186,5 @@ export default function DriverReviewForm({ data, onBack }: { data: ReviewData; o
     </div>
   );
 }
+
 
