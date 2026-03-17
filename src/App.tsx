@@ -92,9 +92,10 @@ export default function App() {
             }
           />
 
-          <Route path="/driver" element={<DriverModeLanding />} />
-          <Route path="/driver/application" element={<DriverApplication />} />
-          <Route
+  <Route path="/driver" element={<DriverModeLanding />} />
+  <Route path="/driver/register" element={<DriverRegistrationPage />} />
+  <Route path="/driver/application" element={<DriverApplication />} />
+  <Route
             path="/driver/dashboard"
             element={
               <AuthGuard>
