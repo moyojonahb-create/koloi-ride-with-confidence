@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
   Car, Star, Phone, MessageCircle, Clock, Users, ChevronRight, Locate,
-  Banknote, Wallet, Zap, CarFront, Menu, History, Minus, Plus, Route } from
+  Banknote, Wallet, Zap, CarFront, Menu, History, Minus, Plus, Route, ContactRound } from
 'lucide-react';
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle } from
@@ -34,6 +34,8 @@ import VoyexLogo from '@/components/VoyexLogo';
 import { GlassSheet } from '@/components/ui/glass-sheet';
 import { SecondaryButton } from '@/components/ui/secondary-button';
 import { PrimaryButton } from '@/components/ui/primary-button';
+import { InputField } from '@/components/ui/input-field';
+import { IconPillButton } from '@/components/ui/icon-pill-button';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 import EmergencyButton from './EmergencyButton';
@@ -45,6 +47,7 @@ import ScheduleRide from './ScheduleRide';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
 import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
 import TownSelectorSheet from './TownSelectorSheet';
+import ShareTripButton from './ShareTripButton';
 
 // ── types ──
 import { type ServiceType } from '@/components/VehicleTypeSelector';
@@ -91,6 +94,9 @@ export default function RideView() {
   const [selectedTier, setSelectedTier] = useState<VehicleTier>('standard');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [passengerCount, setPassengerCount] = useState(1);
+  const [bookForSomeoneElse, setBookForSomeoneElse] = useState(false);
+  const [passengerName, setPassengerName] = useState('');
+  const [passengerPhone, setPassengerPhone] = useState('');
   const [rideStatus, setRideStatus] = useState<RideStatus>('idle');
   const [isRequesting, setIsRequesting] = useState(false);
   const [currentRideId, setCurrentRideId] = useState<string | null>(null);
@@ -232,6 +238,27 @@ export default function RideView() {
     } finally {setReverseGeoLoading(false);}
   }, [activeField]);
 
+  const handlePickPassengerFromContacts = async () => {
+    try {
+      const nav = navigator as Navigator & {
+        contacts?: { select: (properties: string[], options?: { multiple?: boolean }) => Promise<Array<Record<string, unknown>>> }
+      };
+      if (!nav.contacts?.select) {
+        toast({ title: 'Contacts not supported', description: 'Please enter passenger details manually.' });
+        return;
+      }
+      const selected = await nav.contacts.select(['name', 'tel'], { multiple: false });
+      if (!selected?.length) return;
+      const first = selected[0];
+      const names = first.name as string[] | undefined;
+      const tels = first.tel as string[] | undefined;
+      if (names?.[0]) setPassengerName(names[0]);
+      if (tels?.[0]) setPassengerPhone(tels[0]);
+    } catch {
+      toast({ title: 'Could not read contacts', description: 'Please enter passenger details manually.' });
+    }
+  };
+
   const handleSendOffer = async (customFare: number) => {
     if (!user) {setAuthMode('login');setAuthModalOpen(true);return;}
     if (!pickupLocation || !dropoffLocation || !fareEstimate) {toast({ title: 'Select pickup and destination', variant: 'destructive' });return;}
@@ -247,6 +274,8 @@ export default function RideView() {
         payment_method: paymentMethod, vehicle_type: selectedTier,
         town_id: selectedTown?.id ?? null,
         gender_preference: genderPreference,
+        ...(bookForSomeoneElse && passengerName.trim() ? { passenger_name: passengerName.trim() } : {}),
+        ...(bookForSomeoneElse && passengerPhone.trim() ? { passenger_phone: passengerPhone.trim() } : {}),
         ...(scheduledAt ? { scheduled_at: scheduledAt.toISOString() } : {})
       });
       if (!result.ok) throw new Error(result.error);
@@ -268,7 +297,12 @@ export default function RideView() {
       }
 
       setCurrentRideId(result.ride.id);
-      toast({ title: scheduledAt ? 'Ride scheduled!' : 'Offer sent!', description: `${fareEstimate.currencySymbol}${customFare} — ${scheduledAt ? 'scheduled for later' : 'waiting for drivers…'}` });
+      toast({
+        title: scheduledAt ? 'Ride scheduled!' : 'Offer sent!',
+        description: bookForSomeoneElse && passengerName.trim()
+          ? `Passenger: ${passengerName.trim()}${passengerPhone.trim() ? ` (${passengerPhone.trim()})` : ''}`
+          : `${fareEstimate.currencySymbol}${customFare} — ${scheduledAt ? 'scheduled for later' : 'waiting for drivers…'}`,
+      });
       if (!scheduledAt) navigate(`/ride/${result.ride.id}`);else
       {setRideStatus('idle');setScheduledAt(null);setRideStops([]);}
     } catch (error: unknown) {toast({ title: 'Failed to send offer', description: (error as Error).message, variant: 'destructive' });setRideStatus('idle');} finally {setIsRequesting(false);}
@@ -415,6 +449,16 @@ export default function RideView() {
               )}
             </div>
             <div className="mt-3 flex justify-center">
+              {currentRideId && pickupLocation && dropoffLocation && (
+                <div className="mr-2">
+                  <ShareTripButton
+                    rideId={currentRideId}
+                    pickupAddress={pickupLocation.name}
+                    dropoffAddress={dropoffLocation.name}
+                    driverName={matchedDriver.name}
+                  />
+                </div>
+              )}
               <EmergencyButton
                 rideId={currentRideId ?? undefined}
                 pickupAddress={pickupLocation?.name}
@@ -694,6 +738,25 @@ export default function RideView() {
           {passengerCount > 3 &&
           <p className="text-[11px] text-accent font-medium -mt-1.5 ml-1">⚡ Extra passenger charges applied</p>
           }
+
+          <div className='glass-card rounded-2xl p-3 space-y-3'>
+            <div className='flex items-center justify-between'>
+              <p className='text-xs font-semibold'>Book for someone else</p>
+              <button onClick={() => setBookForSomeoneElse((v) => !v)} className={cn('h-7 w-12 rounded-full transition-colors', bookForSomeoneElse ? 'bg-primary' : 'bg-muted')}>
+                <span className={cn('block h-6 w-6 rounded-full bg-white transition-transform', bookForSomeoneElse ? 'translate-x-6' : 'translate-x-0')} />
+              </button>
+            </div>
+            {bookForSomeoneElse && (
+              <>
+                <div className='grid grid-cols-1 gap-2'>
+                  <InputField placeholder='Passenger name' value={passengerName} onChange={(e) => setPassengerName(e.target.value)} />
+                  <InputField placeholder='Passenger phone' value={passengerPhone} onChange={(e) => setPassengerPhone(e.target.value)} />
+                </div>
+                <IconPillButton onClick={handlePickPassengerFromContacts}><ContactRound className='w-4 h-4' />Pick from contacts</IconPillButton>
+                <p className='text-xs text-muted-foreground'>Driver can contact this passenger.</p>
+              </>
+            )}
+          </div>
 
           {/* Women-only ride toggle */}
           <GenderPreferenceToggle value={genderPreference} onChange={setGenderPreference} />

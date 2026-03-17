@@ -114,7 +114,7 @@ export default function DriverDashboard() {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
   const [transactionsOpen, setTransactionsOpen] = useState(false);
-  const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number; user_id: string; status: string; pickup_lat: number; pickup_lon: number; dropoff_lat: number; dropoff_lon: number; payment_method: string } | null>(null);
+  const [activeTrip, setActiveTrip] = useState<{ id: string; pickup_address: string; dropoff_address: string; fare: number; user_id: string; status: string; pickup_lat: number; pickup_lon: number; dropoff_lat: number; dropoff_lon: number; payment_method: string; passenger_name?: string | null; passenger_phone?: string | null } | null>(null);
   const [earningsOpen, setEarningsOpen] = useState(false);
   const [driverCoords, setDriverCoords] = useState<Coordinates | null>(null);
   const [riderPhone, setRiderPhone] = useState<string | null>(null);
@@ -308,7 +308,7 @@ export default function DriverDashboard() {
       // Fetch active trip (accepted/in_progress) assigned to this driver
       const { data: activeTripData } = await supabase
         .from("rides")
-        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, payment_method")
+        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, payment_method, passenger_name, passenger_phone")
         .eq("driver_id", p.id)
         .in("status", ["accepted", "enroute", "enroute_pickup", "in_progress", "arrived"])
         .order("updated_at", { ascending: false })
@@ -331,6 +331,8 @@ export default function DriverDashboard() {
           dropoff_lat: activeTripData.dropoff_lat,
           dropoff_lon: activeTripData.dropoff_lon,
           payment_method: activeTripData.payment_method || 'cash',
+          passenger_name: activeTripData.passenger_name ?? null,
+          passenger_phone: activeTripData.passenger_phone ?? null,
         });
 
         // Notify driver when rider accepts their offer
@@ -360,7 +362,7 @@ export default function DriverDashboard() {
           .select("phone")
           .eq("user_id", activeTripData.user_id)
           .maybeSingle();
-        setRiderPhone(riderProfile?.phone ?? null);
+        setRiderPhone(activeTripData.passenger_phone ?? riderProfile?.phone ?? null);
       } else {
         setActiveTrip(null);
         setRiderPhone(null);
@@ -840,6 +842,11 @@ export default function DriverDashboard() {
                     <MessageCircle className={`h-4 w-4 ${messagesOpen ? 'text-primary' : 'text-muted-foreground'}`} />
                   </Button>
                 </div>
+                {activeTrip.passenger_name && (
+                  <p className="text-xs text-muted-foreground">
+                    Booking contact: <span className="font-medium text-foreground">{activeTrip.passenger_name}</span>
+                  </p>
+                )}
                 <div className="grid grid-cols-3 gap-2">
                   <VoiceCallButton
                     onCall={startCall}
