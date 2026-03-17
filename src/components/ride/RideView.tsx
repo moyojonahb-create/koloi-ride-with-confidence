@@ -268,7 +268,9 @@ export default function RideView() {
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    if (value.trim().length >= 3) {handleNominatimSearch(value);searchGoogle(value);} else {setNominatimResults([]);clearGoogleSuggestions();}
+    if (value.trim().length >= 2) {searchGoogle(value);}
+    if (value.trim().length >= 3) {handleNominatimSearch(value);} else {setNominatimResults([]);}
+    if (value.trim().length < 2) {clearGoogleSuggestions();}
   };
 
   const handleGooglePlaceSelect = async (suggestion: {placeId: string;name: string;}) => {
