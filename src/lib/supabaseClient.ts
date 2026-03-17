@@ -2,12 +2,16 @@
 export { supabase } from '@/integrations/supabase/client';
 
 // Export URL and key for edge function calls etc.
-const SUPABASE_URL = 
-  import.meta.env.VITE_SUPABASE_URL || 
-  'https://jidfganntquilvsytslp.supabase.co';
+// Do NOT keep secrets or production keys in source. Read from env and fail-safe to null.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || null;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || null;
 
-const SUPABASE_PUBLISHABLE_KEY = 
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppZGZnYW5udHF1aWx2c3l0c2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkzNDM5MDIsImV4cCI6MjA4NDkxOTkwMn0.clwzOYffNy78E9kN2UnXVSHlWfTm3cMbZu3WtwCT3UM';
+// Throw early with clear error messages if environment variables are missing
+if (!SUPABASE_URL) {
+  throw new Error('Missing required environment variable: VITE_SUPABASE_URL');
+}
+if (!SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error('Missing required environment variable: VITE_SUPABASE_PUBLISHABLE_KEY');
+}
 
 export { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY };

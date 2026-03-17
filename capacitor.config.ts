@@ -5,14 +5,14 @@ const config: CapacitorConfig = {
   appName: 'Voyex Ride',
   webDir: 'dist',
   server: {
-    // Hot-reload from Lovable sandbox during development
-    // Comment this out for production builds
-    url: 'https://7e76c2ed-baf3-4ed9-b6c9-c01bba7b32cf.lovableproject.com?forceHideBadge=true',
-    cleartext: true
+    // NOTE: Uncomment only for local development with live reload
+    // Do NOT use Lovable sandbox URL in production
+    // url: 'http://192.168.x.x:5173',
+    // cleartext: true
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 7000,
+      launchShowDuration: 2000,
       backgroundColor: '#ffffff',
       showSpinner: false,
       androidScaleType: 'CENTER_INSIDE',
@@ -25,7 +25,7 @@ const config: CapacitorConfig = {
     }
   },
   android: {
-    allowMixedContent: true
+    allowMixedContent: false
   },
   ios: {
     contentInset: 'automatic'
