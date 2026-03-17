@@ -86,9 +86,7 @@ const LocationInput = ({
 
   // Display landmarks based on context
   const displayLandmarks = value.trim() ? landmarks : nearbyLandmarks;
-  const sectionTitle = value.trim() 
-    ? `Results for "${value}"` 
-    : (nearbyLandmarks.length > 0 && userLocation ? 'Nearby' : 'Popular');
+  const sectionTitle = 'Available Places';
 
   return (
     <div className="space-y-2" ref={wrapperRef}>

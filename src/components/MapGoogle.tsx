@@ -1,9 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState, memo, useMemo } from 'react';
 import { GoogleMap, Marker, Polyline } from '@react-google-maps/api';
-import { Loader, type LoaderOptions } from '@googlemaps/js-api-loader';
-import { useGoogleMapsKey } from '@/hooks/useGoogleMapsKey';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { useGoogleMaps } from '@/hooks/useGoogleMaps';
+import { AlertTriangle, RefreshCw, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import PremiumTrackingMap from '@/components/map/PremiumTrackingMap';
@@ -32,8 +31,6 @@ interface MapGoogleProps {
 
 const ZW_CENTER: Coords = { lat: -19.015, lng: 29.155 };
 const containerStyle = { width: '100%', height: '100%' };
-const GOOGLE_MAPS_LOADER_ID = 'voyex-google-map';
-const GOOGLE_MAPS_LIBRARIES: LoaderOptions['libraries'] = ['places'];
 
 const mapOptions: google.maps.MapOptions = {
   disableDefaultUI: true,
@@ -120,29 +117,58 @@ function useSmoothDrivers(drivers?: Array<{ id: string; lat: number; lng: number
   return smoothed;
 }
 
-// ── Inner map component ──
+// ── Map Failure Help Card ──
+function MapFailureCard({ error, className, height }: { error: Error; className?: string; height?: string }) {
+  return (
+    <div className={`flex items-center justify-center bg-muted ${className}`} style={{ height, minHeight: 260 }}>
+      <div className="text-center p-6 space-y-4 max-w-sm">
+        <AlertTriangle className="w-12 h-12 mx-auto text-destructive" />
+        <div>
+          <p className="font-semibold text-foreground text-lg">Map failed to load</p>
+          <p className="text-sm text-muted-foreground mt-1">{error.message}</p>
+        </div>
+        <div className="text-left bg-card rounded-xl p-4 space-y-2 text-sm">
+          <p className="font-semibold text-foreground">Please verify:</p>
+          <ul className="space-y-1.5 text-muted-foreground">
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">•</span>
+              <span>Billing is enabled in Google Cloud Console</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">•</span>
+              <span>Maps JavaScript API is enabled</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">•</span>
+              <span>Places API is enabled</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">•</span>
+              <span>Geocoding API is enabled</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">•</span>
+              <span>Directions / Routes API is enabled</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary mt-0.5">•</span>
+              <span>HTTP referrers include your Lovable preview domain, published domain, and localhost</span>
+            </li>
+          </ul>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+          <RefreshCw className="w-4 h-4 mr-1.5" /> Retry
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ── Inner map component (only renders when API is loaded) ──
 function InnerMapGoogle({
   pickup, dropoff, driverLocation, routeGeometry, secondaryRouteGeometry, onMapClick,
-  className = '', height = '100%', drivers, defaultCenter, defaultZoom = 13, apiKey, etaMinutes = 0,
-}: MapGoogleProps & { apiKey: string }) {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [loadError, setLoadError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    if (!apiKey) return;
-
-    const loader = new Loader({
-      apiKey,
-      version: 'weekly',
-      libraries: GOOGLE_MAPS_LIBRARIES,
-    });
-
-    loader
-      .load()
-      .then(() => setIsLoaded(true))
-      .catch((err) => setLoadError(err as Error));
-  }, [apiKey]);
-
+  className = '', height = '100%', drivers, defaultCenter, defaultZoom = 13, etaMinutes = 0,
+}: MapGoogleProps) {
   const mapRef = useRef<google.maps.Map | null>(null);
   const [routePath, setRoutePath] = useState<Coords[]>([]);
   const [secondaryPath, setSecondaryPath] = useState<Coords[]>([]);
@@ -198,35 +224,6 @@ function InnerMapGoogle({
     onMapClick({ lat: e.latLng.lat(), lng: e.latLng.lng() });
   }, [onMapClick]);
 
-  if (loadError) {
-    return (
-      <div className={`flex items-center justify-center bg-muted ${className}`} style={{ height, minHeight: 260 }}>
-        <div className="text-center p-6 space-y-3">
-          <AlertTriangle className="w-10 h-10 mx-auto text-destructive" />
-          <p className="font-semibold text-foreground">Map failed to load</p>
-          <p className="text-sm text-muted-foreground">{loadError.message}</p>
-          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-            <RefreshCw className="w-4 h-4 mr-1.5" /> Retry
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isLoaded) {
-    return (
-      <div className={`relative ${className}`} style={{ height, minHeight: 260 }}>
-        <Skeleton className="absolute inset-0 rounded-none" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-full shadow-md">
-            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm font-medium text-foreground">Loading map…</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const center = pickup || dropoff || driverLocation || defaultCenter || ZW_CENTER;
 
   return (
@@ -281,30 +278,42 @@ function InnerMapGoogle({
 
 // ── Outer wrapper ──
 function MapGoogle(props: MapGoogleProps) {
-  const { apiKey, loading: keyLoading, error: keyError } = useGoogleMapsKey();
+  const { isLoaded, loadError, apiKey } = useGoogleMaps();
   const { className = '', height = '100%' } = props;
 
-  if (keyLoading) {
-    return (
-      <div className={`flex items-center justify-center bg-muted animate-pulse ${className}`} style={{ height, minHeight: 260 }}>
-        <p className="text-muted-foreground text-sm">Loading map…</p>
-      </div>
-    );
-  }
-
-  if (keyError || !apiKey) {
+  if (!apiKey) {
     return (
       <div className={`flex items-center justify-center bg-muted ${className}`} style={{ height, minHeight: 260 }}>
         <div className="text-center p-6 space-y-3">
           <AlertTriangle className="w-10 h-10 mx-auto text-destructive" />
-          <p className="font-semibold text-foreground">Google Maps unavailable</p>
-          <p className="text-sm text-muted-foreground">Please log in to access the map.</p>
+          <p className="font-semibold text-foreground">Google Maps API key missing</p>
+          <p className="text-sm text-muted-foreground">
+            Set <code className="bg-muted-foreground/10 px-1.5 py-0.5 rounded text-xs">VITE_GOOGLE_MAPS_API_KEY</code> in your environment.
+          </p>
         </div>
       </div>
     );
   }
 
-  return <InnerMapGoogle {...props} apiKey={apiKey} />;
+  if (loadError) {
+    return <MapFailureCard error={loadError} className={className} height={height} />;
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className={`relative ${className}`} style={{ height, minHeight: 260 }}>
+        <Skeleton className="absolute inset-0 rounded-none" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-full shadow-md">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm font-medium text-foreground">Loading map…</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <InnerMapGoogle {...props} />;
 }
 
 export default memo(MapGoogle);
