@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DriverRegistrationIntro from '@/components/driver/DriverRegistrationIntro';
+import DriverRegistrationIntro from '../pages/DriverRegistrationIntro';
 import DriverPersonalForm from '@/components/driver/DriverPersonalForm';
 import DriverVehicleForm from '@/components/driver/DriverVehicleForm';
 import DriverDocumentsForm from '@/components/driver/DriverDocumentsForm';
