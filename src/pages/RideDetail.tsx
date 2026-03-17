@@ -272,11 +272,11 @@ export default function RideDetail() {
           <button onClick={() => nav("/ride")} className="w-11 h-11 flex items-center justify-center rounded-full glass-btn active:scale-95 transition-all glass-glow-blue">
             <ArrowLeft className="w-5 h-5 text-primary" />
           </button>
-          <div className="glass-card-heavy rounded-full px-4 py-2">
-            <p className="text-xs font-bold text-foreground">
-              {ride.status ?? "Posted"} • <span className="text-primary">{driversViewing} viewing</span>
-            </p>
-          </div>
+          
+
+
+
+          
         </div>
       </div>
 
