@@ -316,7 +316,7 @@ export default function RideDetail() {
               </button> :
 
             <div className="mt-4 space-y-3">
-                <p className="text-sm text-primary font-semibold">Driver accepted ✅</p>
+                <p className="text-sm text-primary font-semibold">Driver accepted </p>
                 <div className="grid grid-cols-3 gap-2">
                   <VoiceCallButton onCall={startCall} disabled={callStatus !== "idle"} label="Data" className="w-full text-xs" />
                   <a href="tel:+263" className="flex items-center justify-center gap-1 py-3 rounded-2xl font-medium text-xs text-center active:scale-95 transition-all" style={{ background: 'var(--gradient-primary)' }}>
