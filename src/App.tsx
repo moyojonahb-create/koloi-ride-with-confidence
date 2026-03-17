@@ -26,6 +26,8 @@ const DriverLeaderboard = lazy(() => import("./pages/DriverLeaderboard"));
 const DriverModeLanding = lazy(() => import("./pages/DriverModeLanding"));
 const DriverRegistrationPage = lazy(() => import("./pages/DriverRegistrationPage"));
 
+const DriverRegistrationPage = lazy(() => import("./pages/DriverRegistrationPage"));
+
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminDrivers = lazy(() => import("./pages/admin/AdminDrivers"));
 const AdminDriverDetail = lazy(() => import("./pages/admin/AdminDriverDetail"));

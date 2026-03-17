@@ -49,7 +49,7 @@ export default function DriverRegistrationPage() {
   const goToStep = (newStep: Step) => setStep(newStep);
 
   const currentComponent = {
-    intro: <DriverRegistrationIntro onNext={goToNext} />,
+    intro: <DriverRegistrationIntro onNext={() => {}} />, // placeholder
     personal: <DriverPersonalForm onNext={goToNext} />,
     vehicle: <DriverVehicleForm onNext={goToNext} />,
     documents: <DriverDocumentsForm onNext={goToNext} />,
