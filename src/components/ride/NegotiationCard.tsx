@@ -99,15 +99,15 @@ export default function NegotiationCard({
       </div>
 
       {/* Smart context tip */}
-      {smart.smartTip &&
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-accent/10">
-        
-          <smart.tipIcon className="w-4 h-4 text-accent shrink-0" />
-          <span className="text-[11px] font-medium text-accent-foreground/80">{smart.smartTip}</span>
-        </motion.div>
+      {smart.smartTip
+
+
+
+
+
+
+
+
       }
 
       {/* Quick-pick fare chips */}
