@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
-import { clampTo5 } from "@/lib/koloiMoney";
 import { joinRidePresence, countDriversViewing } from "@/lib/koloiRealtime";
 import { useAgoraCall } from "@/hooks/useAgoraCall";
 import TripGoogleMap from "@/components/TripGoogleMap";
@@ -12,7 +11,7 @@ import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import PremiumOffersSheet from "@/components/ride/PremiumOffersSheet";
 import { type PremiumOffer } from "@/components/ride/PremiumOfferCard";
-import { ArrowLeft, Eye, Users, MessageCircle, Clock, Phone } from "lucide-react";
+import { ArrowLeft, MessageCircle, Clock, Phone } from "lucide-react";
 
 function SettlementInfo({ tripId }: {tripId: string;}) {
   const [settlement, setSettlement] = useState<{status: string;created_at: string;} | null>(null);
@@ -20,12 +19,15 @@ function SettlementInfo({ tripId }: {tripId: string;}) {
   const [settling, setSettling] = useState(false);
 
   useEffect(() => {
-    supabase.
-    from("platform_ledger").
-    select("status, created_at").
-    eq("trip_id", tripId).
-    maybeSingle().
-    then(({ data }) => {setSettlement(data);setLoading(false);});
+    supabase
+      .from("platform_ledger")
+      .select("status, created_at")
+      .eq("trip_id", tripId)
+      .maybeSingle()
+      .then(({ data }) => {
+        setSettlement(data);
+        setLoading(false);
+      });
   }, [tripId]);
 
   const handleSettle = async () => {
@@ -167,11 +169,12 @@ export default function RideDetail() {
 
   useEffect(() => {
     if (!rideId) return;
-    const ch = supabase.channel(`db:ride:${rideId}`).
-    on("postgres_changes", { event: "*", schema: "public", table: "offers", filter: `ride_id=eq.${rideId}` }, () => load()).
-    on("postgres_changes", { event: "*", schema: "public", table: "rides", filter: `id=eq.${rideId}` }, () => load()).
-    on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `ride_id=eq.${rideId}` }, () => load()).
-    subscribe();
+    const ch = supabase
+      .channel(`db:ride:${rideId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "offers", filter: `ride_id=eq.${rideId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "rides", filter: `id=eq.${rideId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `ride_id=eq.${rideId}` }, () => load())
+      .subscribe();
     return () => {supabase.removeChannel(ch);};
   }, [rideId]);
 
@@ -387,12 +390,11 @@ export default function RideDetail() {
       
 
       {/* Toast */}
-      {toast
-
-
-
-
-      }
-    </div>);
-
+      {toast && (
+        <div className="fixed bottom-4 left-4 right-4 z-[9999] p-4 rounded-2xl glass-card-heavy text-sm font-medium text-foreground">
+          {toast}
+        </div>
+      )}
+    </div>
+  );
 }

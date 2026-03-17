@@ -37,9 +37,9 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
     }
 
     const callbackName = '__voyexGmapsInit';
-    (window as any)[callbackName] = () => {
+    (window as Record<string, unknown>)[callbackName] = () => {
       loaded = true;
-      delete (window as any)[callbackName];
+      delete (window as Record<string, unknown>)[callbackName];
       console.info('[Voyex Maps] API loaded successfully');
       resolve();
     };

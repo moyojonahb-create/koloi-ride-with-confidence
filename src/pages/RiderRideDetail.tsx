@@ -66,13 +66,6 @@ export default function RiderRideDetail() {
   const [ride, setRide] = useState<Ride | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [driversById, setDriversById] = useState<Record<string, DriverProfile>>({});
-  interface DriverProfile {
-    id?: string;
-    user_id?: string;
-    vehicle_make?: string;
-    [key: string]: unknown;
-  }
-
   const [driverProfile, setDriverProfile] = useState<DriverProfile | null>(null);
   const [driverPhone, setDriverPhone] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);

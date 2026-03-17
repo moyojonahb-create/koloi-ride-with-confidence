@@ -256,7 +256,7 @@ export default function PremiumTrackingMap({
 
   const distM = useMemo(
     () => getDistanceMeters(driverPosition, riderPosition),
-    [driverPosition.lat, driverPosition.lng, riderPosition.lat, riderPosition.lng]
+    [driverPosition, riderPosition]
   );
   const routeColor = useMemo(() => getRouteColorByDistance(distM), [distM]);
   const glowColor = useMemo(() => getGlowColorByDistance(distM), [distM]);

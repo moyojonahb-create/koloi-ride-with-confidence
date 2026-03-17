@@ -170,6 +170,7 @@ export default function DriverRegistrationWizard({ onSuccess, onClose }: DriverR
         vehicle_type: vehicle.vehicleType,
         vehicle_make: vehicle.vehicleMake,
         vehicle_model: vehicle.vehicleModel,
+        vehicle_color: vehicle.vehicleColor,
         vehicle_year: vehicle.vehicleYear,
         plate_number: vehicle.plateNumber,
         gender: personal.gender,
@@ -207,7 +208,21 @@ export default function DriverRegistrationWizard({ onSuccess, onClose }: DriverR
       onSuccess();
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Failed to submit';
-      toast({ title: 'Error', description: message, variant: 'destructive' });
+      let message = 'Failed to submit application.';
+      if (error instanceof Error) {
+        const errMsg = error.message.toLowerCase();
+        if (errMsg.includes('new row violates row-level security') || errMsg.includes('42501')) {
+          message = 'Permission denied. Please contact support or try admin add-driver.js';
+        } else if (errMsg.includes('bucket') || errMsg.includes('storage')) {
+          message = 'Storage upload failed. Check "driver-documents" bucket in Supabase dashboard.';
+        } else if (errMsg.includes('column') || errMsg.includes('does not exist')) {
+          message = 'Database schema mismatch. Run migrations.';
+        } else {
+          message = error.message;
+        }
+        console.error('Driver registration error:', error);
+      }
+      toast({ title: 'Registration Failed', description: message, variant: 'destructive' });
       setShowProcessing(false);
     } finally {
       setIsSubmitting(false);
