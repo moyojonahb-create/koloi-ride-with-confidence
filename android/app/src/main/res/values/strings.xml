@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Voyex Ride</string>
+    <string name="title_activity_main">Voyex Ride</string>
+    <string name="package_name">com.voyex.app</string>
+    <string name="custom_url_scheme">com.voyex.app</string>
+</resources>
