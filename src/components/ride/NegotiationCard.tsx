@@ -129,20 +129,20 @@ export default function NegotiationCard({
       </div>
 
       {/* Recommended fare */}
-      
-
-
-
-
-
-
-
-
-
-
-
-
-      
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1 }}
+        className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-primary/8">
+        
+        <div className="flex items-center gap-2">
+          <TrendingUp className="w-4 h-4 text-primary" />
+          <span className="text-xs font-semibold text-primary">Recommended</span>
+        </div>
+        <span className="font-bold text-primary">
+          {formatFare(fareCalc.recommended, fareCalc.currencySymbol, fareCalc.currencyCode)}
+        </span>
+      </motion.div>
 
       {/* Fare stepper */}
       <div className="flex items-center justify-center gap-4 my-0">
