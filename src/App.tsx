@@ -52,7 +52,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Suspense fallback={<div className="h-full w-full flex items-center justify-center">Loading...</div>}>
+      <Suspense fallback={<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white"><img src="/icons/voyex-splash.png" alt="Voyex" className="w-56 h-56 object-contain" /></div>}>
         <Routes>
           <Route path="/" element={<Navigate to="/ride" replace />} />
           <Route path="/home" element={<Index />} />
