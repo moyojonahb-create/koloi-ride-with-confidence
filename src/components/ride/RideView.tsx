@@ -817,84 +817,62 @@ export default function RideView() {
               </>
             }
 
-            {(searchQuery.trim() || proximityRadius !== null) &&
+            {searchQuery.trim().length >= 2 &&
             <>
-                <div className="px-4 pt-4 pb-1">
-                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-                    {searchQuery.trim() ? 'Results' : `Within ${proximityRadius}km`}
-                  </p>
+                {/* Single unified section: Streets & Places */}
+                <div className="px-4 py-2 bg-accent/8 border-t border-border/15">
+                  <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">🌍 Streets & Places</p>
                 </div>
 
-                {landmarksLoading ?
-              <div className="flex items-center justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div> :
+                {(landmarksLoading || googleLoading || nominatimLoading) && landmarks.length === 0 && googleSuggestions.length === 0 && nominatimResults.length === 0 &&
+              <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin" /><span className="text-sm">Searching places…</span></div>
+              }
 
-              <>
-                    {landmarks.map((landmark) =>
-                <button key={landmark.id} onClick={() => handleLandmarkSelect(landmark)} className="w-full flex items-center gap-4 px-4 py-4 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
-                        <div className="w-11 h-11 rounded-2xl glass-card flex items-center justify-center shrink-0">
-                          <MapPin className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-foreground truncate">{landmark.name}</p>
-                          <p className="text-sm text-muted-foreground capitalize">{landmark.category}</p>
-                        </div>
-                      </button>
-                )}
-
-                    {landmarks.length === 0 && !nominatimLoading && !showNominatimFallback && searchQuery.trim() &&
-                <div className="text-center py-12 text-muted-foreground">
-                        <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                        <p className="text-sm">No results for "{searchQuery}"</p>
+                {/* Landmark results */}
+                {landmarks.map((landmark) =>
+              <button key={landmark.id} onClick={() => handleLandmarkSelect(landmark)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
+                      <div className="w-11 h-11 rounded-2xl glass-card flex items-center justify-center shrink-0">
+                        <MapPin className="w-5 h-5 text-primary" />
                       </div>
-                }
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground truncate">{landmark.name}</p>
+                        <p className="text-sm text-muted-foreground capitalize">{landmark.category}{landmark.distance ? ` · ${landmark.distance < 1 ? `${Math.round(landmark.distance * 1000)}m` : `${landmark.distance.toFixed(1)}km`}` : ''}</p>
+                      </div>
+                    </button>
+              )}
 
-                    {nominatimLoading &&
-                <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" /><span className="text-sm">Searching more places…</span></div>
-                }
-                  </>
-              }
+                {/* Google Places results */}
+                {googleSuggestions.map((suggestion) =>
+              <button key={suggestion.placeId} onClick={() => handleGooglePlaceSelect(suggestion)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-accent/5 transition-colors border-b border-border/15 text-left">
+                      <div className="w-11 h-11 rounded-2xl bg-accent/12 flex items-center justify-center shrink-0">
+                        <Search className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground truncate">{suggestion.name}</p>
+                        <p className="text-sm text-muted-foreground truncate">{suggestion.description}</p>
+                      </div>
+                    </button>
+              )}
 
-                {(showNominatimFallback || landmarks.length > 0 && nominatimResults.length > 0) &&
-              <>
-                    <div className="px-4 py-2 bg-primary/5 border-t border-border/15">
-                      <p className="text-[11px] font-semibold text-primary uppercase tracking-widest">📍 More places</p>
+                {/* Nominatim fallback results */}
+                {nominatimResults.map((result, index) =>
+              <button key={`nom-${index}`} onClick={() => handleNominatimSelect(result)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
+                      <div className="w-11 h-11 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
+                        <Navigation className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground truncate">{result.name}</p>
+                        <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
+                      </div>
+                    </button>
+              )}
+
+                {/* Empty state */}
+                {!landmarksLoading && !googleLoading && !nominatimLoading && landmarks.length === 0 && googleSuggestions.length === 0 && nominatimResults.length === 0 && searchQuery.trim().length >= 2 &&
+              <div className="text-center py-12 text-muted-foreground">
+                      <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                      <p className="text-sm">No results for "{searchQuery}"</p>
                     </div>
-                    {nominatimResults.map((result, index) =>
-                <button key={`nom-${index}`} onClick={() => handleNominatimSelect(result)} className="w-full flex items-center gap-4 px-4 py-4 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
-                        <div className="w-11 h-11 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
-                          <Navigation className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-foreground truncate">{result.name}</p>
-                          <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
-                        </div>
-                      </button>
-                )}
-                  </>
-              }
-
-                {/* Google Places */}
-                {googleSuggestions.length > 0 && searchQuery.trim().length >= 2 &&
-              <>
-                    <div className="px-4 py-2 bg-accent/8 border-t border-border/15">
-                      <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">🌍 Streets & Places</p>
-                    </div>
-                    {googleSuggestions.map((suggestion) =>
-                <button key={suggestion.placeId} onClick={() => handleGooglePlaceSelect(suggestion)} className="w-full flex items-center gap-4 px-4 py-4 hover:bg-accent/5 transition-colors border-b border-border/15 text-left">
-                        <div className="w-11 h-11 rounded-2xl bg-accent/12 flex items-center justify-center shrink-0">
-                          <Search className="w-5 h-5 text-primary" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-foreground truncate">{suggestion.name}</p>
-                          <p className="text-sm text-muted-foreground truncate">{suggestion.description}</p>
-                        </div>
-                      </button>
-                )}
-                  </>
-              }
-
-                {googleLoading && !googleSuggestions.length &&
-              <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" /><span className="text-sm">Searching streets & places…</span></div>
               }
               </>
             }
