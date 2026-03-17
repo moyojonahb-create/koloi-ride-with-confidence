@@ -108,7 +108,12 @@ export default function RideView() {
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
   const nearbyDrivers = useNearbyDrivers(rideStatus === 'idle' || rideStatus === 'searching');
-  const { suggestions: googleSuggestions, loading: googleLoading, search: searchGoogle, getPlaceDetails, clear: clearGoogleSuggestions } = useGooglePlacesAutocomplete();
+  const { suggestions: googleSuggestions, loading: googleLoading, search: searchGoogle, getPlaceDetails, clear: clearGoogleSuggestions, setTownBias } = useGooglePlacesAutocomplete();
+
+  // Bias Google Places to selected town
+  useEffect(() => {
+    setTownBias(selectedTown.center, selectedTown.radiusKm);
+  }, [selectedTown, setTownBias]);
 
   // ── effects ──
   useEffect(() => {
