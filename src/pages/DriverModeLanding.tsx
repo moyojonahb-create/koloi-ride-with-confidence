@@ -31,16 +31,15 @@ export default function DriverModeLanding() {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
 
   const handleDriverAction = () => {
+    console.log('Register clicked!');
     if (!user) {
+      console.log('No user, opening signup');
       setAuthMode('signup');
       setAuthOpen(true);
       return;
     }
-    if (isApproved) {
-      navigate(`${prefix}/driver`);
-    } else {
-      navigate(`${prefix}/drive`);
-    }
+    console.log('User logged in, navigating to application');
+    navigate('/driver/application');
   };
 
   return (
@@ -130,3 +129,4 @@ export default function DriverModeLanding() {
     </div>
   );
 }
+

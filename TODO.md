@@ -1,1 +1,40 @@
-# Task: Activate Driver Register Button (✅ COMPLETE)\n\n## Status\n✅ Frontend: /driver public, buttons active\n✅ Home 'Sign up to drive' links /driver\n✅ Backend: RLS policies for drivers/driver_documents\n\n## Flow (inDrive-style)\n1. /driver landing\n2. Register → auth/signup\n3. /driver/application → wizard form/docs\n4. Submit → pending status → admin approve\n\n## Backend\n- Project: jidfganntquilvsytslp\n- Tables: drivers (user_id, status='pending'), driver_documents\n- Storage: driver-documents bucket\n- Run `supabase db push` if local\n\nTest: localhost:8080/driver
+# Task: Driver Registration Flow (Voyex)
+
+## Frontend
+- [ ] Fix Register button (add onClick)
+- [ ] Add console.log to confirm click
+- [ ] Create /driver/register page OR modal
+- [ ] Build driver registration form:
+  - Name
+  - Phone
+  - Car model
+  - License number
+- [ ] Add form validation
+- [ ] Submit form to backend
+- [ ] Show loading + success/error message
+
+## Routes
+- /driver → landing page
+- /driver/register → registration form
+
+## Backend (Supabase)
+- [ ] Create drivers table:
+  - id
+  - name
+  - phone
+  - car_model
+  - license_number
+  - status (pending/approved)
+  - created_at
+
+- [ ] Add RLS policies
+- [ ] Create API or Supabase insert
+
+## Flow
+1. User opens /driver
+2. Clicks Register
+3. Opens form
+4. Submits form
+5. Data saved (status = pending)
+6. Admin approves
+7. Driver can access dashboard
