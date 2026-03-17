@@ -6,6 +6,8 @@ const STATIC_ASSETS = [
   '/ride',
   '/manifest.json',
   '/favicon.ico',
+  '/icons/voyex-splash.png',
+  '/icons/voyex-app-icon.png',
 ];
 
 // Map tile domains to cache for offline use
