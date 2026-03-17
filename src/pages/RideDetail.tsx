@@ -324,7 +324,7 @@ export default function RideDetail() {
                     <span className="text-primary-foreground">Phone</span>
                   </a>
                   <button onClick={() => document.getElementById("voyex-chat")?.scrollIntoView({ behavior: "smooth" })}
-                className="flex items-center justify-center gap-1 py-3 rounded-2xl glass-card font-medium text-xs active:scale-95 transition-all">
+                className="flex items-center justify-center gap-1 py-3 rounded-2xl glass-card text-xs active:scale-95 transition-all bg-accent text-primary-foreground font-sans font-bold">
                     <MessageCircle className="h-3.5 w-3.5 shrink-0" /> Chat
                   </button>
                 </div>
