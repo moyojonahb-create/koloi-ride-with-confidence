@@ -1,13 +1,1 @@
-# Driver Register Button Fix - TODO
-
-## Steps:
-- [ ] Create Supabase RLS migration for drivers registration
-- [ ] Edit DriverRegistrationWizard.tsx for better error handling/logging
-- [ ] Install Supabase CLI (`npm i -g supabase`) if not installed
-- [ ] Login to Supabase CLI (`supabase login`)
-- [ ] Link local project (`supabase link --project-ref jidfganntquilvsytslp`)
-- [ ] Push migration (`supabase db push`)
-- [ ] Create storage bucket `driver-documents` in dashboard if missing
-- [ ] Run dev server (`vite`)
-- [ ] Test full flow: DriverModeLanding -> Register -> Signup -> Wizard submit
-- [ ] Mark complete
+# Task: Activate Driver Register Button (✅ COMPLETE)\n\n## Status\n✅ Frontend: /driver public, buttons active\n✅ Home 'Sign up to drive' links /driver\n✅ Backend: RLS policies for drivers/driver_documents\n\n## Flow (inDrive-style)\n1. /driver landing\n2. Register → auth/signup\n3. /driver/application → wizard form/docs\n4. Submit → pending status → admin approve\n\n## Backend\n- Project: jidfganntquilvsytslp\n- Tables: drivers (user_id, status='pending'), driver_documents\n- Storage: driver-documents bucket\n- Run `supabase db push` if local\n\nTest: localhost:8080/driver

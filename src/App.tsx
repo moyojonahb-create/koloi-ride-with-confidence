@@ -102,14 +102,7 @@ export default function App() {
           }
         />
 
-        <Route
-          path="/driver"
-          element={
-            <AuthGuard>
-              <DriverModeLanding />
-            </AuthGuard>
-          }
-        />
+        <Route path="/driver" element={<DriverModeLanding />} />
         <Route
           path="/driver/dashboard"
           element={
@@ -118,14 +111,7 @@ export default function App() {
             </AuthGuard>
           }
         />
-        <Route
-          path="/driver/application"
-          element={
-            <AuthGuard>
-              <DriverApplication />
-            </AuthGuard>
-          }
-        />
+        <Route path="/driver/application" element={<DriverApplication />} />
         <Route
           path="/driver/deposit"
           element={
