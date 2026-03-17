@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { lovable } from '@/integrations/lovable/index';
 import VoyexLogo from '@/components/VoyexLogo';
@@ -26,6 +26,11 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [accountType, setAccountType] = useState<'rider' | 'driver'>('rider');
 
   useEffect(() => {
     if (!loading && user) {
@@ -59,6 +64,13 @@ const Auth = () => {
     if (cleaned.startsWith('0')) cleaned = '+263' + cleaned.substring(1);
     if (!cleaned.startsWith('+')) cleaned = '+' + cleaned;
     return cleaned;
+  };
+
+  const loginIdentifierToEmail = (identifier: string) => {
+    const v = identifier.trim();
+    if (v.includes('@')) return v;
+    const formatted = formatPhone(v);
+    return `${formatted.replace(/\+/g, '')}@voyex.phone`;
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -113,23 +125,46 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] flex items-center justify-center bg-background px-4" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <Link to="/" className="mx-auto mb-4">
-            <VoyexLogo size="lg" />
+    <div
+      className="min-h-[100dvh] bg-gradient-to-b from-sky-100 via-blue-50 to-white px-4 py-6 flex items-center justify-center"
+      style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))', paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
+    >
+      <Card className="w-full max-w-md rounded-3xl border border-white/40 bg-white/35 shadow-2xl backdrop-blur-2xl backdrop-saturate-150">
+        <CardHeader className="text-center space-y-4">
+          <Link to="/" className="mx-auto">
+            <VoyexLogo size="md" />
           </Link>
-          <CardTitle className="text-2xl">
+          <div className="space-y-1">
+            <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Voyex</p>
+            <CardTitle className="text-2xl text-slate-900">
             {mode === 'login' ? 'Welcome back' : 'Create an account'}
-          </CardTitle>
-          <CardDescription>
+            </CardTitle>
+          </div>
+          <CardDescription className="text-slate-600">
             {mode === 'login' 
               ? 'Sign in to your Voyex account' 
               : 'Sign up to start using Voyex'
             }
           </CardDescription>
+
+          <div className="grid grid-cols-2 rounded-2xl bg-white/60 p-1 border border-white/50 shadow-sm">
+            <button
+              type="button"
+              onClick={() => setAccountType('rider')}
+              className={`rounded-xl py-2 text-sm font-medium transition ${accountType === 'rider' ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}
+            >
+              Rider
+            </button>
+            <button
+              type="button"
+              onClick={() => setAccountType('driver')}
+              className={`rounded-xl py-2 text-sm font-medium transition ${accountType === 'driver' ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}
+            >
+              Driver
+            </button>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="max-h-[72dvh] overflow-y-auto pr-1">
           {/* Google Sign-In */}
           <button
             onClick={async () => {
@@ -140,7 +175,7 @@ const Auth = () => {
                 toast({ title: 'Google sign-in failed', variant: 'destructive' });
               }
             }}
-            className="w-full flex items-center justify-center gap-3 p-3 border border-border rounded-lg hover:bg-secondary transition-colors mb-4"
+            className="w-full flex items-center justify-center gap-3 p-3 border border-white/50 bg-white/60 rounded-xl hover:bg-white transition-colors mb-4"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -152,36 +187,70 @@ const Auth = () => {
           </button>
 
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-xs text-muted-foreground">or</span>
-            <div className="flex-1 h-px bg-border" />
+            <div className="flex-1 h-px bg-slate-200" />
+            <span className="text-xs text-slate-500">or continue with email</span>
+            <div className="flex-1 h-px bg-slate-200" />
           </div>
 
           {mode === 'login' ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="login-email">Email</Label>
+                <Label htmlFor="login-email">Email or Phone</Label>
                 <Input
                   id="login-email"
-                  type="email"
-                  placeholder="you@example.com"
+                  type="text"
+                  placeholder="you@example.com or +263..."
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
+                  autoComplete="username"
+                  className="h-12 rounded-xl border-white/50 bg-white/80"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="login-password">Password</Label>
-                <Input
-                  id="login-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="current-password"
-                />
+                <div className="relative">
+                  <Input
+                    id="login-password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
+                    className="h-12 rounded-xl border-white/50 bg-white/80 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
+
+              <div className="flex items-center justify-between text-sm">
+                <label className="inline-flex items-center gap-2 text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="h-4 w-4 rounded border-slate-300"
+                  />
+                  Remember me
+                </label>
+                <button
+                  type="button"
+                  className="text-blue-600 hover:underline"
+                  onClick={() => toast({ title: 'Password reset', description: 'Use the account recovery flow from the app settings.' })}
+                >
+                  Forgot password?
+                </button>
+              </div>
+
+              <p className="text-xs text-slate-500">Use the same email or phone number you registered with.</p>
+
+              <Button type="submit" className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 Sign In
               </Button>
@@ -197,6 +266,7 @@ const Auth = () => {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   autoComplete="name"
+                  className="h-12 rounded-xl border-white/50 bg-white/80"
                 />
               </div>
               <div className="space-y-2">
@@ -209,6 +279,7 @@ const Auth = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   autoComplete="tel"
+                  className="h-12 rounded-xl border-white/50 bg-white/80"
                 />
               </div>
               <div className="space-y-2">
@@ -220,20 +291,58 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
+                  className="h-12 rounded-xl border-white/50 bg-white/80"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="signup-password">Password</Label>
-                <Input
-                  id="signup-password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="new-password"
-                />
+                <div className="relative">
+                  <Input
+                    id="signup-password"
+                    type={showSignupPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="new-password"
+                    className="h-12 rounded-xl border-white/50 bg-white/80 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSignupPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    aria-label={showSignupPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
+
+              <div className="space-y-2">
+                <Label htmlFor="signup-confirm-password">Confirm Password <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                <div className="relative">
+                  <Input
+                    id="signup-confirm-password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
+                    className="h-12 rounded-xl border-white/50 bg-white/80 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-500">By continuing, you agree to Voyex safety and account policies.</p>
+
+              <Button type="submit" className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 Create Account
               </Button>

@@ -53,6 +53,12 @@ import WalletBalance from "@/components/wallet/WalletBalance";
 import DepositModal from "@/components/wallet/DepositModal";
 import TransactionsSheet from "@/components/wallet/TransactionsSheet";
 import { RideCommunication } from "@/components/ride/RideCommunication";
+import { GlassCard } from "@/components/ui/glass-card";
+import { PrimaryButton } from "@/components/ui/primary-button";
+import { SecondaryButton } from "@/components/ui/secondary-button";
+import { InputField } from "@/components/ui/input-field";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SectionHeader } from "@/components/ui/section-header";
 import DriverNavigationView from "@/components/driver/DriverNavigationView";
 import DriverSettingsSheet from "@/components/driver/DriverSettingsSheet";
 import type { Coordinates } from "@/lib/osrm";
@@ -669,9 +675,9 @@ export default function DriverDashboard() {
 
         {/* Demand Heatmap */}
         {isOnline && (
-          <div className="glass-card rounded-2xl p-4">
+          <GlassCard className="rounded-2xl p-4">
             <DemandHeatmap townId="gwanda" />
-          </div>
+          </GlassCard>
         )}
 
         {/* Trial Banner */}
@@ -693,34 +699,24 @@ export default function DriverDashboard() {
 
         {/* Available Rides — top priority */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="font-bold text-lg">Available Rides</h2>
-            {isOnline && rides.length > 0 && (
+          <SectionHeader
+            title="Available Rides"
+            right={isOnline && rides.length > 0 ? (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Bell className="h-4 w-4" />
-                <span>
-                  {rides.length} request{rides.length !== 1 ? "s" : ""}
-                </span>
+                <span>{rides.length} request{rides.length !== 1 ? "s" : ""}</span>
               </div>
-            )}
-          </div>
+            ) : undefined}
+          />
 
           {!isOnline ? (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <Radio className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground font-medium">You're currently offline</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Go online from settings to see ride requests
-                </p>
-              </CardContent>
-            </Card>
+            <EmptyState
+              title="You're currently offline"
+              description="Go online from settings to see ride requests"
+              className="py-8"
+            />
           ) : rides.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                No open ride requests right now. Stay online!
-              </CardContent>
-            </Card>
+            <EmptyState title="No open ride requests right now" description="Stay online — new requests will appear automatically." className="py-8" />
           ) : (
             rides.map((r) => {
               const secsLeft = getSecondsRemaining(r.expires_at ?? null);
@@ -770,7 +766,7 @@ export default function DriverDashboard() {
         {/* Offer Modal */}
         {selectedRide && (
           <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-            <div className="w-full max-w-lg mx-auto bg-background rounded-t-2xl p-4 space-y-4">
+            <GlassCard className="w-full max-w-lg mx-auto rounded-t-3xl p-4 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-lg">Make an Offer</h3>
                 <Button variant="ghost" size="sm" onClick={() => setSelectedRide(null)}>
@@ -785,9 +781,9 @@ export default function DriverDashboard() {
 
               {/* Price Stepper */}
               <div className="flex items-center justify-center gap-4">
-                <Button variant="outline" size="icon" onClick={dec}>
+                <SecondaryButton type="button" onClick={dec} className="w-10 h-10 rounded-full p-0 inline-flex items-center justify-center">
                   <Minus className="h-4 w-4" />
-                </Button>
+                </SecondaryButton>
                 <div className="text-center">
                   <p className="text-3xl font-black">
                     {fmtUSD(offerPrice)}
@@ -796,16 +792,16 @@ export default function DriverDashboard() {
                     Increments of $0.50
                   </p>
                 </div>
-                <Button variant="outline" size="icon" onClick={inc}>
+                <SecondaryButton type="button" onClick={inc} className="w-10 h-10 rounded-full p-0 inline-flex items-center justify-center">
                   <Plus className="h-4 w-4" />
-                </Button>
+                </SecondaryButton>
               </div>
 
               {/* ETA and Note */}
               <div className="flex gap-2">
                 <div className="flex-1">
                   <label className="text-xs text-muted-foreground">ETA (min)</label>
-                  <Input
+                  <InputField
                     type="number"
                     value={eta}
                     onChange={(e) => setEta(Math.max(1, Number(e.target.value) || 10))}
@@ -813,15 +809,15 @@ export default function DriverDashboard() {
                 </div>
                 <div className="flex-2">
                   <label className="text-xs text-muted-foreground">Note (optional)</label>
-                  <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g., Night service" />
+                  <InputField value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g., Night service" />
                 </div>
               </div>
 
-              <Button className="w-full" size="lg" onClick={sendOffer} disabled={submitting}>
+              <PrimaryButton className="w-full inline-flex items-center justify-center" onClick={sendOffer} disabled={submitting}>
                 <Send className="h-4 w-4 mr-2" />
                 {submitting ? "Sending..." : `Send Offer • ${fmtUSD(offerPrice)}`}
-              </Button>
-            </div>
+              </PrimaryButton>
+            </GlassCard>
           </div>
         )}
 

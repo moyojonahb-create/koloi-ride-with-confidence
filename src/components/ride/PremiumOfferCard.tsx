@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, Clock, Car } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { GlassCard } from '@/components/ui/glass-card';
+import { PrimaryButton } from '@/components/ui/primary-button';
+import { SecondaryButton } from '@/components/ui/secondary-button';
+import { StatusChip } from '@/components/ui/status-chip';
 
 export interface PremiumOffer {
   offerId: string;
@@ -54,15 +57,15 @@ export default function PremiumOfferCard({ offer, riderFare, onAccept, onDecline
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-      className="rounded-2xl border border-border bg-card p-4 shadow-sm"
     >
+      <GlassCard className="p-4">
       {/* Top row: fare + ETA */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <span className="text-2xl font-black text-primary">${offer.fare.toFixed(2)}</span>
-          <span className="px-2 py-0.5 rounded-full bg-accent/20 text-accent-foreground text-[10px] font-bold uppercase">
+          <StatusChip tone="warning" className="uppercase tracking-wide">
             Your fare
-          </span>
+          </StatusChip>
         </div>
         <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
           <Clock className="h-3.5 w-3.5 text-muted-foreground" />
@@ -103,22 +106,22 @@ export default function PremiumOfferCard({ offer, riderFare, onAccept, onDecline
 
       {/* Action buttons */}
       <div className="flex gap-2">
-        <Button
+        <PrimaryButton
           onClick={() => onAccept(offer.offerId)}
           disabled={disabled || expired}
-          className="flex-1 rounded-2xl h-12 text-sm font-bold"
+          className="flex-1 h-12 text-sm font-bold rounded-2xl"
         >
           Accept
-        </Button>
-        <Button
-          variant="secondary"
+        </PrimaryButton>
+        <SecondaryButton
           onClick={() => onDecline(offer.offerId)}
           disabled={disabled}
-          className="flex-1 rounded-2xl h-12 text-sm font-bold bg-muted hover:bg-muted/80 text-foreground"
+          className="flex-1 h-12 text-sm font-bold rounded-2xl"
         >
           Decline
-        </Button>
+        </SecondaryButton>
       </div>
+      </GlassCard>
     </motion.div>
   );
 }

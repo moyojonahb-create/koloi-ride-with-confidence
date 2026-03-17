@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Navigation, MapPin, Crosshair, AlertCircle, Check, Search, Loader2, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { InputField } from '@/components/ui/input-field';
+import { GlassCard } from '@/components/ui/glass-card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SectionHeader } from '@/components/ui/section-header';
 import { useLandmarks, formatDistance, type Landmark } from '@/hooks/useLandmarks';
 import { cn } from '@/lib/utils';
 import MapGoogle from '@/components/MapGoogle';
@@ -185,7 +188,7 @@ const LocationPanel = ({
   }, [activeSelector, findNearestLandmark, onPickupSelect, onDropoffSelect]);
 
   return (
-    <div className={cn("bg-card rounded-xl border border-border overflow-hidden flex flex-col", className)}>
+    <GlassCard className={cn("rounded-xl overflow-hidden flex flex-col", className)}>
       {/* Map Section */}
       <div className="relative flex-shrink-0">
         <MapGoogle
@@ -342,9 +345,10 @@ const LocationPanel = ({
       {/* Quick Landmark Chips */}
       {activeSelector && !searchQuery.trim() && (
         <div className="px-4 pt-3">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-            {gpsState.coords ? 'Nearby' : 'Popular'}
-          </p>
+          <SectionHeader
+            title={gpsState.coords ? 'Nearby' : 'Popular'}
+            className="mb-2"
+          />
           <LandmarkChips
             landmarks={nearbyLandmarks}
             onSelect={handleLandmarkSelect}
@@ -360,7 +364,7 @@ const LocationPanel = ({
         <div className="p-4 pb-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
+            <InputField
               placeholder={`Search ${activeSelector === 'pickup' ? 'pickup' : 'destination'}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -380,24 +384,23 @@ const LocationPanel = ({
                   ))}
                 </div>
               ) : filteredLandmarks.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No landmarks found for "{searchQuery}"</p>
-                  <p className="text-xs mt-1">Try tapping on the map instead</p>
-                  
-                  {/* Nearest landmark suggestion */}
-                  {gpsState.coords && (() => {
-                    const nearest = findNearestLandmark(gpsState.coords.lat, gpsState.coords.lng);
-                    if (!nearest) return null;
-                    return (
-                      <button
-                        onClick={() => handleLandmarkSelect(nearest)}
-                        className="mt-3 px-4 py-2 bg-accent/10 hover:bg-accent/20 rounded-lg text-accent text-sm transition-colors"
-                      >
-                        Use nearest: {nearest.name}
-                      </button>
-                    );
-                  })()}
+                <div className="py-4">
+                  <EmptyState
+                    title={`No landmarks found for "${searchQuery}"`}
+                    description="Try tapping on the map instead"
+                    action={gpsState.coords && (() => {
+                      const nearest = findNearestLandmark(gpsState.coords.lat, gpsState.coords.lng);
+                      if (!nearest) return null;
+                      return (
+                        <button
+                          onClick={() => handleLandmarkSelect(nearest)}
+                          className="mt-1 px-4 py-2 bg-accent/10 hover:bg-accent/20 rounded-2xl text-accent text-sm transition-colors"
+                        >
+                          Use nearest: {nearest.name}
+                        </button>
+                      );
+                    })()}
+                  />
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto">
@@ -441,7 +444,7 @@ const LocationPanel = ({
           )}
         </div>
       </div>
-    </div>
+    </GlassCard>
   );
 };
 

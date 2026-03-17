@@ -31,6 +31,9 @@ import RideStatusBanner, { type RideStatus } from './RideStatusBanner';
 import OffersModal, { type DriverViewing, type DriverOffer } from '@/components/OffersModal';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 import VoyexLogo from '@/components/VoyexLogo';
+import { GlassSheet } from '@/components/ui/glass-sheet';
+import { SecondaryButton } from '@/components/ui/secondary-button';
+import { PrimaryButton } from '@/components/ui/primary-button';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 import EmergencyButton from './EmergencyButton';
@@ -178,6 +181,30 @@ export default function RideView() {
     const loc: SelectedLocation = { name: pick.name, lat: pick.lat, lng: pick.lng };
     if (activeField === 'pickup') setPickupLocation(loc);else if (activeField === 'dropoff') setDropoffLocation(loc);
     setActiveField(null);
+  };
+
+  const handleSwapPickupDropoff = () => {
+    if (!pickupLocation && !dropoffLocation) return;
+    setPickupLocation(dropoffLocation);
+    setDropoffLocation(pickupLocation);
+    haptic('light');
+  };
+
+  const handleRecentPlaceSelect = (loc: { name: string; lat: number; lng: number }) => {
+    const selected: SelectedLocation = { name: loc.name, lat: loc.lat, lng: loc.lng };
+    if (activeField === 'pickup') {
+      setPickupLocation(selected);
+      setActiveField('dropoff');
+    } else if (activeField === 'dropoff') {
+      setDropoffLocation(selected);
+      setActiveField(null);
+    } else if (!pickupLocation) {
+      setPickupLocation(selected);
+      setActiveField('dropoff');
+    } else {
+      setDropoffLocation(selected);
+    }
+    haptic('light');
   };
 
   const handleNominatimSearch = useCallback(async (query: string) => {
@@ -517,27 +544,27 @@ export default function RideView() {
       </Sheet>
 
       {/* ── BOTTOM SHEET ── */}
-      <div
-        className="absolute left-0 right-0 z-50 flex flex-col glass-card-heavy"
+      <GlassSheet
+        className="absolute left-3 right-3 z-50 flex flex-col"
         style={{
-          bottom: 0,
+          bottom: 8,
           height: sheetExpanded ? '70vh' : '48vh',
           transition: 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
           paddingBottom: 'env(safe-area-inset-bottom)',
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24
+          borderTopLeftRadius: 28,
+          borderTopRightRadius: 28
         }}>
         
         {/* Blue ribbon handle bar */}
         <button
           onClick={() => setSheetExpanded((e) => !e)}
-          className="w-full py-3 flex justify-center shrink-0 rounded-t-[24px]"
+          className="w-full py-3 flex justify-center shrink-0 rounded-t-[28px]"
           style={{ background: 'var(--gradient-primary)' }}>
           <div className="w-12 h-1.5 rounded-full bg-primary-foreground/40" />
         </button>
 
         {/* Scrollable content */}
-        <div className="flex-1 px-4 pb-2 space-y-3 min-h-0 overflow-y-auto overscroll-contain">
+        <div className="flex-1 px-4 pb-2 space-y-2.5 min-h-0 overflow-y-auto overscroll-contain">
 
           {/* Service type indicator */}
           {serviceType !== 'ride' && (
@@ -555,11 +582,33 @@ export default function RideView() {
             <p className="text-[10px] text-muted-foreground">{selectedTown.radiusKm}km area</p>
           </div>
 
-          {/* Pickup & Dropoff — compact row cards */}
-          <div className="space-y-2">
+          {/* Quick actions */}
+          <div className="grid grid-cols-2 gap-2">
+            <SecondaryButton
+              onClick={() => {
+                setActiveField(activeField ?? 'dropoff');
+                setSearchQuery('Home');
+              }}
+              className="h-12 rounded-2xl"
+            >
+              🏠 Home
+            </SecondaryButton>
+            <SecondaryButton
+              onClick={() => {
+                setActiveField(activeField ?? 'dropoff');
+                setSearchQuery('Work');
+              }}
+              className="h-12 rounded-2xl"
+            >
+              💼 Work
+            </SecondaryButton>
+          </div>
+
+          {/* Pickup & Dropoff — premium cards with swap */}
+          <div className="space-y-2 relative">
             <button
               onClick={() => {setActiveField('pickup');setSearchQuery('');}}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl active:scale-[0.98] transition-all text-left glass-card">
+              className="w-full min-h-[62px] flex items-center gap-3 px-3 py-3 rounded-2xl active:scale-[0.98] transition-all text-left glass-card">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-accent">
                 <MapPin className="w-4 h-4 text-accent-foreground" />
               </div>
@@ -577,7 +626,7 @@ export default function RideView() {
 
             <button
               onClick={() => {setActiveField('dropoff');setSearchQuery('');}}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl active:scale-[0.98] transition-all text-left glass-card">
+              className="w-full min-h-[62px] flex items-center gap-3 px-3 py-3 rounded-2xl active:scale-[0.98] transition-all text-left glass-card">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--gradient-primary)' }}>
                 <MapPin className="w-4 h-4 text-primary-foreground" />
               </div>
@@ -591,6 +640,24 @@ export default function RideView() {
               <span onClick={(e) => {e.stopPropagation();setDropoffLocation(null);}} className="p-1.5 hover:bg-foreground/5 rounded-full"><X className="w-3.5 h-3.5 text-muted-foreground" /></span>
               }
             </button>
+
+            <button
+              onClick={handleSwapPickupDropoff}
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl glass-card flex items-center justify-center text-primary active:scale-90 transition-all"
+              title="Swap pickup and drop-off"
+              aria-label="Swap pickup and drop-off"
+            >
+              <Route className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Recent places */}
+          <div className="glass-card rounded-2xl p-3">
+            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Recent places</p>
+            <RecentDestinations
+              field={activeField === 'pickup' ? 'pickup' : 'dropoff'}
+              onSelect={handleRecentPlaceSelect}
+            />
           </div>
 
           {/* Multi-stop + Schedule */}
@@ -721,25 +788,24 @@ export default function RideView() {
             const code = fareEstimate.currencyCode;
             const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
             return (
-              <Button
+              <PrimaryButton
                 onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
                 disabled={isRequesting}
-                className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 shadow-[0_4px_20px_hsl(var(--primary)/0.3)]"
-                style={{ background: 'var(--gradient-primary)' }}>
+                className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center">
                 
                 {isRequesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Car className="w-4 h-4" />}
                 {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
-              </Button>);
+              </PrimaryButton>);
 
           })() :
-          <Button
+          <SecondaryButton
             disabled
-            className="w-full h-[48px] text-[15px] font-semibold rounded-2xl bg-primary/40 text-primary-foreground">
+            className="w-full h-[48px] text-[15px] font-semibold rounded-2xl bg-primary/40 text-primary-foreground border-transparent">
               {pickupLocation && dropoffLocation ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Calculating…</> : 'Find Drivers'}
-            </Button>
+            </SecondaryButton>
           }
         </div>
-      </div>
+      </GlassSheet>
 
 
       {/* ═══ SEARCH OVERLAY ═══ */}
