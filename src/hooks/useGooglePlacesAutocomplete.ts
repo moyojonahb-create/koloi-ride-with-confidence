@@ -68,8 +68,10 @@ export function useGooglePlacesAutocomplete() {
       // Bias to current town if available
       if (townRef.current) {
         const { lat, lng, radiusKm } = townRef.current;
-        request.location = new google.maps.LatLng(lat, lng);
-        request.radius = radiusKm * 1000; // convert to meters
+        request.locationBias = {
+          center: { lat, lng },
+          radius: radiusKm * 1000, // convert to meters
+        } as google.maps.CircleLiteral;
       }
 
       serviceRef.current!.getPlacePredictions(request, (predictions, status) => {

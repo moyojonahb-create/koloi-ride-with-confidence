@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import { AuthProvider } from "./hooks/useAuth";
+import { I18nProvider } from "./lib/i18n";
 import ErrorBoundary from "./components/ErrorBoundary";
 import "./index.css";
 
@@ -50,9 +51,11 @@ if ('serviceWorker' in navigator) {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <ErrorBoundary>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </I18nProvider>
     </ErrorBoundary>
   </QueryClientProvider>
 );

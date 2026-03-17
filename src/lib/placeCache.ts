@@ -8,7 +8,7 @@ import type { NominatimResult } from '@/lib/geo';
  */
 export async function cachePlaceFromNominatim(p: NominatimResult): Promise<void> {
   try {
-    await supabase.from('places_cache').insert({
+    const payload = {
       name: p.name ?? null,
       display_name: p.display_name,
       lat: Number(p.lat),
@@ -18,7 +18,26 @@ export async function cachePlaceFromNominatim(p: NominatimResult): Promise<void>
       class: p.class ?? null,
       type: p.type ?? null,
       address: p.address ?? null,
-    });
+    };
+
+    // Duplicates are expected when users search/select the same place repeatedly.
+    // Use upsert on the OSM unique key when available, and ignore duplicates.
+    const hasOsmIdentity = Boolean(payload.osm_type && payload.osm_id);
+
+    const query = hasOsmIdentity
+      ? supabase
+          .from('places_cache')
+          .upsert(payload, { onConflict: 'osm_type,osm_id', ignoreDuplicates: true })
+      : supabase.from('places_cache').insert(payload);
+
+    const { error } = await query;
+
+    // Cache is best-effort only; never fail ride flow due to cache writes.
+    if (error) {
+      // 409/23505 duplicate conflicts are explicitly non-fatal.
+      if (error.code === '23505' || (error as { status?: number }).status === 409) return;
+      console.warn('[placeCache] non-fatal cache write error:', error.message);
+    }
   } catch {
     // Ignore cache failures (duplicates, auth issues, etc.)
   }
