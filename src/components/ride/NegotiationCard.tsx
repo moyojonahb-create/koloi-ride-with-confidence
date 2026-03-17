@@ -9,8 +9,8 @@ import {
   type TownPricingConfig,
   calculateRecommendedFare,
   getFareStep,
-  formatFare
-} from '@/hooks/useTownPricing';
+  formatFare } from
+'@/hooks/useTownPricing';
 
 interface NegotiationCardProps {
   pricing: TownPricingConfig;
@@ -26,7 +26,7 @@ function useSmartFareContext(distanceKm: number, durationMinutes: number) {
   return useMemo(() => {
     const hour = new Date().getHours();
     const isNight = hour >= 20 || hour < 6;
-    const isPeak = (hour >= 7 && hour <= 9) || (hour >= 16 && hour <= 18);
+    const isPeak = hour >= 7 && hour <= 9 || hour >= 16 && hour <= 18;
     const isShortTrip = distanceKm < 2;
     const isLongTrip = distanceKm > 8;
 
@@ -60,8 +60,8 @@ export default function NegotiationCard({
   const [direction, setDirection] = useState<'up' | 'down'>('up');
   const smart = useSmartFareContext(distanceKm, durationMinutes);
 
-  const increment = () => { setDirection('up'); setCustomFare((prev) => Math.min(prev + step, fareCalc.ceiling)); };
-  const decrement = () => { setDirection('down'); setCustomFare((prev) => Math.max(prev - step, fareCalc.floor)); };
+  const increment = () => {setDirection('up');setCustomFare((prev) => Math.min(prev + step, fareCalc.ceiling));};
+  const decrement = () => {setDirection('down');setCustomFare((prev) => Math.max(prev - step, fareCalc.floor));};
 
   const isAboveRecommended = customFare > fareCalc.recommended;
   const isBelowRecommended = customFare < fareCalc.recommended;
@@ -70,11 +70,11 @@ export default function NegotiationCard({
   // Quick-pick fare presets
   const quickPicks = useMemo(() => {
     const picks = [
-      { label: 'Budget', value: fareCalc.floor, color: 'text-accent' },
-      { label: 'Fair', value: fareCalc.recommended, color: 'text-foreground' },
-      { label: 'Priority', value: Math.min(fareCalc.recommended + step * 2, fareCalc.ceiling), color: 'text-primary' },
-    ];
-    return picks.filter((p, i, arr) => arr.findIndex(q => q.value === p.value) === i);
+    { label: 'Budget', value: fareCalc.floor, color: 'text-accent' },
+    { label: 'Fair', value: fareCalc.recommended, color: 'text-foreground' },
+    { label: 'Priority', value: Math.min(fareCalc.recommended + step * 2, fareCalc.ceiling), color: 'text-primary' }];
+
+    return picks.filter((p, i, arr) => arr.findIndex((q) => q.value === p.value) === i);
   }, [fareCalc, step]);
 
   return (
@@ -82,8 +82,8 @@ export default function NegotiationCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-      className={cn('glass-card rounded-2xl p-4 space-y-3 glass-glow-blue', className)}
-    >
+      className={cn('glass-card rounded-2xl p-4 space-y-3 glass-glow-blue', className)}>
+      
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -99,50 +99,50 @@ export default function NegotiationCard({
       </div>
 
       {/* Smart context tip */}
-      {smart.smartTip && (
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-2 px-3 py-2 rounded-xl bg-accent/10"
-        >
+      {smart.smartTip &&
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-accent/10">
+        
           <smart.tipIcon className="w-4 h-4 text-accent shrink-0" />
           <span className="text-[11px] font-medium text-accent-foreground/80">{smart.smartTip}</span>
         </motion.div>
-      )}
+      }
 
       {/* Quick-pick fare chips */}
       <div className="flex gap-2">
-        {quickPicks.map((pick) => (
-          <motion.button
-            key={pick.label}
-            whileTap={{ scale: 0.92 }}
-            onClick={() => { setCustomFare(pick.value); setDirection(pick.value > customFare ? 'up' : 'down'); }}
-            className={cn(
-              'flex-1 py-2 rounded-xl text-center transition-all',
-              customFare === pick.value ? 'glass-card ring-1 ring-primary/30 shadow-voyex-sm' : 'bg-muted/40'
-            )}
-          >
-            <p className={cn('text-[10px] font-bold uppercase tracking-wider', pick.color)}>{pick.label}</p>
-            <p className="text-sm font-bold text-foreground">{formatFare(pick.value, fareCalc.currencySymbol, fareCalc.currencyCode)}</p>
-          </motion.button>
-        ))}
+        {quickPicks.map((pick) => {}
+
+
+
+
+
+
+
+
+
+
+
+
+        )}
       </div>
 
       {/* Recommended fare */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1 }}
-        className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-primary/8"
-      >
-        <div className="flex items-center gap-2">
-          <TrendingUp className="w-4 h-4 text-primary" />
-          <span className="text-xs font-semibold text-primary">Recommended</span>
-        </div>
-        <span className="font-bold text-primary">
-          {formatFare(fareCalc.recommended, fareCalc.currencySymbol, fareCalc.currencyCode)}
-        </span>
-      </motion.div>
+      
+
+
+
+
+
+
+
+
+
+
+
+
+      
 
       {/* Fare stepper */}
       <div className="flex items-center justify-center gap-4 my-0">
@@ -150,8 +150,8 @@ export default function NegotiationCard({
           whileTap={{ scale: 0.85 }}
           onClick={decrement}
           disabled={customFare <= fareCalc.floor}
-          className="w-12 h-12 rounded-full glass-card flex items-center justify-center transition-all disabled:opacity-30 shrink-0 shadow-voyex-sm"
-        >
+          className="w-12 h-12 rounded-full glass-card flex items-center justify-center transition-all disabled:opacity-30 shrink-0 shadow-voyex-sm">
+          
           <Minus className="w-5 h-5 text-foreground" />
         </motion.button>
 
@@ -166,8 +166,8 @@ export default function NegotiationCard({
               className={cn(
                 'text-3xl sm:text-4xl font-black font-display tabular-nums transition-colors',
                 isAboveRecommended ? 'text-primary' : isBelowRecommended ? 'text-accent' : 'text-foreground'
-              )}
-            >
+              )}>
+              
               {formatFare(customFare, fareCalc.currencySymbol, fareCalc.currencyCode)}
             </motion.p>
           </AnimatePresence>
@@ -178,24 +178,24 @@ export default function NegotiationCard({
           whileTap={{ scale: 0.85 }}
           onClick={increment}
           disabled={customFare >= fareCalc.ceiling}
-          className="w-12 h-12 rounded-full glass-card flex items-center justify-center transition-all disabled:opacity-30 shrink-0 shadow-voyex-sm"
-        >
+          className="w-12 h-12 rounded-full glass-card flex items-center justify-center transition-all disabled:opacity-30 shrink-0 shadow-voyex-sm">
+          
           <Plus className="w-5 h-5 text-foreground" />
         </motion.button>
       </div>
 
       {/* Fare hint */}
       <AnimatePresence mode="wait">
-        {isBelowRecommended && (
-          <motion.p key="low" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-xs text-center text-accent font-medium">
+        {isBelowRecommended &&
+        <motion.p key="low" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-xs text-center text-accent font-medium">
             ⚡ Lower offers may take longer to get accepted
           </motion.p>
-        )}
-        {isAboveRecommended && (
-          <motion.p key="high" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-xs text-center text-primary font-medium">
+        }
+        {isAboveRecommended &&
+        <motion.p key="high" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-xs text-center text-primary font-medium">
             🚀 Higher offers attract drivers faster
           </motion.p>
-        )}
+        }
       </AnimatePresence>
 
       {/* Progress bar */}
@@ -208,8 +208,8 @@ export default function NegotiationCard({
           {/* Recommended marker */}
           <div
             className="absolute top-0 bottom-0 w-0.5 bg-primary/40 z-10"
-            style={{ left: `${Math.min(100, (fareCalc.recommended - fareCalc.floor) / (fareCalc.ceiling - fareCalc.floor) * 100)}%` }}
-          />
+            style={{ left: `${Math.min(100, (fareCalc.recommended - fareCalc.floor) / (fareCalc.ceiling - fareCalc.floor) * 100)}%` }} />
+          
           {/* Fill bar */}
           <motion.div
             className={cn(
@@ -217,8 +217,8 @@ export default function NegotiationCard({
               isAboveRecommended ? 'bg-primary' : isBelowRecommended ? 'bg-accent' : 'bg-primary'
             )}
             animate={{ width: `${progressPercent}%` }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          />
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }} />
+          
         </div>
       </div>
 
@@ -230,8 +230,8 @@ export default function NegotiationCard({
           className={cn(
             'w-full h-[52px] text-[15px] font-semibold rounded-2xl gap-2',
             'bg-accent hover:bg-accent/90 text-accent-foreground shadow-[0_4px_24px_hsl(45_100%_51%/0.35)]'
-          )}
-        >
+          )}>
+          
           <Send className="w-4 h-4" />
           {isSubmitting ? 'Sending…' : 'Send Offer'}
         </Button>
@@ -240,6 +240,6 @@ export default function NegotiationCard({
       <p className="text-[10px] text-center text-muted-foreground">
         Prices in {pricing.currency_code} • {pricing.town_name}
       </p>
-    </motion.div>
-  );
+    </motion.div>);
+
 }
