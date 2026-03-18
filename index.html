@@ -86,39 +86,44 @@
   </head>
 
   <body>
-    <div id="instant-splash" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#ffffff;transition:opacity 0.35s ease;opacity:1;">
-      <img id="instant-splash-img" src="/icons/voyex-splash.png" alt="Voyex" style="width:256px;height:256px;object-fit:contain;" fetchpriority="high" />
+    <div id="instant-splash" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#ffffff;transition:opacity 0.4s ease;opacity:1;">
+      <img src="/icons/voyex-splash.png" alt="Voyex" style="width:220px;height:220px;object-fit:contain;" fetchpriority="high" />
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
+      // inDrive-style splash: stays visible until React app signals ready,
+      // with a minimum display time so it never "flashes".
       (function () {
-        const KEY = '__voyex_launch_splash_shown';
-        const splash = document.getElementById('instant-splash');
-        const img = document.getElementById('instant-splash-img');
-        if (!splash) return;
+        window.__splashReady = false;
+        window.__splashMinDone = false;
 
-        // Only show the HTML splash once per tab/session.
-        if (sessionStorage.getItem(KEY)) {
-          splash.remove();
-          return;
+        function tryHide() {
+          if (!window.__splashReady || !window.__splashMinDone) return;
+          var s = document.getElementById('instant-splash');
+          if (!s) return;
+          s.style.opacity = '0';
+          setTimeout(function () { s.remove(); }, 400);
         }
 
-        const hide = () => {
-          splash.style.opacity = '0';
-          setTimeout(() => splash.remove(), 350);
-          sessionStorage.setItem(KEY, '1');
+        // Minimum 1.4s display so it never feels like a flash
+        setTimeout(function () {
+          window.__splashMinDone = true;
+          tryHide();
+        }, 1400);
+
+        // React calls window.__dismissSplash() when the app is mounted
+        window.__dismissSplash = function () {
+          window.__splashReady = true;
+          tryHide();
         };
 
-        if (img && img.complete) {
-          requestAnimationFrame(hide);
-        } else if (img) {
-          img.addEventListener('load', hide, { once: true });
-          img.addEventListener('error', hide, { once: true });
-        }
-
-        // Hard fallback: never leave splash stuck.
-        setTimeout(hide, 1500);
+        // Hard fallback: never leave splash stuck beyond 4s
+        setTimeout(function () {
+          window.__splashMinDone = true;
+          window.__splashReady = true;
+          tryHide();
+        }, 4000);
       })();
     </script>
   </body>

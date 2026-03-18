@@ -1,4 +1,4 @@
-﻿import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import AuthGuard from "./components/AuthGuard";
@@ -47,6 +47,11 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 export default function App() {
   const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
+
+  // Signal splash screen to dismiss once React is mounted
+  useEffect(() => {
+    (window as any).__dismissSplash?.();
+  }, []);
 
   return (
     <Router>
