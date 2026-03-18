@@ -85,4 +85,7 @@ const BottomNavBar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLD
       </div>
     </div>
   );
-}
+});
+BottomNavBar.displayName = "BottomNavBar";
+
+export default BottomNavBar;
