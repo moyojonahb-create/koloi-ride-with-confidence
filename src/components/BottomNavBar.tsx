@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Clock, Wallet, User } from 'lucide-react';
 import { motion } from 'framer-motion';
