@@ -48,6 +48,11 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 export default function App() {
   const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
 
+  // Signal splash screen to dismiss once React is mounted
+  useEffect(() => {
+    (window as any).__dismissSplash?.();
+  }, []);
+
   return (
     <Router>
       <Suspense fallback={null}>
