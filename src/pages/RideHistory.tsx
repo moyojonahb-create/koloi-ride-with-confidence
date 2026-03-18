@@ -77,14 +77,30 @@ export default function RideHistory() {
         {!loading && rides.length > 0 && <RiderSpendingAnalytics rides={rides} />}
         
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+          <div className="glass-card p-6 rounded-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+              <span className="text-sm font-medium text-foreground">Loading your trips…</span>
+            </div>
+            <div className="space-y-2.5">
+              <div className="h-4 rounded-lg skeleton" />
+              <div className="h-4 rounded-lg skeleton w-5/6" />
+              <div className="h-4 rounded-lg skeleton w-2/3" />
+            </div>
           </div>
         ) : rides.length === 0 ? (
-          <div className="text-center py-20">
-            <Car className="w-12 h-12 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-muted-foreground font-medium">No trips yet</p>
-            <p className="text-sm text-muted-foreground/70 mt-1">Your ride history will appear here</p>
+          <div className="glass-card text-center py-12 px-5">
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-3">
+              <Car className="w-7 h-7" />
+            </div>
+            <p className="text-foreground font-semibold">No trips yet</p>
+            <p className="text-sm text-muted-foreground mt-1">Your ride history will appear here</p>
+            <button
+              onClick={() => navigate(`${prefix}/ride`)}
+              className="mt-4 h-10 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
+            >
+              Book your first ride
+            </button>
           </div>
         ) : (
           rides.map((ride) => (

@@ -13,7 +13,7 @@ const tabs = [
 ];
 
 const pathAliases: Record<string, string[]> = {
-  '/history': ['/history', '/ride-history'],
+  '/history': ['/history'],
   '/wallet': ['/wallet'],
   '/profile': ['/profile', '/edit-profile'],
 };
@@ -38,7 +38,7 @@ export default function BottomNavBar() {
       '/wallet': '/mapp/wallet',
       '/profile': '/mapp/profile',
     };
-    navigate(isMapp ? mappPaths[path] || path : (path === '/history' ? '/ride-history' : path));
+    navigate(isMapp ? mappPaths[path] || path : path);
   };
 
   const isActive = (path: string) => {

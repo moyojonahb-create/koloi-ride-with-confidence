@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useRef, useState, memo, useMemo } from 'react';
 import { GoogleMap, Marker, Polyline } from '@react-google-maps/api';
-import { useGoogleMaps } from '@/hooks/useGoogleMaps';
+import { useGoogleMaps, resetGoogleMapsLoader } from '@/hooks/useGoogleMaps';
 import { AlertTriangle, RefreshCw, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -278,8 +278,14 @@ function InnerMapGoogle({
 
 // ── Outer wrapper ──
 function MapGoogle(props: MapGoogleProps) {
-  const { isLoaded, loadError, apiKey } = useGoogleMaps();
+  const [retryKey, setRetryKey] = useState(0);
+  const { isLoaded, loadError, apiKey } = useGoogleMaps(retryKey);
   const { className = '', height = '100%' } = props;
+
+  const handleRetry = useCallback(() => {
+    resetGoogleMapsLoader();
+    setRetryKey((k) => k + 1);
+  }, []);
 
   if (!apiKey) {
     return (
@@ -296,7 +302,20 @@ function MapGoogle(props: MapGoogleProps) {
   }
 
   if (loadError) {
-    return <MapFailureCard error={loadError} className={className} height={height} />;
+    return (
+      <div className={`flex items-center justify-center bg-muted ${className}`} style={{ height, minHeight: 260 }}>
+        <div className="text-center p-6 space-y-4 max-w-sm">
+          <AlertTriangle className="w-12 h-12 mx-auto text-destructive" />
+          <div>
+            <p className="font-semibold text-foreground text-lg">Map failed to load</p>
+            <p className="text-sm text-muted-foreground mt-1">{loadError.message}</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={handleRetry}>
+            <RefreshCw className="w-4 h-4 mr-1.5" /> Retry map
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (!isLoaded) {

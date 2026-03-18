@@ -23,6 +23,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
+    const safetyTimeout = window.setTimeout(() => {
+      if (!mounted) return;
+      console.warn('Auth initialization timeout, continuing without blocking UI');
+      setLoading(false);
+    }, 8000);
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -35,20 +40,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (!mounted) return;
-      if (error) {
-        // Clear stale/invalid session to stop re-render loops
-        console.warn('Session error, clearing:', error.message);
-        supabase.auth.signOut({ scope: 'local' }).catch(() => {});
-      }
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data: { session }, error }) => {
+        if (!mounted) return;
+        if (error) {
+          // Clear stale/invalid session to stop re-render loops
+          console.warn('Session error, clearing:', error.message);
+          supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+        }
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      })
+      .catch((err: unknown) => {
+        if (!mounted) return;
+        console.error('Failed to restore auth session:', err);
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+      });
 
     return () => {
       mounted = false;
+      window.clearTimeout(safetyTimeout);
       subscription.unsubscribe();
     };
   }, []);

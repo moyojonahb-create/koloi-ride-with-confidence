@@ -157,7 +157,7 @@ export default function OffersModal({
       aria-modal="true"
       aria-label="Nearby drivers">
       
-      <div className="w-full max-w-[520px] bg-background rounded-2xl p-4 shadow-2xl max-h-[88vh] overflow-auto">
+      <div className="w-full max-w-[520px] rounded-3xl border border-white/35 bg-white/30 backdrop-blur-2xl p-4 shadow-[0_22px_60px_rgba(0,0,0,0.28)] max-h-[88vh] overflow-auto">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-lg font-black text-foreground">Driver Offers</div>
@@ -212,12 +212,12 @@ export default function OffersModal({
               {offersWithCountdown.map((o) =>
             <div
               key={o.offerId}
-              className="border border-primary/30 rounded-xl p-4 bg-primary/5">
+              className="rounded-2xl border border-white/40 bg-white/55 backdrop-blur-xl p-4 shadow-[0_10px_28px_rgba(0,0,0,0.10)]">
               
                   {/* Driver Info */}
-                  <div className="flex justify-between items-start gap-2 mb-3">
+                  <div className="flex justify-between items-start gap-3 mb-3">
                     <div className="flex items-start gap-3 flex-1">
-                      <Avatar className="h-12 w-12 border-2 border-primary/20">
+                      <Avatar className="h-12 w-12 border-2 border-white/70 shadow-sm">
                         {o.avatarUrl ?
                     <AvatarImage src={o.avatarUrl} alt={o.driverName || 'Driver'} /> :
                     null}
@@ -226,14 +226,11 @@ export default function OffersModal({
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1 min-w-0">
-                        <div className="font-bold text-foreground text-lg">
+                        <div className="font-bold text-foreground text-[16px] leading-tight">
                           {o.driverName || o.name || 'Driver'}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {o.vehicleMake && o.vehicleModel ?
-                      `${o.vehicleMake} ${o.vehicleModel}` :
-                      o.vehicleType
-                      }
+                          {o.vehicleMake && o.vehicleModel ? `${o.vehicleMake} ${o.vehicleModel}` : o.vehicleModel || o.vehicleType}
                           {o.vehicleColor && ` • ${o.vehicleColor}`}
                         </div>
                         <div className="text-sm text-muted-foreground mt-0.5">
@@ -247,25 +244,26 @@ export default function OffersModal({
                           </div>
                     }
                         {/* Rating & Trips */}
-                        <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-2 mt-1.5">
                           {o.ratingAvg != null && o.ratingAvg > 0 &&
-                      <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-600 bg-yellow-50 px-1.5 py-0.5 rounded-full">
+                      <span className="flex items-center gap-0.5 text-xs font-semibold text-yellow-700 bg-yellow-100/70 px-1.5 py-0.5 rounded-full">
                               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                               {Number(o.ratingAvg).toFixed(1)}
                             </span>
                       }
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground font-medium">
                             {o.totalTrips || 0} trips
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-black text-2xl text-primary">
+                    <div className="text-right shrink-0">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5">Fare</p>
+                      <div className="font-black text-2xl text-primary leading-none">
                         ${o.offeredFareR.toFixed(2)}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {o.etaMinutes} min away
+                      <div className="mt-1 text-xs font-semibold text-foreground bg-primary/10 rounded-full px-2 py-0.5 inline-block">
+                        ETA {o.etaMinutes} min
                       </div>
                     </div>
                   </div>
@@ -292,18 +290,18 @@ export default function OffersModal({
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2.5">
                     <button
                   onClick={() => handleAccept(o.offerId, o.expired)}
                   disabled={o.expired || busyOfferId !== null}
-                  className="flex-1 border-none rounded-xl px-4 py-3 font-bold cursor-pointer bg-primary text-primary-foreground disabled:opacity-50 transition-all hover:opacity-90">
+                  className="flex-1 border-none rounded-xl px-4 py-3.5 font-semibold cursor-pointer bg-gradient-to-r from-blue-600 to-sky-500 text-white disabled:opacity-50 transition-all hover:opacity-90 shadow-[0_8px_20px_rgba(37,99,235,0.35)]">
                   
                       {busyOfferId === o.offerId ? "Accepting..." : "Accept"}
                     </button>
                     <button
                   onClick={() => handleDecline(o.offerId)}
                   disabled={busyOfferId !== null}
-                  className="flex-1 border-none rounded-xl px-4 py-3 font-bold cursor-pointer bg-destructive text-destructive-foreground disabled:opacity-50 transition-all hover:opacity-90">
+                  className="flex-1 border border-slate-200 rounded-xl px-4 py-3.5 font-semibold cursor-pointer bg-slate-100 text-slate-700 disabled:opacity-50 transition-all hover:bg-slate-200">
                   
                       Decline
                     </button>

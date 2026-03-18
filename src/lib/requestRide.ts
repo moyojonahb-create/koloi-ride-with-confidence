@@ -20,6 +20,8 @@ type RequestRideInput = {
   payment_method?: string;
   town_id?: string | null;
   gender_preference?: string;
+  passenger_name?: string;
+  passenger_phone?: string;
 };
 
 interface RideRow {
@@ -70,6 +72,8 @@ export async function requestRide(input: RequestRideInput) {
     payment_method: input.payment_method ?? "cash",
     town_id: input.town_id ?? null,
     gender_preference: input.gender_preference ?? "any",
+    ...(input.passenger_name?.trim() ? { passenger_name: input.passenger_name.trim() } : {}),
+    ...(input.passenger_phone?.trim() ? { passenger_phone: input.passenger_phone.trim() } : {}),
     ...(input.scheduled_at ? { scheduled_at: input.scheduled_at } : {}),
   };
 
@@ -88,11 +92,42 @@ export async function requestRide(input: RequestRideInput) {
     }
   }
 
-  const { data, error } = await supabase
+  let data: RideRow | null = null;
+  let error: { message: string; details?: string; hint?: string } | null = null;
+
+  const firstInsert = await supabase
     .from("rides")
-    .insert(insertPayload)
+    .insert(insertPayload as never)
     .select("*")
     .single();
+
+  data = firstInsert.data as RideRow | null;
+  error = firstInsert.error
+    ? {
+        message: firstInsert.error.message,
+        details: firstInsert.error.details ?? undefined,
+        hint: firstInsert.error.hint ?? undefined,
+      }
+    : null;
+
+  // Backward-compatible fallback for environments where passenger fields don't exist yet
+  if (error && /passenger_name|passenger_phone|column .* does not exist/i.test(error.message)) {
+    const { passenger_name, passenger_phone, ...fallbackPayload } = insertPayload as Record<string, unknown>;
+    const fallbackInsert = await supabase
+      .from("rides")
+      .insert(fallbackPayload as never)
+      .select("*")
+      .single();
+
+    data = fallbackInsert.data as RideRow | null;
+    error = fallbackInsert.error
+      ? {
+          message: fallbackInsert.error.message,
+          details: fallbackInsert.error.details ?? undefined,
+          hint: fallbackInsert.error.hint ?? undefined,
+        }
+      : null;
+  }
 
   if (error) {
     const msg = `Ride request failed: ${error.message}` +

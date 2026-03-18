@@ -31,22 +31,29 @@ export default function DriverModeLanding() {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
 
   const handleDriverAction = () => {
-    if (!user) {
-      setAuthMode('signup');
-      setAuthOpen(true);
+    console.log('Register clicked!');
+    if (user && isDriver && isApproved) {
+      navigate('/driver/dashboard');
       return;
     }
-    if (isApproved) {
-      navigate(`${prefix}/driver`);
-    } else {
-      navigate(`${prefix}/drive`);
-    }
+
+    // Always send users to the registration flow screen.
+    // The registration page itself can prompt for auth if needed.
+    navigate('/driver/register');
+
+    // Keep legacy auth modal flow disabled for now:
+    // if (!user) {
+    //   setAuthMode('signup');
+    //   setAuthOpen(true);
+    //   return;
+    // }
+    // navigate('/driver/application');
   };
 
   return (
     <div className="min-h-[100dvh] bg-background flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+      <div className="flex items-center justify-between px-4 py-3 glass-nav">
         {!isMapp && (
           <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground text-sm">
             ← Back
@@ -56,14 +63,16 @@ export default function DriverModeLanding() {
         {!isMapp && <div className="w-12" />}
       </div>
 
-      <div className="flex-1 px-5 py-6 flex flex-col">
+      <div className="flex-1 px-5 py-6 flex flex-col gap-4">
         {/* Hero card */}
-        <div className="rounded-3xl bg-primary p-6 mb-6">
-          <h2 className="text-2xl font-bold text-primary-foreground mb-4">Get income with us</h2>
+        <div className="rounded-3xl p-6 mb-2 text-primary-foreground" style={{ background: 'var(--gradient-primary)' }}>
+          <h2 className="text-2xl font-bold text-primary-foreground mb-4">Get income with Voyex</h2>
           <div className="space-y-2">
             {benefits.map((b) => (
               <div key={b.text} className="flex items-center gap-3 text-primary-foreground/90">
-                <b.icon className="w-4 h-4" />
+                <span className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center">
+                  <b.icon className="w-4 h-4" />
+                </span>
                 <span className="text-sm font-medium">{b.text}</span>
               </div>
             ))}
@@ -73,9 +82,11 @@ export default function DriverModeLanding() {
         {/* Driver CTA card */}
         <button
           onClick={handleDriverAction}
-          className="flex items-center gap-4 p-5 rounded-2xl bg-muted/50 hover:bg-muted transition-colors mb-6"
+          className="flex items-center gap-4 p-5 rounded-2xl glass-card hover:bg-foreground/[0.02] transition-colors mb-2"
         >
-          <Car className="w-8 h-8 text-foreground" />
+          <span className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+            <Car className="w-7 h-7" />
+          </span>
           <span className="text-lg font-semibold text-foreground flex-1 text-left">Driver</span>
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -83,8 +94,8 @@ export default function DriverModeLanding() {
         {/* Features list */}
         <div className="space-y-6 mb-auto">
           {features.map((f) => (
-            <div key={f.text} className="flex items-center gap-4">
-              <div className="p-2 rounded-xl bg-accent/20">
+            <div key={f.text} className="flex items-center gap-4 glass-card px-3 py-2.5 rounded-2xl">
+              <div className="p-2 rounded-xl bg-accent/20 glass-glow-yellow">
                 <f.icon className="w-5 h-5 text-accent" />
               </div>
               <span className="text-foreground font-medium">{f.text}</span>
@@ -96,7 +107,7 @@ export default function DriverModeLanding() {
         <div className="mt-8 space-y-3">
           <Button
             onClick={handleDriverAction}
-            className="w-full h-14 rounded-full bg-accent text-accent-foreground hover:bg-accent/90 text-lg font-semibold"
+            className="w-full h-14 rounded-full text-lg font-semibold bg-primary text-primary-foreground hover:opacity-95 shadow-[0_8px_24px_hsl(var(--primary)/0.35)]"
           >
             Register
           </Button>
@@ -130,3 +141,6 @@ export default function DriverModeLanding() {
     </div>
   );
 }
+
+
+

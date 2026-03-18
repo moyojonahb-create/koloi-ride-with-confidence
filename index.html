@@ -86,11 +86,40 @@
   </head>
 
   <body>
-    <div id="instant-splash" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#ffffff;">
-      <!-- Preload splash image so it paints on first frame even offline (SW-cached) -->
-      <img src="/icons/voyex-splash.png" alt="" style="width:256px;height:256px;object-fit:contain;" fetchpriority="high" />
+    <div id="instant-splash" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#ffffff;transition:opacity 0.35s ease;opacity:1;">
+      <img id="instant-splash-img" src="/icons/voyex-splash.png" alt="Voyex" style="width:256px;height:256px;object-fit:contain;" fetchpriority="high" />
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      (function () {
+        const KEY = '__voyex_launch_splash_shown';
+        const splash = document.getElementById('instant-splash');
+        const img = document.getElementById('instant-splash-img');
+        if (!splash) return;
+
+        // Only show the HTML splash once per tab/session.
+        if (sessionStorage.getItem(KEY)) {
+          splash.remove();
+          return;
+        }
+
+        const hide = () => {
+          splash.style.opacity = '0';
+          setTimeout(() => splash.remove(), 350);
+          sessionStorage.setItem(KEY, '1');
+        };
+
+        if (img && img.complete) {
+          requestAnimationFrame(hide);
+        } else if (img) {
+          img.addEventListener('load', hide, { once: true });
+          img.addEventListener('error', hide, { once: true });
+        }
+
+        // Hard fallback: never leave splash stuck.
+        setTimeout(hide, 1500);
+      })();
+    </script>
   </body>
 </html>

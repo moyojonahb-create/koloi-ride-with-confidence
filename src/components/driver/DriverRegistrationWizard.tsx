@@ -89,6 +89,7 @@ export default function DriverRegistrationWizard({ onSuccess, onClose }: DriverR
   const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
 
   // File state
@@ -127,30 +128,27 @@ export default function DriverRegistrationWizard({ onSuccess, onClose }: DriverR
     return path;
   };
 
-  const canProceed = (currentStep: number): boolean => {
-    switch (currentStep) {
-      case 1: return personalForm.formState.isValid;
-      case 2: return licenseForm.formState.isValid;
-      case 3: return true; // ID uploads optional at validation time
-      case 4: return vehicleForm.formState.isValid;
-      default: return false;
-    }
-  };
-
   const handleNext = async () => {
-    if (step === 1) {
-      const valid = await personalForm.trigger();
-      if (!valid) return;
-    } else if (step === 2) {
-      const valid = await licenseForm.trigger();
-      if (!valid) return;
-    } else if (step === 4) {
-      const valid = await vehicleForm.trigger();
-      if (!valid) return;
-      await handleSubmit();
-      return;
+    if (isNavigating || isSubmitting) return;
+
+    setIsNavigating(true);
+    try {
+      if (step === 1) {
+        const valid = await personalForm.trigger();
+        if (!valid) return;
+      } else if (step === 2) {
+        const valid = await licenseForm.trigger();
+        if (!valid) return;
+      } else if (step === 4) {
+        const valid = await vehicleForm.trigger();
+        if (!valid) return;
+        await handleSubmit();
+        return;
+      }
+      setStep(s => Math.min(s + 1, TOTAL_STEPS));
+    } finally {
+      setIsNavigating(false);
     }
-    setStep(s => Math.min(s + 1, TOTAL_STEPS));
   };
 
   const handleBack = () => setStep(s => Math.max(s - 1, 1));
@@ -207,22 +205,21 @@ export default function DriverRegistrationWizard({ onSuccess, onClose }: DriverR
       toast({ title: 'Application submitted!', description: 'Your documents are being reviewed.' });
       onSuccess();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to submit';
-      let message = 'Failed to submit application.';
+      let errorMessage = 'Failed to submit application.';
       if (error instanceof Error) {
         const errMsg = error.message.toLowerCase();
         if (errMsg.includes('new row violates row-level security') || errMsg.includes('42501')) {
-          message = 'Permission denied. Please contact support or try admin add-driver.js';
+          errorMessage = 'Permission denied. Please contact support or try admin add-driver.js';
         } else if (errMsg.includes('bucket') || errMsg.includes('storage')) {
-          message = 'Storage upload failed. Check "driver-documents" bucket in Supabase dashboard.';
+          errorMessage = 'Storage upload failed. Check "driver-documents" bucket in Supabase dashboard.';
         } else if (errMsg.includes('column') || errMsg.includes('does not exist')) {
-          message = 'Database schema mismatch. Run migrations.';
+          errorMessage = 'Database schema mismatch. Run migrations.';
         } else {
-          message = error.message;
+          errorMessage = error.message;
         }
         console.error('Driver registration error:', error);
       }
-      toast({ title: 'Registration Failed', description: message, variant: 'destructive' });
+      toast({ title: 'Registration Failed', description: errorMessage, variant: 'destructive' });
       setShowProcessing(false);
     } finally {
       setIsSubmitting(false);
@@ -452,7 +449,7 @@ export default function DriverRegistrationWizard({ onSuccess, onClose }: DriverR
               variant="outline"
               size="icon"
               onClick={handleBack}
-              disabled={step === 1}
+              disabled={step === 1 || isSubmitting || isNavigating}
               className="rounded-full w-12 h-12"
             >
               <ChevronLeft className="w-5 h-5" />
@@ -460,7 +457,7 @@ export default function DriverRegistrationWizard({ onSuccess, onClose }: DriverR
 
             <Button
               onClick={handleNext}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isNavigating}
               className="rounded-full h-12 px-6 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
             >
               {isSubmitting ? (

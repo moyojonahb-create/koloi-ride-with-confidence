@@ -64,7 +64,7 @@ const DriveSection = () => {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <Button asChild className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 h-14 px-8 font-bold">
-                <Link to="/drive">
+<Link to="/driver">
                   Sign up to drive
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
