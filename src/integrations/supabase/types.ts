@@ -1213,6 +1213,8 @@ export type Database = {
           gender_preference: string | null
           id: string
           passenger_count: number
+          passenger_name: string | null
+          passenger_phone: string | null
           payment_method: string
           pickup_address: string
           pickup_lat: number
@@ -1238,6 +1240,8 @@ export type Database = {
           gender_preference?: string | null
           id?: string
           passenger_count?: number
+          passenger_name?: string | null
+          passenger_phone?: string | null
           payment_method?: string
           pickup_address: string
           pickup_lat: number
@@ -1263,6 +1267,8 @@ export type Database = {
           gender_preference?: string | null
           id?: string
           passenger_count?: number
+          passenger_name?: string | null
+          passenger_phone?: string | null
           payment_method?: string
           pickup_address?: string
           pickup_lat?: number
