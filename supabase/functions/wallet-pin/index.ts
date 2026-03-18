@@ -50,7 +50,7 @@ async function hashPin(pin: string, salt?: Uint8Array): Promise<{ hash: string; 
   }
   
   const derived = await crypto.subtle.deriveBits(
-    { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+    { name: "PBKDF2", salt: salt as ArrayBuffer, iterations: 100000, hash: "SHA-256" },
     pinKey,
     256
   );
