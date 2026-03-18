@@ -18,7 +18,7 @@ const pathAliases: Record<string, string[]> = {
   '/profile': ['/profile', '/edit-profile'],
 };
 
-export default function BottomNavBar() {
+const BottomNavBar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(function BottomNavBar(_props, ref) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
