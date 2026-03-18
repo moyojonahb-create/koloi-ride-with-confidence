@@ -362,7 +362,7 @@ export default function DriverDashboard() {
           .select("phone")
           .eq("user_id", activeTripData.user_id)
           .maybeSingle();
-        setRiderPhone(activeTripData.passenger_phone ?? riderProfile?.phone ?? null);
+        setRiderPhone(riderProfile?.phone ?? null);
       } else {
         setActiveTrip(null);
         setRiderPhone(null);
