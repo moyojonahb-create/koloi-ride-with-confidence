@@ -308,7 +308,7 @@ export default function DriverDashboard() {
       // Fetch active trip (accepted/in_progress) assigned to this driver
       const { data: activeTripData } = await supabase
         .from("rides")
-        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, payment_method, passenger_name, passenger_phone")
+        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, payment_method")
         .eq("driver_id", p.id)
         .in("status", ["accepted", "enroute", "enroute_pickup", "in_progress", "arrived"])
         .order("updated_at", { ascending: false })
@@ -331,8 +331,8 @@ export default function DriverDashboard() {
           dropoff_lat: activeTripData.dropoff_lat,
           dropoff_lon: activeTripData.dropoff_lon,
           payment_method: activeTripData.payment_method || 'cash',
-          passenger_name: activeTripData.passenger_name ?? null,
-          passenger_phone: activeTripData.passenger_phone ?? null,
+          passenger_name: null,
+          passenger_phone: null,
         });
 
         // Notify driver when rider accepts their offer
@@ -362,7 +362,7 @@ export default function DriverDashboard() {
           .select("phone")
           .eq("user_id", activeTripData.user_id)
           .maybeSingle();
-        setRiderPhone(activeTripData.passenger_phone ?? riderProfile?.phone ?? null);
+        setRiderPhone(riderProfile?.phone ?? null);
       } else {
         setActiveTrip(null);
         setRiderPhone(null);

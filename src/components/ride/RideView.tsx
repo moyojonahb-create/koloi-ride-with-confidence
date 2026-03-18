@@ -695,14 +695,6 @@ export default function RideView() {
             </button>
           </div>
 
-          {/* Recent places */}
-          <div className="glass-card rounded-2xl p-3">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Recent places</p>
-            <RecentDestinations
-              field={activeField === 'pickup' ? 'pickup' : 'dropoff'}
-              onSelect={handleRecentPlaceSelect}
-            />
-          </div>
 
           {/* Multi-stop + Schedule */}
           <MultiStopInput
