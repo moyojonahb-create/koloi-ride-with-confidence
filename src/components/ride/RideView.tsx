@@ -196,7 +196,7 @@ export default function RideView() {
     haptic('light');
   };
 
-  const handleRecentPlaceSelect = (loc: { name: string; lat: number; lng: number }) => {
+  const handleRecentPlaceSelect = (loc: {name: string;lat: number;lng: number;}) => {
     const selected: SelectedLocation = { name: loc.name, lat: loc.lat, lng: loc.lng };
     if (activeField === 'pickup') {
       setPickupLocation(selected);
@@ -241,7 +241,7 @@ export default function RideView() {
   const handlePickPassengerFromContacts = async () => {
     try {
       const nav = navigator as Navigator & {
-        contacts?: { select: (properties: string[], options?: { multiple?: boolean }) => Promise<Array<Record<string, unknown>>> }
+        contacts?: {select: (properties: string[], options?: {multiple?: boolean;}) => Promise<Array<Record<string, unknown>>>;};
       };
       if (!nav.contacts?.select) {
         toast({ title: 'Contacts not supported', description: 'Please enter passenger details manually.' });
@@ -299,9 +299,9 @@ export default function RideView() {
       setCurrentRideId(result.ride.id);
       toast({
         title: scheduledAt ? 'Ride scheduled!' : 'Offer sent!',
-        description: bookForSomeoneElse && passengerName.trim()
-          ? `Passenger: ${passengerName.trim()}${passengerPhone.trim() ? ` (${passengerPhone.trim()})` : ''}`
-          : `${fareEstimate.currencySymbol}${customFare} — ${scheduledAt ? 'scheduled for later' : 'waiting for drivers…'}`,
+        description: bookForSomeoneElse && passengerName.trim() ?
+        `Passenger: ${passengerName.trim()}${passengerPhone.trim() ? ` (${passengerPhone.trim()})` : ''}` :
+        `${fareEstimate.currencySymbol}${customFare} — ${scheduledAt ? 'scheduled for later' : 'waiting for drivers…'}`
       });
       if (!scheduledAt) navigate(`/ride/${result.ride.id}`);else
       {setRideStatus('idle');setScheduledAt(null);setRideStops([]);}
@@ -449,16 +449,16 @@ export default function RideView() {
               )}
             </div>
             <div className="mt-3 flex justify-center">
-              {currentRideId && pickupLocation && dropoffLocation && (
-                <div className="mr-2">
+              {currentRideId && pickupLocation && dropoffLocation &&
+              <div className="mr-2">
                   <ShareTripButton
-                    rideId={currentRideId}
-                    pickupAddress={pickupLocation.name}
-                    dropoffAddress={dropoffLocation.name}
-                    driverName={matchedDriver.name}
-                  />
+                  rideId={currentRideId}
+                  pickupAddress={pickupLocation.name}
+                  dropoffAddress={dropoffLocation.name}
+                  driverName={matchedDriver.name} />
+                
                 </div>
-              )}
+              }
               <EmergencyButton
                 rideId={currentRideId ?? undefined}
                 pickupAddress={pickupLocation?.name}
@@ -570,19 +570,19 @@ export default function RideView() {
             <div className="border-t border-border/30 my-1 mx-2" />
             <p className="px-4 pt-1 pb-0.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Services</p>
 
-            {SERVICE_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => {setMenuOpen(false);setServiceType(tab.id);}}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all",
-                  serviceType === tab.id && "bg-primary/10"
-                )}>
+            {SERVICE_TABS.map((tab) =>
+            <button
+              key={tab.id}
+              onClick={() => {setMenuOpen(false);setServiceType(tab.id);}}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left hover:bg-muted active:scale-[0.98] transition-all",
+                serviceType === tab.id && "bg-primary/10"
+              )}>
                 <span className="text-lg">{tab.icon}</span>
                 <span className={cn("text-[15px] font-semibold", serviceType === tab.id ? "text-primary" : "text-foreground")}>{tab.label}</span>
                 {serviceType === tab.id && <span className="ml-auto text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">Active</span>}
               </button>
-            ))}
+            )}
           </nav>
         </SheetContent>
       </Sheet>
@@ -611,14 +611,14 @@ export default function RideView() {
         <div className="flex-1 px-4 pb-2 space-y-2.5 min-h-0 overflow-y-auto overscroll-contain">
 
           {/* Service type indicator */}
-          {serviceType !== 'ride' && (
-            <div className="flex items-center justify-between px-1">
+          {serviceType !== 'ride' &&
+          <div className="flex items-center justify-between px-1">
               <span className="text-xs font-bold text-primary uppercase tracking-wider">
-                {SERVICE_TABS.find(t => t.id === serviceType)?.icon} {SERVICE_TABS.find(t => t.id === serviceType)?.label} Mode
+                {SERVICE_TABS.find((t) => t.id === serviceType)?.icon} {SERVICE_TABS.find((t) => t.id === serviceType)?.label} Mode
               </span>
               <button onClick={() => setServiceType('ride')} className="text-xs text-muted-foreground underline">Switch to Ride</button>
             </div>
-          )}
+          }
 
           {/* Town selector row */}
           <div className="flex items-center justify-between">
@@ -633,8 +633,8 @@ export default function RideView() {
                 setActiveField(activeField ?? 'dropoff');
                 setSearchQuery('Home');
               }}
-              className="h-12 rounded-2xl"
-            >
+              className="h-12 rounded-2xl">
+              
               🏠 Home
             </SecondaryButton>
             <SecondaryButton
@@ -642,8 +642,8 @@ export default function RideView() {
                 setActiveField(activeField ?? 'dropoff');
                 setSearchQuery('Work');
               }}
-              className="h-12 rounded-2xl"
-            >
+              className="h-12 rounded-2xl">
+              
               💼 Work
             </SecondaryButton>
           </div>
@@ -689,8 +689,8 @@ export default function RideView() {
               onClick={handleSwapPickupDropoff}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl glass-card flex items-center justify-center text-primary active:scale-90 transition-all"
               title="Swap pickup and drop-off"
-              aria-label="Swap pickup and drop-off"
-            >
+              aria-label="Swap pickup and drop-off">
+              
               <Route className="w-4 h-4" />
             </button>
           </div>
@@ -738,8 +738,8 @@ export default function RideView() {
                 <span className={cn('block h-6 w-6 rounded-full bg-white transition-transform', bookForSomeoneElse ? 'translate-x-6' : 'translate-x-0')} />
               </button>
             </div>
-            {bookForSomeoneElse && (
-              <>
+            {bookForSomeoneElse &&
+            <>
                 <div className='grid grid-cols-1 gap-2'>
                   <InputField placeholder='Passenger name' value={passengerName} onChange={(e) => setPassengerName(e.target.value)} />
                   <InputField placeholder='Passenger phone' value={passengerPhone} onChange={(e) => setPassengerPhone(e.target.value)} />
@@ -747,7 +747,7 @@ export default function RideView() {
                 <IconPillButton onClick={handlePickPassengerFromContacts}><ContactRound className='w-4 h-4' />Pick from contacts</IconPillButton>
                 <p className='text-xs text-muted-foreground'>Driver can contact this passenger.</p>
               </>
-            )}
+            }
           </div>
 
           {/* Women-only ride toggle */}
@@ -813,9 +813,9 @@ export default function RideView() {
                     <button
                       key={pm.key}
                       onClick={() => setPaymentMethod(pm.key)}
-                      className={cn(
-                        'flex-1 flex items-center gap-2 px-3 py-3 rounded-2xl transition-all active:scale-[0.98] glass-card',
-                        paymentMethod === pm.key ? 'ring-1 ring-primary/25' : ''
+                      className={cn("flex-1 flex items-center gap-2 px-3 py-3 rounded-2xl transition-all active:scale-[0.98] glass-card mx-0 text-lg text-center",
+
+                      paymentMethod === pm.key ? 'ring-1 ring-primary/25' : ''
                       )}>
                         <pm.icon className={cn('w-4 h-4', paymentMethod === pm.key ? 'text-primary' : 'text-muted-foreground')} />
                         <span className={cn('font-medium text-sm', paymentMethod === pm.key ? 'text-primary' : 'text-foreground')}>{pm.label}</span>
