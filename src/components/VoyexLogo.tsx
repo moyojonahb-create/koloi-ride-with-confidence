@@ -1,4 +1,4 @@
-import voyexLogo from '@/assets/voyex-logo-full.png';
+import voyexLogo from '@/assets/voyex-logo-new.png';
 
 interface VoyexLogoProps {
   className?: string;

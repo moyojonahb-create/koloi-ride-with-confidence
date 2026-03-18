@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Clock, Wallet, User } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -18,7 +19,7 @@ const pathAliases: Record<string, string[]> = {
   '/profile': ['/profile', '/edit-profile'],
 };
 
-export default function BottomNavBar() {
+const BottomNavBar = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(function BottomNavBar(_props, ref) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -48,7 +49,7 @@ export default function BottomNavBar() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[55] glass-bar" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <div ref={ref} className="fixed bottom-0 left-0 right-0 z-[55] glass-bar" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="flex items-center justify-around h-[56px]">
         {tabs.map((tab) => {
           const active = isActive(tab.path);
@@ -84,4 +85,7 @@ export default function BottomNavBar() {
       </div>
     </div>
   );
-}
+});
+BottomNavBar.displayName = "BottomNavBar";
+
+export default BottomNavBar;

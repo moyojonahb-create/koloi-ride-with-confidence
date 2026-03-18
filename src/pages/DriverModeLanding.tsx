@@ -31,23 +31,17 @@ export default function DriverModeLanding() {
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('signup');
 
   const handleDriverAction = () => {
-    console.log('Register clicked!');
     if (user && isDriver && isApproved) {
       navigate('/driver/dashboard');
       return;
     }
-
-    // Always send users to the registration flow screen.
-    // The registration page itself can prompt for auth if needed.
+    if (user && isDriver) {
+      // Pending/rejected driver - show application status
+      navigate('/driver/application');
+      return;
+    }
+    // New user or not a driver - go to registration
     navigate('/driver/register');
-
-    // Keep legacy auth modal flow disabled for now:
-    // if (!user) {
-    //   setAuthMode('signup');
-    //   setAuthOpen(true);
-    //   return;
-    // }
-    // navigate('/driver/application');
   };
 
   return (
