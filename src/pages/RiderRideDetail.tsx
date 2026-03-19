@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRideRealtime } from "@/hooks/useRideRealtime";
 import { useDriverTracking } from "@/hooks/useDriverTracking";
 import { useNearbyDrivers } from "@/hooks/useNearbyDrivers";
-import { useAgoraCall } from "@/hooks/useAgoraCall";
+import { useWebRTCCall } from "@/hooks/useWebRTCCall";
 import { getSecondsRemaining, isRideExpired } from "@/lib/rideExpiry";
 import {
   fetchPendingOffers,
