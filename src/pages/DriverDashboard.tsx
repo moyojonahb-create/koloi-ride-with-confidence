@@ -97,6 +97,7 @@ type Ride = {
 export default function DriverDashboard() {
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { setFemaleMode } = useFemaleTheme();
 
   const [profile, setProfile] = useState<DriverProfile | null>(null);
   const [rides, setRides] = useState<Ride[]>([]);
