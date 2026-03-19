@@ -153,7 +153,7 @@ export default function DriverDashboard() {
     activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : null
   );
 
-  // Agora voice calling for active trip
+  // WebRTC voice calling for active trip
 
   const {
     callStatus,
@@ -167,7 +167,7 @@ export default function DriverDashboard() {
     endCall,
     toggleMute,
     toggleSpeaker,
-  } = useAgoraCall({
+  } = useWebRTCCall({
     rideId: activeTrip?.id ?? null,
     currentUserId: user?.id ?? "",
     otherUserId: activeTrip?.user_id ?? null,

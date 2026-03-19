@@ -151,7 +151,7 @@ export default function RideDetail() {
 
   const { callStatus, isMuted, isSpeaker, callDuration, incomingCall, startCall, answerCall,
     declineCall: declineIncomingCall, endCall, toggleMute, toggleSpeaker
-  } = useAgoraCall({ rideId: rideId ?? null, currentUserId: userId, otherUserId: ride?.user_id ?? null });
+  } = useWebRTCCall({ rideId: rideId ?? null, currentUserId: userId, otherUserId: ride?.user_id ?? null });
 
   useEffect(() => {(async () => {const { data } = await supabase.auth.getUser();if (data?.user) setUserId(data.user.id);})();}, []);
 
