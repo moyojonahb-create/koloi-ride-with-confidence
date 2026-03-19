@@ -50,16 +50,31 @@ export default function DemandHeatmap({ townId, className }: DemandHeatmapProps)
   useEffect(() => {
     const fetchZones = async () => {
       setLoading(true);
-      // Trigger zone recalculation
-      await supabase.rpc('update_demand_zones');
-      
-      const { data } = await supabase
+      if (!townId?.trim()) {
+        setZones([]);
+        setLoading(false);
+        return;
+      }
+
+      // Trigger zone recalculation (best-effort; don't fail fetch if rpc is unavailable)
+      const { error: recalcError } = await supabase.rpc('update_demand_zones');
+      if (recalcError) {
+        console.warn('update_demand_zones rpc failed:', recalcError.message);
+      }
+
+      const { data, error } = await supabase
         .from('ride_demand_zones')
-        .select('*')
+        .select('id,town_id,latitude,longitude,demand_score,ride_count,time_bucket')
         .eq('town_id', townId)
         .order('demand_score', { ascending: false });
 
-      if (data) setZones(data as DemandZone[]);
+      if (error) {
+        console.error('ride_demand_zones query failed:', error.message);
+        setZones([]);
+      } else {
+        setZones((data ?? []) as DemandZone[]);
+      }
+
       setLoading(false);
     };
 

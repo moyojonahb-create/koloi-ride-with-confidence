@@ -192,7 +192,11 @@ export default function RiderRideDetail() {
   }, [ride, nav]);
 
   useEffect(() => {
-    if (!authLoading && !user) { nav("/auth"); return; }
+    if (!authLoading && !user) {
+      const redirect = rideId ? `/ride/${rideId}` : '/ride';
+      nav(`/auth?redirect=${encodeURIComponent(redirect)}`, { replace: true });
+      return;
+    }
     if (!authLoading && rideId) Promise.all([refreshRide(), refreshOffers()]).finally(() => setLoading(false));
   }, [authLoading, user, rideId, nav, refreshRide, refreshOffers]);
 

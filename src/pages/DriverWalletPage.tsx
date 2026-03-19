@@ -83,7 +83,7 @@ export default function DriverWalletPage() {
           </div>
 
           <div className="flex gap-3 mt-4">
-            <Button onClick={() => navigate("/drivers/deposit")} className="flex-1">
+            <Button onClick={() => navigate("/driver/deposit")} className="flex-1">
               <ArrowDownLeft className="h-4 w-4 mr-2" />
               Deposit (EcoCash)
             </Button>

@@ -52,6 +52,21 @@ export default function DriverRequestsScreen() {
         results = results.filter(r => new Date(r.created_at).getTime() <= thirtySecsAgo);
       }
       setRequests(results);
+
+      // Driver viewing heartbeat for rider live-match screen
+      if (user && results.length > 0) {
+        const heartbeatRows = results.map((req) => ({
+          ride_request_id: req.id,
+          driver_id: user.id,
+          last_seen_at: new Date().toISOString(),
+        }));
+        const { error: heartbeatError } = await supabase
+          .from('ride_request_views')
+          .upsert(heartbeatRows, { onConflict: 'ride_request_id,driver_id' });
+        if (heartbeatError) {
+          console.warn('Driver view heartbeat failed:', heartbeatError.message);
+        }
+      }
     }
     setLoading(false);
   }, [user, isTopDriver]);
@@ -87,12 +102,20 @@ export default function DriverRequestsScreen() {
     }
 
     setSending(requestId);
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('ride_offers')
-      .upsert(
-        { request_id: requestId, driver_id: user.id, offer_fare: fare, status: 'pending' },
-        { onConflict: 'request_id,driver_id' }
-      );
+      .insert({
+        ride_request_id: requestId,
+        driver_id: user.id,
+        offered_fare: fare,
+        eta_minutes: 10,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 2 * 60 * 1000).toISOString(),
+      })
+      .select();
+
+    console.log('INSERT RESULT:', { data, error });
 
     setSending(null);
     if (error) {

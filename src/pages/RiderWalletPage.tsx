@@ -30,7 +30,7 @@ const METHOD_LABELS: Record<string, string> = {
 
 export default function RiderWalletPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { balance, deposit, refresh: refreshWallet, loading: walletLoading } = useWallet();
   const { hasPin, loading: pinLoading, setPin, verifyPin, refresh: refreshPin } = useWalletPin();
   const [showDeposit, setShowDeposit] = useState(false);
@@ -99,7 +99,11 @@ export default function RiderWalletPage() {
     return <Clock className="h-4 w-4 text-amber-500" />;
   };
 
-  useEffect(() => { if (!user) navigate('/auth'); }, [user, navigate]);
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth?redirect=%2Fwallet', { replace: true });
+    }
+  }, [authLoading, user, navigate]);
 
   // PIN gate: show PIN modal overlay
   if ((pinLoading) || (hasPin && !pinVerified)) {

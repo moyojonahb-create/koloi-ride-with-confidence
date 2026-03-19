@@ -41,11 +41,11 @@ export default function RideHistory() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/auth');
+      navigate('/auth?redirect=%2Fhistory', { replace: true });
       return;
     }
     if (user) fetchRides();
-  }, [user, authLoading]);
+  }, [user, authLoading, navigate]);
 
   const fetchRides = async () => {
     setLoading(true);

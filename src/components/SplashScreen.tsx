@@ -8,8 +8,25 @@ interface SplashScreenProps {
 
 const SPLASH_KEY = '__voyex_splash_shown';
 
+const getSessionSplashShown = () => {
+  try {
+    return sessionStorage.getItem(SPLASH_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
+const setSessionSplashShown = () => {
+  try {
+    sessionStorage.setItem(SPLASH_KEY, '1');
+  } catch {
+    // ignore storage failures in strict privacy modes
+  }
+};
+
 const SplashScreen = ({ onComplete, duration = 1200 }: SplashScreenProps) => {
   const [phase, setPhase] = useState<'enter' | 'exit'>('enter');
+  const [shouldRender, setShouldRender] = useState(true);
   const calledRef = useRef(false);
 
   useLayoutEffect(() => {
@@ -22,19 +39,19 @@ const SplashScreen = ({ onComplete, duration = 1200 }: SplashScreenProps) => {
     calledRef.current = true;
 
     // If splash already shown this session, skip immediately
-    if (sessionStorage.getItem(SPLASH_KEY)) {
+    if (getSessionSplashShown()) {
+      setShouldRender(false);
       onComplete();
       return;
     }
 
-    sessionStorage.setItem(SPLASH_KEY, '1');
+    setSessionSplashShown();
     const exitTimer = setTimeout(() => setPhase('exit'), duration - 300);
     const doneTimer = setTimeout(onComplete, duration);
     return () => { clearTimeout(exitTimer); clearTimeout(doneTimer); };
   }, [duration, onComplete]);
 
-  // If already shown, render nothing
-  if (sessionStorage.getItem(SPLASH_KEY) && phase === 'enter' && calledRef.current) {
+  if (!shouldRender) {
     return null;
   }
 

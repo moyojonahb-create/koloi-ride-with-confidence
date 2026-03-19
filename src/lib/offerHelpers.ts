@@ -131,24 +131,27 @@ export async function submitOffer(input: {
   message?: string;
 }): Promise<Offer> {
   const user = await getUserOrThrow();
-  
-  const payload = {
-    ride_id: input.ride_id,
-    driver_id: user.id,
-    price: clampTo5(input.price),
-    eta_minutes: Math.max(1, Math.min(240, Number(input.eta_minutes) || 10)),
-    message: (input.message ?? "").trim() || null,
-    status: "pending" as const,
-  };
+  const rideRequestId = input.ride_id;
+  const offerAmount = clampTo5(input.price);
+  const etaMinutes = Math.max(1, Math.min(240, Number(input.eta_minutes) || 10));
 
   const { data, error } = await supabase
-    .from("offers")
-    .insert(payload)
-    .select("*")
-    .single();
+    .from('ride_offers')
+    .insert({
+      ride_request_id: rideRequestId,
+      driver_id: user.id,
+      offered_fare: offerAmount,
+      eta_minutes: etaMinutes,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + 2 * 60 * 1000).toISOString(),
+    })
+    .select();
+
+  console.log('INSERT RESULT:', { data, error });
 
   if (error) throw new Error(error.message);
-  return data as Offer;
+  return ((data ?? [])[0] as Offer) ?? ({} as Offer);
 }
 
 // Accept an offer (rider action)

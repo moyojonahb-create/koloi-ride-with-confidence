@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AdminAuthState {
@@ -11,7 +9,6 @@ interface AdminAuthState {
 
 export const useAdminAuth = () => {
   const { user, session, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
   const [state, setState] = useState<AdminAuthState>({
     isAdmin: false,
     isLoading: true,
@@ -24,7 +21,6 @@ export const useAdminAuth = () => {
 
       if (!user || !session) {
         setState({ isAdmin: false, isLoading: false, error: 'Not authenticated' });
-        navigate('/');
         return;
       }
 
@@ -49,13 +45,11 @@ export const useAdminAuth = () => {
         if (!response.ok) {
           console.log('Admin access denied:', data?.error || response.statusText);
           setState({ isAdmin: false, isLoading: false, error: 'Access denied' });
-          navigate('/');
           return;
         }
         if (data?.error) {
           console.log('Admin access denied:', data.error);
           setState({ isAdmin: false, isLoading: false, error: 'Access denied' });
-          navigate('/');
           return;
         }
 
@@ -65,17 +59,15 @@ export const useAdminAuth = () => {
           setState({ isAdmin: true, isLoading: false, error: null });
         } else {
           setState({ isAdmin: false, isLoading: false, error: 'Access denied' });
-          navigate('/');
         }
       } catch (err) {
         console.error('Error verifying admin role:', err);
         setState({ isAdmin: false, isLoading: false, error: 'Failed to verify permissions' });
-        navigate('/');
       }
     };
 
     checkAdminRole();
-  }, [user, session, authLoading, navigate]);
+  }, [user, session, authLoading]);
 
   return state;
 };

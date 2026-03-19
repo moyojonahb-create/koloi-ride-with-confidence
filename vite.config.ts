@@ -10,10 +10,13 @@ const FALLBACK_SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJz
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: true,
     port: 8080,
-    hmr: {
-      overlay: false,
+    strictPort: true,
+    watch: {
+      // Improves file-change reliability on some Windows environments/IDEs.
+      usePolling: true,
+      interval: 100,
     },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),

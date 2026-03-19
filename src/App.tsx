@@ -3,6 +3,7 @@ import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router
 import { Capacitor } from "@capacitor/core";
 import AuthGuard from "./components/AuthGuard";
 import AdminGuard from "./components/admin/AdminGuard";
+import { Loader2 } from "lucide-react";
 
 // Lazy-loaded pages (code-split)
 const Index = lazy(() => import("./pages/Index"));
@@ -27,6 +28,7 @@ const DriverDepositPage = lazy(() => import("./pages/DriverDepositPage"));
 const DriverLeaderboard = lazy(() => import("./pages/DriverLeaderboard"));
 const DriverModeLanding = lazy(() => import("./pages/DriverModeLanding"));
 const DriverRegistrationPage = lazy(() => import("./pages/DriverRegistrationPage"));
+const DriverWalletPage = lazy(() => import("./pages/DriverWalletPage"));
 
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminDrivers = lazy(() => import("./pages/admin/AdminDrivers"));
@@ -50,7 +52,13 @@ export default function App() {
 
   return (
     <Router>
-      <Suspense fallback={null}>
+      <Suspense
+        fallback={
+          <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        }
+      >
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Index />} />
@@ -120,11 +128,19 @@ export default function App() {
             }
           />
 
-  <Route path="/driver" element={<DriverModeLanding />} />
-  <Route path="/driver-mode" element={<Navigate to="/driver" replace />} />
-  <Route path="/driver/register" element={<DriverRegistrationPage />} />
-  <Route path="/driver/application" element={<DriverApplication />} />
-  <Route
+          <Route path="/driver" element={<DriverModeLanding />} />
+          <Route path="/driver-mode" element={<Navigate to="/driver" replace />} />
+          <Route path="/driver/register" element={<DriverRegistrationPage />} />
+          <Route path="/driver/application" element={<DriverApplication />} />
+          <Route
+            path="/driver/wallet"
+            element={
+              <AuthGuard>
+                <DriverWalletPage />
+              </AuthGuard>
+            }
+          />
+          <Route
             path="/driver/dashboard"
             element={
               <AuthGuard>
@@ -132,6 +148,11 @@ export default function App() {
               </AuthGuard>
             }
           />
+
+          {/* Legacy pluralized driver route aliases */}
+          <Route path="/drivers" element={<Navigate to="/driver" replace />} />
+          <Route path="/drivers/deposit" element={<Navigate to="/driver/deposit" replace />} />
+          <Route path="/drivers/wallet" element={<Navigate to="/driver/wallet" replace />} />
           <Route
             path="/driver/deposit"
             element={
@@ -197,6 +218,7 @@ export default function App() {
               </AdminGuard>
             }
           />
+          <Route path="/admin/drivers/map" element={<Navigate to="/admin/drivers-map" replace />} />
           <Route
             path="/admin/landmarks"
             element={
@@ -292,6 +314,10 @@ export default function App() {
     </Router>
   );
 }
+
+
+
+
 
 
 

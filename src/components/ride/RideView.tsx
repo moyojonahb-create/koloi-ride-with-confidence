@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { haptic } from '@/lib/haptics';
 import { useAuth } from '@/hooks/useAuth';
@@ -14,13 +14,12 @@ import { cachePlaceFromNominatim } from '@/lib/placeCache';
 import { useToast } from '@/hooks/use-toast';
 import { useGooglePlacesAutocomplete } from '@/hooks/useGooglePlacesAutocomplete';
 import { useTownPricing, calculateRecommendedFare, formatFare } from '@/hooks/useTownPricing';
-import NegotiationCard from './NegotiationCard';
 import BottomNavBar from '@/components/BottomNavBar';
 import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
   Car, Star, Phone, MessageCircle, Clock, Users, ChevronRight, Locate,
-  Banknote, Wallet, Zap, CarFront, Menu, History, Minus, Plus, Route, ContactRound } from
+  Banknote, Wallet, Menu, History, Minus, Plus, Route, ContactRound, Home, Briefcase, CalendarClock, Sparkles, ShieldCheck, Timer } from
 'lucide-react';
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle } from
@@ -28,7 +27,7 @@ import {
 import { cn } from '@/lib/utils';
 import MapGoogle from '@/components/MapGoogle';
 import RideStatusBanner, { type RideStatus } from './RideStatusBanner';
-import OffersModal, { type DriverViewing, type DriverOffer } from '@/components/OffersModal';
+import { type DriverViewing, type DriverOffer } from '@/components/OffersModal';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 import VoyexLogo from '@/components/VoyexLogo';
 import { GlassSheet } from '@/components/ui/glass-sheet';
@@ -41,7 +40,6 @@ import ProximityFilter from './ProximityFilter';
 import EmergencyButton from './EmergencyButton';
 import { NotificationBell } from '@/components/NotificationCenter';
 
-import RecentDestinations from './RecentDestinations';
 import MultiStopInput, { type RideStop } from './MultiStopInput';
 import ScheduleRide from './ScheduleRide';
 import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLandmarks';
@@ -101,9 +99,13 @@ export default function RideView() {
   const [isRequesting, setIsRequesting] = useState(false);
   const [currentRideId, setCurrentRideId] = useState<string | null>(null);
   const [matchedDriver, setMatchedDriver] = useState<{name: string;car: string;plate: string;rating: number;avatar?: string;eta: number;} | null>(null);
-  const [offersOpen, setOffersOpen] = useState(false);
   const [viewingDrivers, setViewingDrivers] = useState<DriverViewing[]>([]);
+  const [viewerCount, setViewerCount] = useState(0);
   const [offers, setOffers] = useState<DriverOffer[]>([]);
+  const [searchFare, setSearchFare] = useState<number | null>(null);
+  const [autoAcceptEnabled, setAutoAcceptEnabled] = useState(false);
+  const [autoAcceptMaxEta, setAutoAcceptMaxEta] = useState(8);
+  const [searchStartedAt, setSearchStartedAt] = useState<number | null>(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [sheetExpanded, setSheetExpanded] = useState(false);
@@ -112,17 +114,26 @@ export default function RideView() {
   const [rideStops, setRideStops] = useState<RideStop[]>([]);
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
   const [activeStopId, setActiveStopId] = useState<string | null>(null);
-  const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
+  const safeTown = selectedTown ?? DEFAULT_TOWN;
+  const { pricing: townPricing } = useTownPricing(safeTown.id ?? null);
   const [genderPreference, setGenderPreference] = useState<GenderPreference>('any');
+  const prefersReducedMotion = useReducedMotion();
 
-  const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
+  const { landmarks, loading: landmarksLoading } = useLandmarksSearch({
+    searchQuery,
+    limit: 30,
+    userLocation: gpsState.coords,
+    radiusKm: proximityRadius,
+    townCenter: safeTown.center,
+    townRadiusKm: safeTown.radiusKm
+  });
   const nearbyDrivers = useNearbyDrivers(rideStatus === 'idle' || rideStatus === 'searching');
   const { suggestions: googleSuggestions, loading: googleLoading, search: searchGoogle, getPlaceDetails, clear: clearGoogleSuggestions, setTownBias } = useGooglePlacesAutocomplete();
 
   // Bias Google Places to selected town
   useEffect(() => {
-    setTownBias(selectedTown.center, selectedTown.radiusKm);
-  }, [selectedTown, setTownBias]);
+    setTownBias(safeTown.center, safeTown.radiusKm);
+  }, [safeTown, setTownBias]);
 
   // ── effects ──
   useEffect(() => {
@@ -137,6 +148,162 @@ export default function RideView() {
   useEffect(() => {
     if (gpsState.status === 'idle' && navigator.geolocation) handleUseMyLocation();
   }, []);
+
+  const loadViewerRows = useCallback(async (rideRequestId: string) => {
+    const activeSinceIso = new Date(Date.now() - 20_000).toISOString();
+
+    try {
+      const { data, error } = await supabase
+        .from('ride_request_views')
+        .select('id')
+        .eq('ride_request_id', rideRequestId)
+        .gt('last_seen_at', activeSinceIso);
+
+      console.log('Rider viewers fetch:', { rideRequestId, activeSinceIso, data, error });
+
+      if (error) throw error;
+
+      const mappedViewers: DriverViewing[] = (data ?? []).map((row, idx) => ({
+        driverId: String(row.id ?? `viewer-${idx}`),
+        name: `Driver ${idx + 1}`,
+        phone: '+263',
+        vehicleType: 'Car',
+        plateNumber: '—',
+        vehicleColor: undefined,
+        languages: ['English'],
+        distanceKm: 0,
+        etaMinutes: 0,
+      }));
+
+      setViewerCount((data ?? []).length);
+      setViewingDrivers(mappedViewers);
+    } catch {
+      setViewerCount(0);
+      setViewingDrivers([]);
+    }
+  }, []);
+
+  const loadPendingOffers = useCallback(async (rideRequestId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('ride_offers')
+        .select('*')
+        .eq('ride_request_id', rideRequestId)
+        .eq('status', 'pending')
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false });
+
+      console.log('Rider offers fetch:', { rideRequestId, data, error });
+
+      if (error) throw error;
+
+      const rows = data ?? [];
+
+      const mappedOffers: DriverOffer[] = rows.map((row, idx) => {
+        const profile = (row.driver as Record<string, unknown>) || (row.drivers as Record<string, unknown>) || {};
+        const name = row.driver_name ?? row.name ?? profile.full_name ?? profile.display_name ?? profile.name ?? 'Driver offer';
+        return {
+          driverId: String(row.driver_id ?? profile.id ?? `offer-driver-${idx}`),
+          offerId: String(row.id ?? `offer-${idx}`),
+          name: String(name),
+          driverName: String(name),
+          phone: String(row.phone ?? row.driver_phone ?? '+263'),
+          vehicleType: ((row.vehicle_type ?? profile.vehicle_type ?? 'Car') === 'Motorbike' ? 'Motorbike' : (row.vehicle_type ?? profile.vehicle_type ?? 'Car') === 'Taxi' ? 'Taxi' : 'Car') as DriverViewing['vehicleType'],
+          plateNumber: String(row.plate_number ?? profile.plate_number ?? '—'),
+          vehicleColor: (row.vehicle_color ?? profile.vehicle_color ?? undefined) as string | undefined,
+          languages: Array.isArray(row.languages) ? (row.languages as string[]) : ['English'],
+          distanceKm: Number(row.distance_km ?? row.distance ?? 0),
+          etaMinutes: Number(row.eta_minutes ?? row.eta ?? 0),
+          offeredFareR: Number(row.offered_fare ?? row.offer_fare ?? row.price ?? 0),
+          createdAt: String(row.created_at ?? new Date().toISOString()),
+          avatarUrl: (row.avatar_url ?? profile.avatar_url ?? null) as string | null,
+          ratingAvg: Number(row.rating_avg ?? profile.rating_avg ?? 0) || null,
+          totalTrips: Number(row.total_trips ?? profile.total_trips ?? 0) || null,
+          vehicleMake: (row.vehicle_make ?? profile.vehicle_make ?? undefined) as string | undefined,
+          vehicleModel: (row.vehicle_model ?? profile.vehicle_model ?? undefined) as string | undefined,
+          gender: (row.gender ?? profile.gender ?? null) as string | null,
+        };
+      });
+
+      setOffers(mappedOffers);
+    } catch {
+      setOffers([]);
+    }
+  }, []);
+
+  const loadAcceptedOffer = useCallback(async (rideRequestId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('ride_offers')
+        .select('*')
+        .eq('ride_request_id', rideRequestId)
+        .eq('status', 'accepted')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      console.log('Rider accepted-offer fetch:', { rideRequestId, data, error });
+
+      if (error) return;
+      const accepted = (data ?? [])[0] as Record<string, unknown> | undefined;
+      if (!accepted) return;
+
+      setMatchedDriver({
+        name: String(accepted.driver_name ?? 'Driver'),
+        car: String(accepted.vehicle_type ?? 'Car'),
+        plate: String(accepted.plate_number ?? '—'),
+        rating: Number(accepted.rating_avg ?? 4.5),
+        eta: Number(accepted.eta_minutes ?? 5),
+      });
+      setRideStatus('driver_assigned');
+    } catch {
+      // no-op
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!currentRideId || rideStatus !== 'searching') return;
+
+    let mounted = true;
+    const refreshAll = async () => {
+      if (!mounted) return;
+      await Promise.all([
+        loadViewerRows(currentRideId),
+        loadPendingOffers(currentRideId),
+        loadAcceptedOffer(currentRideId)
+      ]);
+    };
+
+    refreshAll();
+
+    const viewersChannel = supabase
+      .channel(`ride-request-views-${currentRideId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ride_request_views', filter: `ride_request_id=eq.${currentRideId}` },
+        () => { refreshAll(); }
+      )
+      .subscribe();
+
+    const offersChannel = supabase
+      .channel(`ride-offers-${currentRideId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'ride_offers', filter: `ride_request_id=eq.${currentRideId}` },
+        () => { refreshAll(); }
+      )
+      .subscribe();
+
+    const viewersRefreshTimer = window.setInterval(() => {
+      refreshAll();
+    }, 8000);
+
+    return () => {
+      mounted = false;
+      window.clearInterval(viewersRefreshTimer);
+      supabase.removeChannel(viewersChannel);
+      supabase.removeChannel(offersChannel);
+    };
+  }, [currentRideId, rideStatus, loadViewerRows, loadPendingOffers, loadAcceptedOffer]);
 
   // ── route / fare ──
   const { route: routeData, loading: routeLoading } = useOSRMRoute(
@@ -156,7 +323,13 @@ export default function RideView() {
     if (!navigator.geolocation) {setGpsState({ status: 'unavailable', coords: null, error: 'Geolocation not supported' });return;}
     setGpsState((prev) => ({ ...prev, status: 'loading', error: null }));
     navigator.geolocation.getCurrentPosition(
-      (pos) => {const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };setGpsState({ status: 'success', coords: c, error: null });setPickupLocation({ name: 'My location', lat: c.lat, lng: c.lng });setActiveField(null);setSelectedTown(detectTown(c.lat, c.lng));},
+      (pos) => {
+        const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setGpsState({ status: 'success', coords: c, error: null });
+        setPickupLocation({ name: 'My location', lat: c.lat, lng: c.lng });
+        setActiveField(null);
+        setSelectedTown(detectTown(c.lat, c.lng) ?? DEFAULT_TOWN);
+      },
       (err) => {setGpsState({ status: 'denied', coords: null, error: err.code === err.PERMISSION_DENIED ? 'Location access denied' : 'Unable to get location' });},
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -193,23 +366,6 @@ export default function RideView() {
     if (!pickupLocation && !dropoffLocation) return;
     setPickupLocation(dropoffLocation);
     setDropoffLocation(pickupLocation);
-    haptic('light');
-  };
-
-  const handleRecentPlaceSelect = (loc: { name: string; lat: number; lng: number }) => {
-    const selected: SelectedLocation = { name: loc.name, lat: loc.lat, lng: loc.lng };
-    if (activeField === 'pickup') {
-      setPickupLocation(selected);
-      setActiveField('dropoff');
-    } else if (activeField === 'dropoff') {
-      setDropoffLocation(selected);
-      setActiveField(null);
-    } else if (!pickupLocation) {
-      setPickupLocation(selected);
-      setActiveField('dropoff');
-    } else {
-      setDropoffLocation(selected);
-    }
     haptic('light');
   };
 
@@ -280,12 +436,17 @@ export default function RideView() {
       });
       if (!result.ok) throw new Error(result.error);
 
+      const rideId = result?.ride?.id;
+      if (!rideId) {
+        throw new Error('Ride was created but no ride ID was returned. Please try again.');
+      }
+
       // Save multi-stops if any
-      if (rideStops.length > 0 && result.ride.id) {
+      if (rideStops.length > 0) {
         const stopsToInsert = rideStops.
-        filter((s) => s.address && s.lat && s.lng).
+        filter((s) => s.address?.trim() && Number.isFinite(s.lat) && Number.isFinite(s.lng)).
         map((s, i) => ({
-          ride_id: result.ride.id,
+          ride_id: rideId,
           stop_order: i + 1,
           address: s.address,
           latitude: s.lat,
@@ -296,14 +457,17 @@ export default function RideView() {
         }
       }
 
-      setCurrentRideId(result.ride.id);
+      setCurrentRideId(rideId);
       toast({
         title: scheduledAt ? 'Ride scheduled!' : 'Offer sent!',
         description: bookForSomeoneElse && passengerName.trim()
           ? `Passenger: ${passengerName.trim()}${passengerPhone.trim() ? ` (${passengerPhone.trim()})` : ''}`
           : `${fareEstimate.currencySymbol}${customFare} — ${scheduledAt ? 'scheduled for later' : 'waiting for drivers…'}`,
       });
-      if (!scheduledAt) navigate(`/ride/${result.ride.id}`);else
+      if (!scheduledAt) {
+        setRideStatus('searching');
+        setSearchStartedAt(Date.now());
+      } else
       {setRideStatus('idle');setScheduledAt(null);setRideStops([]);}
     } catch (error: unknown) {toast({ title: 'Failed to send offer', description: (error as Error).message, variant: 'destructive' });setRideStatus('idle');} finally {setIsRequesting(false);}
   };
@@ -323,8 +487,60 @@ export default function RideView() {
     setSearchQuery('');
   };
 
-  const handleAcceptOffer = async (offerId: string) => {setRideStatus('driver_assigned');setOffersOpen(false);toast({ title: 'Driver accepted!' });setMatchedDriver({ name: 'Sipho Ndlovu', car: 'Toyota Corolla', plate: 'ACB 2345', rating: 4.8, eta: 3 });setTimeout(() => setRideStatus('driver_arriving'), 2000);};
-  const handleDeclineOffer = async (offerId: string) => {setOffers((prev) => prev.filter((o) => o.offerId !== offerId));if (offers.length <= 1) setRideStatus('searching');};
+  const handleAcceptOffer = async (offerId: string) => {
+    const selectedOffer = offers.find((o) => o.offerId === offerId);
+    if (!selectedOffer || !currentRideId) return;
+
+    const sb = supabase as unknown as {
+      from: (table: string) => {
+        update: (values: Record<string, unknown>) => {
+          eq: (column: string, value: string) => {
+            neq: (column: string, value: string) => Promise<{ error: { message: string } | null }>;
+          };
+        };
+      };
+    };
+
+    try {
+      await sb.from('ride_offers').update({ status: 'accepted' }).eq('id', offerId).neq('id', '__never__');
+      await sb
+        .from('ride_offers')
+        .update({ status: 'rejected' })
+        .eq('ride_request_id', currentRideId)
+        .neq('id', offerId);
+
+      setRideStatus('driver_assigned');
+      toast({ title: 'Driver accepted!' });
+      setMatchedDriver({
+        name: selectedOffer.driverName || selectedOffer.name,
+        car: selectedOffer.vehicleMake && selectedOffer.vehicleModel ? `${selectedOffer.vehicleMake} ${selectedOffer.vehicleModel}` : selectedOffer.vehicleType,
+        plate: selectedOffer.plateNumber,
+        rating: selectedOffer.ratingAvg ?? 4.5,
+        eta: selectedOffer.etaMinutes,
+        avatar: selectedOffer.avatarUrl || undefined,
+      });
+      setTimeout(() => setRideStatus('driver_arriving'), 2000);
+    } catch (error) {
+      toast({ title: 'Could not accept offer', description: error instanceof Error ? error.message : 'Please try again', variant: 'destructive' });
+    }
+  };
+
+  const handleDeclineOffer = async (offerId: string) => {
+    const sb = supabase as unknown as {
+      from: (table: string) => {
+        update: (values: Record<string, unknown>) => {
+          eq: (column: string, value: string) => Promise<{ error: { message: string } | null }>;
+        };
+      };
+    };
+
+    try {
+      await sb.from('ride_offers').update({ status: 'rejected' }).eq('id', offerId);
+      setOffers((prev) => prev.filter((o) => o.offerId !== offerId));
+    } catch (error) {
+      toast({ title: 'Could not decline offer', description: error instanceof Error ? error.message : 'Please try again', variant: 'destructive' });
+    }
+  };
   const handleCancelRide = async () => {if (currentRideId) await supabase.from('rides').update({ status: 'cancelled' }).eq('id', currentRideId);setRideStatus('idle');setCurrentRideId(null);setOffers([]);setViewingDrivers([]);setMatchedDriver(null);toast({ title: 'Ride cancelled' });};
 
   const handleSearchChange = (value: string) => {
@@ -345,6 +561,33 @@ export default function RideView() {
   const canRequestRide = pickupLocation && dropoffLocation && fareEstimate && !isRequesting;
   const showNominatimFallback = searchQuery.trim().length >= 3 && landmarks.length === 0 && nominatimResults.length > 0;
 
+  const extraPassengers = Math.max(passengerCount - 3, 0);
+  const extraPassengerFee = extraPassengers * 0.5;
+  const totalFare = fareEstimate
+    ? townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee
+    : null;
+  const viewedDriversCount = viewerCount;
+  const remainingSeconds = searchStartedAt
+    ? Math.max(0, 180 - Math.floor((Date.now() - searchStartedAt) / 1000))
+    : 180;
+  const effectiveSearchFare = searchFare ?? totalFare ?? fareEstimate?.fareR ?? 0;
+  const fareQualityText = fareEstimate && effectiveSearchFare >= fareEstimate.fareR + 1
+    ? 'Excellent fare. Better chance to get offers'
+    : fareEstimate && effectiveSearchFare >= fareEstimate.fareR
+      ? 'Good fare. Your request gets priority'
+      : 'Fair fare. Raise slightly for faster matching';
+  const activityCards = useMemo(() => {
+    return [
+      viewedDriversCount > 0
+        ? `${viewedDriversCount} driver${viewedDriversCount === 1 ? '' : 's'} viewing your request`
+        : 'Waiting for drivers to view your request',
+      offers.length > 0
+        ? `${offers.length} live offer${offers.length === 1 ? '' : 's'} received`
+        : 'Live offers will appear here once drivers respond'
+    ];
+  }, [viewedDriversCount, offers]);
+  const inlineOffers = useMemo(() => offers.slice(0, 6), [offers]);
+
   // ═══════════════════════════════════════════
   // DRIVER MATCHED VIEW
   // ═══════════════════════════════════════════
@@ -352,7 +595,7 @@ export default function RideView() {
     return (
       <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
         <div className="absolute inset-0">
-          <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
+          <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} defaultCenter={safeTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
         </div>
 
         {/* Top gradient */}
@@ -374,7 +617,11 @@ export default function RideView() {
           transition={{ type: 'spring', stiffness: 300, damping: 25, delay: 0.2 }}
           className="absolute top-24 left-4 right-4 z-30">
           
-          <div className="glass-card-heavy p-5 flex items-center gap-4">
+          <div className="glass-card-heavy p-5 space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-bold text-primary uppercase tracking-wider">
+              <ShieldCheck className="w-3.5 h-3.5" /> Matched driver
+            </div>
+            <div className="flex items-center gap-4">
             <motion.div
               className="w-14 h-14 rounded-2xl flex items-center justify-center"
               style={{ background: 'var(--gradient-primary)' }}
@@ -393,6 +640,7 @@ export default function RideView() {
                 
                 {matchedDriver.eta} <span className="text-lg font-medium text-muted-foreground">min</span>
               </motion.p>
+            </div>
             </div>
           </div>
         </motion.div>
@@ -423,6 +671,16 @@ export default function RideView() {
               <div className="flex items-center gap-1 glass-card rounded-full px-3 py-1.5 glass-glow-yellow shrink-0">
                 <Star className="w-3.5 h-3.5 text-accent fill-accent" />
                 <span className="text-sm font-bold text-foreground">{matchedDriver.rating}</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-2 mb-4">
+              <div className="glass-card rounded-xl px-3 py-2">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Pickup</p>
+                <p className="text-sm font-medium text-foreground truncate">{pickupLocation?.name || '—'}</p>
+              </div>
+              <div className="glass-card rounded-xl px-3 py-2">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Drop-off</p>
+                <p className="text-sm font-medium text-foreground truncate">{dropoffLocation?.name || '—'}</p>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -471,6 +729,281 @@ export default function RideView() {
       </div>);
   }
 
+  if (rideStatus === 'searching' && pickupLocation && dropoffLocation) {
+    return (
+      <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
+        <div className="absolute inset-0">
+          <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} defaultCenter={safeTown.center} defaultZoom={14} className="w-full h-full" height="100%" drivers={nearbyDrivers} />
+        </div>
+
+        <div className="absolute top-0 left-0 right-0 h-28 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, hsl(217 85% 29% / 0.14), transparent)' }} />
+
+        <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
+          <button onClick={handleCancelRide} className="w-12 h-12 flex items-center justify-center rounded-full glass-card active:scale-95 transition-all">
+            <ArrowLeft className="w-5 h-5 text-primary" />
+          </button>
+          <VoyexLogo size="sm" />
+          <div className="w-12" />
+        </div>
+
+        <div className="absolute left-4 right-4 z-30 space-y-2" style={{ top: 'calc(env(safe-area-inset-top) + 64px)' }}>
+          <AnimatePresence mode="popLayout" initial={false}>
+            {[0, 1].map((idx) => (
+              <motion.div
+                key={`${activityCards[idx]}-${idx}`}
+                initial={prefersReducedMotion ? { opacity: 0 } : { y: -10, opacity: 0, scale: 0.98 }}
+                animate={prefersReducedMotion ? { opacity: 1 } : { y: 0, opacity: 1, scale: 1 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { y: -8, opacity: 0, scale: 0.98 }}
+                transition={{ duration: prefersReducedMotion ? 0.15 : 0.28 }}
+                className="glass-card rounded-2xl px-4 py-2.5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <motion.span
+                    className="w-2 h-2 rounded-full bg-accent"
+                    animate={prefersReducedMotion ? undefined : { opacity: [0.4, 1, 0.4] }}
+                    transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+                  />
+                  <p className="text-xs font-medium text-foreground">{activityCards[idx]}</p>
+                </div>
+                <span className="text-[10px] text-muted-foreground">Live</span>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        <GlassSheet
+          className="absolute left-3 right-3 z-50 flex flex-col"
+          style={{
+            bottom: 8,
+            height: '50vh',
+            transition: 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
+            paddingBottom: 'env(safe-area-inset-bottom)',
+            borderTopLeftRadius: 28,
+            borderTopRightRadius: 28
+          }}>
+          <div className="w-full py-3 flex justify-center shrink-0 rounded-t-[28px]" style={{ background: 'var(--gradient-primary)' }}>
+            <div className="w-12 h-1.5 rounded-full bg-primary-foreground/40" />
+          </div>
+
+          <div className="flex-1 px-4 pb-3 space-y-3 overflow-y-auto">
+            <div className="glass-card rounded-2xl p-3.5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-widest text-primary font-bold">Live matching</p>
+                  <p className="text-[20px] leading-tight font-black text-foreground mt-0.5">
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.span
+                        key={viewedDriversCount}
+                        initial={prefersReducedMotion ? { opacity: 0 } : { y: 8, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={prefersReducedMotion ? { opacity: 0 } : { y: -8, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="inline-block min-w-[16px] text-primary"
+                      >
+                        {viewedDriversCount}
+                      </motion.span>
+                    </AnimatePresence>{' '}
+                    driver{viewedDriversCount !== 1 ? 's' : ''}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">viewing your request right now</p>
+                  <div className="mt-2 flex -space-x-2">
+                    {Array.from({ length: Math.max(1, Math.min(4, viewedDriversCount || 1)) }).map((_, i) => (
+                      <motion.div
+                        key={`${i}-${viewedDriversCount}`}
+                        initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0.85, y: 4, opacity: 0 }}
+                        animate={{ scale: 1, y: 0, opacity: 1 }}
+                        transition={{ duration: 0.22, delay: Math.min(i * 0.04, 0.16) }}
+                        className="w-8 h-8 rounded-full border-2 border-background bg-primary/15 flex items-center justify-center text-primary text-[10px] font-bold">
+                        {viewingDrivers[i]?.name?.[0] || offers[i]?.driverName?.[0] || 'V'}
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+                <div className="text-right glass-card rounded-xl px-3 py-2">
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Request timer</p>
+                  <p className="text-lg font-bold text-primary tabular-nums">{Math.floor(remainingSeconds / 60)}:{String(remainingSeconds % 60).padStart(2, '0')}</p>
+                </div>
+              </div>
+              {(viewingDrivers.length > 0 || offers.length > 0) && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {viewingDrivers.slice(0, 4).map((d, i) => (
+                    <span key={`${d.driverId || d.name}-${i}`} className="text-[11px] px-2 py-1 rounded-full bg-primary/10 text-primary font-medium truncate max-w-[140px]">
+                      {d.name} · {d.etaMinutes}m
+                    </span>
+                  ))}
+                </div>
+              )}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={fareQualityText}
+                  initial={prefersReducedMotion ? { opacity: 0 } : { y: 6, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={prefersReducedMotion ? { opacity: 0 } : { y: -6, opacity: 0 }}
+                  transition={{ duration: 0.22 }}
+                  className="mt-3 rounded-xl bg-accent/20 px-3 py-2 text-xs font-semibold text-accent-foreground inline-flex items-center gap-2"
+                >
+                  <Sparkles className="w-3.5 h-3.5" /> {fareQualityText}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            <div className="glass-card rounded-2xl p-3.5 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-foreground">Adjust fare</p>
+                <p className="text-xs text-muted-foreground">Step {fareEstimate?.currencySymbol || '$'}0.50</p>
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => setSearchFare((f) => Math.max(0, (f ?? effectiveSearchFare) - 0.5))}
+                  className="w-10 h-10 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <div className="text-2xl font-black font-display text-primary min-w-[120px] text-center">
+                  {(fareEstimate?.currencySymbol || '$')}{effectiveSearchFare.toFixed(2)}
+                </div>
+                <button
+                  onClick={() => setSearchFare((f) => (f ?? effectiveSearchFare) + 0.5)}
+                  className="w-10 h-10 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+              <PrimaryButton
+                onClick={() => toast({ title: 'Fare updated', description: `Matching with ${fareEstimate?.currencySymbol || '$'}${effectiveSearchFare.toFixed(2)}` })}
+                className="w-full h-11 rounded-xl"
+              >
+                Raise Fare
+              </PrimaryButton>
+            </div>
+
+            <div className="glass-card rounded-2xl p-3.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-foreground">Offers received</p>
+                  <span className="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                    {inlineOffers.length}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">Live</p>
+              </div>
+
+              {inlineOffers.length === 0 ? (
+                <div className="rounded-xl bg-muted/50 px-3 py-3 text-xs text-muted-foreground border border-dashed border-border">
+                  Waiting for offers… Drivers who like your fare will appear here instantly.
+                </div>
+              ) : (
+                <div className="max-h-[42vh] overflow-y-auto space-y-2 pr-1">
+                  <AnimatePresence initial={false}>
+                    {inlineOffers.map((o, idx) => (
+                      <motion.div
+                        key={o.offerId}
+                        initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 10, scale: 0.985 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.985 }}
+                        transition={{ duration: 0.22, delay: Math.min(idx * 0.03, 0.15) }}
+                        className="rounded-2xl border border-white/40 bg-white/75 backdrop-blur-sm p-3 shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 overflow-hidden flex items-center justify-center shrink-0">
+                              {o.avatarUrl ? (
+                                <img src={o.avatarUrl} alt={o.driverName || o.name || 'Driver'} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-xs font-bold text-primary">{(o.driverName || o.name || 'D').charAt(0)}</span>
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-foreground truncate">{o.driverName || o.name || 'Driver'}</p>
+                              <p className="text-xs text-muted-foreground truncate">
+                                {o.ratingAvg ? `${Number(o.ratingAvg).toFixed(1)} ★` : 'New'} · ETA {o.etaMinutes} min
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Fare</p>
+                            <p className="text-base font-black text-primary">${o.offeredFareR.toFixed(2)}</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-2 flex gap-2">
+                          <button
+                            onClick={() => handleAcceptOffer(o.offerId)}
+                            className="flex-1 h-9 rounded-xl bg-primary text-primary-foreground text-sm font-semibold"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => handleDeclineOffer(o.offerId)}
+                            className="flex-1 h-9 rounded-xl bg-muted text-foreground text-sm font-medium"
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
+            </div>
+
+            <div className="glass-card rounded-2xl p-3.5 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Auto-accept</p>
+                  <p className="text-xs text-muted-foreground">Auto-accept an offer of {(fareEstimate?.currencySymbol || '$')}{effectiveSearchFare.toFixed(2)} up to {autoAcceptMaxEta} min away</p>
+                </div>
+                <button
+                  onClick={() => setAutoAcceptEnabled((v) => !v)}
+                  className={cn('h-7 w-12 rounded-full transition-colors', autoAcceptEnabled ? 'bg-primary' : 'bg-muted')}>
+                  <span className={cn('block h-6 w-6 rounded-full bg-white transition-transform', autoAcceptEnabled ? 'translate-x-6' : 'translate-x-0')} />
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setAutoAcceptMaxEta((v) => Math.max(3, v - 1))} className="w-7 h-7 rounded-full glass-card flex items-center justify-center"><Minus className="w-3 h-3" /></button>
+                <span className="text-xs font-medium text-foreground">Max ETA: {autoAcceptMaxEta} min</span>
+                <button onClick={() => setAutoAcceptMaxEta((v) => Math.min(15, v + 1))} className="w-7 h-7 rounded-full glass-card flex items-center justify-center"><Plus className="w-3 h-3" /></button>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
+              <div className="flex gap-2">
+                {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'ecocash' as const, icon: Phone, label: 'EcoCash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
+                <button
+                  key={pm.key}
+                  onClick={() => setPaymentMethod(pm.key)}
+                  className={cn(
+                    'flex-1 flex items-center gap-2 px-3 py-3 rounded-2xl transition-all active:scale-[0.98] glass-card',
+                    paymentMethod === pm.key ? 'ring-1 ring-primary/25' : ''
+                  )}>
+                    <pm.icon className={cn('w-4 h-4', paymentMethod === pm.key ? 'text-primary' : 'text-muted-foreground')} />
+                    <span className={cn('font-medium text-sm', paymentMethod === pm.key ? 'text-primary' : 'text-foreground')}>{pm.label}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-2">
+              <div className="glass-card rounded-xl px-3 py-2.5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Pickup</p>
+                <p className="text-sm font-medium truncate">{pickupLocation.name}</p>
+              </div>
+              <div className="glass-card rounded-xl px-3 py-2.5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Drop-off</p>
+                <p className="text-sm font-medium truncate">{dropoffLocation.name}</p>
+              </div>
+            </div>
+
+            <button onClick={handleCancelRide} className="w-full h-11 rounded-xl bg-destructive/10 text-destructive font-semibold">
+              Cancel Request
+            </button>
+          </div>
+        </GlassSheet>
+
+      </div>
+    );
+  }
+
   // ═══════════════════════════════════════════
   // MAIN RIDE BOOKING UI
   // ═══════════════════════════════════════════
@@ -478,7 +1011,7 @@ export default function RideView() {
     <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
       {/* ── MAP ── */}
       <div className="absolute inset-0">
-        <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" drivers={nearbyDrivers} />
+        <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={safeTown.center} defaultZoom={14} className="w-full h-full" height="100%" drivers={nearbyDrivers} />
 
         {/* Floating map buttons */}
         <div className="absolute right-3 z-20" style={{ bottom: sheetExpanded ? 'calc(70vh + 16px)' : 'calc(48vh + 16px)', transition: 'bottom 0.3s cubic-bezier(0.32,0.72,0,1)' }}>
@@ -592,7 +1125,7 @@ export default function RideView() {
         className="absolute left-3 right-3 z-50 flex flex-col"
         style={{
           bottom: 8,
-          height: sheetExpanded ? '70vh' : '48vh',
+          height: sheetExpanded ? '74vh' : '56vh',
           transition: 'height 0.3s cubic-bezier(0.32,0.72,0,1)',
           paddingBottom: 'env(safe-area-inset-bottom)',
           borderTopLeftRadius: 28,
@@ -622,8 +1155,15 @@ export default function RideView() {
 
           {/* Town selector row */}
           <div className="flex items-center justify-between">
-            <TownSelectorSheet currentTown={selectedTown} onSelect={(town) => {setSelectedTown(town);setPickupLocation(null);setDropoffLocation(null);}} />
-            <p className="text-[10px] text-muted-foreground">{selectedTown.radiusKm}km area</p>
+            <TownSelectorSheet
+              currentTown={safeTown}
+              onSelect={(town) => {
+                setSelectedTown(town ?? DEFAULT_TOWN);
+                setPickupLocation(null);
+                setDropoffLocation(null);
+              }}
+            />
+            <p className="text-[10px] text-muted-foreground">{safeTown.radiusKm}km area</p>
           </div>
 
           {/* Quick actions */}
@@ -633,26 +1173,35 @@ export default function RideView() {
                 setActiveField(activeField ?? 'dropoff');
                 setSearchQuery('Home');
               }}
-              className="h-12 rounded-2xl"
+              className="h-12 rounded-2xl gap-2"
             >
-              🏠 Home
+              <Home className="h-4 w-4" /> Home
             </SecondaryButton>
             <SecondaryButton
               onClick={() => {
                 setActiveField(activeField ?? 'dropoff');
                 setSearchQuery('Work');
               }}
-              className="h-12 rounded-2xl"
+              className="h-12 rounded-2xl gap-2"
             >
-              💼 Work
+              <Briefcase className="h-4 w-4" /> Work
             </SecondaryButton>
           </div>
 
           {/* Pickup & Dropoff — premium cards with swap */}
           <div className="space-y-2 relative">
-            <button
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => {setActiveField('pickup');setSearchQuery('');}}
-              className="w-full min-h-[62px] flex items-center gap-3 px-3 py-3 rounded-2xl active:scale-[0.98] transition-all text-left glass-card">
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setActiveField('pickup');
+                  setSearchQuery('');
+                }
+              }}
+              className="w-full min-h-[62px] flex items-center gap-3 px-3 py-3 rounded-2xl active:scale-[0.98] transition-all text-left glass-card cursor-pointer">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-accent">
                 <MapPin className="w-4 h-4 text-accent-foreground" />
               </div>
@@ -664,13 +1213,34 @@ export default function RideView() {
               </div>
               {pickupLocation ?
               <span onClick={(e) => {e.stopPropagation();setPickupLocation(null);}} className="p-1.5 hover:bg-foreground/5 rounded-full"><X className="w-3.5 h-3.5 text-muted-foreground" /></span> :
-              <button onClick={(e) => {e.stopPropagation();handleUseMyLocation();}} className="p-1.5 hover:bg-foreground/5 rounded-full"><Locate className="w-3.5 h-3.5 text-primary" /></button>
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {e.stopPropagation();handleUseMyLocation();}}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleUseMyLocation();
+                  }
+                }}
+                className="p-1.5 hover:bg-foreground/5 rounded-full cursor-pointer"
+              ><Locate className="w-3.5 h-3.5 text-primary" /></span>
               }
-            </button>
+            </div>
 
-            <button
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => {setActiveField('dropoff');setSearchQuery('');}}
-              className="w-full min-h-[62px] flex items-center gap-3 px-3 py-3 rounded-2xl active:scale-[0.98] transition-all text-left glass-card">
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setActiveField('dropoff');
+                  setSearchQuery('');
+                }
+              }}
+              className="w-full min-h-[62px] flex items-center gap-3 px-3 py-3 rounded-2xl active:scale-[0.98] transition-all text-left glass-card cursor-pointer">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'var(--gradient-primary)' }}>
                 <MapPin className="w-4 h-4 text-primary-foreground" />
               </div>
@@ -683,7 +1253,7 @@ export default function RideView() {
               {dropoffLocation &&
               <span onClick={(e) => {e.stopPropagation();setDropoffLocation(null);}} className="p-1.5 hover:bg-foreground/5 rounded-full"><X className="w-3.5 h-3.5 text-muted-foreground" /></span>
               }
-            </button>
+            </div>
 
             <button
               onClick={handleSwapPickupDropoff}
@@ -695,23 +1265,20 @@ export default function RideView() {
             </button>
           </div>
 
-          {/* Recent places */}
-          <div className="glass-card rounded-2xl p-3">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Recent places</p>
-            <RecentDestinations
-              field={activeField === 'pickup' ? 'pickup' : 'dropoff'}
-              onSelect={handleRecentPlaceSelect}
-            />
-          </div>
-
           {/* Multi-stop + Schedule */}
           <MultiStopInput
             stops={rideStops}
             onAddStop={handleAddStop}
             onRemoveStop={handleRemoveStop}
             onStopClick={handleStopClick} />
-          
-          <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
+
+          <div className="glass-card rounded-2xl p-3 space-y-2.5">
+            <div className="flex items-center gap-2">
+              <CalendarClock className="w-4 h-4 text-primary" />
+              <p className="text-xs font-semibold">Schedule</p>
+            </div>
+            <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
+          </div>
 
           {/* Passenger selector — compact inline */}
           <div className="flex items-center justify-between glass-card rounded-2xl px-3 py-2">
@@ -761,58 +1328,29 @@ export default function RideView() {
           {/* Women-only ride toggle */}
           <GenderPreferenceToggle value={genderPreference} onChange={setGenderPreference} />
 
-          {/* ── Fare breakdown + Negotiation (expanded) ── */}
+          {/* ── Fare + payment (expanded) ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
-            const activeTown = selectedTown.name;
-            const extraPassengers = Math.max(passengerCount - 3, 0);
-            const extraPassengerFee = extraPassengers * 0.5;
             const baseFare = townPricing.base_fare;
             const distanceFare = fareEstimate.fareR - baseFare;
-            const totalFare = baseFare + distanceFare + extraPassengerFee;
+            const finalFare = baseFare + distanceFare + extraPassengerFee;
             const sym = fareEstimate.currencySymbol;
-            const code = fareEstimate.currencyCode;
             const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
 
             return (
               <>
-                {/* Compact fare card */}
-                
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                
-
-                {/* Negotiation + Payment — always visible */}
-                <NegotiationCard
-                  pricing={townPricing}
-                  distanceKm={fareEstimate.distanceKm}
-                  durationMinutes={fareEstimate.durationMinutes}
-                  onSendOffer={(fare) => handleSendOffer(fare + extraPassengerFee)}
-                  isSubmitting={isRequesting} />
+                <div className="glass-card rounded-2xl p-3 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold">Trip estimate</p>
+                    <p className="text-sm font-bold text-primary">{fmt(finalFare)}</p>
+                  </div>
+                  <div className="space-y-1.5 text-xs text-muted-foreground">
+                    <div className="flex items-center justify-between"><span>Base fare</span><span>{fmt(baseFare)}</span></div>
+                    <div className="flex items-center justify-between"><span>Distance & time</span><span>{fmt(distanceFare)}</span></div>
+                    {extraPassengerFee > 0 && (
+                      <div className="flex items-center justify-between"><span>Extra passengers</span><span>{fmt(extraPassengerFee)}</span></div>
+                    )}
+                  </div>
+                </div>
 
                 <div>
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
@@ -835,29 +1373,24 @@ export default function RideView() {
                 {rideStatus !== 'idle' &&
                 <button onClick={handleCancelRide} className="w-full text-center text-sm text-destructive font-medium py-1.5 hover:underline transition-colors">Cancel Ride</button>
                 }
-              </>);
-
+              </>
+            );
           })()}
         </div>
 
         {/* ── PINNED FIND DRIVERS BUTTON ── always visible at bottom */}
         <div className="shrink-0 px-4 pb-3 pt-2">
-          {pickupLocation && dropoffLocation && fareEstimate ? (() => {
-            const activeTown = selectedTown.name;
-            const extraPassengers = Math.max(passengerCount - 3, 0);
-            const extraPassengerFee = extraPassengers * 0.5;
-            const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee;
+          {pickupLocation && dropoffLocation && fareEstimate && totalFare !== null ? (() => {
             const sym = fareEstimate.currencySymbol;
-            const code = fareEstimate.currencyCode;
             const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
             return (
               <PrimaryButton
-                onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
+                onClick={() => handleSendOffer(totalFare)}
                 disabled={isRequesting}
-                className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center">
+                className="w-full h-[52px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center shadow-[0_10px_30px_hsl(217_85%_29%/0.35)]">
                 
                 {isRequesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Car className="w-4 h-4" />}
-                {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
+                {isRequesting ? 'Finding Drivers…' : `Find Drivers • ${fmt(totalFare)}`}
               </PrimaryButton>);
 
           })() :
@@ -923,7 +1456,7 @@ export default function RideView() {
             <>
                 <div className="px-4 pt-3 pb-1">
                   <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-                    📍 Places in {selectedTown.name}
+                    📍 Places in {safeTown.name}
                   </p>
                 </div>
                 {landmarksLoading ?
@@ -941,7 +1474,7 @@ export default function RideView() {
                     </button>
               ) :
 
-              <p className="text-sm text-muted-foreground text-center py-6">No places found in {selectedTown.name}</p>
+              <p className="text-sm text-muted-foreground text-center py-6">No places found in {safeTown.name}</p>
               }
               </>
             }
@@ -1011,7 +1544,6 @@ export default function RideView() {
       }
 
       {/* Modals */}
-      <OffersModal isOpen={offersOpen} tripId={currentRideId || ''} viewing={viewingDrivers} offers={offers} onAcceptOffer={handleAcceptOffer} onDeclineOffer={handleDeclineOffer} onCancelRide={handleCancelRide} onClose={() => setOffersOpen(false)} />
       <AuthModalWrapper isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} mode={authMode} onSwitchMode={() => setAuthMode((m) => m === 'login' ? 'signup' : 'login')} />
     </div>);
 

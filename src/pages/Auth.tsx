@@ -14,6 +14,7 @@ import VoyexLogo from '@/components/VoyexLogo';
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const defaultMode = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
+  const redirectTo = searchParams.get('redirect') || '/app';
   const [mode, setMode] = useState<'login' | 'signup'>(defaultMode);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, loading, signIn, signUp } = useAuth();
@@ -34,9 +35,9 @@ const Auth = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/app');
+      navigate(redirectTo, { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, redirectTo]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +53,7 @@ const Auth = () => {
         });
       } else {
         toast({ title: 'Welcome back!' });
-        navigate('/app');
+        navigate(redirectTo, { replace: true });
       }
     } finally {
       setIsSubmitting(false);
@@ -110,7 +111,7 @@ const Auth = () => {
       }
 
       toast({ title: 'Account created!', description: 'Welcome to Voyex.' });
-      navigate('/app');
+      navigate(redirectTo, { replace: true });
     } finally {
       setIsSubmitting(false);
     }

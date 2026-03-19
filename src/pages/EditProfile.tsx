@@ -25,9 +25,9 @@ export default function EditProfile() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) { navigate('/auth'); return; }
+    if (!authLoading && !user) { navigate('/auth?redirect=%2Fedit-profile', { replace: true }); return; }
     if (user && !loaded) loadProfile();
-  }, [user, authLoading]);
+  }, [user, authLoading, loaded, navigate]);
 
   const loadProfile = async () => {
     const { data } = await supabase

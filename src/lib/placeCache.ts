@@ -2,9 +2,23 @@
 import { supabase } from '@/lib/supabaseClient';
 import type { NominatimResult } from '@/lib/geo';
 
+function isNonFatalPlaceCacheError(error: { code?: string; status?: number; message?: string; details?: string; hint?: string }) {
+  const message = (error.message ?? '').toLowerCase();
+  const details = (error.details ?? '').toLowerCase();
+  const hint = (error.hint ?? '').toLowerCase();
+
+  return (
+    error.code === '23505' ||
+    error.status === 409 ||
+    message.includes('no unique or exclusion constraint matching the on conflict specification') ||
+    details.includes('no unique or exclusion constraint matching the on conflict specification') ||
+    hint.includes('no unique or exclusion constraint matching the on conflict specification')
+  );
+}
+
 /**
  * Cache a Nominatim result into the places_cache table.
- * Silently ignores duplicate OSM entities (upsert via unique index).
+ * Best-effort write: never throws into ride flow.
  */
 export async function cachePlaceFromNominatim(p: NominatimResult): Promise<void> {
   try {
@@ -20,22 +34,38 @@ export async function cachePlaceFromNominatim(p: NominatimResult): Promise<void>
       address: p.address ?? null,
     };
 
-    // Duplicates are expected when users search/select the same place repeatedly.
-    // Use upsert on the OSM unique key when available, and ignore duplicates.
     const hasOsmIdentity = Boolean(payload.osm_type && payload.osm_id);
 
-    const query = hasOsmIdentity
-      ? supabase
-          .from('places_cache')
-          .upsert(payload, { onConflict: 'osm_type,osm_id', ignoreDuplicates: true })
-      : supabase.from('places_cache').insert(payload);
+    // Idempotency guard: if this OSM entity already exists, skip write.
+    if (hasOsmIdentity) {
+      const { data: existingByOsm, error: existingByOsmError } = await supabase
+        .from('places_cache')
+        .select('id')
+        .eq('osm_type', payload.osm_type)
+        .eq('osm_id', payload.osm_id as number)
+        .limit(1)
+        .maybeSingle();
 
-    const { error } = await query;
+      if (!existingByOsmError && existingByOsm?.id) return;
+
+      if (existingByOsmError && !isNonFatalPlaceCacheError(existingByOsmError)) {
+        // Non-fatal cache read issue; continue and attempt insert as best-effort.
+        console.warn('[placeCache] non-fatal precheck error:', existingByOsmError.message);
+      }
+    }
+
+    // NOTE:
+    // We intentionally avoid `upsert(..., { onConflict: 'osm_type,osm_id' })` here because
+    // some environments only have a partial unique index for these columns. PostgREST then
+    // returns 400: "there is no unique or exclusion constraint matching the ON CONFLICT
+    // specification". Cache writes are non-critical, so use plain insert and fail safely.
+    const { error } = await supabase.from('places_cache').insert(payload);
 
     // Cache is best-effort only; never fail ride flow due to cache writes.
     if (error) {
-      // 409/23505 duplicate conflicts are explicitly non-fatal.
-      if (error.code === '23505' || (error as { status?: number }).status === 409) return;
+      // Duplicate/constraint conflicts are treated as successful idempotent cache writes.
+      if (isNonFatalPlaceCacheError(error)) return;
+
       console.warn('[placeCache] non-fatal cache write error:', error.message);
     }
   } catch {

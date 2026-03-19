@@ -45,6 +45,11 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@voyexapp" />
 
+    <!-- Fonts (moved from CSS @import to improve CSS/HMR reliability) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
     <!-- Leaflet CSS for OpenStreetMap -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
@@ -98,16 +103,36 @@
         const img = document.getElementById('instant-splash-img');
         if (!splash) return;
 
+        let hidden = false;
+
+        const hasShown = () => {
+          try {
+            return sessionStorage.getItem(KEY) === '1';
+          } catch {
+            return false;
+          }
+        };
+
+        const markShown = () => {
+          try {
+            sessionStorage.setItem(KEY, '1');
+          } catch {
+            // ignore storage write failure
+          }
+        };
+
         // Only show the HTML splash once per tab/session.
-        if (sessionStorage.getItem(KEY)) {
+        if (hasShown()) {
           splash.remove();
           return;
         }
 
         const hide = () => {
+          if (hidden) return;
+          hidden = true;
           splash.style.opacity = '0';
           setTimeout(() => splash.remove(), 350);
-          sessionStorage.setItem(KEY, '1');
+          markShown();
         };
 
         if (img && img.complete) {

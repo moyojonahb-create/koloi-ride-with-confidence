@@ -429,7 +429,7 @@ export default function DriverDashboard() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      nav("/auth");
+      nav("/auth?redirect=%2Fdriver%2Fdashboard", { replace: true });
       return;
     }
     if (!authLoading) {
@@ -535,7 +535,7 @@ export default function DriverDashboard() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-destructive">{error || "Driver profile not found."}</p>
-            <Button onClick={() => nav("/drive")} className="mt-4">
+            <Button onClick={() => nav("/driver/register")} className="mt-4">
               Complete Registration
             </Button>
           </CardContent>
@@ -631,7 +631,7 @@ export default function DriverDashboard() {
             </Button>
             <WalletBalance
               balance={driverBalance}
-              onClick={() => nav("/drivers/wallet")}
+              onClick={() => nav("/driver/wallet")}
               size="sm"
             />
             <DriverSettingsSheet
@@ -999,7 +999,7 @@ export default function DriverDashboard() {
         isOpen={depositModalOpen}
         onClose={() => { setDepositModalOpen(false); fetchDriverBalance(); }}
         onDeposit={async (amount: number, desc?: string) => {
-          return { error: 'Use the deposit page at /drivers/deposit' };
+          return { error: 'Use the deposit page at /driver/deposit' };
         }}
         currentBalance={driverBalance}
       />

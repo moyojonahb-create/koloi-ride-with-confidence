@@ -23,46 +23,69 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
+    let hasResolvedInitialSession = false;
+
+    const finishAuth = (nextSession: Session | null) => {
+      if (!mounted) return;
+
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      setLoading(false);
+    };
+
     const safetyTimeout = window.setTimeout(() => {
       if (!mounted) return;
       console.warn('Auth initialization timeout, continuing without blocking UI');
       setLoading(false);
-    }, 8000);
+    }, 5000);
 
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (!mounted) return;
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (!mounted) return;
+
+      console.log('[Auth event]', event, nextSession?.user?.id ?? null);
+
+      // During bootstrap, getSession() is the source of truth.
+      // Ignore early duplicate INITIAL_SESSION emissions until bootstrap resolves.
+      if (!hasResolvedInitialSession && event === 'INITIAL_SESSION') {
+        return;
       }
-    );
 
-    // THEN check for existing session
-    supabase.auth
-      .getSession()
-      .then(({ data: { session }, error }) => {
+      finishAuth(nextSession);
+    });
+
+    const initAuth = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+
         if (!mounted) return;
+
         if (error) {
-          // Clear stale/invalid session to stop re-render loops
-          console.warn('Session error, clearing:', error.message);
-          supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+          console.warn('Session error, clearing local session:', error.message);
+          await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+          hasResolvedInitialSession = true;
+          finishAuth(null);
+          return;
         }
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      })
-      .catch((err: unknown) => {
+
+        hasResolvedInitialSession = true;
+        finishAuth(data.session ?? null);
+      } catch (err) {
         if (!mounted) return;
         console.error('Failed to restore auth session:', err);
-        setSession(null);
-        setUser(null);
-        setLoading(false);
-      });
+        hasResolvedInitialSession = true;
+        finishAuth(null);
+      } finally {
+        window.clearTimeout(safetyTimeout);
+      }
+    };
+
+    initAuth();
 
     return () => {
       mounted = false;
+      hasResolvedInitialSession = false;
       window.clearTimeout(safetyTimeout);
       subscription.unsubscribe();
     };
@@ -70,35 +93,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (email: string, password: string, fullName?: string) => {
     const redirectUrl = `${window.location.origin}/`;
-    
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          full_name: fullName
-        }
-      }
+          full_name: fullName,
+        },
+      },
     });
-    
+
     return { error: error as Error | null };
   };
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
-    
+
     return { error: error as Error | null };
   };
 
   const signInWithPhone = async (phone: string) => {
     const { error } = await supabase.auth.signInWithOtp({
-      phone
+      phone,
     });
-    
+
     return { error: error as Error | null };
   };
 
@@ -106,27 +129,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { error } = await supabase.auth.verifyOtp({
       phone,
       token,
-      type: 'sms'
+      type: 'sms',
     });
-    
+
     return { error: error as Error | null };
   };
 
   const signOut = async () => {
+    setUser(null);
+    setSession(null);
+    setLoading(false);
+
     await supabase.auth.signOut({ scope: 'local' });
   };
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      loading,
-      signUp,
-      signIn,
-      signInWithPhone,
-      verifyOtp,
-      signOut
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        loading,
+        signUp,
+        signIn,
+        signInWithPhone,
+        verifyOtp,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -48,7 +48,7 @@ export default function DriverDepositPage() {
       toast.success("Deposit request submitted! Admin will verify and credit your wallet.");
       setRef("");
       setFile(null);
-      navigate("/drivers/wallet");
+      navigate("/driver/wallet", { replace: true });
     } catch (e: unknown) {
       toast.error((e as Error).message || "Failed to submit deposit request.");
     } finally {
