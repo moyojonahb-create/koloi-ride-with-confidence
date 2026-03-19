@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { joinRidePresence, countDriversViewing } from "@/lib/koloiRealtime";
-import { useAgoraCall } from "@/hooks/useAgoraCall";
+import { useWebRTCCall } from "@/hooks/useWebRTCCall";
 import TripGoogleMap from "@/components/TripGoogleMap";
 import { useDriverTracking } from "@/hooks/useDriverTracking";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
