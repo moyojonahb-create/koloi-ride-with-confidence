@@ -118,12 +118,12 @@
           tryHide();
         };
 
-        // Hard fallback: never leave splash stuck beyond 4s
+        // Hard fallback: never leave splash stuck beyond 2.5s
         setTimeout(function () {
           window.__splashMinDone = true;
           window.__splashReady = true;
           tryHide();
-        }, 4000);
+        }, 2500);
       })();
     </script>
   </body>

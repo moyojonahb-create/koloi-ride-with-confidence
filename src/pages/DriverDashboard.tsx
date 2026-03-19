@@ -862,14 +862,12 @@ export default function DriverDashboard() {
                     <Phone className="h-3.5 w-3.5 text-primary-foreground shrink-0" />
                     <span className="text-primary-foreground">Phone</span>
                   </a>
-                  <a
-                    href={riderPhone ? `https://wa.me/${riderPhone.replace(/[^\d]/g, "")}` : "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => setMessagesOpen(!messagesOpen)}
                     className="flex items-center justify-center gap-1 py-3 rounded-2xl bg-accent/80 backdrop-blur-sm text-accent-foreground font-medium text-xs text-center active:scale-95 transition-all"
                   >
-                    💬 <span>WhatsApp</span>
-                  </a>
+                    <MessageCircle className="h-3.5 w-3.5" /> <span>Message</span>
+                  </button>
                 </div>
                 {!riderPhone && (
                   <p className="text-xs text-muted-foreground">Rider phone not available — use Call (Data) for in-app voice.</p>
