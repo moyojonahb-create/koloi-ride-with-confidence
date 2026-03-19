@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -232,12 +232,14 @@ function QuickAction({ icon, label, onClick, accent }: { icon: React.ReactNode; 
   );
 }
 
-function NavRow({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
-  return (
-    <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3 glass-card hover:bg-foreground/[0.02] active:scale-[0.98] transition-all text-left rounded-2xl">
-      {icon}
-      <span className="text-sm font-medium text-foreground flex-1">{label}</span>
-      <ChevronRight className="w-4 h-4 text-muted-foreground" />
-    </button>
-  );
-}
+const NavRow = React.forwardRef<HTMLButtonElement, { icon: React.ReactNode; label: string; onClick: () => void }>(
+  ({ icon, label, onClick }, ref) => {
+    return (
+      <button ref={ref} onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3 glass-card hover:bg-foreground/[0.02] active:scale-[0.98] transition-all text-left rounded-2xl">
+        {icon}
+        <span className="text-sm font-medium text-foreground flex-1">{label}</span>
+        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+      </button>
+    );
+  }
+);

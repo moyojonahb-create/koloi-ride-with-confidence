@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
+import { useFemaleTheme } from "@/hooks/useFemaleTheme";
 import { useOpenRidesRealtime } from "@/hooks/useRideRealtime";
 import {
   fetchOpenRides,
@@ -62,7 +63,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import DriverNavigationView from "@/components/driver/DriverNavigationView";
 import DriverSettingsSheet from "@/components/driver/DriverSettingsSheet";
 import type { Coordinates } from "@/lib/osrm";
-import { useAgoraCall } from "@/hooks/useAgoraCall";
+import { useWebRTCCall } from "@/hooks/useWebRTCCall";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
@@ -96,6 +97,7 @@ type Ride = {
 export default function DriverDashboard() {
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { setFemaleMode } = useFemaleTheme();
 
   const [profile, setProfile] = useState<DriverProfile | null>(null);
   const [rides, setRides] = useState<Ride[]>([]);
@@ -153,7 +155,7 @@ export default function DriverDashboard() {
     activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : null
   );
 
-  // Agora voice calling for active trip
+  // WebRTC voice calling for active trip
 
   const {
     callStatus,
@@ -167,7 +169,7 @@ export default function DriverDashboard() {
     endCall,
     toggleMute,
     toggleSpeaker,
-  } = useAgoraCall({
+  } = useWebRTCCall({
     rideId: activeTrip?.id ?? null,
     currentUserId: user?.id ?? "",
     otherUserId: activeTrip?.user_id ?? null,
@@ -293,6 +295,8 @@ export default function DriverDashboard() {
       const p = await getDriverProfile();
       setProfile(p);
       setIsOnline(p?.is_online ?? false);
+      // Auto-enable pink mode for female drivers
+      if (p?.gender === 'female') setFemaleMode(true);
 
       if (!p) {
         setLoading(false);
@@ -862,14 +866,12 @@ export default function DriverDashboard() {
                     <Phone className="h-3.5 w-3.5 text-primary-foreground shrink-0" />
                     <span className="text-primary-foreground">Phone</span>
                   </a>
-                  <a
-                    href={riderPhone ? `https://wa.me/${riderPhone.replace(/[^\d]/g, "")}` : "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => setMessagesOpen(!messagesOpen)}
                     className="flex items-center justify-center gap-1 py-3 rounded-2xl bg-accent/80 backdrop-blur-sm text-accent-foreground font-medium text-xs text-center active:scale-95 transition-all"
                   >
-                    💬 <span>WhatsApp</span>
-                  </a>
+                    <MessageCircle className="h-3.5 w-3.5" /> <span>Message</span>
+                  </button>
                 </div>
                 {!riderPhone && (
                   <p className="text-xs text-muted-foreground">Rider phone not available — use Call (Data) for in-app voice.</p>

@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRideRealtime } from "@/hooks/useRideRealtime";
 import { useDriverTracking } from "@/hooks/useDriverTracking";
 import { useNearbyDrivers } from "@/hooks/useNearbyDrivers";
-import { useAgoraCall } from "@/hooks/useAgoraCall";
+import { useWebRTCCall } from "@/hooks/useWebRTCCall";
 import { getSecondsRemaining, isRideExpired } from "@/lib/rideExpiry";
 import {
   fetchPendingOffers,
@@ -89,12 +89,12 @@ export default function RiderRideDetail() {
       .then(({ data }) => { setWalletPin((data as Record<string, unknown>)?.wallet_pin as string | null); });
   }, [user]);
 
-  // Agora voice calling
+  // WebRTC voice calling
   const {
     callStatus, isMuted, isSpeaker, callDuration, incomingCall,
     startCall, answerCall, declineCall: declineIncomingCall, endCall,
     toggleMute, toggleSpeaker
-  } = useAgoraCall({
+  } = useWebRTCCall({
     rideId: rideId ?? null,
     currentUserId: user?.id ?? "",
     otherUserId: (driverProfile as Record<string, unknown>)?.user_id as string ?? null
