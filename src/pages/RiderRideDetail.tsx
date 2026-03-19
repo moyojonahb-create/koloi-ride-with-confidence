@@ -89,12 +89,12 @@ export default function RiderRideDetail() {
       .then(({ data }) => { setWalletPin((data as Record<string, unknown>)?.wallet_pin as string | null); });
   }, [user]);
 
-  // Agora voice calling
+  // WebRTC voice calling
   const {
     callStatus, isMuted, isSpeaker, callDuration, incomingCall,
     startCall, answerCall, declineCall: declineIncomingCall, endCall,
     toggleMute, toggleSpeaker
-  } = useAgoraCall({
+  } = useWebRTCCall({
     rideId: rideId ?? null,
     currentUserId: user?.id ?? "",
     otherUserId: (driverProfile as Record<string, unknown>)?.user_id as string ?? null
