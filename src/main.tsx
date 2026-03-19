@@ -53,9 +53,11 @@ createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <ErrorBoundary>
       <I18nProvider>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
+        <FemaleThemeProvider>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </FemaleThemeProvider>
       </I18nProvider>
     </ErrorBoundary>
   </QueryClientProvider>
