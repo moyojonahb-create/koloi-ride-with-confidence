@@ -295,6 +295,8 @@ export default function DriverDashboard() {
       const p = await getDriverProfile();
       setProfile(p);
       setIsOnline(p?.is_online ?? false);
+      // Auto-enable pink mode for female drivers
+      if (p?.gender === 'female') setFemaleMode(true);
 
       if (!p) {
         setLoading(false);
