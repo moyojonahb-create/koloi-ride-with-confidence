@@ -62,7 +62,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import DriverNavigationView from "@/components/driver/DriverNavigationView";
 import DriverSettingsSheet from "@/components/driver/DriverSettingsSheet";
 import type { Coordinates } from "@/lib/osrm";
-import { useAgoraCall } from "@/hooks/useWebRTCCall";
+import { useWebRTCCall } from "@/hooks/useWebRTCCall";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
