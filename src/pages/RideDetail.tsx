@@ -305,12 +305,12 @@ export default function RideDetail() {
   const statusConfig: Record<string, { label: string; color: string; icon: string }> = {
     pending: { label: "Looking for drivers", color: "bg-amber-500", icon: "🔍" },
     searching: { label: "Looking for drivers", color: "bg-amber-500", icon: "🔍" },
-    accepted: { label: "Driver accepted", color: "bg-emerald-500", icon: "✓" },
+    accepted: { label: "Driver accepted", color: "bg-primary", icon: "✓" },
     driver_arriving: { label: "Driver on the way", color: "bg-primary", icon: "🚗" },
-    driver_arrived: { label: "Driver has arrived", color: "bg-emerald-500", icon: "📍" },
+    driver_arrived: { label: "Driver has arrived", color: "bg-primary", icon: "📍" },
     in_progress: { label: "Trip in progress", color: "bg-primary", icon: "🛣️" },
-    near_destination: { label: "Almost there", color: "bg-emerald-500", icon: "🏁" },
-    completed: { label: "Trip completed", color: "bg-emerald-600", icon: "✅" },
+    near_destination: { label: "Almost there", color: "bg-primary", icon: "🏁" },
+    completed: { label: "Trip completed", color: "bg-primary", icon: "✅" },
     cancelled: { label: "Trip cancelled", color: "bg-destructive", icon: "✕" },
   };
 
