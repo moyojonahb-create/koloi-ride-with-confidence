@@ -305,12 +305,12 @@ export default function RideDetail() {
   const statusConfig: Record<string, { label: string; color: string; icon: string }> = {
     pending: { label: "Looking for drivers", color: "bg-amber-500", icon: "🔍" },
     searching: { label: "Looking for drivers", color: "bg-amber-500", icon: "🔍" },
-    accepted: { label: "Driver accepted", color: "bg-emerald-500", icon: "✓" },
+    accepted: { label: "Driver accepted", color: "bg-primary", icon: "✓" },
     driver_arriving: { label: "Driver on the way", color: "bg-primary", icon: "🚗" },
-    driver_arrived: { label: "Driver has arrived", color: "bg-emerald-500", icon: "📍" },
+    driver_arrived: { label: "Driver has arrived", color: "bg-primary", icon: "📍" },
     in_progress: { label: "Trip in progress", color: "bg-primary", icon: "🛣️" },
-    near_destination: { label: "Almost there", color: "bg-emerald-500", icon: "🏁" },
-    completed: { label: "Trip completed", color: "bg-emerald-600", icon: "✅" },
+    near_destination: { label: "Almost there", color: "bg-primary", icon: "🏁" },
+    completed: { label: "Trip completed", color: "bg-primary", icon: "✅" },
     cancelled: { label: "Trip cancelled", color: "bg-destructive", icon: "✕" },
   };
 
@@ -382,7 +382,7 @@ export default function RideDetail() {
           {/* Route info — compact inDrive style */}
           <div className="flex items-start gap-3 p-3 rounded-2xl bg-muted/50">
             <div className="flex flex-col items-center gap-1 pt-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-primary" />
               <div className="w-px h-6 bg-border" />
               <div className="w-2.5 h-2.5 rounded-full bg-primary" />
             </div>
@@ -436,7 +436,7 @@ export default function RideDetail() {
               {/* Action buttons — inDrive style row */}
               <div className="flex items-center gap-2 mt-3">
                 <button onClick={startCall} disabled={callStatus !== "idle"}
-                  className="flex-1 h-11 rounded-xl bg-emerald-500 text-white font-semibold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.97] transition-all disabled:opacity-50">
+                  className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.97] transition-all disabled:opacity-50">
                   <Phone className="w-4 h-4" /> Call
                 </button>
                 <button onClick={() => setChatOpen(v => !v)}
@@ -457,7 +457,7 @@ export default function RideDetail() {
           {/* View Offers button — when searching */}
           {!accepted && (
             <button onClick={() => setShowOffersModal(true)}
-              className="w-full h-12 rounded-2xl bg-emerald-500 text-white font-bold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_4px_16px_rgba(16,185,129,0.3)]">
+              className="w-full h-12 rounded-2xl bg-primary text-primary-foreground font-bold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_4px_16px_hsl(var(--primary)/0.3)]">
               View Offers {pendingOfferCount > 0 && `(${pendingOfferCount})`}
             </button>
           )}

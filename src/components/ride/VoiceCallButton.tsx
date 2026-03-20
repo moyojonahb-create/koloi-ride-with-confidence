@@ -18,7 +18,7 @@ export default function VoiceCallButton({
     <Button
       onClick={onCall}
       disabled={disabled}
-      className={`gap-2 bg-green-600 hover:bg-green-700 text-white ${className}`}
+      className={`gap-2 bg-primary hover:bg-primary/90 text-primary-foreground ${className}`}
     >
       <Phone className="h-4 w-4" />
       {label}
