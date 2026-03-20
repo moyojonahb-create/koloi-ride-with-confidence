@@ -56,7 +56,7 @@ export default function IncomingCallModal({
           </Button>
           <Button
             size="lg"
-            className="rounded-full w-16 h-16 bg-green-600 hover:bg-green-700 text-white"
+            className="rounded-full w-16 h-16 bg-primary hover:bg-primary/90 text-primary-foreground"
             onClick={onAnswer}
           >
             <Phone className="h-6 w-6" />

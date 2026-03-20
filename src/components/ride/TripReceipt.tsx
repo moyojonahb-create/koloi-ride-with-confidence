@@ -58,8 +58,8 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
       {/* Header */}
       <motion.div variants={itemVariants} className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-emerald-500/10 flex items-center justify-center">
-            <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+          <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center">
+            <CheckCircle2 className="w-6 h-6 text-primary" />
           </div>
           <div>
             <h3 className="text-lg font-bold font-display text-foreground">Trip Complete</h3>
