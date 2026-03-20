@@ -436,7 +436,7 @@ export default function RideDetail() {
               {/* Action buttons — inDrive style row */}
               <div className="flex items-center gap-2 mt-3">
                 <button onClick={startCall} disabled={callStatus !== "idle"}
-                  className="flex-1 h-11 rounded-xl bg-emerald-500 text-white font-semibold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.97] transition-all disabled:opacity-50">
+                  className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.97] transition-all disabled:opacity-50">
                   <Phone className="w-4 h-4" /> Call
                 </button>
                 <button onClick={() => setChatOpen(v => !v)}
