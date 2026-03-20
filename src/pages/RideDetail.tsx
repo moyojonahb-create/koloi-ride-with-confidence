@@ -382,7 +382,7 @@ export default function RideDetail() {
           {/* Route info — compact inDrive style */}
           <div className="flex items-start gap-3 p-3 rounded-2xl bg-muted/50">
             <div className="flex flex-col items-center gap-1 pt-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <div className="w-2.5 h-2.5 rounded-full bg-primary" />
               <div className="w-px h-6 bg-border" />
               <div className="w-2.5 h-2.5 rounded-full bg-primary" />
             </div>
