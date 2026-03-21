@@ -310,7 +310,7 @@ const Auth = () => {
                   <button
                     type="button"
                     onClick={() => setShowSignupPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                     aria-label={showSignupPassword ? 'Hide password' : 'Show password'}
                   >
                     {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
