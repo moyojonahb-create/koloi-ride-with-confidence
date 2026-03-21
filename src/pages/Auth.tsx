@@ -118,47 +118,48 @@ const Auth = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-background gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="text-sm text-muted-foreground">Connecting to Voyex…</span>
       </div>
     );
   }
 
   return (
     <div
-      className="min-h-[100dvh] bg-gradient-to-b from-sky-100 via-blue-50 to-white px-4 py-6 flex items-center justify-center"
+      className="min-h-[100dvh] bg-gradient-to-b from-primary/10 via-primary/5 to-background px-4 py-6 flex items-center justify-center"
       style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))', paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
     >
-      <Card className="w-full max-w-md rounded-3xl border border-white/40 bg-white/35 shadow-2xl backdrop-blur-2xl backdrop-saturate-150">
+      <Card className="w-full max-w-md rounded-3xl border border-border/40 bg-card/35 shadow-2xl backdrop-blur-2xl backdrop-saturate-150">
         <CardHeader className="text-center space-y-4">
           <Link to="/" className="mx-auto">
             <VoyexLogo size="md" />
           </Link>
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Voyex</p>
-            <CardTitle className="text-2xl text-slate-900">
+            <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Voyex</p>
+            <CardTitle className="text-2xl text-foreground">
             {mode === 'login' ? 'Welcome back' : 'Create an account'}
             </CardTitle>
           </div>
-          <CardDescription className="text-slate-600">
+          <CardDescription className="text-muted-foreground">
             {mode === 'login' 
               ? 'Sign in to your Voyex account' 
               : 'Sign up to start using Voyex'
             }
           </CardDescription>
 
-          <div className="grid grid-cols-2 rounded-2xl bg-white/60 p-1 border border-white/50 shadow-sm">
+          <div className="grid grid-cols-2 rounded-2xl bg-secondary/60 p-1 border border-border/50 shadow-sm">
             <button
               type="button"
               onClick={() => setAccountType('rider')}
-              className={`rounded-xl py-2 text-sm font-medium transition ${accountType === 'rider' ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}
+              className={`rounded-xl py-2 text-sm font-medium transition ${accountType === 'rider' ? 'bg-card text-foreground shadow' : 'text-muted-foreground'}`}
             >
               Rider
             </button>
             <button
               type="button"
               onClick={() => setAccountType('driver')}
-              className={`rounded-xl py-2 text-sm font-medium transition ${accountType === 'driver' ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}
+              className={`rounded-xl py-2 text-sm font-medium transition ${accountType === 'driver' ? 'bg-card text-foreground shadow' : 'text-muted-foreground'}`}
             >
               Driver
             </button>
@@ -175,7 +176,7 @@ const Auth = () => {
                 toast({ title: 'Google sign-in failed', variant: 'destructive' });
               }
             }}
-            className="w-full flex items-center justify-center gap-3 p-3 border border-white/50 bg-white/60 rounded-xl hover:bg-white transition-colors mb-4"
+            className="w-full flex items-center justify-center gap-3 p-3 border border-border/50 bg-card/60 rounded-xl hover:bg-card transition-colors mb-4"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -187,9 +188,9 @@ const Auth = () => {
           </button>
 
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-xs text-slate-500">or continue with email</span>
-            <div className="flex-1 h-px bg-slate-200" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted-foreground">or continue with email</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
 
           {mode === 'login' ? (
@@ -203,7 +204,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="username"
-                  className="h-12 rounded-xl border-white/50 bg-white/80"
+                  className="h-12 rounded-xl border-border/50 bg-card/80"
                 />
               </div>
               <div className="space-y-2">
@@ -216,12 +217,12 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="current-password"
-                    className="h-12 rounded-xl border-white/50 bg-white/80 pr-10"
+                    className="h-12 rounded-xl border-border/50 bg-card/80 pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -230,27 +231,27 @@ const Auth = () => {
               </div>
 
               <div className="flex items-center justify-between text-sm">
-                <label className="inline-flex items-center gap-2 text-slate-600">
+                <label className="inline-flex items-center gap-2 text-muted-foreground">
                   <input
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300"
+                    className="h-4 w-4 rounded border-border"
                   />
                   Remember me
                 </label>
                 <button
                   type="button"
-                  className="text-blue-600 hover:underline"
+                  className="text-primary hover:underline"
                   onClick={() => toast({ title: 'Password reset', description: 'Use the account recovery flow from the app settings.' })}
                 >
                   Forgot password?
                 </button>
               </div>
 
-              <p className="text-xs text-slate-500">Use the same email or phone number you registered with.</p>
+              <p className="text-xs text-muted-foreground">Use the same email or phone number you registered with.</p>
 
-              <Button type="submit" className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600" disabled={isSubmitting}>
+              <Button type="submit" className="w-full h-12 rounded-xl" style={{ background: 'var(--gradient-primary)' }} disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 Sign In
               </Button>
@@ -266,7 +267,7 @@ const Auth = () => {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   autoComplete="name"
-                  className="h-12 rounded-xl border-white/50 bg-white/80"
+                  className="h-12 rounded-xl border-border/50 bg-card/80"
                 />
               </div>
               <div className="space-y-2">
@@ -279,7 +280,7 @@ const Auth = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   autoComplete="tel"
-                  className="h-12 rounded-xl border-white/50 bg-white/80"
+                  className="h-12 rounded-xl border-border/50 bg-card/80"
                 />
               </div>
               <div className="space-y-2">
@@ -291,7 +292,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
-                  className="h-12 rounded-xl border-white/50 bg-white/80"
+                  className="h-12 rounded-xl border-border/50 bg-card/80"
                 />
               </div>
               <div className="space-y-2">
@@ -304,12 +305,12 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     autoComplete="new-password"
-                    className="h-12 rounded-xl border-white/50 bg-white/80 pr-10"
+                    className="h-12 rounded-xl border-border/50 bg-card/80 pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowSignupPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                     aria-label={showSignupPassword ? 'Hide password' : 'Show password'}
                   >
                     {showSignupPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -327,12 +328,12 @@ const Auth = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     autoComplete="new-password"
-                    className="h-12 rounded-xl border-white/50 bg-white/80 pr-10"
+                    className="h-12 rounded-xl border-border/50 bg-card/80 pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                     aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
                   >
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -340,9 +341,9 @@ const Auth = () => {
                 </div>
               </div>
 
-              <p className="text-xs text-slate-500">By continuing, you agree to Voyex safety and account policies.</p>
+              <p className="text-xs text-muted-foreground">By continuing, you agree to Voyex safety and account policies.</p>
 
-              <Button type="submit" className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600" disabled={isSubmitting}>
+              <Button type="submit" className="w-full h-12 rounded-xl" style={{ background: 'var(--gradient-primary)' }} disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 Create Account
               </Button>

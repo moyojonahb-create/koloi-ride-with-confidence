@@ -259,7 +259,7 @@ const Signup = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full h-[52px] rounded-2xl bg-foreground hover:bg-foreground/90 text-white font-black text-base mt-2"
+                  className="w-full h-[52px] rounded-2xl bg-foreground hover:bg-foreground/90 text-background font-black text-base mt-2"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
