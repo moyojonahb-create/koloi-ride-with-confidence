@@ -142,7 +142,7 @@ export default function RiderWalletPage() {
           <p className="text-4xl font-black text-primary-foreground">${balance.toFixed(2)}</p>
           <Button
             onClick={() => setShowDeposit(true)}
-            className="mt-3 bg-white/20 hover:bg-white/30 text-primary-foreground border-0"
+            className="mt-3 bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-0"
           >
             <Plus className="h-4 w-4 mr-2" /> Top Up Wallet
           </Button>
