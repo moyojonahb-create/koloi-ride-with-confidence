@@ -118,8 +118,9 @@ const Auth = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-background gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="text-sm text-muted-foreground">Connecting to Voyex…</span>
       </div>
     );
   }
