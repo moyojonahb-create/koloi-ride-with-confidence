@@ -148,18 +148,18 @@ const Auth = () => {
             }
           </CardDescription>
 
-          <div className="grid grid-cols-2 rounded-2xl bg-white/60 p-1 border border-white/50 shadow-sm">
+          <div className="grid grid-cols-2 rounded-2xl bg-secondary/60 p-1 border border-border/50 shadow-sm">
             <button
               type="button"
               onClick={() => setAccountType('rider')}
-              className={`rounded-xl py-2 text-sm font-medium transition ${accountType === 'rider' ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}
+              className={`rounded-xl py-2 text-sm font-medium transition ${accountType === 'rider' ? 'bg-card text-foreground shadow' : 'text-muted-foreground'}`}
             >
               Rider
             </button>
             <button
               type="button"
               onClick={() => setAccountType('driver')}
-              className={`rounded-xl py-2 text-sm font-medium transition ${accountType === 'driver' ? 'bg-white text-slate-900 shadow' : 'text-slate-500'}`}
+              className={`rounded-xl py-2 text-sm font-medium transition ${accountType === 'driver' ? 'bg-card text-foreground shadow' : 'text-muted-foreground'}`}
             >
               Driver
             </button>
