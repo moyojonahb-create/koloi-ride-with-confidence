@@ -127,7 +127,7 @@ const Auth = () => {
 
   return (
     <div
-      className="min-h-[100dvh] bg-gradient-to-b from-sky-100 via-blue-50 to-white px-4 py-6 flex items-center justify-center"
+      className="min-h-[100dvh] bg-gradient-to-b from-primary/10 via-primary/5 to-background px-4 py-6 flex items-center justify-center"
       style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))', paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
     >
       <Card className="w-full max-w-md rounded-3xl border border-white/40 bg-white/35 shadow-2xl backdrop-blur-2xl backdrop-saturate-150">
