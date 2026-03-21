@@ -25,9 +25,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let mounted = true;
     const safetyTimeout = window.setTimeout(() => {
       if (!mounted) return;
-      console.warn('Auth initialization timeout, continuing without blocking UI');
       setLoading(false);
-    }, 3000);
+    }, 800);
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
