@@ -130,7 +130,7 @@ const Auth = () => {
       className="min-h-[100dvh] bg-gradient-to-b from-primary/10 via-primary/5 to-background px-4 py-6 flex items-center justify-center"
       style={{ paddingTop: 'max(1.5rem, env(safe-area-inset-top))', paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}
     >
-      <Card className="w-full max-w-md rounded-3xl border border-white/40 bg-white/35 shadow-2xl backdrop-blur-2xl backdrop-saturate-150">
+      <Card className="w-full max-w-md rounded-3xl border border-border/40 bg-card/35 shadow-2xl backdrop-blur-2xl backdrop-saturate-150">
         <CardHeader className="text-center space-y-4">
           <Link to="/" className="mx-auto">
             <VoyexLogo size="md" />
