@@ -328,7 +328,7 @@ const Auth = () => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     autoComplete="new-password"
-                    className="h-12 rounded-xl border-white/50 bg-white/80 pr-10"
+                    className="h-12 rounded-xl border-border/50 bg-card/80 pr-10"
                   />
                   <button
                     type="button"
