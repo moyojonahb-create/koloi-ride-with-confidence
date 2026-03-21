@@ -343,7 +343,7 @@ const Auth = () => {
 
               <p className="text-xs text-muted-foreground">By continuing, you agree to Voyex safety and account policies.</p>
 
-              <Button type="submit" className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600" disabled={isSubmitting}>
+              <Button type="submit" className="w-full h-12 rounded-xl" style={{ background: 'var(--gradient-primary)' }} disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 Create Account
               </Button>
