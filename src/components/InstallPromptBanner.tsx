@@ -19,7 +19,6 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Check if already installed (standalone mode)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
       ((window.navigator as unknown as Record<string, unknown>).standalone === true);
     
@@ -28,29 +27,24 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
       return;
     }
 
-    // For testing: clear localStorage if forceShow is true
     if (forceShow) {
       localStorage.removeItem('voyex_install_modal_last');
     }
 
-    // Check if dismissed recently (within 3 days for better UX)
     const lastShown = Number(localStorage.getItem('voyex_install_modal_last') || 0);
     const threeDays = 3 * 24 * 60 * 60 * 1000;
     if (!forceShow && Date.now() - lastShown < threeDays) {
       return;
     }
 
-    // Detect iOS
     const isIOSDevice = /iphone|ipad|ipod/i.test(navigator.userAgent);
     setIsIOS(isIOSDevice);
 
-    // Show modal after splash screen completes (delay of 3.5 seconds)
     const showTimer = setTimeout(() => {
       localStorage.setItem('voyex_install_modal_last', String(Date.now()));
       setShowModal(true);
     }, 3500);
 
-    // Listen for beforeinstallprompt event (Android/Chrome)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -58,7 +52,6 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Listen for app installed event
     const handleAppInstalled = () => {
       setIsInstalled(true);
       setShowModal(false);
@@ -91,16 +84,16 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
   }
 
   return (
-    <div className="fixed inset-0 z-[99999] bg-black/60 flex items-center justify-center p-4">
-      <div className="w-full max-w-[400px] bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 z-[99999] bg-foreground/60 flex items-center justify-center p-4">
+      <div className="w-full max-w-[400px] bg-card rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
         {/* Header */}
         <div className="relative p-6 pb-4 text-center">
           <button
             onClick={handleDismiss}
-            className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+            className="absolute top-4 right-4 p-2 rounded-full hover:bg-secondary transition-colors"
             aria-label="Close"
           >
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
           
           <img 
@@ -108,51 +101,51 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
             alt="Voyex" 
             className="w-24 h-24 mx-auto rounded-2xl object-contain shadow-lg mb-4"
           />
-          <h2 className="text-xl font-bold text-gray-900">Install Voyex</h2>
-          <p className="text-sm text-gray-500 mt-1">Add to your home screen</p>
+          <h2 className="text-xl font-bold text-foreground">Install Voyex</h2>
+          <p className="text-sm text-muted-foreground mt-1">Add to your home screen</p>
         </div>
 
         {/* Content */}
         <div className="px-6 pb-6">
           {isIOS ? (
             <div className="space-y-4">
-              <p className="text-gray-600 text-center text-sm">
+              <p className="text-muted-foreground text-center text-sm">
                 Install Voyex for the best experience:
               </p>
-              <div className="bg-gray-50 rounded-2xl p-4 space-y-3">
+              <div className="bg-secondary rounded-2xl p-4 space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                    <Share className="w-4 h-4 text-white" />
+                    <Share className="w-4 h-4 text-primary-foreground" />
                   </div>
-                  <span className="text-gray-700 text-sm">Tap the <strong>Share</strong> button below</span>
+                  <span className="text-foreground/80 text-sm">Tap the <strong>Share</strong> button below</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                    <Plus className="w-4 h-4 text-white" />
+                    <Plus className="w-4 h-4 text-primary-foreground" />
                   </div>
-                  <span className="text-gray-700 text-sm">Select <strong>Add to Home Screen</strong></span>
+                  <span className="text-foreground/80 text-sm">Select <strong>Add to Home Screen</strong></span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-xs font-bold">✓</span>
+                    <span className="text-primary-foreground text-xs font-bold">✓</span>
                   </div>
-                  <span className="text-gray-700 text-sm">Tap <strong>Add</strong> to confirm</span>
+                  <span className="text-foreground/80 text-sm">Tap <strong>Add</strong> to confirm</span>
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-gray-600 text-center text-sm">
+            <p className="text-muted-foreground text-center text-sm">
               Get quick access to Voyex from your home screen for the best ride-hailing experience.
             </p>
           )}
         </div>
 
         {/* Footer buttons */}
-        <div className="flex gap-3 p-4 pt-0 border-t border-gray-100">
+        <div className="flex gap-3 p-4 pt-0 border-t border-border">
           <Button
             variant="ghost"
             onClick={handleDismiss}
-            className="flex-1 h-12 rounded-xl text-gray-600"
+            className="flex-1 h-12 rounded-xl text-muted-foreground"
           >
             Maybe later
           </Button>

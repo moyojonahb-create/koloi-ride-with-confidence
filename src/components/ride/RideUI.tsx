@@ -29,21 +29,21 @@ export default function RideUI({
   mapSlot,
 }: RideUIProps) {
   return (
-    <div className="relative w-full h-[100dvh] overflow-hidden bg-gray-50">
+    <div className="relative w-full h-[100dvh] overflow-hidden bg-secondary">
       {/* Map Container */}
       <div className="absolute inset-0 z-0">{mapSlot}</div>
 
       {/* Top Bar */}
-      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/20 to-transparent">
+      <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-foreground/20 to-transparent">
         <button
           onClick={onBack}
-          className="p-2 rounded-full bg-white/90 hover:bg-white transition"
+          className="p-2 rounded-full bg-card/90 hover:bg-card transition"
         >
           ←
         </button>
         <button
           onClick={onProfile}
-          className="p-2 rounded-full bg-white/90 hover:bg-white transition"
+          className="p-2 rounded-full bg-card/90 hover:bg-card transition"
         >
           <User className="w-5 h-5" />
         </button>
@@ -51,53 +51,53 @@ export default function RideUI({
 
       {/* Location Input Card - Bottom */}
       <div className="absolute bottom-0 left-0 right-0 z-20 p-4">
-        <div className="max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
+        <div className="max-w-md mx-auto bg-card rounded-3xl shadow-2xl overflow-hidden">
           {/* Pickup */}
           <button
             onClick={onPickupClick}
-            className="w-full flex items-center gap-3 p-4 border-b border-gray-200 hover:bg-gray-50 transition"
+            className="w-full flex items-center gap-3 p-4 border-b border-border hover:bg-secondary transition"
           >
-            <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
+            <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
             <div className="text-left flex-1">
-              <p className="text-xs text-gray-500">Pickup</p>
-              <p className="text-sm font-medium">{pickupText}</p>
+              <p className="text-xs text-muted-foreground">Pickup</p>
+              <p className="text-sm font-medium text-foreground">{pickupText}</p>
             </div>
           </button>
 
           {/* Dropoff */}
           <button
             onClick={onDropoffClick}
-            className="w-full flex items-center gap-3 p-4 border-b border-gray-200 hover:bg-gray-50 transition"
+            className="w-full flex items-center gap-3 p-4 border-b border-border hover:bg-secondary transition"
           >
-            <MapPin className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <MapPin className="w-5 h-5 text-destructive flex-shrink-0" />
             <div className="text-left flex-1">
-              <p className="text-xs text-gray-500">Dropoff</p>
-              <p className="text-sm font-medium">{dropoffText}</p>
+              <p className="text-xs text-muted-foreground">Dropoff</p>
+              <p className="text-sm font-medium text-foreground">{dropoffText}</p>
             </div>
           </button>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-3 gap-2 p-4 bg-gray-50">
+          <div className="grid grid-cols-3 gap-2 p-4 bg-secondary">
             <button
               onClick={onCenter}
-              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white transition"
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-card transition"
             >
-              <Navigation className="w-5 h-5 text-gray-700" />
-              <span className="text-xs text-gray-600">Center</span>
+              <Navigation className="w-5 h-5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Center</span>
             </button>
             <button
               onClick={onNavigate}
-              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white transition"
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-card transition"
             >
-              <Navigation className="w-5 h-5 text-gray-700" />
-              <span className="text-xs text-gray-600">Navigate</span>
+              <Navigation className="w-5 h-5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Navigate</span>
             </button>
             <button
               onClick={() => {}}
-              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white transition"
+              className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-card transition"
             >
-              <MessageSquare className="w-5 h-5 text-gray-700" />
-              <span className="text-xs text-gray-600">Chat</span>
+              <MessageSquare className="w-5 h-5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Chat</span>
             </button>
           </div>
 
@@ -107,8 +107,8 @@ export default function RideUI({
             disabled={!canRequest}
             className={`w-full py-3 font-semibold rounded-b-3xl transition ${
               canRequest
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-muted text-muted-foreground cursor-not-allowed"
             }`}
           >
             Request Ride

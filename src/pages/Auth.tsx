@@ -188,8 +188,8 @@ const Auth = () => {
           </button>
 
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-xs text-slate-500">or continue with email</span>
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted-foreground">or continue with email</span>
             <div className="flex-1 h-px bg-slate-200" />
           </div>
 

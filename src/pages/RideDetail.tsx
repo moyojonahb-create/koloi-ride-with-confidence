@@ -270,13 +270,19 @@ export default function RideDetail() {
     } catch (e: unknown) { setToast((e as Error)?.message || "Message failed."); }
   };
 
-  // ── LOADING ──
+  // ── LOADING — Skeleton overlay, never blank ──
   if (loading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
-        <div className="flex items-center gap-3">
-          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm font-medium text-foreground">Loading…</span>
+      <div className="min-h-[100dvh] bg-background">
+        <div className="h-[45dvh] bg-muted animate-pulse" />
+        <div className="p-4 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm font-medium text-foreground">Loading ride…</span>
+          </div>
+          <div className="h-20 rounded-2xl bg-muted animate-pulse" />
+          <div className="h-16 rounded-2xl bg-muted animate-pulse" />
+          <div className="h-12 rounded-2xl bg-muted animate-pulse w-3/4" />
         </div>
       </div>
     );

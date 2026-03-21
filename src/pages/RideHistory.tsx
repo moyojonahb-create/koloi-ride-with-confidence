@@ -23,7 +23,7 @@ interface RideRecord {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  completed: 'bg-emerald-500/10 text-emerald-600',
+  completed: 'bg-primary/10 text-primary',
   cancelled: 'bg-destructive/10 text-destructive',
   expired: 'bg-muted text-muted-foreground',
   pending: 'bg-accent/10 text-accent-foreground',

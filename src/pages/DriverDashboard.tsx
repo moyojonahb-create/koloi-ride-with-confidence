@@ -524,8 +524,20 @@ export default function DriverDashboard() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse text-muted-foreground">Loading…</div>
+      <div className="flex flex-col h-[100dvh] bg-background">
+        <div className="shrink-0 bg-background/95 backdrop-blur-lg border-b border-border/60 px-5 py-3.5">
+          <div className="flex items-center justify-between max-w-lg mx-auto">
+            <div className="w-11 h-11 rounded-2xl bg-muted animate-pulse" />
+            <div className="h-5 w-36 rounded bg-muted animate-pulse" />
+            <div className="w-11 h-11 rounded-2xl bg-muted animate-pulse" />
+          </div>
+        </div>
+        <div className="flex-1 bg-muted/30 animate-pulse" />
+        <div className="p-4 space-y-3">
+          <div className="h-14 rounded-2xl bg-muted animate-pulse" />
+          <div className="h-20 rounded-2xl bg-muted animate-pulse" />
+          <div className="h-14 rounded-2xl bg-muted animate-pulse w-2/3" />
+        </div>
       </div>
     );
   }
