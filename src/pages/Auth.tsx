@@ -280,7 +280,7 @@ const Auth = () => {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   autoComplete="tel"
-                  className="h-12 rounded-xl border-white/50 bg-white/80"
+                  className="h-12 rounded-xl border-border/50 bg-card/80"
                 />
               </div>
               <div className="space-y-2">
