@@ -141,7 +141,7 @@ const Auth = () => {
             {mode === 'login' ? 'Welcome back' : 'Create an account'}
             </CardTitle>
           </div>
-          <CardDescription className="text-slate-600">
+          <CardDescription className="text-muted-foreground">
             {mode === 'login' 
               ? 'Sign in to your Voyex account' 
               : 'Sign up to start using Voyex'
