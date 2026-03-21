@@ -40,7 +40,7 @@ function SettlementInfo({ tripId }: { tripId: string }) {
     setSettling(false);
   };
 
-  if (loading) return null;
+  if (loading) return <div className="mt-3 h-12 rounded-2xl bg-muted animate-pulse" />;
   if (settlement) {
     return (
       <div className="mt-3 px-4 py-3 bg-primary/10 rounded-2xl text-sm text-primary font-semibold">
