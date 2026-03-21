@@ -249,7 +249,7 @@ const Auth = () => {
                 </button>
               </div>
 
-              <p className="text-xs text-slate-500">Use the same email or phone number you registered with.</p>
+              <p className="text-xs text-muted-foreground">Use the same email or phone number you registered with.</p>
 
               <Button type="submit" className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
