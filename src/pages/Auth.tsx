@@ -136,8 +136,8 @@ const Auth = () => {
             <VoyexLogo size="md" />
           </Link>
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Voyex</p>
-            <CardTitle className="text-2xl text-slate-900">
+            <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Voyex</p>
+            <CardTitle className="text-2xl text-foreground">
             {mode === 'login' ? 'Welcome back' : 'Create an account'}
             </CardTitle>
           </div>
