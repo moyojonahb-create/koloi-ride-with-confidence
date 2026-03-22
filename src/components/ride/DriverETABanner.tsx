@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Car, MapPin, Navigation, Clock, CheckCircle2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Car, Navigation, Clock, CheckCircle2 } from "lucide-react";
 
 interface DriverETABannerProps {
   driverLocation: { lat: number; lng: number };
@@ -20,6 +20,7 @@ function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): nu
 }
 
 function estimateMinutes(distanceKm: number): number {
+  // Average urban speed ~25 km/h
   return Math.max(1, Math.round(distanceKm / 25 * 60));
 }
 
@@ -29,8 +30,9 @@ export default function DriverETABanner({
   const [, setTick] = useState(0);
   const prevEta = useRef<number>(0);
 
+  // Re-render every 3 seconds for live countdown
   useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 5000);
+    const interval = setInterval(() => setTick((t) => t + 1), 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -44,12 +46,13 @@ export default function DriverETABanner({
   const etaToDropoff = estimateMinutes(distToDropoff);
   const isNearPickup = distToPickup < 0.15;
 
-  // Track ETA changes for animation
   const currentEta = isInProgress ? etaToDropoff : etaToPickup;
   const etaChanged = prevEta.current !== currentEta;
   useEffect(() => { prevEta.current = currentEta; }, [currentEta]);
 
-  // Progress percentage for the bar
+  // Is driver close? (under 2 min)
+  const isClose = currentEta <= 2;
+
   const progressPercent = isInProgress
     ? Math.max(5, Math.min(95, (1 - distToDropoff / Math.max(distToDropoff + 1, 5)) * 100))
     : isEnRoute
@@ -73,7 +76,6 @@ export default function DriverETABanner({
           <p className="font-bold text-sm">Driver has arrived!</p>
           <p className="text-xs opacity-80">Meet your driver at the pickup point</p>
         </div>
-        <MapPin className="h-5 w-5" />
       </motion.div>
     );
   }
@@ -83,7 +85,7 @@ export default function DriverETABanner({
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="px-4 py-3.5 bg-primary text-primary-foreground rounded-b-2xl"
+        className={`px-4 py-3.5 rounded-b-2xl transition-colors duration-500 ${isClose ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"}`}
       >
         <div className="flex items-center gap-3 mb-2">
           <Navigation className="h-5 w-5" />
@@ -93,19 +95,21 @@ export default function DriverETABanner({
               {distToDropoff.toFixed(1)} km to destination
             </p>
           </div>
-          <motion.span
-            key={etaToDropoff}
-            initial={etaChanged ? { scale: 1.3, color: "hsl(45 100% 70%)" } : false}
-            animate={{ scale: 1, color: "hsl(0 0% 100%)" }}
-            className="text-lg font-bold font-display tabular-nums"
-          >
-            {etaToDropoff} min
-          </motion.span>
-        </div>
-        {/* Progress bar */}
-        <div className="w-full h-1 bg-primary-foreground/20 rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-accent rounded-full"
+            key={etaToDropoff}
+            initial={etaChanged ? { scale: 1.4 } : false}
+            animate={{ scale: 1 }}
+            className="text-right"
+          >
+            <p className={`text-2xl font-black font-display tabular-nums ${isClose ? "text-accent-foreground" : ""}`}>
+              {etaToDropoff}
+            </p>
+            <p className="text-[10px] font-semibold opacity-70 uppercase">min</p>
+          </motion.div>
+        </div>
+        <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
+          <motion.div
+            className={`h-full rounded-full ${isClose ? "bg-accent-foreground" : "bg-accent"}`}
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 1, ease: "easeOut" }}
@@ -120,7 +124,7 @@ export default function DriverETABanner({
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="px-4 py-3.5 bg-primary text-primary-foreground rounded-b-2xl"
+        className={`px-4 py-3.5 rounded-b-2xl transition-colors duration-500 ${isClose ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"}`}
       >
         <div className="flex items-center gap-3 mb-2">
           <motion.div
@@ -130,22 +134,26 @@ export default function DriverETABanner({
             <Car className="h-5 w-5" />
           </motion.div>
           <div className="flex-1">
-            <p className="font-bold text-sm">Driver is on the way</p>
+            <p className="font-bold text-sm">
+              {isClose ? "Almost there!" : "Driver is on the way"}
+            </p>
             <p className="text-xs opacity-80">{distToPickup.toFixed(1)} km away</p>
           </div>
-          <motion.span
-            key={etaToPickup}
-            initial={etaChanged ? { scale: 1.3, color: "hsl(45 100% 70%)" } : false}
-            animate={{ scale: 1, color: "hsl(0 0% 100%)" }}
-            className="text-lg font-bold font-display tabular-nums"
-          >
-            {etaToPickup} min
-          </motion.span>
-        </div>
-        {/* Progress bar */}
-        <div className="w-full h-1 bg-primary-foreground/20 rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-accent rounded-full"
+            key={etaToPickup}
+            initial={etaChanged ? { scale: 1.4 } : false}
+            animate={{ scale: 1 }}
+            className="text-right"
+          >
+            <p className={`text-2xl font-black font-display tabular-nums ${isClose ? "text-accent-foreground" : ""}`}>
+              {etaToPickup}
+            </p>
+            <p className="text-[10px] font-semibold opacity-70 uppercase">min</p>
+          </motion.div>
+        </div>
+        <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
+          <motion.div
+            className={`h-full rounded-full ${isClose ? "bg-accent-foreground" : "bg-accent"}`}
             initial={{ width: 0 }}
             animate={{ width: `${progressPercent}%` }}
             transition={{ duration: 1, ease: "easeOut" }}

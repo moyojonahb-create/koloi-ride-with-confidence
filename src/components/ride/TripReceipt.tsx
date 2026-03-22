@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { MapPin, Navigation, Clock, Banknote, Car, CreditCard, CheckCircle2, Share2, Download, Percent } from 'lucide-react';
+import { Navigation, Clock, Car, CreditCard, CheckCircle2, Share2, Percent } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import SurgePricingBadge from './SurgePricingBadge';
@@ -15,6 +15,7 @@ interface TripReceiptProps {
     payment_method: string;
     vehicle_type: string;
     created_at: string;
+    locked_price?: number | null;
   };
   driverName?: string;
   driverRating?: number;
@@ -24,24 +25,27 @@ interface TripReceiptProps {
   isNight?: boolean;
 }
 
-export default function TripReceipt({ ride, driverName, driverRating, onRateDriver, hasRated, demandMultiplier = 1.0, isNight = false }: TripReceiptProps) {
+export default function TripReceipt({ ride, driverName, onRateDriver, hasRated, demandMultiplier = 1.0, isNight = false }: TripReceiptProps) {
+  const totalFare = ride.locked_price ?? ride.fare;
   const commissionRate = 0.15;
-  const platformFee = Math.round(ride.fare * commissionRate * 100) / 100;
-  const driverEarnings = Math.round((ride.fare - platformFee) * 100) / 100;
+  const platformFee = Math.round(totalFare * commissionRate * 100) / 100;
   const hasSurge = demandMultiplier > 1.0;
-  const baseFare = hasSurge ? Math.round((ride.fare / demandMultiplier) * 100) / 100 : ride.fare;
-  const surgeAmount = hasSurge ? Math.round((ride.fare - baseFare) * 100) / 100 : 0;
+
+  // Line-item breakdown
+  const perKmRate = 0.80;
+  const perMinRate = 0.10;
+  const distanceCost = Math.round(ride.distance_km * perKmRate * 100) / 100;
+  const timeCost = Math.round(ride.duration_minutes * perMinRate * 100) / 100;
+  const baseFare = Math.round((totalFare - distanceCost - timeCost) * 100) / 100;
+  const surgeAmount = hasSurge ? Math.round((totalFare * (1 - 1 / demandMultiplier)) * 100) / 100 : 0;
+  const adjustedBase = Math.max(0, baseFare - surgeAmount);
 
   const receiptId = `VYX-${ride.id.substring(0, 8).toUpperCase()}`;
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.06 },
-    },
+    visible: { opacity: 1, transition: { staggerChildren: 0.06 } },
   };
-
   const itemVariants = {
     hidden: { opacity: 0, y: 10 },
     visible: { opacity: 1, y: 0 },
@@ -111,18 +115,30 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
         </div>
       </motion.div>
 
-      {/* Fare breakdown */}
+      {/* Detailed fare breakdown */}
       <motion.div variants={itemVariants} className="border-t border-border/30 pt-4 space-y-2">
+        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Fare Breakdown</p>
+
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Base fare</span>
-          <span className="font-semibold text-foreground">${baseFare.toFixed(2)}</span>
+          <span className="font-semibold text-foreground">${adjustedBase.toFixed(2)}</span>
+        </div>
+
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Distance ({ride.distance_km.toFixed(1)} km × ${perKmRate.toFixed(2)})</span>
+          <span className="font-semibold text-foreground">${distanceCost.toFixed(2)}</span>
+        </div>
+
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Time ({ride.duration_minutes} min × ${perMinRate.toFixed(2)})</span>
+          <span className="font-semibold text-foreground">${timeCost.toFixed(2)}</span>
         </div>
 
         {hasSurge && (
           <div className="flex justify-between text-sm items-center">
             <span className="text-muted-foreground flex items-center gap-1.5">
               <SurgePricingBadge demandMultiplier={demandMultiplier} isNight={false} className="text-[10px] px-1.5 py-0.5" />
-              Surge fee
+              Surge ({demandMultiplier}×)
             </span>
             <span className="font-semibold text-destructive">+${surgeAmount.toFixed(2)}</span>
           </div>
@@ -137,6 +153,14 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
             <span className="font-medium text-foreground">Included</span>
           </div>
         )}
+
+        <div className="flex justify-between text-sm text-muted-foreground/60">
+          <span className="flex items-center gap-1.5">
+            <Percent className="w-3 h-3" />
+            Platform fee (15%)
+          </span>
+          <span>${platformFee.toFixed(2)}</span>
+        </div>
 
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground flex items-center gap-1.5">
@@ -153,22 +177,21 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
           </div>
         )}
 
-        <div className="flex justify-between text-sm text-muted-foreground/60">
-          <span className="flex items-center gap-1.5">
-            <Percent className="w-3 h-3" />
-            Platform fee (15%)
-          </span>
-          <span>${platformFee.toFixed(2)}</span>
-        </div>
+        {ride.locked_price && (
+          <div className="flex justify-between text-xs text-muted-foreground/50">
+            <span>Upfront price guarantee</span>
+            <span>✓ Locked</span>
+          </div>
+        )}
 
-        <div className="flex justify-between items-center pt-2 border-t border-border/30">
+        <div className="flex justify-between items-center pt-3 border-t border-border/30">
           <span className="font-bold text-foreground">Total paid</span>
           <motion.span
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             className="text-2xl font-black text-primary"
           >
-            ${Number(ride.fare).toFixed(2)}
+            ${Number(totalFare).toFixed(2)}
           </motion.span>
         </div>
       </motion.div>
@@ -176,7 +199,7 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
       {/* Actions */}
       <motion.div variants={itemVariants} className="flex gap-3">
         {onRateDriver && !hasRated && (
-          <Button 
+          <Button
             onClick={onRateDriver}
             className="flex-1 h-12 rounded-2xl font-bold"
             variant="default"
@@ -191,7 +214,7 @@ export default function TripReceipt({ ride, driverName, driverRating, onRateDriv
             if (navigator.share) {
               navigator.share({
                 title: `Voyex Receipt ${receiptId}`,
-                text: `Trip from ${ride.pickup_address} to ${ride.dropoff_address} — $${Number(ride.fare).toFixed(2)}\nReceipt: ${receiptId}`,
+                text: `Trip from ${ride.pickup_address} to ${ride.dropoff_address} — $${Number(totalFare).toFixed(2)}\nReceipt: ${receiptId}`,
               });
             }
           }}

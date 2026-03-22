@@ -1,123 +1,162 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import AuthGuard from "./components/AuthGuard";
 import AdminGuard from "./components/admin/AdminGuard";
+import ErrorBoundary from "./components/ErrorBoundary";
 
-// Eagerly import all pages — no lazy loading, no blank screens
+// Core pages — eagerly loaded for instant navigation
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Signup from "./pages/Signup";
-import AppDashboard from "./pages/AppDashboard";
 import Ride from "./pages/Ride";
 import RideDetail from "./pages/RideDetail";
-import RideHistory from "./pages/RideHistory";
-import RiderProfile from "./pages/RiderProfile";
-import EditProfile from "./pages/EditProfile";
-import RiderWalletPage from "./pages/RiderWalletPage";
-import SafetyPage from "./pages/SafetyPage";
-import TermsOfService from "./pages/TermsOfService";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import Offline from "./pages/Offline";
-import Install from "./pages/Install";
-import DeleteAccount from "./pages/DeleteAccount";
-import DriverApplication from "./pages/DriverApplication";
-import DriverDashboard from "./pages/DriverDashboard";
-import DriverDepositPage from "./pages/DriverDepositPage";
-import DriverLeaderboard from "./pages/DriverLeaderboard";
-import DriverModeLanding from "./pages/DriverModeLanding";
-import DriverRegistrationPage from "./pages/DriverRegistrationPage";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminDrivers from "./pages/admin/AdminDrivers";
-import AdminDriverDetail from "./pages/admin/AdminDriverDetail";
-import AdminDriversMap from "./pages/admin/AdminDriversMap";
-import AdminLandmarks from "./pages/admin/AdminLandmarks";
-import AdminLedger from "./pages/admin/AdminLedger";
-import AdminPromos from "./pages/admin/AdminPromos";
-import AdminRatePage from "./pages/admin/AdminRatePage";
-import AdminReports from "./pages/admin/AdminReports";
-import AdminTrips from "./pages/admin/AdminTrips";
-import AdminDepositsPage from "./pages/admin/AdminDepositsPage";
-import AdminRiderDepositsPage from "./pages/admin/AdminRiderDepositsPage";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminTownPricing from "./pages/admin/AdminTownPricing";
-import ImportOsmPlaces from "./pages/admin/ImportOsmPlaces";
-import NotFound from "./pages/NotFound";
+
+// Lazy-loaded pages
+const AppDashboard = lazy(() => import("./pages/AppDashboard"));
+const RideHistory = lazy(() => import("./pages/RideHistory"));
+const RiderProfile = lazy(() => import("./pages/RiderProfile"));
+const EditProfile = lazy(() => import("./pages/EditProfile"));
+const RiderWalletPage = lazy(() => import("./pages/RiderWalletPage"));
+const SafetyPage = lazy(() => import("./pages/SafetyPage"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const Offline = lazy(() => import("./pages/Offline"));
+const Install = lazy(() => import("./pages/Install"));
+const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
+const DriverApplication = lazy(() => import("./pages/DriverApplication"));
+const DriverDashboard = lazy(() => import("./pages/DriverDashboard"));
+const DriverDepositPage = lazy(() => import("./pages/DriverDepositPage"));
+const DriverLeaderboard = lazy(() => import("./pages/DriverLeaderboard"));
+const DriverModeLanding = lazy(() => import("./pages/DriverModeLanding"));
+const DriverRegistrationPage = lazy(() => import("./pages/DriverRegistrationPage"));
+const DriverWalletPage = lazy(() => import("./pages/DriverWalletPage"));
+const RiderRideDetail = lazy(() => import("./pages/RiderRideDetail"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminDrivers = lazy(() => import("./pages/admin/AdminDrivers"));
+const AdminDriverDetail = lazy(() => import("./pages/admin/AdminDriverDetail"));
+const AdminDriversMap = lazy(() => import("./pages/admin/AdminDriversMap"));
+const AdminLandmarks = lazy(() => import("./pages/admin/AdminLandmarks"));
+const AdminLedger = lazy(() => import("./pages/admin/AdminLedger"));
+const AdminPromos = lazy(() => import("./pages/admin/AdminPromos"));
+const AdminRatePage = lazy(() => import("./pages/admin/AdminRatePage"));
+const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
+const AdminTrips = lazy(() => import("./pages/admin/AdminTrips"));
+const AdminDepositsPage = lazy(() => import("./pages/admin/AdminDepositsPage"));
+const AdminRiderDepositsPage = lazy(() => import("./pages/admin/AdminRiderDepositsPage"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminTownPricing = lazy(() => import("./pages/admin/AdminTownPricing"));
+const ImportOsmPlaces = lazy(() => import("./pages/admin/ImportOsmPlaces"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Negotiation screens
+const DriverRequestsScreen = lazy(() => import("./pages/negotiate/DriverRequestsScreen"));
+const RiderOffersScreen = lazy(() => import("./pages/negotiate/RiderOffersScreen"));
+const RiderRequestScreen = lazy(() => import("./pages/negotiate/RiderRequestScreen"));
+
+// Live tracking (public)
+const LiveTrackingPage = lazy(() => import("./pages/LiveTrackingPage"));
+
+function LazyFallback() {
+  return (
+    <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+      <div className="flex items-center gap-3">
+        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <span className="text-sm font-medium text-muted-foreground">Loading…</span>
+      </div>
+    </div>
+  );
+}
+
+function SuspenseWrap({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<LazyFallback />}>{children}</Suspense>;
+}
 
 export default function App() {
   const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
 
-  // Signal splash screen to dismiss once React is mounted
   useEffect(() => {
     (window as any).__dismissSplash?.();
   }, []);
 
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/home" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/login" element={<Navigate to="/auth" replace />} />
-        <Route path="/signup" element={<Signup />} />
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/home" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/login" element={<Navigate to="/auth" replace />} />
+          <Route path="/signup" element={<Signup />} />
 
-        {/* Legacy / mapp compatibility redirects */}
-        <Route path="/mapp" element={<Navigate to="/ride" replace />} />
-        <Route path="/mapp/login" element={<Navigate to="/auth" replace />} />
-        <Route path="/mapp/ride" element={<Navigate to="/ride" replace />} />
-        <Route path="/mapp/history" element={<Navigate to="/history" replace />} />
-        <Route path="/mapp/ride-history" element={<Navigate to="/history" replace />} />
-        <Route path="/mapp/wallet" element={<Navigate to="/wallet" replace />} />
-        <Route path="/mapp/profile" element={<Navigate to="/profile" replace />} />
-        <Route path="/mapp/edit-profile" element={<Navigate to="/edit-profile" replace />} />
-        <Route path="/mapp/driver" element={<Navigate to="/driver" replace />} />
-        <Route path="/mapp/admin" element={<Navigate to="/admin" replace />} />
-        <Route path="/mapp/safety" element={<Navigate to="/safety" replace />} />
-        <Route path="/mapp/*" element={<Navigate to="/ride" replace />} />
+          {/* Legacy / mapp compatibility redirects */}
+          <Route path="/mapp" element={<Navigate to="/ride" replace />} />
+          <Route path="/mapp/login" element={<Navigate to="/auth" replace />} />
+          <Route path="/mapp/ride" element={<Navigate to="/ride" replace />} />
+          <Route path="/mapp/history" element={<Navigate to="/history" replace />} />
+          <Route path="/mapp/ride-history" element={<Navigate to="/history" replace />} />
+          <Route path="/mapp/wallet" element={<Navigate to="/wallet" replace />} />
+          <Route path="/mapp/profile" element={<Navigate to="/profile" replace />} />
+          <Route path="/mapp/edit-profile" element={<Navigate to="/edit-profile" replace />} />
+          <Route path="/mapp/driver" element={<Navigate to="/driver" replace />} />
+          <Route path="/mapp/admin" element={<Navigate to="/admin" replace />} />
+          <Route path="/mapp/safety" element={<Navigate to="/safety" replace />} />
+          <Route path="/mapp/*" element={<Navigate to="/ride" replace />} />
 
-        <Route path="/ride" element={<AuthGuard><Ride /></AuthGuard>} />
-        <Route path="/ride/:rideId" element={<AuthGuard><RideDetail /></AuthGuard>} />
-        <Route path="/history" element={<AuthGuard><RideHistory /></AuthGuard>} />
-        <Route path="/ride-history" element={<Navigate to="/history" replace />} />
-        <Route path="/profile" element={<AuthGuard><RiderProfile /></AuthGuard>} />
-        <Route path="/edit-profile" element={<AuthGuard><EditProfile /></AuthGuard>} />
-        <Route path="/wallet" element={<AuthGuard><RiderWalletPage /></AuthGuard>} />
+          <Route path="/ride" element={<AuthGuard><Ride /></AuthGuard>} />
+          <Route path="/ride/:rideId" element={<AuthGuard><RideDetail /></AuthGuard>} />
+          <Route path="/rider/ride/:rideId" element={<SuspenseWrap><AuthGuard><RiderRideDetail /></AuthGuard></SuspenseWrap>} />
+          <Route path="/history" element={<SuspenseWrap><AuthGuard><RideHistory /></AuthGuard></SuspenseWrap>} />
+          <Route path="/ride-history" element={<Navigate to="/history" replace />} />
+          <Route path="/profile" element={<SuspenseWrap><AuthGuard><RiderProfile /></AuthGuard></SuspenseWrap>} />
+          <Route path="/edit-profile" element={<SuspenseWrap><AuthGuard><EditProfile /></AuthGuard></SuspenseWrap>} />
+          <Route path="/wallet" element={<SuspenseWrap><AuthGuard><RiderWalletPage /></AuthGuard></SuspenseWrap>} />
 
-        <Route path="/driver" element={<DriverModeLanding />} />
-        <Route path="/driver-mode" element={<Navigate to="/driver" replace />} />
-        <Route path="/driver/register" element={<DriverRegistrationPage />} />
-        <Route path="/driver/application" element={<DriverApplication />} />
-        <Route path="/driver/dashboard" element={<AuthGuard><DriverDashboard /></AuthGuard>} />
-        <Route path="/driver/deposit" element={<AuthGuard><DriverDepositPage /></AuthGuard>} />
-        <Route path="/driver/leaderboard" element={<AuthGuard><DriverLeaderboard /></AuthGuard>} />
+          <Route path="/driver" element={<SuspenseWrap><DriverModeLanding /></SuspenseWrap>} />
+          <Route path="/driver-mode" element={<Navigate to="/driver" replace />} />
+          <Route path="/driver/register" element={<SuspenseWrap><DriverRegistrationPage /></SuspenseWrap>} />
+          <Route path="/driver/application" element={<SuspenseWrap><DriverApplication /></SuspenseWrap>} />
+          <Route path="/driver/dashboard" element={<SuspenseWrap><AuthGuard><DriverDashboard /></AuthGuard></SuspenseWrap>} />
+          <Route path="/driver/deposit" element={<SuspenseWrap><AuthGuard><DriverDepositPage /></AuthGuard></SuspenseWrap>} />
+          <Route path="/driver/leaderboard" element={<SuspenseWrap><AuthGuard><DriverLeaderboard /></AuthGuard></SuspenseWrap>} />
+          <Route path="/driver/wallet" element={<SuspenseWrap><AuthGuard><DriverWalletPage /></AuthGuard></SuspenseWrap>} />
 
-        <Route path="/app" element={<AuthGuard><AppDashboard /></AuthGuard>} />
+          {/* Negotiation screens */}
+          <Route path="/negotiate/request" element={<SuspenseWrap><AuthGuard><RiderRequestScreen /></AuthGuard></SuspenseWrap>} />
+          <Route path="/negotiate/offers/:requestId" element={<SuspenseWrap><AuthGuard><RiderOffersScreen /></AuthGuard></SuspenseWrap>} />
+          <Route path="/negotiate/driver-requests" element={<SuspenseWrap><AuthGuard><DriverRequestsScreen /></AuthGuard></SuspenseWrap>} />
 
-        <Route path="/safety" element={<SafetyPage />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/offline" element={<Offline />} />
-        <Route path="/install" element={<Install />} />
-        <Route path="/delete-account" element={<DeleteAccount />} />
+          {/* Public live trip tracking */}
+          <Route path="/track/:tripId" element={<SuspenseWrap><LiveTrackingPage /></SuspenseWrap>} />
 
-        <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
-        <Route path="/admin/drivers" element={<AdminGuard><AdminDrivers /></AdminGuard>} />
-        <Route path="/admin/drivers/:driverId" element={<AdminGuard><AdminDriverDetail /></AdminGuard>} />
-        <Route path="/admin/drivers-map" element={<AdminGuard><AdminDriversMap /></AdminGuard>} />
-        <Route path="/admin/landmarks" element={<AdminGuard><AdminLandmarks /></AdminGuard>} />
-        <Route path="/admin/ledger" element={<AdminGuard><AdminLedger /></AdminGuard>} />
-        <Route path="/admin/promos" element={<AdminGuard><AdminPromos /></AdminGuard>} />
-        <Route path="/admin/rates" element={<AdminGuard><AdminRatePage /></AdminGuard>} />
-        <Route path="/admin/reports" element={<AdminGuard><AdminReports /></AdminGuard>} />
-        <Route path="/admin/trips" element={<AdminGuard><AdminTrips /></AdminGuard>} />
-        <Route path="/admin/deposits" element={<AdminGuard><AdminDepositsPage /></AdminGuard>} />
-        <Route path="/admin/rider-deposits" element={<AdminGuard><AdminRiderDepositsPage /></AdminGuard>} />
-        <Route path="/admin/settings" element={<AdminGuard><AdminSettings /></AdminGuard>} />
-        <Route path="/admin/town-pricing" element={<AdminGuard><AdminTownPricing /></AdminGuard>} />
-        <Route path="/admin/import-places" element={<AdminGuard><ImportOsmPlaces /></AdminGuard>} />
+          <Route path="/app" element={<SuspenseWrap><AuthGuard><AppDashboard /></AuthGuard></SuspenseWrap>} />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="/safety" element={<SuspenseWrap><SafetyPage /></SuspenseWrap>} />
+          <Route path="/terms" element={<SuspenseWrap><TermsOfService /></SuspenseWrap>} />
+          <Route path="/privacy" element={<SuspenseWrap><PrivacyPolicy /></SuspenseWrap>} />
+          <Route path="/offline" element={<SuspenseWrap><Offline /></SuspenseWrap>} />
+          <Route path="/install" element={<SuspenseWrap><Install /></SuspenseWrap>} />
+          <Route path="/delete-account" element={<SuspenseWrap><DeleteAccount /></SuspenseWrap>} />
+
+          <Route path="/admin" element={<SuspenseWrap><AdminGuard><AdminDashboard /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/drivers" element={<SuspenseWrap><AdminGuard><AdminDrivers /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/drivers/:driverId" element={<SuspenseWrap><AdminGuard><AdminDriverDetail /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/drivers-map" element={<SuspenseWrap><AdminGuard><AdminDriversMap /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/landmarks" element={<SuspenseWrap><AdminGuard><AdminLandmarks /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/ledger" element={<SuspenseWrap><AdminGuard><AdminLedger /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/promos" element={<SuspenseWrap><AdminGuard><AdminPromos /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/rates" element={<SuspenseWrap><AdminGuard><AdminRatePage /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/reports" element={<SuspenseWrap><AdminGuard><AdminReports /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/trips" element={<SuspenseWrap><AdminGuard><AdminTrips /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/deposits" element={<SuspenseWrap><AdminGuard><AdminDepositsPage /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/rider-deposits" element={<SuspenseWrap><AdminGuard><AdminRiderDepositsPage /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/settings" element={<SuspenseWrap><AdminGuard><AdminSettings /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/town-pricing" element={<SuspenseWrap><AdminGuard><AdminTownPricing /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/import-places" element={<SuspenseWrap><AdminGuard><ImportOsmPlaces /></AdminGuard></SuspenseWrap>} />
+
+          <Route path="*" element={<SuspenseWrap><NotFound /></SuspenseWrap>} />
+        </Routes>
+      </ErrorBoundary>
     </Router>
   );
 }
