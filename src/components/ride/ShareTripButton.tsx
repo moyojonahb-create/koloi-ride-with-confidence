@@ -11,13 +11,13 @@ interface ShareTripProps {
 
 export default function ShareTripButton({ rideId, pickupAddress, dropoffAddress, driverName }: ShareTripProps) {
   const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/ride/${rideId}`;
+    const shareUrl = `${window.location.origin}/track/${rideId}`;
     const text = [
       `🚗 I'm on a Voyex ride!`,
       driverName ? `Driver: ${driverName}` : '',
       `From: ${pickupAddress}`,
       `To: ${dropoffAddress}`,
-      `Track my trip: ${shareUrl}`,
+      `Track my trip live: ${shareUrl}`,
     ].filter(Boolean).join('\n');
 
     if (navigator.share) {
@@ -28,7 +28,7 @@ export default function ShareTripButton({ rideId, pickupAddress, dropoffAddress,
       }
     } else {
       await navigator.clipboard.writeText(text);
-      toast.success('Trip link copied to clipboard!');
+      toast.success('Live tracking link copied!');
     }
   };
 

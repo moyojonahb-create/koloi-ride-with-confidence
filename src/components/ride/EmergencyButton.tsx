@@ -1,9 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useRef, useCallback } from "react";
-import { AlertTriangle, Phone, X, Shield, MapPin, Share2 } from "lucide-react";
+import { AlertTriangle, Phone, X, Shield, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@/hooks/useAuth";
 
 interface EmergencyButtonProps {
   rideId?: string;
@@ -13,6 +15,7 @@ interface EmergencyButtonProps {
 }
 
 export default function EmergencyButton({ rideId, pickupAddress, dropoffAddress, driverName }: EmergencyButtonProps) {
+  const { user } = useAuth();
   const [showPanel, setShowPanel] = useState(false);
   const [sosCountdown, setSosCountdown] = useState<number | null>(null);
   const [locationShared, setLocationShared] = useState(false);
@@ -24,22 +27,46 @@ export default function EmergencyButton({ rideId, pickupAddress, dropoffAddress,
     { label: "Fire Brigade", number: "993", color: "bg-amber-500/10 border-amber-500/20" },
   ];
 
+  const writeEmergencyAlert = async (latitude: number, longitude: number) => {
+    if (!user) return;
+    try {
+      await supabase.from("emergency_alerts").insert({
+        ride_id: rideId || null,
+        user_id: user.id,
+        latitude,
+        longitude,
+      });
+    } catch (e) {
+      console.error("Failed to write emergency alert:", e);
+    }
+  };
+
   const startSOS = useCallback(() => {
     setSosCountdown(5);
     countdownRef.current = setInterval(() => {
       setSosCountdown(prev => {
         if (prev === null || prev <= 1) {
           if (countdownRef.current) clearInterval(countdownRef.current);
-          // Auto-call police
-          window.location.href = 'tel:995';
-          // Share location
-          shareEmergencyLocation();
+          // Get location, write alert, then dial
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              writeEmergencyAlert(pos.coords.latitude, pos.coords.longitude);
+              shareEmergencyLocation();
+            },
+            () => {
+              // Even if GPS fails, still dial
+              writeEmergencyAlert(0, 0);
+            },
+            { enableHighAccuracy: true, timeout: 3000 }
+          );
+          // Dial emergency immediately
+          window.location.href = "tel:995";
           return null;
         }
         return prev - 1;
       });
     }, 1000);
-  }, []);
+  }, [rideId, user]);
 
   const cancelSOS = useCallback(() => {
     if (countdownRef.current) clearInterval(countdownRef.current);
@@ -152,6 +179,15 @@ export default function EmergencyButton({ rideId, pickupAddress, dropoffAddress,
                   {sosCountdown !== null ? 'Release to cancel' : 'Hold to auto-call police & share location'}
                 </span>
               </motion.button>
+
+              {/* Direct Call Button */}
+              <a
+                href="tel:995"
+                className="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive font-bold text-sm transition-colors hover:bg-destructive/20"
+              >
+                <Phone className="h-4 w-4" />
+                Call Emergency Services (995)
+              </a>
 
               {/* Share Location */}
               <Button
