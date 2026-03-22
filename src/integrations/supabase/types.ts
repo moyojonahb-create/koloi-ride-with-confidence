@@ -349,6 +349,33 @@ export type Database = {
           },
         ]
       }
+      driver_sessions: {
+        Row: {
+          created_at: string
+          driver_id: string
+          forced_break_until: string | null
+          id: string
+          went_offline_at: string | null
+          went_online_at: string
+        }
+        Insert: {
+          created_at?: string
+          driver_id: string
+          forced_break_until?: string | null
+          id?: string
+          went_offline_at?: string | null
+          went_online_at?: string
+        }
+        Update: {
+          created_at?: string
+          driver_id?: string
+          forced_break_until?: string | null
+          id?: string
+          went_offline_at?: string | null
+          went_online_at?: string
+        }
+        Relationships: []
+      }
       driver_wallets: {
         Row: {
           balance_usd: number
@@ -381,7 +408,9 @@ export type Database = {
           ecocash_number: string | null
           gender: string | null
           id: string
+          is_hearing_impaired: boolean
           is_online: boolean | null
+          is_wav: boolean
           plate_number: string | null
           preferred_service_area: string
           rating_avg: number | null
@@ -402,7 +431,9 @@ export type Database = {
           ecocash_number?: string | null
           gender?: string | null
           id?: string
+          is_hearing_impaired?: boolean
           is_online?: boolean | null
+          is_wav?: boolean
           plate_number?: string | null
           preferred_service_area?: string
           rating_avg?: number | null
@@ -423,7 +454,9 @@ export type Database = {
           ecocash_number?: string | null
           gender?: string | null
           id?: string
+          is_hearing_impaired?: boolean
           is_online?: boolean | null
+          is_wav?: boolean
           plate_number?: string | null
           preferred_service_area?: string
           rating_avg?: number | null
@@ -438,6 +471,74 @@ export type Database = {
           vehicle_year?: number | null
         }
         Relationships: []
+      }
+      eco_stats: {
+        Row: {
+          id: string
+          shared_rides_count: number
+          total_co2_saved_kg: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          shared_rides_count?: number
+          total_co2_saved_kg?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          shared_rides_count?: number
+          total_co2_saved_kg?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emergency_alerts: {
+        Row: {
+          created_at: string
+          id: string
+          latitude: number
+          longitude: number
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          ride_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          latitude: number
+          longitude: number
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          ride_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          ride_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emergency_alerts_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       favorite_locations: {
         Row: {
@@ -1077,6 +1178,38 @@ export type Database = {
           },
         ]
       }
+      ride_preferences: {
+        Row: {
+          cool_temperature: boolean
+          created_at: string
+          id: string
+          quiet_ride: boolean
+          ride_id: string
+        }
+        Insert: {
+          cool_temperature?: boolean
+          created_at?: string
+          id?: string
+          quiet_ride?: boolean
+          ride_id: string
+        }
+        Update: {
+          cool_temperature?: boolean
+          created_at?: string
+          id?: string
+          quiet_ride?: boolean
+          ride_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ride_preferences_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: true
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ride_requests: {
         Row: {
           created_at: string
@@ -1201,6 +1334,7 @@ export type Database = {
       }
       rides: {
         Row: {
+          cancellation_fee: number | null
           created_at: string
           distance_km: number
           driver_id: string | null
@@ -1212,6 +1346,7 @@ export type Database = {
           fare: number
           gender_preference: string | null
           id: string
+          locked_price: number | null
           passenger_count: number
           passenger_name: string | null
           passenger_phone: string | null
@@ -1228,6 +1363,7 @@ export type Database = {
           vehicle_type: string
         }
         Insert: {
+          cancellation_fee?: number | null
           created_at?: string
           distance_km: number
           driver_id?: string | null
@@ -1239,6 +1375,7 @@ export type Database = {
           fare: number
           gender_preference?: string | null
           id?: string
+          locked_price?: number | null
           passenger_count?: number
           passenger_name?: string | null
           passenger_phone?: string | null
@@ -1255,6 +1392,7 @@ export type Database = {
           vehicle_type?: string
         }
         Update: {
+          cancellation_fee?: number | null
           created_at?: string
           distance_km?: number
           driver_id?: string | null
@@ -1266,6 +1404,7 @@ export type Database = {
           fare?: number
           gender_preference?: string | null
           id?: string
+          locked_price?: number | null
           passenger_count?: number
           passenger_name?: string | null
           passenger_phone?: string | null
@@ -1344,6 +1483,41 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      tips: {
+        Row: {
+          amount: number
+          created_at: string
+          driver_id: string
+          id: string
+          ride_id: string | null
+          rider_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          driver_id: string
+          id?: string
+          ride_id?: string | null
+          rider_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          driver_id?: string
+          id?: string
+          ride_id?: string | null
+          rider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tips_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "rides"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       town_pricing: {
         Row: {
