@@ -200,6 +200,9 @@ export default function RiderProfile() {
           </section>
         </div>
 
+        {/* Eco Badge */}
+        <EcoBadge />
+
         {/* Links */}
         <div className="space-y-1.5">
           <NavRow icon={<User className="w-4 h-4 text-primary" />} label="Edit Profile" onClick={() => navigate(`${prefix}/edit-profile`)} />

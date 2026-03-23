@@ -759,6 +759,12 @@ export default function RideView() {
           {/* Women-only ride toggle */}
           <GenderPreferenceToggle value={genderPreference} onChange={setGenderPreference} />
 
+          {/* Ride Preferences */}
+          <RidePreferences quietRide={quietRide} coolTemp={coolTemp} onQuietChange={setQuietRide} onCoolChange={setCoolTemp} />
+
+          {/* Accessibility Filters */}
+          <AccessibilityFilters wavRequired={wavRequired} hearingImpaired={hearingImpaired} onWavChange={setWavRequired} onHearingChange={setHearingImpaired} />
+
           {/* ── Fare breakdown + Negotiation (expanded) ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
             const activeTown = selectedTown.name;
