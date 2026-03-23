@@ -146,6 +146,9 @@ export default function DriverDashboard() {
   useEffect(() => { fetchDriverBalance(); }, [fetchDriverBalance]);
   useEffect(() => { preloadAllTownPricing().then(setTownPricingMap); }, []);
 
+  // Fatigue monitor
+  const fatigueState = useFatigueMonitor(user?.id, isOnline);
+
   // Nearby drivers for map
   const nearbyDrivers = useNearbyDrivers(isOnline);
 
