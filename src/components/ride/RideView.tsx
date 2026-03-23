@@ -48,6 +48,8 @@ import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLa
 import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
 import TownSelectorSheet from './TownSelectorSheet';
 import ShareTripButton from './ShareTripButton';
+import RidePreferences from './RidePreferences';
+import AccessibilityFilters from './AccessibilityFilters';
 
 // ── types ──
 import { type ServiceType } from '@/components/VehicleTypeSelector';
