@@ -302,6 +302,15 @@ export default function RideView() {
         }
       }
 
+      // Save ride preferences if any selected
+      if (result.ride.id && (quietRide || coolTemp)) {
+        supabase.from('ride_preferences').insert({
+          ride_id: result.ride.id,
+          quiet_ride: quietRide,
+          cool_temperature: coolTemp,
+        }).then(() => {});
+      }
+
       setCurrentRideId(result.ride.id);
       toast({
         title: scheduledAt ? 'Ride scheduled!' : 'Offer sent!',
