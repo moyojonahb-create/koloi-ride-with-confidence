@@ -74,6 +74,9 @@ import MapGoogle from "@/components/MapGoogle";
 import { useNearbyDrivers } from "@/hooks/useNearbyDrivers";
 import { useOSRMRoute } from "@/hooks/useOSRMRoute";
 import { runLocationFraudChecks } from "@/lib/fraudDetection";
+import { useFatigueMonitor } from "@/hooks/useFatigueMonitor";
+import FatigueAlert from "@/components/driver/FatigueAlert";
+import RidePreferenceTags from "@/components/ride/RidePreferenceTags";
 
 // Smart USD format: $4 for whole, $4.50 for halves
 function fmtUSD(n: number): string {
@@ -125,6 +128,7 @@ export default function DriverDashboard() {
   const [selfieCheckOpen, setSelfieCheckOpen] = useState(false);
   const [pendingOnlineAfterSelfie, setPendingOnlineAfterSelfie] = useState(false);
   const [townPricingMap, setTownPricingMap] = useState<Record<string, TownPricingConfig>>({});
+  const [ridePreferences, setRidePreferences] = useState<Record<string, { quiet_ride: boolean; cool_temperature: boolean }>>({});
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -141,6 +145,9 @@ export default function DriverDashboard() {
   }, [user]);
   useEffect(() => { fetchDriverBalance(); }, [fetchDriverBalance]);
   useEffect(() => { preloadAllTownPricing().then(setTownPricingMap); }, []);
+
+  // Fatigue monitor
+  const fatigueState = useFatigueMonitor(user?.id, isOnline);
 
   // Nearby drivers for map
   const nearbyDrivers = useNearbyDrivers(isOnline);
@@ -367,6 +374,16 @@ export default function DriverDashboard() {
           .eq("user_id", activeTripData.user_id)
           .maybeSingle();
         setRiderPhone(riderProfile?.phone ?? null);
+
+        // Fetch ride preferences
+        const { data: prefs } = await supabase
+          .from("ride_preferences")
+          .select("quiet_ride, cool_temperature")
+          .eq("ride_id", activeTripData.id)
+          .maybeSingle();
+        if (prefs) {
+          setRidePreferences(prev => ({ ...prev, [activeTripData.id]: prefs }));
+        }
       } else {
         setActiveTrip(null);
         setRiderPhone(null);
@@ -596,6 +613,11 @@ export default function DriverDashboard() {
           toggleOnline(true);
         }}
       />
+
+      {/* Fatigue Alert */}
+      {fatigueState.isFatigued && (
+        <FatigueAlert breakTimeRemaining={fatigueState.breakTimeRemaining} totalHours={fatigueState.totalOnlineHours} />
+      )}
 
       {/* Active Call Overlay */}
       {callStatus !== "idle" && (
@@ -949,6 +971,12 @@ export default function DriverDashboard() {
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
                   <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
+                  {/* Ride preferences tags */}
+                  {ridePreferences[activeTrip.id] && (
+                    <div className="mt-1.5">
+                      <RidePreferenceTags quietRide={ridePreferences[activeTrip.id]?.quiet_ride} coolTemperature={ridePreferences[activeTrip.id]?.cool_temperature} />
+                    </div>
+                  )}
                 </div>
                 <div className="text-right">
                   <p className="font-black text-lg">{fmtUSD(Number(activeTrip.fare))}</p>

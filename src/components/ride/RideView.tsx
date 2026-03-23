@@ -48,6 +48,8 @@ import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLa
 import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
 import TownSelectorSheet from './TownSelectorSheet';
 import ShareTripButton from './ShareTripButton';
+import RidePreferences from './RidePreferences';
+import AccessibilityFilters from './AccessibilityFilters';
 
 // ── types ──
 import { type ServiceType } from '@/components/VehicleTypeSelector';
@@ -114,6 +116,10 @@ export default function RideView() {
   const [activeStopId, setActiveStopId] = useState<string | null>(null);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
   const [genderPreference, setGenderPreference] = useState<GenderPreference>('any');
+  const [quietRide, setQuietRide] = useState(false);
+  const [coolTemp, setCoolTemp] = useState(false);
+  const [wavRequired, setWavRequired] = useState(false);
+  const [hearingImpaired, setHearingImpaired] = useState(false);
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
   const nearbyDrivers = useNearbyDrivers(rideStatus === 'idle' || rideStatus === 'searching');
@@ -294,6 +300,15 @@ export default function RideView() {
         if (stopsToInsert.length > 0) {
           await supabase.from('ride_stops').insert(stopsToInsert);
         }
+      }
+
+      // Save ride preferences if any selected
+      if (result.ride.id && (quietRide || coolTemp)) {
+        supabase.from('ride_preferences').insert({
+          ride_id: result.ride.id,
+          quiet_ride: quietRide,
+          cool_temperature: coolTemp,
+        }).then(() => {});
       }
 
       setCurrentRideId(result.ride.id);
@@ -752,6 +767,12 @@ export default function RideView() {
 
           {/* Women-only ride toggle */}
           <GenderPreferenceToggle value={genderPreference} onChange={setGenderPreference} />
+
+          {/* Ride Preferences */}
+          <RidePreferences quietRide={quietRide} coolTemp={coolTemp} onQuietChange={setQuietRide} onCoolChange={setCoolTemp} />
+
+          {/* Accessibility Filters */}
+          <AccessibilityFilters wavRequired={wavRequired} hearingImpaired={hearingImpaired} onWavChange={setWavRequired} onHearingChange={setHearingImpaired} />
 
           {/* ── Fare breakdown + Negotiation (expanded) ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
