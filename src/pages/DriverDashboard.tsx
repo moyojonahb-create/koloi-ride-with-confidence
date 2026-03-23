@@ -74,6 +74,9 @@ import MapGoogle from "@/components/MapGoogle";
 import { useNearbyDrivers } from "@/hooks/useNearbyDrivers";
 import { useOSRMRoute } from "@/hooks/useOSRMRoute";
 import { runLocationFraudChecks } from "@/lib/fraudDetection";
+import { useFatigueMonitor } from "@/hooks/useFatigueMonitor";
+import FatigueAlert from "@/components/driver/FatigueAlert";
+import RidePreferenceTags from "@/components/ride/RidePreferenceTags";
 
 // Smart USD format: $4 for whole, $4.50 for halves
 function fmtUSD(n: number): string {
