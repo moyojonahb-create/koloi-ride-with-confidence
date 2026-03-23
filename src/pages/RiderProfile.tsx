@@ -12,6 +12,7 @@ import BottomNavBar from '@/components/BottomNavBar';
 import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
 import ScheduleRide from '@/components/ride/ScheduleRide';
 import ReferralShare from '@/components/ride/ReferralShare';
+import EcoBadge from '@/components/rider/EcoBadge';
 import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
