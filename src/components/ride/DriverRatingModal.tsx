@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import TippingModal from "./TippingModal";
 
 interface DriverRatingModalProps {
   rideId: string;
   driverId: string; // drivers table ID
   riderId: string;
   driverName?: string;
+  driverAvatar?: string;
+  fare?: number;
   onClose: () => void;
 }
 
@@ -18,12 +21,15 @@ export default function DriverRatingModal({
   driverId,
   riderId,
   driverName,
+  driverAvatar,
+  fare,
   onClose,
 }: DriverRatingModalProps) {
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [showTipping, setShowTipping] = useState(false);
 
   const handleSubmit = async () => {
     if (rating === 0) {
@@ -44,7 +50,12 @@ export default function DriverRatingModal({
       if (error) throw error;
 
       toast.success("Thanks for rating your driver!");
-      onClose();
+      // Show tipping modal after successful rating
+      if (fare && fare > 0) {
+        setShowTipping(true);
+      } else {
+        onClose();
+      }
     } catch (e: unknown) {
       if ((e as Error).message?.includes("duplicate") || (e as Error).message?.includes("unique")) {
         toast.info("You've already rated this ride");
@@ -57,6 +68,20 @@ export default function DriverRatingModal({
       setSubmitting(false);
     }
   };
+
+  if (showTipping) {
+    return (
+      <TippingModal
+        rideId={rideId}
+        riderId={riderId}
+        driverId={driverId}
+        fare={fare || 0}
+        driverName={driverName}
+        driverAvatar={driverAvatar}
+        onClose={onClose}
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
