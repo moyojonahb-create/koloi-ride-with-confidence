@@ -116,6 +116,10 @@ export default function RideView() {
   const [activeStopId, setActiveStopId] = useState<string | null>(null);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
   const [genderPreference, setGenderPreference] = useState<GenderPreference>('any');
+  const [quietRide, setQuietRide] = useState(false);
+  const [coolTemp, setCoolTemp] = useState(false);
+  const [wavRequired, setWavRequired] = useState(false);
+  const [hearingImpaired, setHearingImpaired] = useState(false);
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
   const nearbyDrivers = useNearbyDrivers(rideStatus === 'idle' || rideStatus === 'searching');
