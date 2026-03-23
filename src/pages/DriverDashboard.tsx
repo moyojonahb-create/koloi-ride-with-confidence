@@ -601,6 +601,11 @@ export default function DriverDashboard() {
         }}
       />
 
+      {/* Fatigue Alert */}
+      {fatigueState.isFatigued && (
+        <FatigueAlert breakTimeRemaining={fatigueState.breakTimeRemaining} totalHours={fatigueState.totalOnlineHours} />
+      )}
+
       {/* Active Call Overlay */}
       {callStatus !== "idle" && (
         <ActiveCallOverlay
