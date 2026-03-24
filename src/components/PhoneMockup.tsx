@@ -4,7 +4,7 @@ const PhoneMockup = () => {
   return (
     <div className="relative mx-auto w-[280px] sm:w-[320px]">
       {/* Phone Frame - more realistic with rounded corners */}
-      <div className="relative bg-pickme-gray-900 rounded-[3rem] p-3 shadow-pickme-phone">
+      <div className="relative bg-pickme-gray-900 rounded-[3rem] p-3 shadow-pickme-phone bg-destructive-foreground">
         {/* Screen bezel */}
         <div className="relative bg-pickme-gray-100 rounded-[2.5rem] overflow-hidden">
           {/* Dynamic Island / Notch */}
