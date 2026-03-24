@@ -28,7 +28,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick,
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border/20 shadow-sm">
       <div className="pickme-container">
-        <nav className="flex items-center justify-between h-[60px] lg:h-[64px]">
+        <nav className="flex items-center justify-between h-[60px] lg:h-[64px] bg-destructive-foreground">
           {/* Logo */}
           <a href="/" className="shrink-0 -ml-2">
             <PickMeLogo size="lg" variant={transparent ? 'light' : 'default'} />
