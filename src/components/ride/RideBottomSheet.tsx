@@ -155,7 +155,7 @@ export default function RideBottomSheet({
         onMouseDown={handleMouseDown}
         onClick={handleHandleClick}
       >
-        <div className="w-10 h-[5px] bg-voyex-gray-300 rounded-full" />
+        <div className="w-10 h-[5px] bg-pickme-gray-300 rounded-full" />
       </div>
 
       {/* Content */}

@@ -350,7 +350,7 @@ const AdminDashboard = () => {
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="font-bold text-sm flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-primary" />
-                      Voyex Commission (15%)
+                      PickMe Commission (15%)
                     </h2>
                     <Button size="sm" variant="outline" onClick={() => setEarningsSheetOpen(true)}>
                       View Details

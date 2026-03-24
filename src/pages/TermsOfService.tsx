@@ -15,13 +15,13 @@ export default function TermsOfService() {
         <p className="text-muted-foreground text-xs">Last updated: March 2026</p>
 
         <h2>1. Acceptance of Terms</h2>
-        <p>By downloading, installing, or using the Voyex application ("App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree, do not use the App.</p>
+        <p>By downloading, installing, or using the PickMe application ("App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree, do not use the App.</p>
 
         <h2>2. Eligibility</h2>
-        <p>You must be at least 18 years old and legally capable of entering into binding contracts under Zimbabwean law to use Voyex as a rider or driver.</p>
+        <p>You must be at least 18 years old and legally capable of entering into binding contracts under Zimbabwean law to use PickMe as a rider or driver.</p>
 
         <h2>3. Service Description</h2>
-        <p>Voyex is a technology platform that connects riders with independent driver-partners. Voyex does not provide transportation services directly. Drivers are independent contractors, not employees of Voyex.</p>
+        <p>PickMe is a technology platform that connects riders with independent driver-partners. PickMe does not provide transportation services directly. Drivers are independent contractors, not employees of PickMe.</p>
 
         <h2>4. User Accounts</h2>
         <ul>
@@ -50,7 +50,7 @@ export default function TermsOfService() {
         <p>You may delete your account at any time from your profile settings. Upon deletion, your personal data will be removed in accordance with our Privacy Policy. Some transaction records may be retained for regulatory compliance.</p>
 
         <h2>10. Limitation of Liability</h2>
-        <p>Voyex is provided "as is." To the maximum extent permitted by law, Voyex shall not be liable for indirect, incidental, or consequential damages arising from use of the platform.</p>
+        <p>PickMe is provided "as is." To the maximum extent permitted by law, PickMe shall not be liable for indirect, incidental, or consequential damages arising from use of the platform.</p>
 
         <h2>11. Governing Law</h2>
         <p>These Terms are governed by and construed in accordance with the laws of Zimbabwe. Any disputes shall be resolved in the courts of Zimbabwe.</p>
@@ -59,7 +59,7 @@ export default function TermsOfService() {
         <p>We may update these Terms from time to time. Continued use of the App after changes constitutes acceptance of the revised Terms.</p>
 
         <h2>13. Contact</h2>
-        <p>Questions about these Terms? Email <a href="mailto:legal@voyex.co.zw" className="text-primary">legal@voyex.co.zw</a>.</p>
+        <p>Questions about these Terms? Email <a href="mailto:legal@pickme.co.zw" className="text-primary">legal@pickme.co.zw</a>.</p>
       </main>
     </div>
   );

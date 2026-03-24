@@ -1,4 +1,4 @@
-// Multi-town configuration for Voyex
+// Multi-town configuration for PickMe
 // Each town has its own service area, bounds, and quick picks
 
 export interface TownConfig {

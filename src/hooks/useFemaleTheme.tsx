@@ -16,7 +16,7 @@ const FemaleThemeContext = createContext<FemaleThemeContextType>({
 export const FemaleThemeProvider = ({ children }: { children: ReactNode }) => {
   const [isFemaleMode, setIsFemaleMode] = useState(() => {
     try {
-      return localStorage.getItem('voyex-female-mode') === 'true';
+      return localStorage.getItem('pickme-female-mode') === 'true';
     } catch {
       // ignore errors (e.g., localStorage not available)
       return false;
@@ -31,7 +31,7 @@ export const FemaleThemeProvider = ({ children }: { children: ReactNode }) => {
       root.removeAttribute('data-theme');
     }
     try {
-      localStorage.setItem('voyex-female-mode', String(isFemaleMode));
+      localStorage.setItem('pickme-female-mode', String(isFemaleMode));
     } catch {
       // ignore errors (e.g., localStorage not available)
     }

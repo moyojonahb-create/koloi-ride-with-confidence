@@ -13,7 +13,7 @@ export default function ShareTripButton({ rideId, pickupAddress, dropoffAddress,
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/track/${rideId}`;
     const text = [
-      `🚗 I'm on a Voyex ride!`,
+      `🚗 I'm on a PickMe ride!`,
       driverName ? `Driver: ${driverName}` : '',
       `From: ${pickupAddress}`,
       `To: ${dropoffAddress}`,
@@ -22,7 +22,7 @@ export default function ShareTripButton({ rideId, pickupAddress, dropoffAddress,
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'My Voyex Trip', text, url: shareUrl });
+        await navigator.share({ title: 'My PickMe Trip', text, url: shareUrl });
       } catch {
         // User cancelled share
       }

@@ -30,7 +30,7 @@ import MapGoogle from '@/components/MapGoogle';
 import RideStatusBanner, { type RideStatus } from './RideStatusBanner';
 import OffersModal, { type DriverViewing, type DriverOffer } from '@/components/OffersModal';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
-import VoyexLogo from '@/components/VoyexLogo';
+import PickMeLogo from '@/components/PickMeLogo';
 import { GlassSheet } from '@/components/ui/glass-sheet';
 import { SecondaryButton } from '@/components/ui/secondary-button';
 import { PrimaryButton } from '@/components/ui/primary-button';
@@ -71,7 +71,7 @@ const SERVICE_TABS: {id: ServiceType;label: string;icon: string;}[] = [
 
 
 const VEHICLE_TIERS: {id: VehicleTier;name: string;icon: typeof Car;priceRange: string;passengers: string;eta: string;multiplier: number;}[] = [
-{ id: 'standard', name: 'Voyex Standard', icon: Car, priceRange: '$1.50 – $10', passengers: '1–4', eta: '3 min', multiplier: 1 }];
+{ id: 'standard', name: 'PickMe Standard', icon: Car, priceRange: '$1.50 – $10', passengers: '1–4', eta: '3 min', multiplier: 1 }];
 
 
 export default function RideView() {
@@ -378,7 +378,7 @@ export default function RideView() {
           <button onClick={handleCancelRide} className="w-12 h-12 flex items-center justify-center rounded-full glass-card active:scale-95 transition-all">
             <ArrowLeft className="w-5 h-5 text-primary" />
           </button>
-          <VoyexLogo size="sm" />
+          <PickMeLogo size="sm" />
           <div className="w-12" />
         </div>
 
@@ -557,7 +557,7 @@ export default function RideView() {
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent side="left" className="w-[280px] p-0 border-r border-border/20" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
           <SheetHeader className="px-5 pb-2 pt-4">
-            <SheetTitle><VoyexLogo size="sm" /></SheetTitle>
+            <SheetTitle><PickMeLogo size="sm" /></SheetTitle>
           </SheetHeader>
           <nav className="flex flex-col gap-1 px-3 mt-2">
             <button

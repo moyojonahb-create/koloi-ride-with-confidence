@@ -6,7 +6,7 @@ export type Locale = 'en' | 'sn' | 'nd';
 const translations: Record<Locale, Record<string, string>> = {
   en: {
     // Common
-    'app.name': 'Voyex',
+    'app.name': 'PickMe',
     'common.back': 'Back',
     'common.save': 'Save',
     'common.cancel': 'Cancel',
@@ -72,7 +72,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'lang.select': 'Language',
   },
   sn: {
-    'app.name': 'Voyex',
+    'app.name': 'PickMe',
     'common.back': 'Dzoka',
     'common.save': 'Chengetedza',
     'common.cancel': 'Kanzura',
@@ -132,7 +132,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'lang.select': 'Mutauro',
   },
   nd: {
-    'app.name': 'Voyex',
+    'app.name': 'PickMe',
     'common.back': 'Buyela',
     'common.save': 'Gcina',
     'common.cancel': 'Susa',
@@ -207,13 +207,13 @@ const I18nContext = createContext<I18nContextType | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
-    const saved = localStorage.getItem('voyex-locale');
+    const saved = localStorage.getItem('pickme-locale');
     return (saved as Locale) || 'en';
   });
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
-    localStorage.setItem('voyex-locale', l);
+    localStorage.setItem('pickme-locale', l);
   }, []);
 
   const t = useCallback(

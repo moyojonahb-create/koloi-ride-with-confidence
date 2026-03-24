@@ -1,9 +1,9 @@
 /**
- * External Maps navigation helper for Voyex drivers.
+ * External Maps navigation helper for PickMe drivers.
  * Opens Google Maps (Android/desktop) or Apple Maps (iOS) with driving directions.
  */
 
-const NAV_STORAGE_PREFIX = 'voyex_last_nav_';
+const NAV_STORAGE_PREFIX = 'pickme_last_nav_';
 
 export type NavTarget = 'pickup' | 'dropoff';
 

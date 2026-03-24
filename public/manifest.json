@@ -1,6 +1,6 @@
 {
-  "name": "Voyex Ride",
-  "short_name": "Voyex",
+  "name": "PickMe Ride",
+  "short_name": "PickMe",
   "description": "Zimbabwe's premier ride-hailing service. Request a ride anywhere in Zimbabwe.",
   "start_url": "/ride",
   "scope": "/",
@@ -10,18 +10,18 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icons/voyex-app-icon.png",
+      "src": "/icons/pickme-app-icon.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "/icons/voyex-app-icon.png",
+      "src": "/icons/pickme-app-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/voyex-app-icon.png",
+      "src": "/icons/pickme-app-icon.png",
       "sizes": "192x192",
       "type": "image/png"
     }

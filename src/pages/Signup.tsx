@@ -81,7 +81,7 @@ const Signup = () => {
   const onPhoneVerifiedDirect = async (data: SignupFormData) => {
     setIsSubmitting(true);
     try {
-      const email = data.email || `${data.phone.replace(/\+/g, '')}@voyex.phone`;
+      const email = data.email || `${data.phone.replace(/\+/g, '')}@pickme.phone`;
       
       const { error } = await signUp(email, data.password, data.fullName);
       
@@ -107,7 +107,7 @@ const Signup = () => {
           .eq('user_id', authData.user.id);
       }
 
-      toast({ title: 'Account created!', description: 'Welcome to Voyex.' });
+      toast({ title: 'Account created!', description: 'Welcome to PickMe.' });
       navigate(next);
     } catch (err) {
       toast({ title: 'Sign up failed', description: 'Please try again.', variant: 'destructive' });
@@ -126,7 +126,7 @@ const Signup = () => {
                 <ArrowLeft className="h-5 w-5 text-foreground" />
               </Link>
               <div>
-                <h1 className="text-xl font-black text-foreground">Create your Voyex account</h1>
+                <h1 className="text-xl font-black text-foreground">Create your PickMe account</h1>
                 <p className="text-sm text-muted-foreground">Sign up to request a ride.</p>
               </div>
             </div>
@@ -275,7 +275,7 @@ const Signup = () => {
             </Form>
 
             <p className="mt-4 text-xs text-muted-foreground leading-relaxed">
-              By continuing you agree to Voyex's basic terms of use.
+              By continuing you agree to PickMe's basic terms of use.
             </p>
 
             <p className="mt-4 text-center text-sm text-muted-foreground">
