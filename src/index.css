@@ -55,22 +55,22 @@
     --sidebar-ring: 45 100% 51%;
 
     /* PickMe design tokens */
-    --voyex-blue: 217 85% 29%;
-    --voyex-blue-dark: 217 90% 22%;
-    --voyex-blue-light: 213 83% 56%;
-    --voyex-yellow: 45 100% 51%;
-    --voyex-yellow-light: 45 100% 70%;
-    --voyex-white: 0 0% 100%;
-    --voyex-dark: 0 0% 10%;
-    --voyex-gray-100: 225 27% 98%;
-    --voyex-gray-200: 225 27% 95%;
-    --voyex-gray-300: 217 20% 90%;
-    --voyex-gray-400: 217 15% 75%;
-    --voyex-gray-500: 217 10% 55%;
-    --voyex-gray-600: 217 10% 45%;
-    --voyex-gray-700: 217 15% 30%;
-    --voyex-gray-800: 217 20% 20%;
-    --voyex-gray-900: 0 0% 10%;
+    --pickme-blue: 217 85% 29%;
+    --pickme-blue-dark: 217 90% 22%;
+    --pickme-blue-light: 213 83% 56%;
+    --pickme-yellow: 45 100% 51%;
+    --pickme-yellow-light: 45 100% 70%;
+    --pickme-white: 0 0% 100%;
+    --pickme-dark: 0 0% 10%;
+    --pickme-gray-100: 225 27% 98%;
+    --pickme-gray-200: 225 27% 95%;
+    --pickme-gray-300: 217 20% 90%;
+    --pickme-gray-400: 217 15% 75%;
+    --pickme-gray-500: 217 10% 55%;
+    --pickme-gray-600: 217 10% 45%;
+    --pickme-gray-700: 217 15% 30%;
+    --pickme-gray-800: 217 20% 20%;
+    --pickme-gray-900: 0 0% 10%;
 
     /* ─── Shadows — iOS-style layered ─── */
     --shadow-xs: 0 0.5px 1px 0 hsl(217 25% 0% / 0.02), 0 0 0 0.5px hsl(217 25% 0% / 0.02);
@@ -119,9 +119,9 @@
     --sidebar-accent: 330 60% 55%;
     --sidebar-border: 330 60% 40%;
 
-    --voyex-blue: 330 75% 45%;
-    --voyex-blue-dark: 330 80% 35%;
-    --voyex-blue-light: 330 80% 60%;
+    --pickme-blue: 330 75% 45%;
+    --pickme-blue-dark: 330 80% 35%;
+    --pickme-blue-light: 330 80% 60%;
 
     /* Glassy pink overrides */
     --glass-bg: hsla(330, 75%, 97%, 0.72);
@@ -148,9 +148,9 @@
     --sidebar-accent: 330 60% 30%;
     --sidebar-border: 330 60% 25%;
 
-    --voyex-blue: 330 80% 60%;
-    --voyex-blue-dark: 330 70% 20%;
-    --voyex-blue-light: 330 80% 65%;
+    --pickme-blue: 330 80% 60%;
+    --pickme-blue-dark: 330 70% 20%;
+    --pickme-blue-light: 330 80% 65%;
 
     /* Glassy pink dark overrides */
     --glass-bg: hsla(330, 60%, 12%, 0.72);
@@ -342,11 +342,11 @@
     pointer-events: none;
   }
 
-  .voyex-container {
+  .pickme-container {
     @apply max-w-7xl mx-auto px-5 sm:px-6 lg:px-8;
   }
 
-  .voyex-card {
+  .pickme-card {
     @apply rounded-2xl p-5 transition-shadow duration-200;
     background: var(--glass-bg-ultra);
     backdrop-filter: var(--glass-blur);
@@ -354,11 +354,11 @@
     border: 0.5px solid var(--glass-border);
     box-shadow: var(--shadow-card);
   }
-  .voyex-card:hover {
+  .pickme-card:hover {
     box-shadow: var(--shadow-lg);
   }
 
-  .voyex-card-glass {
+  .pickme-card-glass {
     background: var(--glass-bg);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
@@ -367,55 +367,55 @@
     @apply rounded-2xl p-5;
   }
 
-  .voyex-input {
+  .pickme-input {
     @apply w-full h-[52px] px-4 rounded-2xl text-foreground placeholder:text-muted-foreground transition-all duration-200;
     background: var(--glass-bg-ultra);
     border: 0.5px solid var(--glass-border-subtle);
     box-shadow: inset 0 0.5px 1px hsl(0 0% 0% / 0.04);
   }
-  .voyex-input:focus {
+  .pickme-input:focus {
     @apply ring-2 ring-primary;
     background: hsl(var(--background));
   }
 
-  .voyex-btn-primary {
+  .pickme-btn-primary {
     @apply h-[52px] px-8 bg-primary text-primary-foreground font-semibold rounded-full active:scale-[0.97] transition-all duration-150;
     box-shadow: var(--shadow-sm);
   }
-  .voyex-btn-primary:hover {
+  .pickme-btn-primary:hover {
     filter: brightness(1.05);
     box-shadow: var(--shadow-md);
   }
 
-  .voyex-btn-secondary {
+  .pickme-btn-secondary {
     @apply h-12 px-6 text-secondary-foreground font-medium rounded-full active:scale-[0.97] transition-all duration-150;
     background: var(--glass-bg-ultra);
     border: 0.5px solid var(--glass-border-subtle);
     box-shadow: var(--shadow-xs);
   }
 
-  .voyex-btn-accent {
+  .pickme-btn-accent {
     @apply h-[52px] px-8 bg-accent text-accent-foreground font-bold rounded-full active:scale-[0.97] transition-all duration-150;
     box-shadow: var(--shadow-sm);
   }
-  .voyex-btn-accent:hover {
+  .pickme-btn-accent:hover {
     filter: brightness(1.05);
     box-shadow: var(--shadow-glow);
   }
 
-  .voyex-link {
+  .pickme-link {
     @apply text-foreground font-medium hover:text-muted-foreground transition-colors duration-150;
   }
 
-  .voyex-link-nav {
+  .pickme-link-nav {
     @apply text-[15px] font-medium text-foreground hover:bg-muted/60 px-5 py-3 rounded-xl transition-all duration-150;
   }
 
-  .voyex-stat-card {
+  .pickme-stat-card {
     @apply bg-primary-foreground/10 rounded-2xl p-5 text-center transition-all duration-200 hover:bg-primary-foreground/15 hover:-translate-y-0.5;
   }
 
-  .voyex-feature-card {
+  .pickme-feature-card {
     @apply rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5;
     background: var(--glass-bg-ultra);
     backdrop-filter: var(--glass-blur);
@@ -423,15 +423,15 @@
     border: 0.5px solid var(--glass-border);
     box-shadow: var(--shadow-sm);
   }
-  .voyex-feature-card:hover {
+  .pickme-feature-card:hover {
     box-shadow: var(--shadow-md);
   }
 
-  .voyex-badge {
+  .pickme-badge {
     @apply inline-flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-semibold;
   }
 
-  .voyex-icon-box {
+  .pickme-icon-box {
     @apply w-12 h-12 rounded-2xl flex items-center justify-center transition-colors duration-150;
   }
 
@@ -593,5 +593,5 @@
   width: 100%;
   height: 100%;
   min-height: 260px;
-  background: hsl(var(--voyex-gray-200));
+  background: hsl(var(--pickme-gray-200));
 }
