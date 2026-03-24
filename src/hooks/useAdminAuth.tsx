@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,28 +9,46 @@ interface AdminAuthState {
   error: string | null;
 }
 
+// Module-level cache so repeat mounts don't re-fetch
+let cachedAdmin: { userId: string; isAdmin: boolean; ts: number } | null = null;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 export const useAdminAuth = () => {
   const { user, session, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [state, setState] = useState<AdminAuthState>({
-    isAdmin: false,
-    isLoading: true,
-    error: null,
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+
+  const [state, setState] = useState<AdminAuthState>(() => {
+    // Instant return if cache is fresh
+    if (cachedAdmin && user && cachedAdmin.userId === user.id && Date.now() - cachedAdmin.ts < CACHE_TTL) {
+      return { isAdmin: cachedAdmin.isAdmin, isLoading: false, error: cachedAdmin.isAdmin ? null : 'Access denied' };
+    }
+    return { isAdmin: false, isLoading: true, error: null };
   });
 
   useEffect(() => {
+    let cancelled = false;
+
     const checkAdminRole = async () => {
       if (authLoading) return;
 
       if (!user || !session) {
         setState({ isAdmin: false, isLoading: false, error: 'Not authenticated' });
-        navigate('/');
+        navigateRef.current('/');
+        return;
+      }
+
+      // Use cache if fresh
+      if (cachedAdmin && cachedAdmin.userId === user.id && Date.now() - cachedAdmin.ts < CACHE_TTL) {
+        if (!cancelled) {
+          setState({ isAdmin: cachedAdmin.isAdmin, isLoading: false, error: cachedAdmin.isAdmin ? null : 'Access denied' });
+          if (!cachedAdmin.isAdmin) navigateRef.current('/');
+        }
         return;
       }
 
       try {
-        // Server-side validation via edge function
-        // This uses the service role to verify admin status, preventing client-side manipulation
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-api?action=verify_admin`,
           {
@@ -42,40 +60,31 @@ export const useAdminAuth = () => {
             body: JSON.stringify({}),
           }
         );
-        
+
+        if (cancelled) return;
+
         const data = await response.json();
 
-        // Check for HTTP errors
-        if (!response.ok) {
-          console.log('Admin access denied:', data?.error || response.statusText);
+        if (!response.ok || data?.error || data?.isAdmin !== true) {
+          cachedAdmin = { userId: user.id, isAdmin: false, ts: Date.now() };
           setState({ isAdmin: false, isLoading: false, error: 'Access denied' });
-          navigate('/');
-          return;
-        }
-        if (data?.error) {
-          console.log('Admin access denied:', data.error);
-          setState({ isAdmin: false, isLoading: false, error: 'Access denied' });
-          navigate('/');
+          navigateRef.current('/');
           return;
         }
 
-        // If we got here with isAdmin: true, server confirmed admin role
-        if (data?.isAdmin === true) {
-          console.log('Admin verified server-side at:', data.verifiedAt);
-          setState({ isAdmin: true, isLoading: false, error: null });
-        } else {
-          setState({ isAdmin: false, isLoading: false, error: 'Access denied' });
-          navigate('/');
-        }
+        cachedAdmin = { userId: user.id, isAdmin: true, ts: Date.now() };
+        setState({ isAdmin: true, isLoading: false, error: null });
       } catch (err) {
+        if (cancelled) return;
         console.error('Error verifying admin role:', err);
         setState({ isAdmin: false, isLoading: false, error: 'Failed to verify permissions' });
-        navigate('/');
+        navigateRef.current('/');
       }
     };
 
     checkAdminRole();
-  }, [user, session, authLoading, navigate]);
+    return () => { cancelled = true; };
+  }, [user, session, authLoading]);
 
   return state;
 };

@@ -103,8 +103,8 @@ export default function App() {
           <Route path="/mapp/safety" element={<Navigate to="/safety" replace />} />
           <Route path="/mapp/*" element={<Navigate to="/ride" replace />} />
 
-          <Route path="/ride" element={<AuthGuard><Ride /></AuthGuard>} />
-          <Route path="/ride/:rideId" element={<AuthGuard><RideDetail /></AuthGuard>} />
+          <Route path="/ride" element={<SuspenseWrap><AuthGuard><Ride /></AuthGuard></SuspenseWrap>} />
+          <Route path="/ride/:rideId" element={<SuspenseWrap><AuthGuard><RideDetail /></AuthGuard></SuspenseWrap>} />
           <Route path="/rider/ride/:rideId" element={<SuspenseWrap><AuthGuard><RiderRideDetail /></AuthGuard></SuspenseWrap>} />
           <Route path="/history" element={<SuspenseWrap><AuthGuard><RideHistory /></AuthGuard></SuspenseWrap>} />
           <Route path="/ride-history" element={<Navigate to="/history" replace />} />
