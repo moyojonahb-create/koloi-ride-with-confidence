@@ -9,10 +9,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Signup from "./pages/Signup";
-import Ride from "./pages/Ride";
-import RideDetail from "./pages/RideDetail";
 
 // Lazy-loaded pages
+const Ride = lazy(() => import("./pages/Ride"));
+const RideDetail = lazy(() => import("./pages/RideDetail"));
 const AppDashboard = lazy(() => import("./pages/AppDashboard"));
 const RideHistory = lazy(() => import("./pages/RideHistory"));
 const RiderProfile = lazy(() => import("./pages/RiderProfile"));
