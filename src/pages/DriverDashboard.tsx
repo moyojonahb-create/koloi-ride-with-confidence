@@ -245,7 +245,7 @@ export default function DriverDashboard() {
 
     // If going online, require selfie check first (once per session)
     if (online && !pendingOnlineAfterSelfie) {
-      const lastSelfie = sessionStorage.getItem('voyex-selfie-verified');
+      const lastSelfie = sessionStorage.getItem('pickme-selfie-verified');
       if (!lastSelfie) {
         setSelfieCheckOpen(true);
         return;
@@ -602,13 +602,13 @@ export default function DriverDashboard() {
         open={selfieCheckOpen}
         onVerified={() => {
           setSelfieCheckOpen(false);
-          sessionStorage.setItem('voyex-selfie-verified', Date.now().toString());
+          sessionStorage.setItem('pickme-selfie-verified', Date.now().toString());
           setPendingOnlineAfterSelfie(true);
           toggleOnline(true);
         }}
         onSkip={() => {
           setSelfieCheckOpen(false);
-          sessionStorage.setItem('voyex-selfie-verified', Date.now().toString());
+          sessionStorage.setItem('pickme-selfie-verified', Date.now().toString());
           setPendingOnlineAfterSelfie(true);
           toggleOnline(true);
         }}

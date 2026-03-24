@@ -174,7 +174,7 @@ function getDriverOverlayClass(): DriverOverlayConstructor {
               inset:-6px;
               border-radius:50%;
               background:rgba(47,128,237,.25);
-              animation:voyexPulse 2s ease-in-out infinite;
+              animation:pickmePulse 2s ease-in-out infinite;
             "></div>
             <!-- Car icon -->
             <div style="position:relative;z-index:2">${CAR_SVG}</div>
@@ -186,11 +186,11 @@ function getDriverOverlayClass(): DriverOverlayConstructor {
       this.div = div;
 
       // Inject animation keyframes once
-      if (!document.getElementById("voyex-driver-overlay-styles")) {
+      if (!document.getElementById("pickme-driver-overlay-styles")) {
         const style = document.createElement("style");
-        style.id = "voyex-driver-overlay-styles";
+        style.id = "pickme-driver-overlay-styles";
         style.innerHTML = `
-          @keyframes voyexPulse {
+          @keyframes pickmePulse {
             0%   { transform:scale(0.95); opacity:0.35; }
             50%  { transform:scale(1.12); opacity:0.18; }
             100% { transform:scale(0.95); opacity:0.35; }

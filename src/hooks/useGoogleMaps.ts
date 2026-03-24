@@ -8,9 +8,9 @@
  */
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
-const SCRIPT_ID = 'voyex-google-maps-script';
+const SCRIPT_ID = 'pickme-google-maps-script';
 const LIBRARIES = ['places', 'geometry'];
-const MAPS_CALLBACK = '__voyexGmapsInit' as const;
+const MAPS_CALLBACK = '__pickmeGmapsInit' as const;
 
 type WindowWithMapsCallback = Window & {
   [MAPS_CALLBACK]?: () => void;

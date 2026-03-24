@@ -15,11 +15,11 @@ const features = [{
 }];
 const BusinessSection = () => {
   return <section id="business" className="bg-background py-20 lg:py-28">
-      <div className="voyex-container">
+      <div className="pickme-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Content */}
           <div>
-            <div className="voyex-badge mb-6">
+            <div className="pickme-badge mb-6">
               <Building2 className="w-4 h-4" />
               PickMe for Business
             </div>
@@ -32,7 +32,7 @@ const BusinessSection = () => {
 
             <div className="space-y-5 mb-10">
               {features.map(feature => <div key={feature.title} className="flex gap-4 items-start">
-                  <div className="voyex-icon-box bg-secondary text-foreground shrink-0">
+                  <div className="pickme-icon-box bg-secondary text-foreground shrink-0">
                     <feature.icon className="w-5 h-5" />
                   </div>
                   <div>
@@ -51,12 +51,12 @@ const BusinessSection = () => {
           </div>
 
           {/* Right Visual - Dashboard mockup */}
-          <div className="bg-voyex-gray-100 rounded-3xl p-8 lg:p-10">
+          <div className="bg-pickme-gray-100 rounded-3xl p-8 lg:p-10">
             {/* Main stat card */}
-            <div className="bg-card rounded-2xl shadow-voyex-md p-6 mb-6">
+            <div className="bg-card rounded-2xl shadow-pickme-md p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm text-muted-foreground font-medium">This month</span>
-                <span className="voyex-badge text-xs py-1">
+                <span className="pickme-badge text-xs py-1">
                   <TrendingDown className="w-3 h-3" />
                   12% vs last month
                 </span>
@@ -68,11 +68,11 @@ const BusinessSection = () => {
 
             {/* Smaller stat cards */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="voyex-feature-card">
+              <div className="pickme-feature-card">
                 <div className="text-3xl font-bold text-foreground mb-1">156</div>
                 <div className="text-xs text-muted-foreground">Total trips</div>
               </div>
-              <div className="voyex-feature-card">
+              <div className="pickme-feature-card">
                 <div className="text-3xl font-bold text-foreground mb-1">24</div>
                 <div className="text-xs text-muted-foreground">Active users</div>
               </div>

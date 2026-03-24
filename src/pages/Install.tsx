@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Share, Plus, Check, Smartphone, Zap, MapPin, Shield } from 'lucide-react';
-import voyexIcon from '@/assets/pickme-logo.png';
+import pickmeIcon from '@/assets/pickme-logo.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -50,7 +50,7 @@ export default function Install() {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-primary/10 flex flex-col">
       {/* Hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
-        <img src={voyexIcon} alt="PickMe" className="w-36 h-36 rounded-3xl shadow-2xl mb-6 object-contain" />
+        <img src={pickmeIcon} alt="PickMe" className="w-36 h-36 rounded-3xl shadow-2xl mb-6 object-contain" />
         <h1 className="text-3xl font-extrabold text-foreground mb-2">Get PickMe App</h1>
         <p className="text-muted-foreground text-lg mb-8 max-w-sm">
           Zimbabwe's #1 ride-hailing app. Install it now for the best experience.

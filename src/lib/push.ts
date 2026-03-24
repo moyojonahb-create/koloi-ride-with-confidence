@@ -141,7 +141,7 @@ export function showLocalNotification(
       body,
       icon: "/icons/icon-192x192.png",
       badge: "/icons/icon-96x96.png",
-      tag: `voyex-${Date.now()}`,
+      tag: `pickme-${Date.now()}`,
     } as NotificationOptions);
 
     if (url) {

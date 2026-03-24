@@ -4,7 +4,7 @@
  * and automatically synced when connectivity returns.
  */
 
-const DB_NAME = 'voyex-offline';
+const DB_NAME = 'pickme-offline';
 const STORE_NAME = 'pending-rides';
 const DB_VERSION = 1;
 

@@ -1,4 +1,4 @@
-import voyexLogo from '@/assets/pickme-logo.png';
+import pickmeLogo from '@/assets/pickme-logo.png';
 
 interface PickMeLogoProps {
   className?: string;
@@ -38,7 +38,7 @@ const PickMeLogo = ({
       <div className={`flex items-center gap-2 ${className}`}>
         <div className={`${circleSizeClasses[size]} rounded-full bg-card overflow-hidden flex items-center justify-center shadow-sm ring-1 ring-border/20`}>
           <img 
-            src={voyexLogo} 
+            src={pickmeLogo} 
             alt="PickMe" 
             className="w-[85%] h-[85%] object-contain"
           />
@@ -50,7 +50,7 @@ const PickMeLogo = ({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <img 
-        src={voyexLogo} 
+        src={pickmeLogo} 
         alt="PickMe" 
         className={`${fullLogoSizeClasses[size]} w-auto object-contain`}
       />

@@ -27,13 +27,13 @@ const suggestions = [
 const SuggestionsSection = () => {
   return (
     <section className="bg-background py-16 lg:py-24">
-      <div className="voyex-container">
+      <div className="pickme-container">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {suggestions.map((item, index) => (
             <a
               key={item.id}
               href={item.href}
-              className="group relative block p-8 bg-voyex-gray-100 rounded-3xl hover:bg-voyex-gray-200 transition-all duration-300 hover:shadow-voyex-lg hover:-translate-y-1"
+              className="group relative block p-8 bg-pickme-gray-100 rounded-3xl hover:bg-pickme-gray-200 transition-all duration-300 hover:shadow-pickme-lg hover:-translate-y-1"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Arrow indicator */}
@@ -41,7 +41,7 @@ const SuggestionsSection = () => {
                 <ArrowUpRight className="w-5 h-5 text-foreground" />
               </div>
 
-              <div className="voyex-icon-box bg-background mb-5 group-hover:bg-accent/10 group-hover:text-accent">
+              <div className="pickme-icon-box bg-background mb-5 group-hover:bg-accent/10 group-hover:text-accent">
                 <item.icon className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">

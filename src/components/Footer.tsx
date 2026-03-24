@@ -38,7 +38,7 @@ const socialLinks = [
 const Footer = () => {
   return (
     <footer className="bg-primary text-primary-foreground">
-      <div className="voyex-container py-14 lg:py-20">
+      <div className="pickme-container py-14 lg:py-20">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-14">
           <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-4 lg:mb-0">
             <a href="/" className="inline-block">

@@ -25,10 +25,10 @@ const safetyFeatures = [
 
 const SafetySection = () => {
   return (
-    <section className="bg-voyex-gray-100 py-20 lg:py-28">
-      <div className="voyex-container">
+    <section className="bg-pickme-gray-100 py-20 lg:py-28">
+      <div className="pickme-container">
         <div className="text-center mb-14 lg:mb-18">
-          <div className="voyex-badge justify-center mx-auto mb-6">
+          <div className="pickme-badge justify-center mx-auto mb-6">
             <CheckCircle2 className="w-4 h-4" />
             Your Safety Matters
           </div>
@@ -44,10 +44,10 @@ const SafetySection = () => {
           {safetyFeatures.map((feature, index) => (
             <div
               key={feature.title}
-              className="voyex-feature-card group"
+              className="pickme-feature-card group"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="voyex-icon-box bg-accent/10 text-accent mb-5 group-hover:bg-accent group-hover:text-accent-foreground transition-all duration-300">
+              <div className="pickme-icon-box bg-accent/10 text-accent mb-5 group-hover:bg-accent group-hover:text-accent-foreground transition-all duration-300">
                 <feature.icon className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-bold text-foreground mb-2">

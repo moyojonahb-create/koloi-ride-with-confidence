@@ -60,7 +60,7 @@ export default function CarLoadingSpinner({ message = 'Processing...', onClose }
           animate={{ y: [0, -4, 0] }}
           transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
         >
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-voyex-md" style={{ background: 'var(--gradient-primary)' }}>
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-pickme-md" style={{ background: 'var(--gradient-primary)' }}>
             <span className="text-3xl">🚗</span>
           </div>
         </motion.div>

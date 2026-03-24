@@ -207,13 +207,13 @@ const I18nContext = createContext<I18nContextType | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
-    const saved = localStorage.getItem('voyex-locale');
+    const saved = localStorage.getItem('pickme-locale');
     return (saved as Locale) || 'en';
   });
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
-    localStorage.setItem('voyex-locale', l);
+    localStorage.setItem('pickme-locale', l);
   }, []);
 
   const t = useCallback(

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Download, Share, Plus } from 'lucide-react';
-import voyexIcon from '@/assets/pickme-logo.png';
+import pickmeIcon from '@/assets/pickme-logo.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -28,10 +28,10 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
     }
 
     if (forceShow) {
-      localStorage.removeItem('voyex_install_modal_last');
+      localStorage.removeItem('pickme_install_modal_last');
     }
 
-    const lastShown = Number(localStorage.getItem('voyex_install_modal_last') || 0);
+    const lastShown = Number(localStorage.getItem('pickme_install_modal_last') || 0);
     const threeDays = 3 * 24 * 60 * 60 * 1000;
     if (!forceShow && Date.now() - lastShown < threeDays) {
       return;
@@ -41,7 +41,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
     setIsIOS(isIOSDevice);
 
     const showTimer = setTimeout(() => {
-      localStorage.setItem('voyex_install_modal_last', String(Date.now()));
+      localStorage.setItem('pickme_install_modal_last', String(Date.now()));
       setShowModal(true);
     }, 3500);
 
@@ -97,7 +97,7 @@ export default function InstallPromptBanner({ forceShow = false }: InstallPrompt
           </button>
           
           <img 
-            src={voyexIcon} 
+            src={pickmeIcon} 
             alt="PickMe" 
             className="w-24 h-24 mx-auto rounded-2xl object-contain shadow-lg mb-4"
           />
