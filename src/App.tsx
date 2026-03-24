@@ -9,10 +9,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Signup from "./pages/Signup";
-import Ride from "./pages/Ride";
-import RideDetail from "./pages/RideDetail";
 
 // Lazy-loaded pages
+const Ride = lazy(() => import("./pages/Ride"));
+const RideDetail = lazy(() => import("./pages/RideDetail"));
 const AppDashboard = lazy(() => import("./pages/AppDashboard"));
 const RideHistory = lazy(() => import("./pages/RideHistory"));
 const RiderProfile = lazy(() => import("./pages/RiderProfile"));
@@ -103,8 +103,8 @@ export default function App() {
           <Route path="/mapp/safety" element={<Navigate to="/safety" replace />} />
           <Route path="/mapp/*" element={<Navigate to="/ride" replace />} />
 
-          <Route path="/ride" element={<AuthGuard><Ride /></AuthGuard>} />
-          <Route path="/ride/:rideId" element={<AuthGuard><RideDetail /></AuthGuard>} />
+          <Route path="/ride" element={<SuspenseWrap><AuthGuard><Ride /></AuthGuard></SuspenseWrap>} />
+          <Route path="/ride/:rideId" element={<SuspenseWrap><AuthGuard><RideDetail /></AuthGuard></SuspenseWrap>} />
           <Route path="/rider/ride/:rideId" element={<SuspenseWrap><AuthGuard><RiderRideDetail /></AuthGuard></SuspenseWrap>} />
           <Route path="/history" element={<SuspenseWrap><AuthGuard><RideHistory /></AuthGuard></SuspenseWrap>} />
           <Route path="/ride-history" element={<Navigate to="/history" replace />} />
