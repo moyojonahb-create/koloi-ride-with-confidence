@@ -1,4 +1,4 @@
-// Voyex notification sounds
+// PickMe notification sounds
 // Uses Web Audio API for reliable playback
 
 type NotificationType = 'newRequest' | 'accepted' | 'message';

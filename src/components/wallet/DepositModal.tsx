@@ -19,7 +19,7 @@ const PAYMENT_METHODS = [
   { id: 'telecash', name: 'Telecash', color: 'bg-blue-500', merchant: '+263 733 000 000' },
   { id: 'innbucks', name: 'InnBucks', color: 'bg-orange-500', merchant: '077 000 0000' },
   { id: 'zimswitch', name: 'ZimSwitch', color: 'bg-red-500', merchant: 'Acc: 1234567890' },
-  { id: 'mukuru', name: 'Mukuru', color: 'bg-yellow-600', merchant: 'Agent: Voyex Ride' },
+  { id: 'mukuru', name: 'Mukuru', color: 'bg-yellow-600', merchant: 'Agent: PickMe Ride' },
   { id: 'bank_transfer', name: 'Bank Transfer', color: 'bg-slate-600', merchant: 'FNB: 62xxxxxxx' },
 ] as const;
 

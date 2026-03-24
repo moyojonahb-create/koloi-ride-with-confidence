@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { Button } from '@/components/ui/button';
 import { Clock, DollarSign, Percent, Car, ChevronRight } from 'lucide-react';
-import VoyexLogo from '@/components/VoyexLogo';
+import PickMeLogo from '@/components/PickMeLogo';
 import { useState } from 'react';
 import AuthModalWrapper from '@/components/auth/AuthModalWrapper';
 
@@ -53,14 +53,14 @@ export default function DriverModeLanding() {
             ← Back
           </button>
         )}
-        <VoyexLogo size="sm" />
+        <PickMeLogo size="sm" />
         {!isMapp && <div className="w-12" />}
       </div>
 
       <div className="flex-1 px-5 py-6 flex flex-col gap-4">
         {/* Hero card */}
         <div className="rounded-3xl p-6 mb-2 text-primary-foreground" style={{ background: 'var(--gradient-primary)' }}>
-          <h2 className="text-2xl font-bold text-primary-foreground mb-4">Get income with Voyex</h2>
+          <h2 className="text-2xl font-bold text-primary-foreground mb-4">Get income with PickMe</h2>
           <div className="space-y-2">
             {benefits.map((b) => (
               <div key={b.text} className="flex items-center gap-3 text-primary-foreground/90">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import VoyexLogo from "@/components/VoyexLogo";
+import PickMeLogo from "@/components/PickMeLogo";
 import UserMenu from "@/components/UserMenu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,7 +31,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick,
         <nav className="flex items-center justify-between h-[60px] lg:h-[64px]">
           {/* Logo */}
           <a href="/" className="shrink-0 -ml-2">
-            <VoyexLogo size="lg" variant={transparent ? 'light' : 'default'} />
+            <PickMeLogo size="lg" variant={transparent ? 'light' : 'default'} />
           </a>
 
           {/* Desktop Navigation */}

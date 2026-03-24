@@ -4,7 +4,7 @@
  * Works with any version of @react-google-maps/api (which just needs
  * `window.google.maps` to be available).
  *
- * Debug info is logged to the console under [Voyex Maps].
+ * Debug info is logged to the console under [PickMe Maps].
  */
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
@@ -38,7 +38,7 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
     // Already present (e.g. injected externally)
     if (window.google?.maps) {
       loaded = true;
-      console.info('[Voyex Maps] API already available');
+      console.info('[PickMe Maps] API already available');
       resolve();
       return;
     }
@@ -55,7 +55,7 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
     callbackWindow[MAPS_CALLBACK] = () => {
       loaded = true;
       delete callbackWindow[MAPS_CALLBACK];
-      console.info('[Voyex Maps] API loaded successfully');
+      console.info('[PickMe Maps] API loaded successfully');
       resolve();
     };
 
@@ -97,7 +97,7 @@ export function useGoogleMaps(retryKey = 0): GoogleMapsState {
 
   useEffect(() => {
     // Debug logging
-    console.info('[Voyex Maps] Debug:', {
+    console.info('[PickMe Maps] Debug:', {
       apiKeyPresent: !!GOOGLE_MAPS_API_KEY,
       apiKeyLength: GOOGLE_MAPS_API_KEY?.length || 0,
       alreadyLoaded: loaded,
@@ -106,7 +106,7 @@ export function useGoogleMaps(retryKey = 0): GoogleMapsState {
     if (!GOOGLE_MAPS_API_KEY) {
       const err = new Error('VITE_GOOGLE_MAPS_API_KEY is not configured');
       setState({ isLoaded: false, loadError: err, apiKey: null });
-      console.error('[Voyex Maps] Missing API key. Set VITE_GOOGLE_MAPS_API_KEY in your environment.');
+      console.error('[PickMe Maps] Missing API key. Set VITE_GOOGLE_MAPS_API_KEY in your environment.');
       return;
     }
 
@@ -117,14 +117,14 @@ export function useGoogleMaps(retryKey = 0): GoogleMapsState {
 
     loadGoogleMapsScript(GOOGLE_MAPS_API_KEY)
       .then(() => {
-        console.info('[Voyex Maps] Status:', {
+        console.info('[PickMe Maps] Status:', {
           mapsLoaded: !!window.google?.maps,
           placesLoaded: !!window.google?.maps?.places,
         });
         setState({ isLoaded: true, loadError: null, apiKey: GOOGLE_MAPS_API_KEY });
       })
       .catch((err) => {
-        console.error('[Voyex Maps] Load error:', err.message);
+        console.error('[PickMe Maps] Load error:', err.message);
         setState({ isLoaded: false, loadError: err as Error, apiKey: GOOGLE_MAPS_API_KEY });
       });
   }, [retryKey]);

@@ -32,7 +32,7 @@ export default function DeleteAccount() {
       navigate('/');
     } catch (err: unknown) {
       toast.error('Failed to delete account', {
-        description: 'Please contact support at support@voyex.co.zw',
+        description: 'Please contact support at support@pickme.co.zw',
       });
     } finally {
       setDeleting(false);

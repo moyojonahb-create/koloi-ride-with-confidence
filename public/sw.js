@@ -6,8 +6,8 @@ const STATIC_ASSETS = [
   '/ride',
   '/manifest.json',
   '/favicon.ico',
-  '/icons/voyex-splash.png',
-  '/icons/voyex-app-icon.png',
+  '/icons/pickme-app-icon.png',
+  '/icons/pickme-app-icon.png',
 ];
 
 // Map tile domains to cache for offline use
@@ -25,7 +25,7 @@ const MAX_TILE_CACHE_SIZE = 500; // Max cached tiles
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Voyex SW] Caching static assets');
+      console.log('[PickMe SW] Caching static assets');
       return cache.addAll(STATIC_ASSETS);
     })
   );
@@ -49,7 +49,7 @@ self.addEventListener('activate', (event) => {
 // Push notification handler — native push from server
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'Voyex';
+  const title = data.title || 'PickMe';
   const options = {
     body: data.body || 'New update',
     icon: '/icons/icon-192x192.png',
@@ -194,7 +194,7 @@ async function syncPendingRides() {
 
 // Push notification handler
 self.addEventListener('push', (event) => {
-  let data = { title: 'Voyex', body: 'You have a new notification', url: '/' };
+  let data = { title: 'PickMe', body: 'You have a new notification', url: '/' };
   
   try {
     if (event.data) {

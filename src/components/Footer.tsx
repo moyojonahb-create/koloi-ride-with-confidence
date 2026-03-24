@@ -1,5 +1,5 @@
 import { Facebook, Twitter, Instagram, Linkedin, Globe, Mail, Phone, MapPin } from 'lucide-react';
-import VoyexLogo from '@/components/VoyexLogo';
+import PickMeLogo from '@/components/PickMeLogo';
 
 const footerLinks = {
   company: [
@@ -14,8 +14,8 @@ const footerLinks = {
     { label: 'Ride', href: '#ride' },
     { label: 'Drive', href: '#drive' },
     { label: 'Business', href: '#business' },
-    { label: 'Voyex Eats', href: '#' },
-    { label: 'Voyex Freight', href: '#' },
+    { label: 'PickMe Eats', href: '#' },
+    { label: 'PickMe Freight', href: '#' },
   ],
   citizenship: [
     { label: 'Safety', href: '#' },
@@ -42,7 +42,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-10 mb-14">
           <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-4 lg:mb-0">
             <a href="/" className="inline-block">
-              <VoyexLogo variant="inverted" showTagline />
+              <PickMeLogo variant="inverted" showTagline />
             </a>
           </div>
 
@@ -108,8 +108,8 @@ const Footer = () => {
 
           <div className="flex flex-col gap-6 mt-10">
             <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-primary-foreground/80">
-              <a href="mailto:info@voyex.co.zw" className="flex items-center gap-2 hover:text-primary-foreground transition-colors">
-                <Mail className="w-4 h-4" />info@voyex.co.zw
+              <a href="mailto:info@pickme.co.zw" className="flex items-center gap-2 hover:text-primary-foreground transition-colors">
+                <Mail className="w-4 h-4" />info@pickme.co.zw
               </a>
               <a href="tel:+263778553169" className="flex items-center gap-2 hover:text-primary-foreground transition-colors">
                 <Phone className="w-4 h-4" />+263 778 553 169
@@ -119,7 +119,7 @@ const Footer = () => {
               </span>
             </div>
             <div className="flex flex-wrap gap-4 text-sm text-primary-foreground/60">
-              <span>© 2026 Voyex. Powered by Tautona Tek</span>
+              <span>© 2026 PickMe. Powered by Tautona Tek</span>
               <a href="/privacy" className="hover:text-primary-foreground transition-colors">Privacy</a>
               <a href="/terms" className="hover:text-primary-foreground transition-colors">Terms</a>
             </div>

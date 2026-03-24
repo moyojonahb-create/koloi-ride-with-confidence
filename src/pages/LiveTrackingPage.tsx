@@ -166,7 +166,7 @@ export default function LiveTrackingPage() {
           <Car className="w-5 h-5" />
           <h1 className="text-lg font-bold">Live Trip Tracking</h1>
         </div>
-        <p className="text-xs opacity-80">Voyex — Safe rides in real time</p>
+        <p className="text-xs opacity-80">PickMe — Safe rides in real time</p>
       </div>
 
       {/* Status */}
@@ -245,7 +245,7 @@ export default function LiveTrackingPage() {
       {/* Footer */}
       <div className="px-5 py-6 text-center">
         <p className="text-xs text-muted-foreground">
-          Shared via <span className="font-bold text-primary">Voyex</span> • Real-time tracking
+          Shared via <span className="font-bold text-primary">PickMe</span> • Real-time tracking
         </p>
       </div>
     </div>

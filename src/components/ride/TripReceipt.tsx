@@ -213,7 +213,7 @@ export default function TripReceipt({ ride, driverName, onRateDriver, hasRated, 
           onClick={() => {
             if (navigator.share) {
               navigator.share({
-                title: `Voyex Receipt ${receiptId}`,
+                title: `PickMe Receipt ${receiptId}`,
                 text: `Trip from ${ride.pickup_address} to ${ride.dropoff_address} — $${Number(totalFare).toFixed(2)}\nReceipt: ${receiptId}`,
               });
             }

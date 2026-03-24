@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Voyex Design System — iOS 18 Frosted Glass */
+/* PickMe Design System — iOS 18 Frosted Glass */
 
 @layer base {
   :root {
@@ -18,7 +18,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    /* Primary — Voyex blue gradient anchor #0B3C8A */
+    /* Primary — PickMe blue gradient anchor #0B3C8A */
     --primary: 217 85% 29%;
     --primary-foreground: 0 0% 100%;
 
@@ -54,7 +54,7 @@
     --sidebar-border: 217 70% 35%;
     --sidebar-ring: 45 100% 51%;
 
-    /* Voyex design tokens */
+    /* PickMe design tokens */
     --voyex-blue: 217 85% 29%;
     --voyex-blue-dark: 217 90% 22%;
     --voyex-blue-light: 213 83% 56%;

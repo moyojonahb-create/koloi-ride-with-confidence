@@ -1,6 +1,6 @@
-import voyexLogo from '@/assets/voyex-logo-new.png';
+import voyexLogo from '@/assets/pickme-logo.png';
 
-interface VoyexLogoProps {
+interface PickMeLogoProps {
   className?: string;
   variant?: 'default' | 'inverted' | 'light';
   showTagline?: boolean;
@@ -8,13 +8,13 @@ interface VoyexLogoProps {
   iconOnly?: boolean;
 }
 
-const VoyexLogo = ({ 
+const PickMeLogo = ({ 
   className = '', 
   variant = 'default', 
   showTagline = false,
   size = 'md',
   iconOnly = false
-}: VoyexLogoProps) => {
+}: PickMeLogoProps) => {
   const isLight = variant === 'inverted' || variant === 'light';
   
   // Circle container sizes for iconOnly mode
@@ -39,7 +39,7 @@ const VoyexLogo = ({
         <div className={`${circleSizeClasses[size]} rounded-full bg-card overflow-hidden flex items-center justify-center shadow-sm ring-1 ring-border/20`}>
           <img 
             src={voyexLogo} 
-            alt="Voyex" 
+            alt="PickMe" 
             className="w-[85%] h-[85%] object-contain"
           />
         </div>
@@ -51,7 +51,7 @@ const VoyexLogo = ({
     <div className={`flex items-center gap-2 ${className}`}>
       <img 
         src={voyexLogo} 
-        alt="Voyex" 
+        alt="PickMe" 
         className={`${fullLogoSizeClasses[size]} w-auto object-contain`}
       />
       
@@ -64,4 +64,4 @@ const VoyexLogo = ({
   );
 };
 
-export default VoyexLogo;
+export default PickMeLogo;

@@ -11,11 +11,11 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import "./index.css";
 
 window.addEventListener('unhandledrejection', (event) => {
-  console.error('[Voyex] Unhandled promise rejection:', event.reason);
+  console.error('[PickMe] Unhandled promise rejection:', event.reason);
 });
 
 window.addEventListener('error', (event) => {
-  console.error('[Voyex] Global runtime error:', event.error || event.message);
+  console.error('[PickMe] Global runtime error:', event.error || event.message);
 });
 
 const queryClient = new QueryClient();
@@ -28,18 +28,18 @@ if ('serviceWorker' in navigator) {
     if (import.meta.env.PROD) {
       navigator.serviceWorker.register('/sw.js')
         .then((registration) => {
-          console.log('[Voyex] PWA SW registered:', registration.scope);
+          console.log('[PickMe] PWA SW registered:', registration.scope);
         })
         .catch((error) => {
-          console.log('[Voyex] PWA SW registration failed:', error);
+          console.log('[PickMe] PWA SW registration failed:', error);
         });
 
       navigator.serviceWorker.register('/sw-tiles.js')
         .then((registration) => {
-          console.log('[Voyex] Tile cache SW registered:', registration.scope);
+          console.log('[PickMe] Tile cache SW registered:', registration.scope);
         })
         .catch((error) => {
-          console.log('[Voyex] Tile cache SW registration failed:', error);
+          console.log('[PickMe] Tile cache SW registration failed:', error);
         });
     } else {
       // Clean up previously installed service workers while in dev.

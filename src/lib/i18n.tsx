@@ -6,7 +6,7 @@ export type Locale = 'en' | 'sn' | 'nd';
 const translations: Record<Locale, Record<string, string>> = {
   en: {
     // Common
-    'app.name': 'Voyex',
+    'app.name': 'PickMe',
     'common.back': 'Back',
     'common.save': 'Save',
     'common.cancel': 'Cancel',
@@ -72,7 +72,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'lang.select': 'Language',
   },
   sn: {
-    'app.name': 'Voyex',
+    'app.name': 'PickMe',
     'common.back': 'Dzoka',
     'common.save': 'Chengetedza',
     'common.cancel': 'Kanzura',
@@ -132,7 +132,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'lang.select': 'Mutauro',
   },
   nd: {
-    'app.name': 'Voyex',
+    'app.name': 'PickMe',
     'common.back': 'Buyela',
     'common.save': 'Gcina',
     'common.cancel': 'Susa',

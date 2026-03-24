@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabaseClient';
 import { ArrowLeft, MapPin, Navigation, Clock, Banknote, Car, ChevronRight, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import VoyexLogo from '@/components/VoyexLogo';
+import PickMeLogo from '@/components/PickMeLogo';
 import BottomNavBar from '@/components/BottomNavBar';
 import RiderSpendingAnalytics from '@/components/ride/RiderSpendingAnalytics';
 
@@ -69,7 +69,7 @@ export default function RideHistory() {
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-lg font-bold font-display text-foreground">My Trips</h1>
-          <VoyexLogo size="sm" />
+          <PickMeLogo size="sm" />
         </div>
       </div>
 

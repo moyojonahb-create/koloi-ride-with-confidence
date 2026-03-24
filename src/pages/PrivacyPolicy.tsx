@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
         <p className="text-muted-foreground text-xs">Last updated: March 2026</p>
 
         <h2>1. Information We Collect</h2>
-        <p>We collect the following personal information when you use Voyex:</p>
+        <p>We collect the following personal information when you use PickMe:</p>
         <ul>
           <li><strong>Account data</strong> – name, email, phone number, and profile photo.</li>
           <li><strong>Location data</strong> – real-time GPS coordinates during active rides for routing and safety.</li>
@@ -44,13 +44,13 @@ export default function PrivacyPolicy() {
         <p>We retain trip data for up to 3 years for regulatory compliance. You may request deletion of your account and all associated data at any time from your profile settings.</p>
 
         <h2>5. Your Rights</h2>
-        <p>You have the right to access, correct, or delete your personal information. You can exercise these rights through the app's profile settings or by emailing <a href="mailto:privacy@voyex.co.zw" className="text-primary">privacy@voyex.co.zw</a>.</p>
+        <p>You have the right to access, correct, or delete your personal information. You can exercise these rights through the app's profile settings or by emailing <a href="mailto:privacy@pickme.co.zw" className="text-primary">privacy@pickme.co.zw</a>.</p>
 
         <h2>6. Security</h2>
         <p>We use industry-standard encryption (TLS), row-level access controls, and secure cloud infrastructure to protect your data.</p>
 
         <h2>7. Contact</h2>
-        <p>For privacy-related questions, contact us at <a href="mailto:privacy@voyex.co.zw" className="text-primary">privacy@voyex.co.zw</a>.</p>
+        <p>For privacy-related questions, contact us at <a href="mailto:privacy@pickme.co.zw" className="text-primary">privacy@pickme.co.zw</a>.</p>
       </main>
     </div>
   );

@@ -1,6 +1,6 @@
 import { MessageSquare, Users, Phone, Shield, Car, AlertTriangle, Lock } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import VoyexLogo from '@/components/VoyexLogo';
+import PickMeLogo from '@/components/PickMeLogo';
 import BottomNavBar from '@/components/BottomNavBar';
 
 const protectionCards = [
@@ -26,7 +26,7 @@ export default function SafetyPage() {
           </button>
         )}
         <div className={`flex items-center gap-2 ${isMapp ? 'mx-auto' : ''}`}>
-          <VoyexLogo size="sm" iconOnly />
+          <PickMeLogo size="sm" iconOnly />
           <h1 className="font-bold text-lg text-foreground">Safety</h1>
         </div>
         {!isMapp && <div className="w-12" />}

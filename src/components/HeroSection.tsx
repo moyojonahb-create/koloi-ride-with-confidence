@@ -340,7 +340,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
                     Finding driver...
                   </>
                 ) : routeInfo && currentFare ? (
-                  `Request Voyex - $${currentFare}`
+                  `Request PickMe - $${currentFare}`
                 ) : (
                   <>
                     Find a ride

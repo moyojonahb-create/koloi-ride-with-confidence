@@ -1,5 +1,5 @@
 /**
- * External Maps navigation helper for Voyex drivers.
+ * External Maps navigation helper for PickMe drivers.
  * Opens Google Maps (Android/desktop) or Apple Maps (iOS) with driving directions.
  */
 

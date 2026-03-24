@@ -60,7 +60,7 @@ const LandingHero = ({ onGetStarted }: LandingHeroProps) => {
         <div className="flex flex-wrap items-center justify-center gap-3">
           <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2.5 rounded-full">
             <Star className="w-4 h-4 text-accent fill-accent" />
-            <span className="text-primary-foreground/90 text-[13px] font-semibold">Join Voyex today</span>
+            <span className="text-primary-foreground/90 text-[13px] font-semibold">Join PickMe today</span>
           </div>
           <div className="flex items-center gap-2 bg-primary-foreground/10 px-4 py-2.5 rounded-full">
             <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />

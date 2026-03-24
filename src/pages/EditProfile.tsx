@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import VoyexLogo from '@/components/VoyexLogo';
+import PickMeLogo from '@/components/PickMeLogo';
 
 
 export default function EditProfile() {
@@ -122,7 +122,7 @@ export default function EditProfile() {
             <ArrowLeft className="w-5 h-5 text-primary-foreground" />
           </button>
           <h1 className="text-lg font-bold text-primary-foreground">Edit Profile</h1>
-          <VoyexLogo variant="light" size="sm" />
+          <PickMeLogo variant="light" size="sm" />
         </div>
       </div>
 

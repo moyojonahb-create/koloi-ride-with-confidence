@@ -1,4 +1,4 @@
-// Voyex realtime presence utilities
+// PickMe realtime presence utilities
 import { supabase } from "@/lib/supabaseClient";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
