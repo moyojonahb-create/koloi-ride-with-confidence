@@ -439,24 +439,14 @@ export default function RiderRideDetail() {
             </div>
           </div>
 
-          {/* Expiry countdown */}
-          {isPending && ride.expires_at && (
-            <div className={`glass-card rounded-2xl p-4 ${secondsLeft <= 10 ? 'ring-1 ring-destructive/30' : 'glass-glow-blue'}`}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-muted-foreground" />
-                  <span className="font-semibold text-foreground text-sm">Waiting for drivers…</span>
-                </div>
-                <span className={`font-black text-lg ${secondsLeft <= 10 ? 'text-destructive' : 'text-primary'}`}>
-                  {secondsLeft}s
-                </span>
-              </div>
-              <div className="w-full h-2 bg-muted/50 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-200 ${secondsLeft <= 10 ? 'bg-destructive' : 'bg-primary'}`}
-                  style={{ width: `${Math.min(100, secondsLeft / 30 * 100)}%` }} />
-              </div>
-            </div>
+          {/* Enhanced searching experience */}
+          {isPending && (
+            <SearchingOverlay
+              secondsLeft={secondsLeft}
+              driversNearby={nearbyDrivers.length}
+              offersCount={offers.length}
+              onCancel={handleCancelRide}
+            />
           )}
 
           {/* Offers section */}
