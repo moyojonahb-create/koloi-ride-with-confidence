@@ -20,17 +20,9 @@ export async function cachePlaceFromNominatim(p: NominatimResult): Promise<void>
       address: p.address ?? null,
     };
 
-    // Duplicates are expected when users search/select the same place repeatedly.
-    // Use upsert on the OSM unique key when available, and ignore duplicates.
-    const hasOsmIdentity = Boolean(payload.osm_type && payload.osm_id);
-
-    const query = hasOsmIdentity
-      ? supabase
-          .from('places_cache')
-          .upsert(payload, { onConflict: 'osm_type,osm_id', ignoreDuplicates: true })
-      : supabase.from('places_cache').insert(payload);
-
-    const { error } = await query;
+    // Always use plain insert — the table has no unique constraint on osm_type/osm_id.
+    // Duplicate entries are harmless for a cache table.
+    const { error } = await supabase.from('places_cache').insert(payload);
 
     // Cache is best-effort only; never fail ride flow due to cache writes.
     if (error) {
