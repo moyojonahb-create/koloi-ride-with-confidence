@@ -410,17 +410,6 @@ export default function RideDetail() {
   };
 
   const status = statusConfig[rideStatus] || { label: rideStatus, color: "bg-muted", icon: "•" };
-  const pendingOfferCount = premiumOffers.filter((o) => o.expiresAt > Date.now()).length;
-  const prevOfferCountRef = useRef(pendingOfferCount);
-
-  useEffect(() => {
-    if (pendingOfferCount > prevOfferCountRef.current) {
-      import('@/lib/notificationSounds').then(({ playNotificationSound }) => {
-        playNotificationSound('offerReceived');
-      });
-    }
-    prevOfferCountRef.current = pendingOfferCount;
-  }, [pendingOfferCount]);
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
