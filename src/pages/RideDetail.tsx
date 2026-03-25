@@ -471,7 +471,7 @@ export default function RideDetail() {
           {/* View Offers button — when searching */}
           {!accepted && (
             <button onClick={() => setShowOffersModal(true)}
-              className="w-full h-12 rounded-2xl bg-primary text-primary-foreground font-bold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_4px_16px_hsl(var(--primary)/0.3)]">
+              className="w-full h-12 rounded-2xl border border-white/30 bg-primary/20 backdrop-blur-xl text-primary font-bold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_4px_16px_hsl(var(--primary)/0.2)]">
               View Offers {pendingOfferCount > 0 && `(${pendingOfferCount})`}
             </button>
           )}
