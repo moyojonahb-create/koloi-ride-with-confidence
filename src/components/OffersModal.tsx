@@ -221,7 +221,7 @@ export default function OffersModal({
                         {o.avatarUrl ?
                     <AvatarImage src={o.avatarUrl} alt={o.driverName || 'Driver'} /> :
                     null}
-                        <AvatarFallback className={`text-sm font-bold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                        <AvatarFallback className={`text-sm font-bold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-primary/10 text-primary'}`}>
                           {o.gender === 'female' ? '♀' : '♂'}
                         </AvatarFallback>
                       </Avatar>
