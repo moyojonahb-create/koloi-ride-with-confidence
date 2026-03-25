@@ -82,15 +82,21 @@ export function useWebRTCCall({
 
     channel
       .on("broadcast", { event: "offer" }, async ({ payload }) => {
-        if (!pcRef.current) return;
+        const pc = pcRef.current;
+        if (!pc) return;
+        // Only process offers when in stable state (waiting for remote offer)
+        if (pc.signalingState !== "stable") {
+          console.warn("[WebRTC] Ignoring offer — signalingState:", pc.signalingState);
+          return;
+        }
         try {
-          await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.sdp));
-          const answer = await pcRef.current.createAnswer();
-          await pcRef.current.setLocalDescription(answer);
+          await pc.setRemoteDescription(new RTCSessionDescription(payload.sdp));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
           channel.send({ type: "broadcast", event: "answer", payload: { sdp: answer } });
           // Process queued ICE candidates
           for (const c of iceCandidateQueueRef.current) {
-            await pcRef.current.addIceCandidate(new RTCIceCandidate(c));
+            await pc.addIceCandidate(new RTCIceCandidate(c));
           }
           iceCandidateQueueRef.current = [];
         } catch (err) {
@@ -98,12 +104,18 @@ export function useWebRTCCall({
         }
       })
       .on("broadcast", { event: "answer" }, async ({ payload }) => {
-        if (!pcRef.current) return;
+        const pc = pcRef.current;
+        if (!pc) return;
+        // Only accept answer when we have a local offer pending
+        if (pc.signalingState !== "have-local-offer") {
+          console.warn("[WebRTC] Ignoring answer — signalingState:", pc.signalingState);
+          return;
+        }
         try {
-          await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.sdp));
+          await pc.setRemoteDescription(new RTCSessionDescription(payload.sdp));
           // Process queued ICE candidates
           for (const c of iceCandidateQueueRef.current) {
-            await pcRef.current.addIceCandidate(new RTCIceCandidate(c));
+            await pc.addIceCandidate(new RTCIceCandidate(c));
           }
           iceCandidateQueueRef.current = [];
         } catch (err) {
@@ -264,18 +276,20 @@ export function useWebRTCCall({
           }
         };
 
-        // If caller, create and send offer
+        // If caller, create and send offer with retry to ensure callee is subscribed
         if (isCaller) {
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
-          // Small delay to ensure channel is subscribed
-          setTimeout(() => {
+          const sendOffer = () => {
             channel.send({
               type: "broadcast",
               event: "offer",
               payload: { sdp: offer },
             });
-          }, 500);
+          };
+          // Send after delay, then retry once more to handle race conditions
+          setTimeout(sendOffer, 800);
+          setTimeout(sendOffer, 2500);
         }
       } catch (err) {
         console.error("[WebRTC] Failed to setup call:", err);

@@ -20,15 +20,24 @@ export async function cachePlaceFromNominatim(p: NominatimResult): Promise<void>
       address: p.address ?? null,
     };
 
-    // Always use plain insert — the table has no unique constraint on osm_type/osm_id.
-    // Duplicate entries are harmless for a cache table.
+    // Check if this place is already cached to avoid 409 conflicts
+    if (payload.osm_type && payload.osm_id) {
+      const { data: existing } = await supabase
+        .from('places_cache')
+        .select('id')
+        .eq('osm_type', payload.osm_type)
+        .eq('osm_id', payload.osm_id)
+        .limit(1)
+        .maybeSingle();
+      if (existing) return; // Already cached
+    }
+
     const { error } = await supabase.from('places_cache').insert(payload);
 
     // Cache is best-effort only; never fail ride flow due to cache writes.
     if (error) {
-      // 409/23505 duplicate conflicts are explicitly non-fatal.
-      if (error.code === '23505' || (error as { status?: number }).status === 409) return;
-      console.warn('[placeCache] non-fatal cache write error:', error.message);
+      // Silence all cache errors — they're non-fatal
+      return;
     }
   } catch {
     // Ignore cache failures (duplicates, auth issues, etc.)

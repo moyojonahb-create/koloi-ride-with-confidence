@@ -375,15 +375,7 @@ export default function DriverDashboard() {
           .maybeSingle();
         setRiderPhone(riderProfile?.phone ?? null);
 
-        // Fetch ride preferences
-        const { data: prefs } = await supabase
-          .from("ride_preferences")
-          .select("quiet_ride, cool_temperature")
-          .eq("ride_id", activeTripData.id)
-          .maybeSingle();
-        if (prefs) {
-          setRidePreferences(prev => ({ ...prev, [activeTripData.id]: prefs }));
-        }
+        // Preferences are batch-fetched below with all ride IDs
       } else {
         setActiveTrip(null);
         setRiderPhone(null);
@@ -401,6 +393,23 @@ export default function DriverDashboard() {
         const activeList = filterActiveRides(list);
 
         setRides(activeList as Ride[]);
+
+        // Fetch preferences for all visible rides
+        const allRideIds = activeList.map(r => r.id);
+        if (activeTripData) allRideIds.push(activeTripData.id);
+        if (allRideIds.length > 0) {
+          const { data: allPrefs } = await supabase
+            .from("ride_preferences")
+            .select("ride_id, quiet_ride, cool_temperature")
+            .in("ride_id", allRideIds);
+          if (allPrefs) {
+            const prefsMap: Record<string, { quiet_ride: boolean; cool_temperature: boolean }> = {};
+            for (const pref of allPrefs) {
+              prefsMap[pref.ride_id] = { quiet_ride: pref.quiet_ride, cool_temperature: pref.cool_temperature };
+            }
+            setRidePreferences(prev => ({ ...prev, ...prefsMap }));
+          }
+        }
 
         // Notify on new rides with LOUD sound and voice
         const currentIds = new Set(list.map((r) => r.id));
@@ -776,6 +785,11 @@ export default function DriverDashboard() {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold truncate">{r.pickup_address}</p>
                         <p className="text-sm text-muted-foreground truncate">{r.dropoff_address}</p>
+                        {ridePreferences[r.id] && (
+                          <div className="mt-1">
+                            <RidePreferenceTags quietRide={ridePreferences[r.id]?.quiet_ride} coolTemperature={ridePreferences[r.id]?.cool_temperature} />
+                          </div>
+                        )}
                       </div>
                       <div className="text-right">
                         <p className="font-black text-lg">{fmtUSD(Number(r.fare))}</p>
