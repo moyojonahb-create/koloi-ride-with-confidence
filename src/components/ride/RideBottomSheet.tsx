@@ -12,9 +12,9 @@ interface RideBottomSheetProps {
 }
 
 const SNAP_POINTS = {
-  collapsed: 100, // Minimal peek
-  half: 0.45, // 45% of screen
-  full: 0.88, // 88% of screen
+  collapsed: 120,
+  half: 0.42,
+  full: 0.88,
 };
 
 export default function RideBottomSheet({
@@ -30,7 +30,6 @@ export default function RideBottomSheet({
   const [startY, setStartY] = useState(0);
   const [sheetHeight, setSheetHeight] = useState(0);
 
-  // Calculate height based on state
   const getHeightForState = useCallback((s: SheetState): number => {
     if (typeof window === 'undefined') return 0;
     const vh = window.innerHeight;
@@ -44,21 +43,16 @@ export default function RideBottomSheet({
     }
   }, []);
 
-  // Update sheet height on state change
   useEffect(() => {
     setSheetHeight(getHeightForState(state));
   }, [state, getHeightForState]);
 
-  // Recalculate on resize
   useEffect(() => {
-    const handleResize = () => {
-      setSheetHeight(getHeightForState(state));
-    };
+    const handleResize = () => setSheetHeight(getHeightForState(state));
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [state, getHeightForState]);
 
-  // Determine snap point from current position
   const snapToNearest = useCallback((height: number) => {
     const vh = window.innerHeight;
     const collapsedH = SNAP_POINTS.collapsed;
@@ -78,7 +72,6 @@ export default function RideBottomSheet({
     }
   }, [onStateChange]);
 
-  // Touch handlers
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     setIsDragging(true);
     setStartY(e.touches[0].clientY);
@@ -98,7 +91,6 @@ export default function RideBottomSheet({
     snapToNearest(sheetHeight);
   }, [isDragging, sheetHeight, snapToNearest]);
 
-  // Mouse handlers for desktop
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsDragging(true);
     setStartY(e.clientY);
@@ -128,7 +120,6 @@ export default function RideBottomSheet({
     };
   }, [isDragging, startY, currentY, sheetHeight, snapToNearest]);
 
-  // Click on handle to cycle states
   const handleHandleClick = () => {
     if (isDragging) return;
     const nextState: SheetState = state === 'collapsed' ? 'half' : state === 'half' ? 'full' : 'collapsed';
@@ -139,29 +130,29 @@ export default function RideBottomSheet({
     <div
       ref={sheetRef}
       className={cn(
-        'fixed bottom-0 left-0 right-0 bg-background rounded-t-[28px] shadow-[0_-4px_32px_rgba(0,0,0,0.1)] z-40',
-        'transition-[height] border-t border-border/40',
-        isDragging ? 'duration-0' : 'duration-300 ease-&lsqb;cubic-bezier(0.32,0.72,0,1)&rsqb; ',
+        'fixed bottom-0 left-0 right-0 bg-card rounded-t-[24px] z-40',
+        'transition-[height] shadow-[0_-2px_24px_rgba(0,0,0,0.08)]',
+        isDragging ? 'duration-0' : 'duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]',
         className
       )}
-      style={{ height: sheetHeight }}
+      style={{ height: sheetHeight, paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       {/* Drag Handle */}
       <div
-        className="flex flex-col items-center pt-3 pb-2.5 cursor-grab active:cursor-grabbing touch-none select-none"
+        className="flex flex-col items-center pt-3 pb-2 cursor-grab active:cursor-grabbing touch-none select-none"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
         onClick={handleHandleClick}
       >
-        <div className="w-10 h-[5px] bg-pickme-gray-300 rounded-full" />
+        <div className="w-9 h-[4px] bg-muted-foreground/20 rounded-full" />
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
         {state === 'collapsed' && collapsedContent ? (
-          <div className="px-5 pb-5">{collapsedContent}</div>
+          <div className="px-5 pb-4">{collapsedContent}</div>
         ) : (
           <div className="h-full overflow-y-auto px-5 pb-8 overscroll-contain">
             {children}
