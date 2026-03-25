@@ -270,33 +270,41 @@ export default function RideDetail() {
     } catch (e: unknown) { setToast((e as Error)?.message || "Message failed."); }
   };
 
-  // ── LOADING — Skeleton overlay, never blank ──
-  if (loading) {
+  // ── LOADING or NOT FOUND — show inline, never full-screen blank ──
+  if (loading || !ride) {
     return (
-      <div className="min-h-[100dvh] bg-background">
-        <div className="h-[45dvh] bg-muted animate-pulse" />
-        <div className="p-4 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm font-medium text-foreground">Loading ride…</span>
-          </div>
-          <div className="h-20 rounded-2xl bg-muted animate-pulse" />
-          <div className="h-16 rounded-2xl bg-muted animate-pulse" />
-          <div className="h-12 rounded-2xl bg-muted animate-pulse w-3/4" />
-        </div>
-      </div>
-    );
-  }
-
-  if (!ride) {
-    return (
-      <div className="min-h-[100dvh] bg-background p-4 flex items-center justify-center">
-        <div className="w-full max-w-sm rounded-3xl bg-card border border-border p-6 text-center space-y-4">
-          <p className="text-base font-semibold text-foreground">Ride not found</p>
-          <p className="text-sm text-muted-foreground">This trip may no longer be available.</p>
-          <button onClick={() => nav("/ride")} className="w-full py-3 rounded-2xl bg-primary text-primary-foreground font-semibold active:scale-[0.98] transition-all">
-            Back to rides
+      <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
+        <div className="absolute inset-0 bg-muted/30" />
+        {/* Back button */}
+        <div className="absolute top-0 left-0 right-0 z-40 px-4 flex items-center" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
+          <button onClick={() => nav("/ride")} className="w-11 h-11 flex items-center justify-center rounded-full bg-card shadow-md active:scale-95 transition-all">
+            <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
+        </div>
+        {/* Bottom panel skeleton */}
+        <div className="absolute bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl shadow-[0_-8px_40px_rgba(0,0,0,0.12)]"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
+          <div className="flex justify-center pt-3 pb-2"><div className="w-10 h-1 rounded-full bg-border" /></div>
+          <div className="px-4 pb-4 space-y-3">
+            {loading ? (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                  <p className="text-sm font-semibold text-foreground">Connecting to ride…</p>
+                </div>
+                <div className="h-20 rounded-2xl bg-muted animate-pulse" />
+                <div className="h-12 rounded-2xl bg-muted animate-pulse w-3/4" />
+              </>
+            ) : (
+              <div className="text-center py-6 space-y-3">
+                <p className="text-base font-semibold text-foreground">Ride not found</p>
+                <p className="text-sm text-muted-foreground">This trip may no longer be available.</p>
+                <button onClick={() => nav("/ride")} className="w-full py-3 rounded-2xl bg-primary text-primary-foreground font-semibold active:scale-[0.98] transition-all">
+                  Back to rides
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
