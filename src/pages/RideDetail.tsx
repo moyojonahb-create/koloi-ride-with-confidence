@@ -274,29 +274,91 @@ export default function RideDetail() {
   if (loading || !ride) {
     return (
       <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
-        <div className="absolute inset-0 bg-muted/30" />
+        {/* Animated map placeholder */}
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/40 via-muted/20 to-background">
+          {/* Animated road lines */}
+          <div className="absolute inset-0 overflow-hidden opacity-20">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute h-px bg-primary/40"
+                style={{
+                  top: `${20 + i * 15}%`,
+                  left: 0,
+                  right: 0,
+                  animation: `shimmer ${2 + i * 0.3}s ease-in-out infinite`,
+                  animationDelay: `${i * 0.2}s`,
+                }}
+              />
+            ))}
+          </div>
+          {/* Pulsing car icon */}
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3">
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" style={{ animationDuration: '2s' }} />
+              <div className="relative w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                <Car className="w-7 h-7 text-primary animate-bounce" style={{ animationDuration: '2s' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Back button */}
         <div className="absolute top-0 left-0 right-0 z-40 px-4 flex items-center" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
           <button onClick={() => nav("/ride")} className="w-11 h-11 flex items-center justify-center rounded-full bg-card shadow-md active:scale-95 transition-all">
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
         </div>
-        {/* Bottom panel skeleton */}
+
+        {/* Bottom panel */}
         <div className="absolute bottom-0 left-0 right-0 z-50 bg-card rounded-t-3xl shadow-[0_-8px_40px_rgba(0,0,0,0.12)]"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
           <div className="flex justify-center pt-3 pb-2"><div className="w-10 h-1 rounded-full bg-border" /></div>
-          <div className="px-4 pb-4 space-y-3">
+          <div className="px-5 pb-5 space-y-4">
             {loading ? (
               <>
+                {/* Live status indicator */}
                 <div className="flex items-center gap-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
-                  <p className="text-sm font-semibold text-foreground">Connecting to ride…</p>
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+                    <div className="absolute w-3 h-3 rounded-full bg-primary/50 animate-ping" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">Loading your ride</p>
+                    <p className="text-xs text-muted-foreground">Getting the latest details…</p>
+                  </div>
                 </div>
-                <div className="h-20 rounded-2xl bg-muted animate-pulse" />
-                <div className="h-12 rounded-2xl bg-muted animate-pulse w-3/4" />
+
+                {/* Pickup/Dropoff skeleton with route line */}
+                <div className="flex gap-3">
+                  <div className="flex flex-col items-center pt-1">
+                    <div className="w-3 h-3 rounded-full border-2 border-primary bg-card" />
+                    <div className="w-0.5 flex-1 bg-gradient-to-b from-primary/40 to-accent/40 my-1 rounded-full min-h-[24px]" />
+                    <div className="w-3 h-3 rounded-full border-2 border-accent bg-card" />
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <div className="space-y-1.5">
+                      <div className="h-3 w-16 rounded bg-muted animate-pulse" />
+                      <div className="h-5 w-3/4 rounded-lg bg-muted animate-pulse" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="h-3 w-16 rounded bg-muted animate-pulse" />
+                      <div className="h-5 w-2/3 rounded-lg bg-muted animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fare skeleton */}
+                <div className="flex items-center justify-between px-4 py-3 rounded-2xl bg-muted/50">
+                  <div className="h-4 w-20 rounded bg-muted animate-pulse" />
+                  <div className="h-6 w-16 rounded-lg bg-muted animate-pulse" />
+                </div>
               </>
             ) : (
               <div className="text-center py-6 space-y-3">
+                <div className="w-14 h-14 rounded-full bg-muted/60 flex items-center justify-center mx-auto">
+                  <Car className="w-6 h-6 text-muted-foreground" />
+                </div>
                 <p className="text-base font-semibold text-foreground">Ride not found</p>
                 <p className="text-sm text-muted-foreground">This trip may no longer be available.</p>
                 <button onClick={() => nav("/ride")} className="w-full py-3 rounded-2xl bg-primary text-primary-foreground font-semibold active:scale-[0.98] transition-all">
@@ -306,6 +368,13 @@ export default function RideDetail() {
             )}
           </div>
         </div>
+
+        <style>{`
+          @keyframes shimmer {
+            0%, 100% { opacity: 0.1; transform: scaleX(0.8); }
+            50% { opacity: 0.3; transform: scaleX(1); }
+          }
+        `}</style>
       </div>
     );
   }
