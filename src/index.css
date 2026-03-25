@@ -102,7 +102,7 @@
     --glass-separator: 0.5px solid hsla(0, 0%, 0%, 0.06);
 
     /* ─── Gradients ─── */
-    --gradient-primary: linear-gradient(135deg, hsl(217 85% 29%), hsl(213 83% 56%));
+    --gradient-primary: linear-gradient(135deg, hsl(224 71% 37%), hsl(225 65% 48%));
     --gradient-accent: linear-gradient(135deg, hsl(45 100% 51%), hsl(40 100% 60%));
     --gradient-glass-shine: linear-gradient(180deg, hsla(0, 0%, 100%, 0.15) 0%, hsla(0, 0%, 100%, 0) 100%);
   }
