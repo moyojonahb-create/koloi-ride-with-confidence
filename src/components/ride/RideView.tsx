@@ -268,8 +268,12 @@ export default function RideView() {
   const handleSendOffer = async (customFare: number) => {
     if (!user) {setAuthMode('login');setAuthModalOpen(true);return;}
     if (!pickupLocation || !dropoffLocation || !fareEstimate) {toast({ title: 'Select pickup and destination', variant: 'destructive' });return;}
+    
+    // ⚡ INSTANT UI RESPONSE — update state before network call
     haptic('medium');
-    setIsRequesting(true);setRideStatus('searching');
+    setIsRequesting(true);
+    setRideStatus('searching');
+    
     try {
       const result = await requestRide({
         pickup_address: pickupLocation.name, pickup_lat: pickupLocation.lat, pickup_lng: pickupLocation.lng,
@@ -312,14 +316,14 @@ export default function RideView() {
       }
 
       setCurrentRideId(result.ride.id);
-      toast({
-        title: scheduledAt ? 'Ride scheduled!' : 'Offer sent!',
-        description: bookForSomeoneElse && passengerName.trim() ?
-        `Passenger: ${passengerName.trim()}${passengerPhone.trim() ? ` (${passengerPhone.trim()})` : ''}` :
-        `${fareEstimate.currencySymbol}${customFare} — ${scheduledAt ? 'scheduled for later' : 'waiting for drivers…'}`
-      });
-      if (!scheduledAt) navigate(`/ride/${result.ride.id}`);else
-      {setRideStatus('idle');setScheduledAt(null);setRideStops([]);}
+      
+      // ⚡ Navigate instantly — the ride detail page renders map immediately
+      if (!scheduledAt) {
+        navigate(`/ride/${result.ride.id}`, { replace: true });
+      } else {
+        toast({ title: 'Ride scheduled!', description: 'Your ride has been scheduled for later.' });
+        setRideStatus('idle');setScheduledAt(null);setRideStops([]);
+      }
     } catch (error: unknown) {toast({ title: 'Failed to send offer', description: (error as Error).message, variant: 'destructive' });setRideStatus('idle');} finally {setIsRequesting(false);}
   };
 
