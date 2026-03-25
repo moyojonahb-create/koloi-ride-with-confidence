@@ -500,8 +500,13 @@ export default function RideDetail() {
           {/* View Offers button */}
           {!accepted && (
             <button onClick={() => setShowOffersModal(true)}
-              className={`w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-base inline-flex items-center justify-center gap-0.5 active:scale-[0.98] transition-all shadow-[var(--shadow-md)] ${pendingOfferCount > 0 ? 'animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''}`}>
-              View Offers {pendingOfferCount > 0 && `(${pendingOfferCount})`}
+              className={`relative w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-base inline-flex items-center justify-center gap-0.5 active:scale-[0.98] transition-all shadow-[var(--shadow-md)] ${pendingOfferCount > 0 ? 'animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''}`}>
+              View Offers
+              {pendingOfferCount > 0 && (
+                <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1.5 rounded-full bg-destructive text-white text-xs font-bold flex items-center justify-center shadow-md animate-scale-in">
+                  {pendingOfferCount}
+                </span>
+              )}
             </button>
           )}
 
