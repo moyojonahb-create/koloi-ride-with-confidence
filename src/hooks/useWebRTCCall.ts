@@ -24,6 +24,24 @@ const ICE_SERVERS: RTCIceServer[] = [
   { urls: "stun:stun2.l.google.com:19302" },
 ];
 
+/** Show a system notification for incoming calls (works when app is in background) */
+function showCallNotification(_callerId: string) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    const n = new Notification('Incoming Call 📞', {
+      body: 'Someone is calling you on your ride',
+      tag: 'incoming-call',
+      requireInteraction: true,
+    });
+    n.onclick = () => {
+      window.focus();
+      n.close();
+    };
+  } else if (Notification.permission !== 'denied') {
+    Notification.requestPermission();
+  }
+}
+
 export function useWebRTCCall({
   rideId,
   currentUserId,
