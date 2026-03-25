@@ -45,7 +45,7 @@ interface RideRow {
 
 const statusColors: Record<string, string> = {
   pending: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
-  accepted: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+  accepted: 'bg-primary/10 text-primary border-primary/20',
   in_progress: 'bg-primary/10 text-primary border-primary/20',
   completed: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
   cancelled: 'bg-destructive/10 text-destructive border-destructive/20',
