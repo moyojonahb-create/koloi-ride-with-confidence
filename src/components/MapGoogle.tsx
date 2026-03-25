@@ -245,7 +245,7 @@ function InnerMapGoogle({
           <Marker position={pickup} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#FBBF24', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }} label={{ text: 'P', color: '#000', fontWeight: 'bold', fontSize: '11px' }} zIndex={10} />
         )}
         {dropoff && (
-          <Marker position={dropoff} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#2563EB', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }} label={{ text: 'D', color: '#fff', fontWeight: 'bold', fontSize: '11px' }} zIndex={10} />
+          <Marker position={dropoff} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#1B3FA0', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }} label={{ text: 'D', color: '#fff', fontWeight: 'bold', fontSize: '11px' }} zIndex={10} />
         )}
 
         {/* Premium tracking overlay: replaces plain driver marker + gradient line */}
