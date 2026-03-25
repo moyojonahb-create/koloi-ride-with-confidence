@@ -210,7 +210,7 @@ export default function RideDetail() {
     } catch (e: unknown) { setToast((e as Error)?.message || "Failed to load ride."); } finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, [rideId]);
+  useEffect(() => { load(false); }, [rideId]);
 
   useEffect(() => {
     if (!rideId) return;
