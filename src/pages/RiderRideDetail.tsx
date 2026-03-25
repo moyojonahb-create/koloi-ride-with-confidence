@@ -381,17 +381,45 @@ export default function RiderRideDetail() {
         </div>
       </div>
 
-      {/* ETA Banner removed from map - now shown below accepted driver card */}
+      {/* Driver arrived banner */}
+      {(ride.status === "driver_arrived" || ride.status === "arrived") && (
+        <motion.div
+          initial={{ y: -40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="absolute top-24 left-4 right-4 z-30 bg-primary text-primary-foreground rounded-2xl p-4 flex items-center gap-3 shadow-lg"
+        >
+          <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
+            <MapPin className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="font-bold text-sm">Your driver has arrived!</p>
+            <p className="text-xs opacity-80">Head to the pickup point</p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* In-progress reassurance */}
+      {ride.status === "in_progress" && (
+        <motion.div
+          initial={{ y: -40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="absolute top-24 left-4 right-4 z-30 bg-card border border-border/40 rounded-2xl p-3 flex items-center gap-3 shadow-sm"
+        >
+          <Shield className="w-5 h-5 text-primary shrink-0" />
+          <p className="text-sm font-medium text-foreground">You're on your way safely ✓</p>
+        </motion.div>
+      )}
 
       {/* Bottom glass panel */}
-      <div className="absolute left-0 right-0 z-50 glass-card-heavy max-h-[50vh] overflow-y-auto" style={{ bottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="sticky top-0 pt-3 pb-2 z-10" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, background: 'var(--gradient-primary)' }}>
-          <div className="w-10 h-1 rounded-full bg-primary-foreground/40 mx-auto" />
+      <div className="absolute left-0 right-0 z-50 bg-card max-h-[50vh] overflow-y-auto shadow-[0_-4px_30px_rgba(0,0,0,0.08)]" style={{ bottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="sticky top-0 pt-3 pb-2 z-10 bg-card" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
+          <div className="w-10 h-1 rounded-full bg-primary mx-auto" />
         </div>
 
         <div className="px-4 pb-4 space-y-3">
-          {/* Route info */}
-          <div className="glass-card rounded-2xl p-4 glass-glow-blue">
+          {/* Route info - hide when completed since summary shows it */}
+          {ride.status !== "completed" && (
+          <div className="bg-card rounded-2xl p-4 border border-border/40">
             <div className="flex items-start gap-3">
               <div className="flex flex-col items-center">
                 <div className="w-3 h-3 rounded-full bg-accent" />
