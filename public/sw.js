@@ -1,12 +1,11 @@
 // Bump cache name to force clients to pick up fresh assets after updates
-const CACHE_NAME = 'voyex-v7';
+const CACHE_NAME = 'voyex-v8';
 const TILE_CACHE = 'voyex-tiles-v1';
 const STATIC_ASSETS = [
   '/',
   '/ride',
   '/manifest.json',
   '/favicon.ico',
-  '/icons/pickme-app-icon.png',
   '/icons/pickme-app-icon.png',
 ];
 
@@ -19,7 +18,7 @@ const TILE_DOMAINS = [
   'khms1.googleapis.com',
 ];
 
-const MAX_TILE_CACHE_SIZE = 500; // Max cached tiles
+const MAX_TILE_CACHE_SIZE = 500;
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -46,57 +45,70 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Push notification handler — native push from server
+// Push notification handler
 self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {};
-  const title = data.title || 'PickMe';
+  let data = { title: 'PickMe', body: 'You have a new notification', url: '/' };
+
+  try {
+    if (event.data) {
+      const parsed = event.data.json();
+      data = {
+        title: parsed.title || data.title,
+        body: parsed.body || data.body,
+        url: parsed.url || data.url,
+      };
+    }
+  } catch (e) {
+    if (event.data) {
+      data.body = event.data.text();
+    }
+  }
+
   const options = {
-    body: data.body || 'New update',
+    body: data.body,
     icon: '/icons/icon-192x192.png',
     badge: '/icons/icon-96x96.png',
     image: data.image || undefined,
-    data: {
-      url: data.url || '/',
-      rideId: data.rideId || null,
-      type: data.type || 'general',
-    },
-    requireInteraction: data.type === 'ride_request',
     vibrate: data.type === 'ride_request'
       ? [200, 100, 200, 100, 400]
       : [200, 100, 200],
+    tag: data.tag || 'voyex-push-' + Date.now(),
+    renotify: true,
+    data: { url: data.url, rideId: data.rideId || null, type: data.type || 'general' },
+    requireInteraction: data.type === 'ride_request',
     actions: data.type === 'ride_request'
       ? [
           { action: 'view', title: '🚗 View Ride' },
           { action: 'dismiss', title: 'Dismiss' },
         ]
-      : [],
-    tag: data.tag || `voyex-${Date.now()}`,
-    renotify: true,
+      : [
+          { action: 'open', title: 'Open' },
+          { action: 'dismiss', title: 'Dismiss' },
+        ],
   };
-  event.waitUntil(self.registration.showNotification(title, options));
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
 // Notification click handler
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
+  if (event.action === 'dismiss') return;
+
   const { url, rideId } = event.notification.data || {};
   let targetUrl = url || '/';
 
-  // Handle action buttons
   if (event.action === 'view' && rideId) {
     targetUrl = `/ride-detail/${rideId}`;
-  } else if (event.action === 'dismiss') {
-    return;
   }
 
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      for (const client of windowClients) {
-        if (client.url.includes(self.location.origin)) {
-          client.focus();
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
           client.navigate(targetUrl);
-          return;
+          return client.focus();
         }
       }
       return clients.openWindow(targetUrl);
@@ -133,7 +145,7 @@ self.addEventListener('fetch', (event) => {
           }
           return response;
         }).catch(() => cached || new Response('', { status: 503 }));
-        
+
         return cached || fetchPromise;
       })
     );
@@ -164,12 +176,8 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() => {
         return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
-          }
+          if (cachedResponse) return cachedResponse;
+          if (event.request.mode === 'navigate') return caches.match('/');
           return new Response('Offline', { status: 503 });
         });
       })
@@ -184,71 +192,8 @@ self.addEventListener('sync', (event) => {
 });
 
 async function syncPendingRides() {
-  // Handled in the main app via offlineQueue.ts
-  // Notify clients to process their queue
   const allClients = await clients.matchAll({ type: 'window' });
   for (const client of allClients) {
     client.postMessage({ type: 'SYNC_OFFLINE_RIDES' });
   }
 }
-
-// Push notification handler
-self.addEventListener('push', (event) => {
-  let data = { title: 'PickMe', body: 'You have a new notification', url: '/' };
-  
-  try {
-    if (event.data) {
-      const parsed = event.data.json();
-      data = {
-        title: parsed.title || data.title,
-        body: parsed.body || data.body,
-        url: parsed.url || data.url,
-      };
-    }
-  } catch (e) {
-    // If not JSON, use text
-    if (event.data) {
-      data.body = event.data.text();
-    }
-  }
-
-  const options = {
-    body: data.body,
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/icon-96x96.png',
-    vibrate: [200, 100, 200],
-    tag: 'voyex-push-' + Date.now(),
-    data: { url: data.url },
-    actions: [
-      { action: 'open', title: 'Open' },
-      { action: 'dismiss', title: 'Dismiss' },
-    ],
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
-});
-
-// Notification click handler
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  
-  if (event.action === 'dismiss') return;
-  
-  const url = event.notification.data?.url || '/';
-  
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Focus existing window if available
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.navigate(url);
-          return client.focus();
-        }
-      }
-      // Open new window
-      return clients.openWindow(url);
-    })
-  );
-});
