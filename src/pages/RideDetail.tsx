@@ -270,6 +270,18 @@ export default function RideDetail() {
     } catch (e: unknown) { setToast((e as Error)?.message || "Message failed."); }
   };
 
+  const pendingOfferCount = premiumOffers.filter((o) => o.expiresAt > Date.now()).length;
+  const prevOfferCountRef = useRef(pendingOfferCount);
+
+  useEffect(() => {
+    if (pendingOfferCount > prevOfferCountRef.current) {
+      import('@/lib/notificationSounds').then(({ playNotificationSound }) => {
+        playNotificationSound('offerReceived');
+      });
+    }
+    prevOfferCountRef.current = pendingOfferCount;
+  }, [pendingOfferCount]);
+
   // ── LOADING or NOT FOUND — show inline, never full-screen blank ──
   if (loading || !ride) {
     return (
