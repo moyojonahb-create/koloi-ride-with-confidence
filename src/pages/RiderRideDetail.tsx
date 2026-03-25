@@ -406,10 +406,26 @@ export default function RiderRideDetail() {
 
             {ride.status === "completed" && (
               <div className="mt-4">
-                <TripReceipt
-                  ride={{ ...ride, payment_method: 'cash', vehicle_type: 'standard', created_at: new Date().toISOString() }}
+                <RideCompleteSummary
+                  fare={ride.fare}
+                  distanceKm={ride.distance_km}
+                  durationMinutes={ride.duration_minutes}
+                  pickupAddress={ride.pickup_address}
+                  dropoffAddress={ride.dropoff_address}
                   driverName={driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined}
-                  onRateDriver={!hasRated && ride.driver_id ? () => setShowRating(true) : undefined}
+                  onRate={() => setShowRating(true)}
+                  onBookAgain={() => nav('/ride', { state: { rebook: { pickup: { name: ride.pickup_address, lat: ride.pickup_lat, lng: ride.pickup_lon }, dropoff: { name: ride.dropoff_address, lat: ride.dropoff_lat, lng: ride.dropoff_lon } } } })}
+                  onSaveLocation={() => {
+                    if (user) {
+                      supabase.from('favorite_locations').insert({
+                        user_id: user.id,
+                        name: ride.dropoff_address,
+                        address: ride.dropoff_address,
+                        latitude: ride.dropoff_lat,
+                        longitude: ride.dropoff_lon
+                      }).then(() => toast.success('Location saved!'));
+                    }
+                  }}
                   hasRated={hasRated}
                 />
               </div>
