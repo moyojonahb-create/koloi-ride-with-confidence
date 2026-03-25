@@ -106,6 +106,57 @@ export function playNewRequestSound(): void { playNotificationSound('newRequest'
 export function playAcceptedSound(): void { playNotificationSound('accepted'); }
 export function playMessageSound(): void { playNotificationSound('message'); }
 
+// ── Ringtone system for calls ──
+
+let ringtoneInterval: ReturnType<typeof setInterval> | null = null;
+
+/** Outgoing ringtone — classic "ring-ring" pattern heard by caller */
+function playOutgoingRingOnce(): void {
+  try {
+    const ctx = getAudioContext();
+    const t = ctx.currentTime;
+    // Double-ring pattern (440Hz + 480Hz, like a phone)
+    [0, 0.4].forEach((offset) => {
+      playTone(440, 250, t + offset, 0.35, 'sine');
+      playTone(480, 250, t + offset, 0.35, 'sine');
+    });
+  } catch (e) {
+    console.warn('Ringtone playback failed:', e);
+  }
+}
+
+/** Incoming ringtone — attention-grabbing melody heard by callee */
+function playIncomingRingOnce(): void {
+  try {
+    const ctx = getAudioContext();
+    const t = ctx.currentTime;
+    const melody = [784, 988, 784, 1175, 988, 784];
+    melody.forEach((freq, i) => {
+      playTone(freq, 140, t + i * 0.16, 0.5, 'sine');
+    });
+  } catch (e) {
+    console.warn('Ringtone playback failed:', e);
+  }
+}
+
+/** Start looping ringtone. type: 'outgoing' for caller, 'incoming' for callee */
+export function startRingtone(type: 'outgoing' | 'incoming'): void {
+  stopRingtone(); // clear any existing
+  const ringFn = type === 'outgoing' ? playOutgoingRingOnce : playIncomingRingOnce;
+  ringFn(); // play immediately
+  // Repeat every 2.5s for outgoing (ring-pause), 1.8s for incoming (more urgent)
+  const interval = type === 'outgoing' ? 2500 : 1800;
+  ringtoneInterval = setInterval(ringFn, interval);
+}
+
+/** Stop any looping ringtone */
+export function stopRingtone(): void {
+  if (ringtoneInterval) {
+    clearInterval(ringtoneInterval);
+    ringtoneInterval = null;
+  }
+}
+
 export function playArrivedSound(): void {
   try {
     const ctx = getAudioContext();

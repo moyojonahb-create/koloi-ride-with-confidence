@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import { startRingtone, stopRingtone } from "@/lib/notificationSounds";
 
 export type CallStatus =
   | "idle"
@@ -22,6 +23,24 @@ const ICE_SERVERS: RTCIceServer[] = [
   { urls: "stun:stun1.l.google.com:19302" },
   { urls: "stun:stun2.l.google.com:19302" },
 ];
+
+/** Show a system notification for incoming calls (works when app is in background) */
+function showCallNotification(_callerId: string) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    const n = new Notification('Incoming Call 📞', {
+      body: 'Someone is calling you on your ride',
+      tag: 'incoming-call',
+      requireInteraction: true,
+    });
+    n.onclick = () => {
+      window.focus();
+      n.close();
+    };
+  } else if (Notification.permission !== 'denied') {
+    Notification.requestPermission();
+  }
+}
 
 export function useWebRTCCall({
   rideId,
@@ -157,6 +176,10 @@ export function useWebRTCCall({
         (payload) => {
           const session = payload.new as Record<string, unknown>;
           if (session.status === "ringing" && callStatusRef.current === "idle") {
+            // Start incoming ringtone for callee
+            startRingtone('incoming');
+            // Show system notification for background support
+            showCallNotification(session.caller_id as string);
             setIncomingCall({
               sessionId: session.id as string,
               callerId: session.caller_id as string,
@@ -203,6 +226,8 @@ export function useWebRTCCall({
   }, [currentUserId]);
 
   const cleanup = useCallback(async () => {
+    // Stop any ringtone
+    stopRingtone();
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -310,6 +335,8 @@ export function useWebRTCCall({
 
     try {
       setCallStatus("ringing");
+      // Start outgoing ringtone for caller
+      startRingtone('outgoing');
 
       const { data, error } = await supabase
         .from("call_sessions")
@@ -327,6 +354,7 @@ export function useWebRTCCall({
       setSessionId(data.id);
       toast.info("Calling...", { description: "Waiting for answer" });
     } catch (err: unknown) {
+      stopRingtone();
       toast.error("Call failed", { description: (err as Error).message });
       setCallStatus("error");
       setTimeout(() => setCallStatus("idle"), 2000);
@@ -337,6 +365,9 @@ export function useWebRTCCall({
     if (!incomingCall) return;
 
     try {
+      // Stop incoming ringtone
+      stopRingtone();
+
       await supabase
         .from("call_sessions")
         .update({ status: "answered" })
@@ -354,6 +385,7 @@ export function useWebRTCCall({
 
   const declineCall = useCallback(async () => {
     if (!incomingCall) return;
+    stopRingtone();
 
     try {
       await supabase
