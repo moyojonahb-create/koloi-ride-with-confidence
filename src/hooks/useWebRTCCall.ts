@@ -407,6 +407,7 @@ export function useWebRTCCall({
     try {
       // Stop incoming ringtone
       stopRingtone();
+      isCallerRef.current = false;
 
       await supabase
         .from("call_sessions")
