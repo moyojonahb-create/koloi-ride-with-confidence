@@ -317,6 +317,8 @@ export function useWebRTCCall({
 
     try {
       setCallStatus("ringing");
+      // Start outgoing ringtone for caller
+      startRingtone('outgoing');
 
       const { data, error } = await supabase
         .from("call_sessions")
@@ -334,6 +336,7 @@ export function useWebRTCCall({
       setSessionId(data.id);
       toast.info("Calling...", { description: "Waiting for answer" });
     } catch (err: unknown) {
+      stopRingtone();
       toast.error("Call failed", { description: (err as Error).message });
       setCallStatus("error");
       setTimeout(() => setCallStatus("idle"), 2000);
