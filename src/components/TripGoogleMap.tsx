@@ -225,7 +225,7 @@ function InnerMap({
         bounds.extend(pickup);
         bounds.extend(dropoff);
         if (driverLocation) bounds.extend(driverLocation);
-        map.fitBounds(bounds, 60);
+        map.fitBounds(bounds, { top: 60, bottom: 320, left: 48, right: 48 });
       }
     },
     [pickup, dropoff, driverLocation]
