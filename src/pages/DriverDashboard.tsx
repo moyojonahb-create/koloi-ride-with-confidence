@@ -402,6 +402,23 @@ export default function DriverDashboard() {
 
         setRides(activeList as Ride[]);
 
+        // Fetch preferences for all visible rides
+        const allRideIds = activeList.map(r => r.id);
+        if (activeTripData) allRideIds.push(activeTripData.id);
+        if (allRideIds.length > 0) {
+          const { data: allPrefs } = await supabase
+            .from("ride_preferences")
+            .select("ride_id, quiet_ride, cool_temperature")
+            .in("ride_id", allRideIds);
+          if (allPrefs) {
+            const prefsMap: Record<string, { quiet_ride: boolean; cool_temperature: boolean }> = {};
+            for (const pref of allPrefs) {
+              prefsMap[pref.ride_id] = { quiet_ride: pref.quiet_ride, cool_temperature: pref.cool_temperature };
+            }
+            setRidePreferences(prev => ({ ...prev, ...prefsMap }));
+          }
+        }
+
         // Notify on new rides with LOUD sound and voice
         const currentIds = new Set(list.map((r) => r.id));
         let hasNewRide = false;
