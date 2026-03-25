@@ -158,9 +158,9 @@ export default function RideDetail() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const load = async () => {
+  const load = async (silent = false) => {
     if (!rideId) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const { data: r, error: rErr } = await supabase.from("rides").select("*").eq("id", rideId).single();
       if (rErr) throw new Error(rErr.message);
@@ -210,15 +210,15 @@ export default function RideDetail() {
     } catch (e: unknown) { setToast((e as Error)?.message || "Failed to load ride."); } finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, [rideId]);
+  useEffect(() => { load(false); }, [rideId]);
 
   useEffect(() => {
     if (!rideId) return;
     const ch = supabase
       .channel(`db:ride:${rideId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "offers", filter: `ride_id=eq.${rideId}` }, () => load())
-      .on("postgres_changes", { event: "*", schema: "public", table: "rides", filter: `id=eq.${rideId}` }, () => load())
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `ride_id=eq.${rideId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "offers", filter: `ride_id=eq.${rideId}` }, () => load(true))
+      .on("postgres_changes", { event: "*", schema: "public", table: "rides", filter: `id=eq.${rideId}` }, () => load(true))
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `ride_id=eq.${rideId}` }, () => load(true))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [rideId]);

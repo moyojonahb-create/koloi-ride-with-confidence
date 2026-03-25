@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useDataMode } from "./useDataMode";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface NearbyDriver {
@@ -11,11 +12,12 @@ interface NearbyDriver {
 
 /**
  * Fetches and subscribes to nearby online drivers' live locations.
- * Used on the rider waiting screen to show driver movement on the map.
+ * Adapts polling interval based on network quality.
  */
 export function useNearbyDrivers(active: boolean): NearbyDriver[] {
   const [drivers, setDrivers] = useState<NearbyDriver[]>([]);
   const channelRef = useRef<RealtimeChannel | null>(null);
+  const { mode, pollInterval } = useDataMode();
 
   useEffect(() => {
     if (!active) {
@@ -44,29 +46,28 @@ export function useNearbyDrivers(active: boolean): NearbyDriver[] {
 
     fetchDrivers();
 
-    // Subscribe to realtime changes
-    const channelName = `nearby-drivers-${Date.now()}`;
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "live_locations",
-          filter: "user_type=eq.driver",
-        },
-        () => {
-          // Re-fetch all on any change for simplicity
-          fetchDrivers();
-        }
-      )
-      .subscribe();
+    // Only subscribe to realtime on good connections
+    if (mode !== 'offline') {
+      const channelName = `nearby-drivers-${Date.now()}`;
+      const channel = supabase
+        .channel(channelName)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "live_locations",
+            filter: "user_type=eq.driver",
+          },
+          () => fetchDrivers()
+        )
+        .subscribe();
 
-    channelRef.current = channel;
+      channelRef.current = channel;
+    }
 
-    // Poll every 10s as fallback
-    const poll = setInterval(fetchDrivers, 10000);
+    // Adaptive polling based on data mode
+    const poll = setInterval(fetchDrivers, pollInterval);
 
     return () => {
       clearInterval(poll);
@@ -75,7 +76,7 @@ export function useNearbyDrivers(active: boolean): NearbyDriver[] {
         channelRef.current = null;
       }
     };
-  }, [active]);
+  }, [active, mode, pollInterval]);
 
   return drivers;
 }
