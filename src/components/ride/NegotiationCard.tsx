@@ -81,7 +81,7 @@ export default function NegotiationCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn('rounded-2xl border border-border bg-card p-4 shadow-lg', className)}
+      className={cn('glass-card rounded-2xl p-4', className)}
     >
       {/* Smart tip */}
       {smart.smartTip && (
