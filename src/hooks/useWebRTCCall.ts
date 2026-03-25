@@ -250,6 +250,7 @@ export function useWebRTCCall({
       remoteAudioRef.current.srcObject = null;
     }
     iceCandidateQueueRef.current = [];
+    isCallerRef.current = false;
     setCallDuration(0);
     setIsMuted(false);
   }, []);
