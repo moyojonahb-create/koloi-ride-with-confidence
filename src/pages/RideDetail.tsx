@@ -500,7 +500,7 @@ export default function RideDetail() {
           {/* View Offers button */}
           {!accepted && (
             <button onClick={() => setShowOffersModal(true)}
-              className="w-full h-10 rounded-xl border border-white/30 bg-primary/20 backdrop-blur-xl text-primary font-bold text-xs inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_4px_16px_hsl(var(--primary)/0.2)]">
+              className="w-full h-12 rounded-xl bg-[#2453e0] text-primary-foreground font-sans text-base inline-flex items-center justify-center gap-0.5 active:scale-[0.98] transition-all shadow-lg">
               View Offers {pendingOfferCount > 0 && `(${pendingOfferCount})`}
             </button>
           )}
