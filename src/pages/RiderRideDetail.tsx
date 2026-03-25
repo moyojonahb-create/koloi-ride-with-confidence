@@ -23,8 +23,7 @@ import MapGoogle from "@/components/MapGoogle";
 import TripGoogleMap from "@/components/TripGoogleMap";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { ArrowLeft, MapPin, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock, Star, Shield } from "lucide-react";
-import DriverETABanner from "@/components/ride/DriverETABanner";
+import { ArrowLeft, MapPin, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock, Star, Shield, Navigation, Car, ChevronUp } from "lucide-react";
 import CancellationPolicy from "@/components/ride/CancellationPolicy";
 import EmergencyButton from "@/components/ride/EmergencyButton";
 import DriverRatingModal from "@/components/ride/DriverRatingModal";
@@ -39,6 +38,7 @@ import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import ShareTripButton from "@/components/ride/ShareTripButton";
 import EcoCashPaymentModal from "@/components/wallet/EcoCashPaymentModal";
 import { useWallet } from "@/hooks/useWallet";
+import RideBottomSheet, { type SheetState } from "@/components/ride/RideBottomSheet";
 
 type Ride = {
   id: string;
@@ -78,6 +78,7 @@ export default function RiderRideDetail() {
   const [hasRated, setHasRated] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(30);
   const [showEcoCashPay, setShowEcoCashPay] = useState(false);
+  const [sheetState, setSheetState] = useState<SheetState>('half');
 
   const { balance: walletBalance } = useWallet();
   const [walletPin, setWalletPin] = useState<string | null>(null);
@@ -204,6 +205,18 @@ export default function RiderRideDetail() {
     if (!authLoading && rideId) Promise.all([refreshRide(), refreshOffers()]).finally(() => setLoading(false));
   }, [authLoading, user, rideId, nav, refreshRide, refreshOffers]);
 
+  // Auto-adjust sheet based on ride status
+  useEffect(() => {
+    if (!ride) return;
+    if (ride.status === "in_progress") {
+      setSheetState('collapsed');
+    } else if (ride.status === "accepted" || ride.status === "arrived" || ride.status === "driver_arrived") {
+      setSheetState('half');
+    } else if (ride.status === "completed") {
+      setSheetState('half');
+    }
+  }, [ride?.status]);
+
   const updateFare = async (newFare: number) => {
     if (!rideId || !ride || ride.status !== "pending") return;
     const clampedFare = Math.max(0.50, Math.round(newFare * 2) / 2);
@@ -285,13 +298,77 @@ export default function RiderRideDetail() {
     };
   });
 
-  // ── INSTANT RENDER: Show map immediately, even while loading ──
   const isAccepted = ride ? ["accepted", "in_progress", "arrived"].includes(ride.status) : false;
   const isPending = ride?.status === "pending";
+  const isInProgress = ride?.status === "in_progress";
+  const isArrived = ride?.status === "arrived" || ride?.status === "driver_arrived";
 
-  // Use ride data or fallback coordinates from URL state
   const pickupCoords = ride ? { lat: ride.pickup_lat, lng: ride.pickup_lon } : null;
   const dropoffCoords = ride ? { lat: ride.dropoff_lat, lng: ride.dropoff_lon } : null;
+
+  // ETA calculation
+  const etaMinutes = driverLocation && ride ? (() => {
+    const R = 6371;
+    const targetLat = isInProgress ? ride.dropoff_lat : ride.pickup_lat;
+    const targetLng = isInProgress ? ride.dropoff_lon : ride.pickup_lon;
+    const dLat = (targetLat - driverLocation.lat) * Math.PI / 180;
+    const dLon = (targetLng - driverLocation.lng) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(driverLocation.lat * Math.PI / 180) * Math.cos(targetLat * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+    const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.max(1, Math.round(km / 25 * 60));
+  })() : null;
+
+  // Collapsed content for bottom sheet
+  const collapsedContent = (
+    <div className="flex items-center justify-between">
+      {isAccepted && driverProfile ? (
+        <>
+          <div className="flex items-center gap-3 min-w-0">
+            <Avatar className="h-10 w-10 shrink-0 ring-2 ring-primary/20">
+              {(driverProfile as Record<string, unknown>).avatar_url ? (
+                <AvatarImage src={(driverProfile as Record<string, unknown>).avatar_url as string} alt="Driver" />
+              ) : null}
+              <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
+                {(driverProfile as Record<string, unknown>).gender === 'female' ? '♀' : '♂'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="font-semibold text-sm text-foreground truncate">
+                {isInProgress ? "On your way" : isArrived ? "Driver arrived" : "Driver en route"}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {String((driverProfile as Record<string, unknown>).plate_number || '')}
+              </p>
+            </div>
+          </div>
+          {etaMinutes && (
+            <div className="text-right shrink-0">
+              <p className="text-2xl font-black text-primary tabular-nums">{etaMinutes}</p>
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase">min</p>
+            </div>
+          )}
+        </>
+      ) : ride ? (
+        <>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <p className="font-semibold text-sm text-foreground">
+              {isPending ? "Finding drivers…" : ride.status.replace('_', ' ')}
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-black text-lg text-foreground">${ride.fare.toFixed(2)}</span>
+            <ChevronUp className="w-4 h-4 text-muted-foreground" />
+          </div>
+        </>
+      ) : (
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm text-muted-foreground">Loading ride…</span>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
@@ -307,7 +384,7 @@ export default function RiderRideDetail() {
         <IncomingCallModal callerId={incomingCall.callerId} onAnswer={answerCall} onDecline={declineIncomingCall} />
       )}
 
-      {/* Map background - ALWAYS rendered, never blank */}
+      {/* ═══ FULL-SCREEN MAP ═══ */}
       <div className="absolute inset-0">
         {pickupCoords && isAccepted ? (
           <TripGoogleMap
@@ -329,7 +406,6 @@ export default function RiderRideDetail() {
             height="100%"
           />
         ) : (
-          /* Show a default map while ride data loads */
           <MapGoogle
             className="w-full h-full"
             height="100%"
@@ -337,76 +413,100 @@ export default function RiderRideDetail() {
             defaultZoom={13}
           />
         )}
-        <div className="absolute top-0 left-0 right-0 h-28 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, hsl(217 85% 29% / 0.12), transparent)' }} />
       </div>
 
-      {/* Glass header - always visible */}
+      {/* ═══ TOP BAR (floating) ═══ */}
       <div className="absolute top-0 left-0 right-0 z-40 flex items-center justify-between px-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
-        <button onClick={() => nav("/ride")} className="w-11 h-11 flex items-center justify-center rounded-full bg-card shadow-sm active:scale-95 transition-all">
-          <ArrowLeft className="w-5 h-5 text-primary" />
+        <button onClick={() => nav("/ride")} className="w-10 h-10 flex items-center justify-center rounded-full bg-card/90 backdrop-blur-sm shadow-md active:scale-95 transition-transform">
+          <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
-        <div className="bg-card shadow-sm rounded-full px-4 py-2">
-          <h1 className="font-bold text-sm text-foreground">Your Ride</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          {isAccepted && (
-            <button onClick={() => setShowCommunication(!showCommunication)} className="w-11 h-11 flex items-center justify-center rounded-full bg-card shadow-sm active:scale-95 transition-all">
-              <MessageCircle className="w-5 h-5 text-primary" />
-            </button>
+
+        {/* Status pill */}
+        <AnimatePresence mode="wait">
+          {isArrived && (
+            <motion.div
+              key="arrived"
+              initial={{ y: -20, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              className="flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-full shadow-md"
+            >
+              <motion.div animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+                <MapPin className="w-4 h-4" />
+              </motion.div>
+              <span className="text-xs font-bold">Driver arrived!</span>
+            </motion.div>
           )}
-          <EmergencyButton />
-        </div>
+          {isInProgress && (
+            <motion.div
+              key="inprogress"
+              initial={{ y: -20, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-md"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span className="text-xs font-bold">
+                {etaMinutes ? `${etaMinutes} min to destination` : "On your way"}
+              </span>
+            </motion.div>
+          )}
+          {isPending && (
+            <motion.div
+              key="searching"
+              initial={{ y: -20, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              className="flex items-center gap-2 bg-card/90 backdrop-blur-sm text-foreground px-4 py-2 rounded-full shadow-md"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+              >
+                <Car className="w-3.5 h-3.5 text-primary" />
+              </motion.div>
+              <span className="text-xs font-semibold">Finding drivers…</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <EmergencyButton />
       </div>
 
-      {/* Driver arrived banner */}
-      <AnimatePresence>
-        {ride && (ride.status === "driver_arrived" || ride.status === "arrived") && (
-          <motion.div
-            initial={{ y: -40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -40, opacity: 0 }}
-            className="absolute top-24 left-4 right-4 z-30 bg-primary text-primary-foreground rounded-2xl p-4 flex items-center gap-3 shadow-lg"
+      {/* ═══ FLOATING ACTION BUTTONS (on map, right side) ═══ */}
+      {isAccepted && driverPhone && (
+        <div className="absolute right-4 z-30 flex flex-col gap-3" style={{ bottom: sheetState === 'collapsed' ? 140 : sheetState === 'half' ? '50%' : '90%' }}>
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            onClick={() => startCall()}
+            disabled={callStatus !== "idle"}
+            className="w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center active:scale-90 transition-transform disabled:opacity-50"
           >
-            <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
-              <MapPin className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="font-bold text-sm">Your driver has arrived!</p>
-              <p className="text-xs opacity-80">Head to the pickup point</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* In-progress reassurance */}
-      <AnimatePresence>
-        {ride?.status === "in_progress" && (
-          <motion.div
-            initial={{ y: -40, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -40, opacity: 0 }}
-            className="absolute top-24 left-4 right-4 z-30 bg-card border border-border/40 rounded-2xl p-3 flex items-center gap-3 shadow-sm"
+            <Phone className="w-5 h-5" />
+          </motion.button>
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            onClick={() => { setShowCommunication(!showCommunication); setSheetState('half'); }}
+            className="w-12 h-12 rounded-full bg-card text-foreground shadow-lg border border-border/40 flex items-center justify-center active:scale-90 transition-transform"
           >
-            <Shield className="w-5 h-5 text-primary shrink-0" />
-            <p className="text-sm font-medium text-foreground">You're on your way safely ✓</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Bottom panel - always visible, content changes with state */}
-      <motion.div
-        initial={{ y: 60, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="absolute left-0 right-0 z-50 bg-card max-h-[50vh] overflow-y-auto shadow-[0_-4px_30px_rgba(0,0,0,0.08)]"
-        style={{ bottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-        <div className="sticky top-0 pt-3 pb-2 z-10 bg-card" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
-          <div className="w-10 h-1 rounded-full bg-primary mx-auto" />
+            <MessageCircle className="w-5 h-5" />
+          </motion.button>
         </div>
+      )}
 
-        <div className="px-4 pb-4 space-y-3">
-          {/* Loading skeleton - shown briefly while data loads */}
+      {/* ═══ DRAGGABLE BOTTOM SHEET ═══ */}
+      <RideBottomSheet
+        state={sheetState}
+        onStateChange={setSheetState}
+        collapsedContent={collapsedContent}
+        className="z-40"
+      >
+        <div className="space-y-4">
+          {/* Loading skeleton */}
           {loading && !ride && (
             <div className="space-y-3 animate-fade-in">
               <div className="bg-muted rounded-2xl p-4">
@@ -422,12 +522,6 @@ export default function RiderRideDetail() {
                   </div>
                 </div>
               </div>
-              <div className="bg-muted rounded-2xl p-5 text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  <span className="text-sm font-medium text-foreground">Connecting to your ride…</span>
-                </div>
-              </div>
             </div>
           )}
 
@@ -439,7 +533,7 @@ export default function RiderRideDetail() {
             </div>
           )}
 
-          {/* Completed summary */}
+          {/* ─── COMPLETED SUMMARY ─── */}
           {ride?.status === "completed" && (
             <RideCompleteSummary
               fare={ride.fare}
@@ -453,11 +547,8 @@ export default function RiderRideDetail() {
               onSaveLocation={() => {
                 if (user) {
                   supabase.from('favorite_locations').insert({
-                    user_id: user.id,
-                    name: ride.dropoff_address,
-                    address: ride.dropoff_address,
-                    latitude: ride.dropoff_lat,
-                    longitude: ride.dropoff_lon
+                    user_id: user.id, name: ride.dropoff_address, address: ride.dropoff_address,
+                    latitude: ride.dropoff_lat, longitude: ride.dropoff_lon
                   }).then(() => toast.success('Location saved!'));
                 }
               }}
@@ -465,151 +556,95 @@ export default function RiderRideDetail() {
             />
           )}
 
-          {/* Route info + fare - shown when not completed and ride loaded */}
-          {ride && ride.status !== "completed" && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-card rounded-2xl p-4 border border-border/40"
-            >
-              <div className="flex items-start gap-3">
-                <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 rounded-full bg-accent" />
-                  <div className="w-0.5 h-6 bg-border" />
-                  <div className="w-3 h-3 rounded-full bg-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-foreground truncate text-sm">{ride.pickup_address}</p>
-                  <p className="text-sm text-muted-foreground truncate mt-3">{ride.dropoff_address}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/30">
-                <div>
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Your offer</p>
-                  {isPending ? (
-                    <div className="flex items-center gap-2 mt-1">
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateFare(ride.fare - 5)} disabled={updatingFare || ride.fare <= 10}>
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <span className="font-black text-xl min-w-[60px] text-center text-foreground">${ride.fare.toFixed(2)}</span>
-                      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateFare(ride.fare + 5)} disabled={updatingFare}>
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <p className="font-black text-xl text-foreground">${ride.fare.toFixed(2)}</p>
-                  )}
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status</p>
-                  <p className="font-semibold capitalize text-primary">{ride.status.replace('_', ' ')}</p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Enhanced searching experience */}
-          {isPending && (
-            <SearchingOverlay
-              secondsLeft={secondsLeft}
-              driversNearby={nearbyDrivers.length}
-              offersCount={offers.length}
-              onCancel={handleCancelRide}
-            />
-          )}
-
-          {/* Offers section */}
-          {ride && !isAccepted && ride.status !== "completed" && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-card rounded-2xl p-4 border border-border/40"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-muted-foreground" />
-                  <span className="font-semibold text-foreground text-sm">Drivers responding</span>
-                </div>
-                <span className="font-black text-lg text-primary">{offers.length}</span>
-              </div>
-              <Button
-                className="w-full h-[52px] bg-accent hover:bg-accent/90 text-accent-foreground font-bold rounded-2xl shadow-[0_4px_20px_hsl(45_100%_51%/0.3)]"
-                onClick={() => setModalOpen(true)}
-                disabled={offers.length === 0}>
-                <Eye className="h-4 w-4 mr-2" />
-                View Offers ({offers.length})
-              </Button>
-            </motion.div>
-          )}
-
-          {/* Cancellation */}
-          {ride && ride.status !== "completed" && ride.status !== "cancelled" && ride.status !== "expired" && (
-            <CancellationPolicy rideId={ride.id} rideStatus={ride.status} onCancelled={() => nav("/ride")} />
-          )}
-
-          {/* Driver card when accepted */}
+          {/* ─── ACTIVE RIDE: DRIVER CARD + ROUTE ─── */}
           {isAccepted && driverProfile && ride && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="bg-card rounded-2xl p-4 border border-primary/20"
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20">
+            <>
+              {/* Driver info card */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-3"
+              >
+                <Avatar className="h-14 w-14 shrink-0 ring-2 ring-primary/20">
                   {(driverProfile as Record<string, unknown>).avatar_url ? (
                     <AvatarImage src={(driverProfile as Record<string, unknown>).avatar_url as string} alt="Driver" />
                   ) : null}
-                  <AvatarFallback className={`text-sm font-bold ${(driverProfile as Record<string, unknown>).gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-primary/10 text-primary'}`}>
+                  <AvatarFallback className={`text-lg font-bold ${(driverProfile as Record<string, unknown>).gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-primary/10 text-primary'}`}>
                     {(driverProfile as Record<string, unknown>).gender === 'female' ? '♀' : '♂'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold truncate text-foreground">Your Driver</p>
+                  <p className="font-bold text-foreground text-base">Your Driver</p>
                   <p className="text-sm text-muted-foreground truncate">
-                    {String((driverProfile as Record<string, unknown>).vehicle_make || '')} {String((driverProfile as Record<string, unknown>).vehicle_model || '')} • {String((driverProfile as Record<string, unknown>).plate_number || '')}
+                    {String((driverProfile as Record<string, unknown>).vehicle_make || '')} {String((driverProfile as Record<string, unknown>).vehicle_model || '')}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
+                    <span className="bg-muted rounded-lg px-2.5 py-1 text-xs font-bold text-foreground">
+                      {String((driverProfile as Record<string, unknown>).plate_number || '')}
+                    </span>
                     {((driverProfile as Record<string, unknown>).rating_avg as number) > 0 && (
-                      <span className="flex items-center gap-0.5 text-xs font-semibold bg-accent/10 rounded-full px-2 py-0.5">
+                      <span className="flex items-center gap-0.5 text-xs font-semibold text-muted-foreground">
                         <Star className="h-3 w-3 fill-accent text-accent" />
                         {Number((driverProfile as Record<string, unknown>).rating_avg).toFixed(1)}
                       </span>
                     )}
-                    <span className="text-xs text-muted-foreground">
-                      {String((driverProfile as Record<string, unknown>).total_trips || 0)} trips
-                    </span>
                   </div>
                 </div>
+                {etaMinutes && !isArrived && (
+                  <div className="text-center shrink-0 bg-primary/10 rounded-2xl px-4 py-2">
+                    <p className="text-2xl font-black text-primary tabular-nums">{etaMinutes}</p>
+                    <p className="text-[10px] font-semibold text-primary/70 uppercase">min</p>
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Route summary */}
+              <div className="bg-muted/50 rounded-2xl p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex flex-col items-center pt-0.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+                    <div className="w-0.5 h-8 bg-border" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{ride.pickup_address}</p>
+                    <p className="text-sm text-muted-foreground truncate mt-4">{ride.dropoff_address}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/30">
+                  <span className="text-xs text-muted-foreground">{ride.distance_km.toFixed(1)} km • ~{ride.duration_minutes} min</span>
+                  <span className="font-bold text-foreground">${ride.fare.toFixed(2)}</span>
+                </div>
               </div>
+
+              {/* Quick actions row (inside sheet for expanded state) */}
               {driverPhone && (
                 <div className="grid grid-cols-3 gap-2">
-                  <VoiceCallButton onCall={startCall} disabled={callStatus !== "idle"} label="Data" className="flex-1 text-xs" />
-                  <a href={`tel:${driverPhone}`} className="flex items-center justify-center gap-1 py-3 rounded-2xl font-medium text-xs active:scale-95 transition-all text-center bg-primary text-primary-foreground">
-                    <Phone className="h-3.5 w-3.5 shrink-0" />
-                    <span>Phone</span>
+                  <a href={`tel:${driverPhone}`} className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-muted/50 active:scale-95 transition-transform">
+                    <Phone className="h-5 w-5 text-primary" />
+                    <span className="text-[11px] font-medium text-muted-foreground">Call</span>
                   </a>
-                  <Button variant="outline" className="rounded-2xl h-auto py-3 text-xs font-medium" onClick={() => setShowCommunication(!showCommunication)}>
-                    <MessageCircle className="h-3.5 w-3.5 mr-1 shrink-0" /> Chat
-                  </Button>
+                  <button onClick={() => setShowCommunication(!showCommunication)} className="flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-muted/50 active:scale-95 transition-transform">
+                    <MessageCircle className="h-5 w-5 text-primary" />
+                    <span className="text-[11px] font-medium text-muted-foreground">Message</span>
+                  </button>
+                  <ShareTripButton rideId={ride.id} pickupAddress={ride.pickup_address} dropoffAddress={ride.dropoff_address} />
                 </div>
               )}
-              {/* Direct EcoCash Payment Option */}
+
+              {/* EcoCash payment */}
               {(() => {
                 const ecocashNum = (driverProfile as Record<string, unknown>)?.ecocash_number as string | undefined;
-                const driverName = (driverProfile as Record<string, unknown>)?.vehicle_make 
+                const driverName = (driverProfile as Record<string, unknown>)?.vehicle_make
                   ? `${(driverProfile as Record<string, unknown>)?.vehicle_make} Driver`
                   : 'Driver';
                 return (
-                  <div className="bg-accent/10 rounded-xl p-3 mt-3 border border-accent/20 space-y-2">
-                    <p className="text-xs font-semibold text-accent-foreground">💰 Pay Driver via EcoCash</p>
+                  <>
                     <Button
                       onClick={() => setShowEcoCashPay(true)}
-                      className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground"
+                      className="w-full h-12 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
                     >
-                      Pay ${Number(ride.fare).toFixed(2)} with EcoCash
+                      💰 Pay ${Number(ride.fare).toFixed(2)} with EcoCash
                     </Button>
                     <EcoCashPaymentModal
                       isOpen={showEcoCashPay}
@@ -628,57 +663,105 @@ export default function RiderRideDetail() {
                       }}
                       onPaymentComplete={() => toast.success('Payment sent to driver!')}
                     />
-                  </div>
+                  </>
                 );
               })()}
 
-              {/* ETA Banner */}
-              {driverLocation && ride.pickup_lat && (
-                <div className="rounded-2xl overflow-hidden mt-3 border border-border/40">
-                  <DriverETABanner
-                    driverLocation={driverLocation}
-                    pickupLat={ride.pickup_lat} pickupLng={ride.pickup_lon}
-                    dropoffLat={ride.dropoff_lat} dropoffLng={ride.dropoff_lon}
-                    rideStatus={ride.status} />
+              {/* Complete trip */}
+              <Button
+                className="w-full h-[52px] rounded-2xl font-bold text-base bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={async () => {
+                  try {
+                    const result = await completeTrip(ride.id);
+                    if (result.ok) {
+                      toast.success(`Trip completed! Fare: $${Number(result.fare_usd).toFixed(2)}`);
+                      refreshRide();
+                    } else {
+                      toast.error(result.reason || "Could not complete trip");
+                    }
+                  } catch (e: unknown) {
+                    toast.error((e as Error)?.message || "Failed to complete trip");
+                  }
+                }}
+              >
+                ✅ Complete Trip
+              </Button>
+
+              {/* Communication panel */}
+              {showCommunication && user && (
+                <div className="bg-muted/30 rounded-2xl p-3 border border-border/30">
+                  <RideCommunication rideId={ride.id} currentUserId={user.id} otherUserPhone={driverPhone} riderId={ride.user_id} />
                 </div>
               )}
-            </motion.div>
+            </>
           )}
 
-          {/* Communication */}
-          {isAccepted && showCommunication && user && ride && (
-            <div className="bg-card rounded-2xl p-4 border border-border/40">
-              <RideCommunication rideId={ride.id} currentUserId={user.id} otherUserPhone={driverPhone} riderId={ride.user_id} />
-            </div>
+          {/* ─── PENDING: Route + Offers ─── */}
+          {ride && ride.status !== "completed" && !isAccepted && (
+            <>
+              {/* Route card */}
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="flex items-start gap-3">
+                  <div className="flex flex-col items-center pt-0.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+                    <div className="w-0.5 h-8 bg-border" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{ride.pickup_address}</p>
+                    <p className="text-sm text-muted-foreground truncate mt-4">{ride.dropoff_address}</p>
+                  </div>
+                </div>
+
+                {/* Fare adjuster */}
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/30">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Your offer</span>
+                  {isPending ? (
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="icon" className="h-8 w-8 rounded-xl" onClick={() => updateFare(ride.fare - 5)} disabled={updatingFare || ride.fare <= 10}>
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="font-black text-xl min-w-[60px] text-center text-foreground tabular-nums">${ride.fare.toFixed(2)}</span>
+                      <Button variant="outline" size="icon" className="h-8 w-8 rounded-xl" onClick={() => updateFare(ride.fare + 5)} disabled={updatingFare}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="font-black text-xl text-foreground">${ride.fare.toFixed(2)}</span>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* Searching state */}
+              {isPending && (
+                <SearchingOverlay
+                  secondsLeft={secondsLeft}
+                  driversNearby={nearbyDrivers.length}
+                  offersCount={offers.length}
+                  onCancel={handleCancelRide}
+                />
+              )}
+
+              {/* Offers button */}
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <Button
+                  className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-2xl"
+                  onClick={() => setModalOpen(true)}
+                  disabled={offers.length === 0}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Offers ({offers.length})
+                </Button>
+              </motion.div>
+
+              {/* Cancel */}
+              {ride.status !== "cancelled" && ride.status !== "expired" && (
+                <CancellationPolicy rideId={ride.id} rideStatus={ride.status} onCancelled={() => nav("/ride")} />
+              )}
+            </>
           )}
 
-          {/* Share Trip */}
-          {isAccepted && ride && (
-            <ShareTripButton rideId={ride.id} pickupAddress={ride.pickup_address} dropoffAddress={ride.dropoff_address} />
-          )}
-
-          {/* Rider complete trip */}
-          {isAccepted && ride && (
-            <Button
-              className="w-full h-[52px] rounded-2xl font-bold text-lg bg-accent hover:bg-accent/90 text-accent-foreground shadow-[0_4px_20px_hsl(45_100%_51%/0.3)]"
-              onClick={async () => {
-                try {
-                  const result = await completeTrip(ride.id);
-                  if (result.ok) {
-                    toast.success(`Trip completed! Fare: $${Number(result.fare_usd).toFixed(2)}`);
-                    refreshRide();
-                  } else {
-                    toast.error(result.reason || "Could not complete trip");
-                  }
-                } catch (e: unknown) {
-                  toast.error((e as Error)?.message || "Failed to complete trip");
-                }
-              }}
-            >
-              ✅ Complete Trip
-            </Button>
-          )}
-
+          {/* Rate driver button */}
           {ride?.status === "completed" && !hasRated && !showRating && ride.driver_id && user && (
             <Button className="w-full h-[52px] gap-2 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground font-bold" onClick={() => setShowRating(true)}>
               <Star className="h-4 w-4" /> Rate Your Driver
@@ -687,9 +770,9 @@ export default function RiderRideDetail() {
 
           {error && <p className="text-sm text-destructive text-center">{error}</p>}
         </div>
-      </motion.div>
+      </RideBottomSheet>
 
-      {/* Modals */}
+      {/* ═══ MODALS ═══ */}
       {ride && (
         <OffersModal
           isOpen={modalOpen} tripId={ride.id} viewing={modalViewing} offers={modalOffers}
