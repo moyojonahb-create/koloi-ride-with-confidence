@@ -270,7 +270,7 @@ const LandmarkButton = React.forwardRef<HTMLButtonElement, LandmarkButtonProps>(
     const iconColors: Record<string, string> = {
       landmark: 'text-accent',
       hospital: 'text-red-500',
-      school: 'text-blue-500',
+      school: 'text-primary',
       fuel: 'text-amber-500',
       market: 'text-green-500',
       bank: 'text-emerald-500',

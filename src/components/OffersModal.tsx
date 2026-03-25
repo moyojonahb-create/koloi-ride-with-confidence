@@ -221,7 +221,7 @@ export default function OffersModal({
                         {o.avatarUrl ?
                     <AvatarImage src={o.avatarUrl} alt={o.driverName || 'Driver'} /> :
                     null}
-                        <AvatarFallback className={`text-sm font-bold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                        <AvatarFallback className={`text-sm font-bold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-primary/10 text-primary'}`}>
                           {o.gender === 'female' ? '♀' : '♂'}
                         </AvatarFallback>
                       </Avatar>
@@ -238,7 +238,7 @@ export default function OffersModal({
                         </div>
                         {o.gender &&
                     <div className="text-sm mt-1">
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700'}`}>
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${o.gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-primary/10 text-primary'}`}>
                               {o.gender === 'female' ? '♀ Female' : '♂ Male'} driver
                             </span>
                           </div>

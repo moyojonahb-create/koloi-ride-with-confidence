@@ -32,8 +32,8 @@ const typeConfig = {
   },
   trip_fee: {
     icon: Car,
-    color: 'text-blue-500',
-    bg: 'bg-blue-500/10',
+    color: 'text-primary',
+    bg: 'bg-primary/10',
     label: 'Trip Fee',
   },
   refund: {

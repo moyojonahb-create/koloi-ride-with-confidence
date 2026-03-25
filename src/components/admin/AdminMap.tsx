@@ -39,7 +39,7 @@
  function getDriverMarkerColor(tripStatus?: string | null, isOnline?: boolean): { bg: string; border: string; label: string } {
    if (tripStatus === 'enroute' || tripStatus === 'in_progress') return { bg: '#ef4444', border: '#dc2626', label: 'bg-red-600' };
    if (tripStatus === 'accepted' || tripStatus === 'arrived') return { bg: '#f59e0b', border: '#d97706', label: 'bg-amber-500' };
-   if (isOnline) return { bg: '#3b82f6', border: '#2563eb', label: 'bg-blue-500' };
+   if (isOnline) return { bg: '#1B3FA0', border: '#162F7A', label: 'bg-primary' };
    return { bg: '#6b7280', border: '#4b5563', label: 'bg-gray-500' };
  }
 
@@ -82,7 +82,7 @@
  const rideDropoffIcon = L.divIcon({
    html: `
      <div class="flex flex-col items-center">
-       <div class="w-7 h-7 rounded-full bg-blue-600 border-2 border-white shadow-md flex items-center justify-center">
+       <div class="w-7 h-7 rounded-full border-2 border-white shadow-md flex items-center justify-center" style="background:#1B3FA0">
          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
            <path d="M12 4l-8 8h5v8h6v-8h5z"/>
          </svg>
@@ -299,7 +299,7 @@
             <div className="absolute top-3 right-12 z-[1000] bg-background/95 backdrop-blur-sm rounded-lg shadow-lg p-3 text-xs">
               <div className="font-bold mb-2">Fleet Status</div>
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-3 h-3 rounded-full bg-blue-500" />
+                 <div className="w-3 h-3 rounded-full bg-primary" />
                 <span>Available</span>
               </div>
               <div className="flex items-center gap-2 mb-1">
@@ -320,7 +320,7 @@
                   <span>Pickup</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-600" />
+                  <div className="w-3 h-3 rounded-full bg-primary" />
                   <span>Dropoff ({rides.length})</span>
                 </div>
               </div>

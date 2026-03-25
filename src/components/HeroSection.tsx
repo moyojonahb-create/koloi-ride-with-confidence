@@ -177,7 +177,7 @@ const HeroSection = ({ onLoginClick }: HeroSectionProps) => {
           <div className="w-full lg:w-[420px] shrink-0 z-10">
             {/* Trust Badge */}
             <div className="flex justify-center lg:justify-start mb-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
                 <Star className="w-4 h-4 fill-current" />
                 Trusted by 50,000+ riders
               </div>

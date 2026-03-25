@@ -15,7 +15,7 @@ export interface MapLandmark {
 export const CATEGORY_COLORS: Record<string, string> = {
   hospital: '#ef4444', // red
   clinic: '#ef4444',
-  bank: '#3b82f6', // blue
+  bank: '#1B3FA0',
   school: '#f59e0b', // amber
   church: '#8b5cf6', // purple
   government: '#6366f1', // indigo

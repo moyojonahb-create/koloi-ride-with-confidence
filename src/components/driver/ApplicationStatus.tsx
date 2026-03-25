@@ -49,8 +49,8 @@ const ApplicationStatus = ({ status, vehicleInfo, documentsStatus }: Application
       default:
         return {
           icon: Clock,
-          color: 'text-blue-500',
-          bgColor: 'bg-blue-500/10',
+          color: 'text-primary',
+          bgColor: 'bg-primary/10',
           label: 'Pending Review',
           description: 'Your application is being reviewed by our team.',
         };

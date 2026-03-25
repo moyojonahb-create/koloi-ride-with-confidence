@@ -245,7 +245,7 @@ function InnerMapGoogle({
           <Marker position={pickup} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#FBBF24', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }} label={{ text: 'P', color: '#000', fontWeight: 'bold', fontSize: '11px' }} zIndex={10} />
         )}
         {dropoff && (
-          <Marker position={dropoff} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#2563EB', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }} label={{ text: 'D', color: '#fff', fontWeight: 'bold', fontSize: '11px' }} zIndex={10} />
+          <Marker position={dropoff} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#1B3FA0', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }} label={{ text: 'D', color: '#fff', fontWeight: 'bold', fontSize: '11px' }} zIndex={10} />
         )}
 
         {/* Premium tracking overlay: replaces plain driver marker + gradient line */}
@@ -274,7 +274,7 @@ function InnerMapGoogle({
             {/* White outline underneath */}
             <Polyline path={[driverLocation, pickup]} options={{ strokeColor: '#ffffff', strokeWeight: 6, strokeOpacity: 1, zIndex: 1 }} />
             {/* Dashed blue animated line */}
-            <Polyline path={[driverLocation, pickup]} options={{ strokeColor: '#2563EB', strokeWeight: 3, strokeOpacity: 0, zIndex: 3, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4, strokeColor: '#2563EB' }, offset: '0', repeat: '16px' }] }} />
+            <Polyline path={[driverLocation, pickup]} options={{ strokeColor: '#1B3FA0', strokeWeight: 3, strokeOpacity: 0, zIndex: 3, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4, strokeColor: '#1B3FA0' }, offset: '0', repeat: '16px' }] }} />
           </>
         )}
         {/* Secondary route (only when premium overlay is NOT handling it) */}
@@ -288,7 +288,7 @@ function InnerMapGoogle({
         {routePath.length > 1 && (
           <>
             <Polyline path={routePath} options={{ strokeColor: '#ffffff', strokeWeight: 9, strokeOpacity: 1, zIndex: 1 }} />
-            <Polyline path={routePath} options={{ strokeColor: '#2563EB', strokeWeight: 5, strokeOpacity: 1, zIndex: 2 }} />
+            <Polyline path={routePath} options={{ strokeColor: '#1B3FA0', strokeWeight: 5, strokeOpacity: 1, zIndex: 2 }} />
           </>
         )}
       </GoogleMap>
