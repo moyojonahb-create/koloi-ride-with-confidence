@@ -18,12 +18,12 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    /* Primary — PickMe blue gradient anchor #0B3C8A */
-    --primary: 217 85% 29%;
+    /* Primary — Deep Royal Blue #1B3FA0 */
+    --primary: 224 71% 37%;
     --primary-foreground: 0 0% 100%;
 
-    /* Primary light end #2F80ED */
-    --primary-light: 213 83% 56%;
+    /* Primary light end #2B52C8 */
+    --primary-light: 225 65% 48%;
 
     --secondary: 225 27% 95%;
     --secondary-foreground: 0 0% 10%;
