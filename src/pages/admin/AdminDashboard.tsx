@@ -324,8 +324,8 @@ const AdminDashboard = () => {
             <Card>
               <CardContent className="pt-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-blue-500/10">
-                    <Users className="h-5 w-5 text-blue-600" />
+                   <div className="p-2 rounded-xl bg-primary/10">
+                    <Users className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="text-2xl font-black text-foreground">{totalDrivers}</p>

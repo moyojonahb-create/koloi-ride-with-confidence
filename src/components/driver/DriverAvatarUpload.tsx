@@ -79,7 +79,7 @@ export default function DriverAvatarUpload({ currentAvatarUrl, gender, onUploade
           {previewUrl ? (
             <AvatarImage src={previewUrl} alt="Driver avatar" />
           ) : null}
-          <AvatarFallback className={`text-lg font-bold ${gender === "female" ? "bg-pink-100 text-pink-700" : "bg-blue-100 text-blue-700"}`}>
+          <AvatarFallback className={`text-lg font-bold ${gender === "female" ? "bg-pink-100 text-pink-700" : "bg-primary/10 text-primary"}`}>
             {gender === "female" ? "♀" : "♂"}
           </AvatarFallback>
         </Avatar>

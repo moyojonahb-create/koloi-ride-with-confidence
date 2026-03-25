@@ -45,17 +45,17 @@ export function ArrivalIndicator({
   if (isArrived && arrivalType === 'dropoff') {
     return (
       <div className={cn(
-        "flex items-center gap-3 p-4 rounded-xl bg-blue-50 border border-blue-200",
+        "flex items-center gap-3 p-4 rounded-xl bg-primary/10 border border-primary/20",
         className
       )}>
-        <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+        <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shrink-0">
           <MapPin className="w-6 h-6 text-white" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-blue-800">
+          <p className="font-semibold text-primary">
             🎉 You have arrived!
           </p>
-          <p className="text-sm text-blue-600 mt-0.5">
+          <p className="text-sm text-primary/80 mt-0.5">
             You have reached your destination
           </p>
         </div>
