@@ -39,7 +39,7 @@
  function getDriverMarkerColor(tripStatus?: string | null, isOnline?: boolean): { bg: string; border: string; label: string } {
    if (tripStatus === 'enroute' || tripStatus === 'in_progress') return { bg: '#ef4444', border: '#dc2626', label: 'bg-red-600' };
    if (tripStatus === 'accepted' || tripStatus === 'arrived') return { bg: '#f59e0b', border: '#d97706', label: 'bg-amber-500' };
-   if (isOnline) return { bg: '#3b82f6', border: '#2563eb', label: 'bg-blue-500' };
+   if (isOnline) return { bg: '#1B3FA0', border: '#162F7A', label: 'bg-primary' };
    return { bg: '#6b7280', border: '#4b5563', label: 'bg-gray-500' };
  }
 
