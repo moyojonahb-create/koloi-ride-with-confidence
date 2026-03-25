@@ -18,12 +18,12 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    /* Primary — PickMe blue gradient anchor #0B3C8A */
-    --primary: 217 85% 29%;
+    /* Primary — Deep Royal Blue #1B3FA0 */
+    --primary: 224 71% 37%;
     --primary-foreground: 0 0% 100%;
 
-    /* Primary light end #2F80ED */
-    --primary-light: 213 83% 56%;
+    /* Primary light end #2B52C8 */
+    --primary-light: 225 65% 48%;
 
     --secondary: 225 27% 95%;
     --secondary-foreground: 0 0% 10%;
@@ -40,24 +40,24 @@
 
     --border: 217 20% 90%;
     --input: 217 20% 90%;
-    --ring: 217 85% 29%;
+    --ring: 224 71% 37%;
 
     --radius: 0.875rem;
 
     /* Sidebar */
-    --sidebar-background: 217 85% 29%;
+    --sidebar-background: 224 71% 37%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 45 100% 51%;
     --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 217 70% 40%;
+    --sidebar-accent: 224 60% 45%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 217 70% 35%;
+    --sidebar-border: 225 69% 28%;
     --sidebar-ring: 45 100% 51%;
 
     /* PickMe design tokens */
-    --pickme-blue: 217 85% 29%;
-    --pickme-blue-dark: 217 90% 22%;
-    --pickme-blue-light: 213 83% 56%;
+    --pickme-blue: 224 71% 37%;
+    --pickme-blue-dark: 225 69% 28%;
+    --pickme-blue-light: 225 65% 48%;
     --pickme-yellow: 45 100% 51%;
     --pickme-yellow-light: 45 100% 70%;
     --pickme-white: 0 0% 100%;
@@ -88,21 +88,21 @@
     --glass-bg-ultra: hsla(0, 0%, 100%, 0.95);
     --glass-border: hsla(0, 0%, 100%, 0.5);
     --glass-border-subtle: hsla(217, 25%, 80%, 0.2);
-    --glass-border-light: hsl(217 85% 29% / 0.06);
+    --glass-border-light: hsl(224 71% 37% / 0.06);
     --glass-blur: blur(24px) saturate(1.8);
     --glass-blur-heavy: blur(40px) saturate(2);
     --glass-blur-nav: blur(20px) saturate(1.6);
     --glass-shadow: 0 1px 3px hsl(0 0% 0% / 0.04), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
-    --glass-shadow-lg: 0 8px 32px hsl(217 85% 29% / 0.06), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
+    --glass-shadow-lg: 0 8px 32px hsl(224 71% 37% / 0.06), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
     --glass-shadow-elevated: 0 12px 40px hsl(0 0% 0% / 0.1), 0 0 0 0.5px hsl(0 0% 0% / 0.04);
-    --glass-glow-blue: 0 0 0 0.5px hsl(217 85% 29% / 0.15), 0 0 16px hsl(217 85% 29% / 0.06);
+    --glass-glow-blue: 0 0 0 0.5px hsl(224 71% 37% / 0.15), 0 0 16px hsl(224 71% 37% / 0.06);
     --glass-glow-yellow: 0 0 0 0.5px hsl(45 100% 51% / 0.15), 0 0 16px hsl(45 100% 51% / 0.08);
 
     /* iOS-style inset separator */
     --glass-separator: 0.5px solid hsla(0, 0%, 0%, 0.06);
 
     /* ─── Gradients ─── */
-    --gradient-primary: linear-gradient(135deg, hsl(217 85% 29%), hsl(213 83% 56%));
+    --gradient-primary: linear-gradient(135deg, hsl(224 71% 37%), hsl(225 65% 48%));
     --gradient-accent: linear-gradient(135deg, hsl(45 100% 51%), hsl(40 100% 60%));
     --gradient-glass-shine: linear-gradient(180deg, hsla(0, 0%, 100%, 0.15) 0%, hsla(0, 0%, 100%, 0) 100%);
   }
@@ -205,9 +205,9 @@
     --glass-shadow: 0 1px 3px hsl(0 0% 0% / 0.2), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
     --glass-shadow-lg: 0 8px 32px hsl(0 0% 0% / 0.3), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
     --glass-shadow-elevated: 0 12px 40px hsl(0 0% 0% / 0.4), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
-    --glass-glow-blue: 0 0 0 0.5px hsl(213 83% 56% / 0.2), 0 0 16px hsl(213 83% 56% / 0.06);
+    --glass-glow-blue: 0 0 0 0.5px hsl(225 65% 48% / 0.2), 0 0 16px hsl(225 65% 48% / 0.06);
     --glass-separator: 0.5px solid hsla(0, 0%, 100%, 0.06);
-    --gradient-primary: linear-gradient(135deg, hsl(217 85% 22%), hsl(213 83% 40%));
+    --gradient-primary: linear-gradient(135deg, hsl(225 69% 28%), hsl(225 65% 48%));
     --gradient-glass-shine: linear-gradient(180deg, hsla(0, 0%, 100%, 0.06) 0%, hsla(0, 0%, 100%, 0) 100%);
   }
 }
