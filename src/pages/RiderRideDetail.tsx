@@ -205,13 +205,13 @@ export default function RiderRideDetail() {
     if (!authLoading && rideId) Promise.all([refreshRide(), refreshOffers()]).finally(() => setLoading(false));
   }, [authLoading, user, rideId, nav, refreshRide, refreshOffers]);
 
-  // Auto-adjust sheet based on ride status
+  // Auto-adjust sheet based on ride status — default collapsed for max map
   useEffect(() => {
     if (!ride) return;
     if (ride.status === "in_progress") {
       setSheetState('collapsed');
     } else if (ride.status === "accepted" || ride.status === "arrived" || ride.status === "driver_arrived") {
-      setSheetState('half');
+      setSheetState('collapsed');
     } else if (ride.status === "completed") {
       setSheetState('half');
     }
