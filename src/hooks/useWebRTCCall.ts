@@ -276,18 +276,20 @@ export function useWebRTCCall({
           }
         };
 
-        // If caller, create and send offer
+        // If caller, create and send offer with retry to ensure callee is subscribed
         if (isCaller) {
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
-          // Small delay to ensure channel is subscribed
-          setTimeout(() => {
+          const sendOffer = () => {
             channel.send({
               type: "broadcast",
               event: "offer",
               payload: { sdp: offer },
             });
-          }, 500);
+          };
+          // Send after delay, then retry once more to handle race conditions
+          setTimeout(sendOffer, 800);
+          setTimeout(sendOffer, 2500);
         }
       } catch (err) {
         console.error("[WebRTC] Failed to setup call:", err);
