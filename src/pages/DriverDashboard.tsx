@@ -1007,7 +1007,7 @@ export default function DriverDashboard() {
               </div>
               {activeTrip.status === 'accepted' && (
                 <Button
-                  className="w-full bg-amber-500 text-white hover:bg-amber-600 mb-2"
+                  className="w-full bg-primary text-primary-foreground hover:brightness-110 mb-2"
                   size="lg"
                   onClick={async () => {
                     await supabase.from("rides").update({ status: "enroute" }).eq("id", activeTrip.id);
