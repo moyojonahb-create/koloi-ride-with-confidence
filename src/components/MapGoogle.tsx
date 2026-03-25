@@ -201,6 +201,7 @@ function InnerMapGoogle({
     }
   }, [defaultCenter?.lat, defaultCenter?.lng]);
 
+  // Auto-fit bounds: include all markers AND route path points so nothing is clipped
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -208,15 +209,19 @@ function InnerMapGoogle({
     if (pickup) pts.push(pickup);
     if (dropoff) pts.push(dropoff);
     if (driverLocation) pts.push(driverLocation);
+    // Include every point along the route polyline so curved routes aren't cut off
+    if (routePath.length > 1) routePath.forEach((p) => pts.push(p));
+    if (secondaryPath.length > 1) secondaryPath.forEach((p) => pts.push(p));
+
     if (pts.length >= 2) {
       const bounds = new google.maps.LatLngBounds();
       pts.forEach((p) => bounds.extend(p));
-      map.fitBounds(bounds, { top: 80, bottom: 280, left: 40, right: 40 });
+      map.fitBounds(bounds, { top: 80, bottom: 220, left: 40, right: 40 });
     } else if (pts.length === 1) {
       map.panTo(pts[0]);
       map.setZoom(15);
     }
-  }, [pickup?.lat, pickup?.lng, dropoff?.lat, dropoff?.lng, driverLocation?.lat, driverLocation?.lng]);
+  }, [pickup?.lat, pickup?.lng, dropoff?.lat, dropoff?.lng, driverLocation?.lat, driverLocation?.lng, routePath, secondaryPath]);
 
   const handleLoad = useCallback((map: google.maps.Map) => { mapRef.current = map; }, []);
   const handleClick = useCallback((e: google.maps.MapMouseEvent) => {
