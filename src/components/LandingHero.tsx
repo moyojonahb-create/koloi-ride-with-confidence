@@ -32,7 +32,7 @@ const LandingHero = ({ onGetStarted }: LandingHeroProps) => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-none sm:w-auto animate-slide-up" style={{ animationDelay: '0.2s' }}>
-          <Button onClick={() => navigate('/ride')} variant="accent" size="lg" className="shadow-[var(--shadow-glow)] h-[52px] text-[15px] font-bold active:scale-[0.97] transition-all">
+          <Button onClick={() => navigate('/ride')} variant="accent" size="lg" className="bg-accent shadow-[var(--shadow-glow)] h-[52px] text-[15px] font-bold active:scale-[0.97] transition-all">
             Request a Ride
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
