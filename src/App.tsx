@@ -57,19 +57,8 @@ const RiderRequestScreen = lazy(() => import("./pages/negotiate/RiderRequestScre
 // Live tracking (public)
 const LiveTrackingPage = lazy(() => import("./pages/LiveTrackingPage"));
 
-function LazyFallback() {
-  return (
-    <div className="min-h-[100dvh] flex items-center justify-center bg-background">
-      <div className="flex items-center gap-3">
-        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm font-medium text-muted-foreground">Loading…</span>
-      </div>
-    </div>
-  );
-}
-
 function SuspenseWrap({ children }: { children: React.ReactNode }) {
-  return <Suspense fallback={<LazyFallback />}>{children}</Suspense>;
+  return <Suspense fallback={null}>{children}</Suspense>;
 }
 
 export default function App() {

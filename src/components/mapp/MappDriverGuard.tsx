@@ -17,15 +17,5 @@ export default function MappDriverGuard({ children }: Props) {
     }
   }, [isApproved, isLoading, navigate]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  if (!isApproved) return null;
-
   return <>{children}</>;
 }
