@@ -473,9 +473,31 @@ export default function RiderRideDetail() {
         <EmergencyButton />
       </div>
 
+      {/* ═══ ON-MAP ETA OVERLAY ═══ */}
+      {isAccepted && etaMinutes && !isArrived && sheetState === 'collapsed' && (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="absolute left-4 z-30 bg-card/95 backdrop-blur-sm rounded-2xl px-4 py-2.5 shadow-lg border border-border/30"
+          style={{ bottom: 100 }}
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              {isInProgress ? <Navigation className="w-4 h-4 text-primary" /> : <Car className="w-4 h-4 text-primary" />}
+            </div>
+            <div>
+              <p className="text-xl font-black text-foreground tabular-nums leading-none">{etaMinutes} min</p>
+              <p className="text-[10px] text-muted-foreground font-medium">
+                {isInProgress ? "to destination" : "to pickup"}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* ═══ FLOATING ACTION BUTTONS (on map, right side) ═══ */}
       {isAccepted && driverPhone && (
-        <div className="absolute right-4 z-30 flex flex-col gap-3" style={{ bottom: sheetState === 'collapsed' ? 140 : sheetState === 'half' ? '50%' : '90%' }}>
+        <div className="absolute right-4 z-30 flex flex-col gap-3" style={{ bottom: 100 }}>
           <motion.button
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
