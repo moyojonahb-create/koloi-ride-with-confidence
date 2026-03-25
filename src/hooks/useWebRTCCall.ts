@@ -374,6 +374,7 @@ export function useWebRTCCall({
 
     try {
       setCallStatus("ringing");
+      isCallerRef.current = true;
       // Start outgoing ringtone for caller
       startRingtone('outgoing');
 
