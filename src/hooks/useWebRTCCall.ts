@@ -256,8 +256,15 @@ export function useWebRTCCall({
 
   const initiateWebRTC = useCallback(
     async (sid: string, isCaller: boolean) => {
+      // Prevent double-init
+      if (pcRef.current) {
+        console.warn("[WebRTC] Already have a peer connection, skipping init");
+        return;
+      }
+
       try {
         setCallStatus("connecting");
+        stopRingtone();
 
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         localStreamRef.current = stream;
@@ -268,7 +275,7 @@ export function useWebRTCCall({
         // Add local tracks
         stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
-        // Setup signaling
+        // Setup signaling — wait for channel to be ready
         const channel = setupSignalingChannel(sid);
 
         // Handle remote tracks
@@ -278,20 +285,29 @@ export function useWebRTCCall({
           }
         };
 
-        // Handle ICE candidates
+        // Queue ICE candidates until channel is ready, then send
+        const pendingIceCandidates: RTCIceCandidateInit[] = [];
+        let channelReady = false;
+
         pc.onicecandidate = (event) => {
           if (event.candidate) {
-            channel.send({
-              type: "broadcast",
-              event: "ice-candidate",
-              payload: { candidate: event.candidate.toJSON() },
-            });
+            const candidateJson = event.candidate.toJSON();
+            if (channelReady) {
+              channel.send({
+                type: "broadcast",
+                event: "ice-candidate",
+                payload: { candidate: candidateJson },
+              });
+            } else {
+              pendingIceCandidates.push(candidateJson);
+            }
           }
         };
 
         // Handle connection state
         pc.onconnectionstatechange = () => {
           if (pc.connectionState === "connected") {
+            stopRingtone();
             setCallStatus("connected");
             const start = Date.now();
             timerRef.current = setInterval(() => {
@@ -303,7 +319,28 @@ export function useWebRTCCall({
           }
         };
 
-        // If caller, create and send offer with retry to ensure callee is subscribed
+        // Wait a tick for channel subscription to be ready
+        await new Promise<void>((resolve) => {
+          const checkReady = () => {
+            // Channel is ready when subscribed
+            if ((channel as any).state === 'joined') {
+              resolve();
+            } else {
+              setTimeout(checkReady, 100);
+            }
+          };
+          // Give it 1.5s max then proceed anyway
+          setTimeout(resolve, 1500);
+          checkReady();
+        });
+
+        channelReady = true;
+        // Flush any queued ICE candidates
+        for (const c of pendingIceCandidates) {
+          channel.send({ type: "broadcast", event: "ice-candidate", payload: { candidate: c } });
+        }
+
+        // If caller, create and send offer
         if (isCaller) {
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
@@ -314,9 +351,9 @@ export function useWebRTCCall({
               payload: { sdp: offer },
             });
           };
-          // Send after delay, then retry once more to handle race conditions
-          setTimeout(sendOffer, 800);
-          setTimeout(sendOffer, 2500);
+          // Send after short delay, then retry once
+          setTimeout(sendOffer, 300);
+          setTimeout(sendOffer, 1500);
         }
       } catch (err) {
         console.error("[WebRTC] Failed to setup call:", err);
