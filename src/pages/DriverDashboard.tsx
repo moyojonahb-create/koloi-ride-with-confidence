@@ -375,15 +375,7 @@ export default function DriverDashboard() {
           .maybeSingle();
         setRiderPhone(riderProfile?.phone ?? null);
 
-        // Fetch ride preferences
-        const { data: prefs } = await supabase
-          .from("ride_preferences")
-          .select("quiet_ride, cool_temperature")
-          .eq("ride_id", activeTripData.id)
-          .maybeSingle();
-        if (prefs) {
-          setRidePreferences(prev => ({ ...prev, [activeTripData.id]: prefs }));
-        }
+        // Preferences are batch-fetched below with all ride IDs
       } else {
         setActiveTrip(null);
         setRiderPhone(null);
