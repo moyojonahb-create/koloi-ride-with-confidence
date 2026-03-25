@@ -7,15 +7,9 @@ export function GlassSheet({ className, ...props }: GlassSheetProps) {
   return (
     <div
       className={cn(
-        "rounded-t-[28px] border border-[var(--glass-border)]",
+        "rounded-t-[28px] bg-background border-t border-border/40 shadow-[0_-4px_24px_rgba(0,0,0,0.08)]",
         className,
       )}
-      style={{
-        background: 'var(--glass-bg-heavy)',
-        backdropFilter: 'var(--glass-blur-heavy)',
-        WebkitBackdropFilter: 'var(--glass-blur-heavy)',
-        boxShadow: '0 -8px 40px hsl(224 71% 37% / 0.08), 0 0 0 0.5px hsla(0, 0%, 100%, 0.5)',
-      }}
       {...props}
     />
   );

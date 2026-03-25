@@ -9,15 +9,10 @@ export function GlassCard({ className, intense = false, ...props }: GlassCardPro
   return (
     <div
       className={cn(
-        "rounded-3xl border border-[var(--glass-border)]",
+        "rounded-3xl border border-border/40 bg-card shadow-pickme-sm",
+        intense && "shadow-pickme-md",
         className,
       )}
-      style={{
-        background: intense ? 'var(--glass-bg-ultra)' : 'var(--glass-bg)',
-        backdropFilter: intense ? 'var(--glass-blur-heavy)' : 'var(--glass-blur)',
-        WebkitBackdropFilter: intense ? 'var(--glass-blur-heavy)' : 'var(--glass-blur)',
-        boxShadow: intense ? 'var(--glass-shadow-lg)' : 'var(--glass-shadow)',
-      }}
       {...props}
     />
   );
