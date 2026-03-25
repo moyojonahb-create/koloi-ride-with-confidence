@@ -876,7 +876,7 @@ export default function RideView() {
           })() :
           <SecondaryButton
             disabled
-            className="w-full h-[48px] text-[15px] font-semibold rounded-2xl bg-primary/40 text-primary-foreground border-transparent">
+            className="w-full h-[48px] text-[15px] font-semibold rounded-2xl bg-primary/30 text-primary-foreground border-transparent">
               {pickupLocation && dropoffLocation ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Calculating…</> : 'Find Drivers'}
             </SecondaryButton>
           }

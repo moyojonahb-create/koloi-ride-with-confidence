@@ -9,9 +9,15 @@ export const IconPillButton = React.forwardRef<HTMLButtonElement, IconPillButton
       <button
         ref={ref}
         className={cn(
-          "h-10 px-3 rounded-full border border-slate-200 bg-white/90 backdrop-blur text-slate-900 text-xs font-medium inline-flex items-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-50",
+          "h-10 px-3 rounded-full border border-[var(--glass-border)] text-foreground text-xs font-medium inline-flex items-center gap-1.5 active:scale-[0.98] transition-all disabled:opacity-50",
           className,
         )}
+        style={{
+          background: 'var(--glass-bg)',
+          backdropFilter: 'var(--glass-blur)',
+          WebkitBackdropFilter: 'var(--glass-blur)',
+          boxShadow: 'var(--glass-shadow)',
+        }}
         {...props}
       />
     );

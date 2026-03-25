@@ -81,7 +81,7 @@ export default function NegotiationCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn('rounded-2xl border border-border bg-card p-4 shadow-lg', className)}
+      className={cn('glass-card rounded-2xl p-4', className)}
     >
       {/* Smart tip */}
       {smart.smartTip && (
@@ -101,7 +101,8 @@ export default function NegotiationCard({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: direction === 'up' ? -16 : 16, opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="inline-block text-4xl font-bold text-foreground"
+            className="inline-block text-4xl font-bold"
+            style={{ background: 'linear-gradient(135deg, hsl(45 100% 45%), hsl(35 100% 40%))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
           >
             {formatFare(customFare, fareCalc.currencySymbol)}
           </motion.span>

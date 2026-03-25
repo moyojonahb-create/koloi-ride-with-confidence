@@ -7,10 +7,14 @@ export function PrimaryButton({ className, ...props }: PrimaryButtonProps) {
   return (
     <button
       className={cn(
-        "h-12 rounded-3xl px-4 text-sm font-semibold text-primary-foreground active:scale-[0.98] transition-all",
-        "bg-primary hover:brightness-110 shadow-[0_4px_16px_hsl(var(--primary)/0.35)] disabled:opacity-50",
+        "relative h-[52px] rounded-2xl px-6 text-[15px] font-bold text-primary-foreground active:scale-[0.97] transition-all duration-150 overflow-hidden",
+        "disabled:opacity-50",
         className,
       )}
+      style={{
+        background: 'linear-gradient(135deg, hsl(224 71% 37%), hsl(225 65% 48%))',
+        boxShadow: 'var(--shadow-btn-primary)',
+      }}
       {...props}
     />
   );
