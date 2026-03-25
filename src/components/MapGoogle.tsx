@@ -201,6 +201,7 @@ function InnerMapGoogle({
     }
   }, [defaultCenter?.lat, defaultCenter?.lng]);
 
+  // Auto-fit bounds: include all markers AND route path points so nothing is clipped
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -208,15 +209,19 @@ function InnerMapGoogle({
     if (pickup) pts.push(pickup);
     if (dropoff) pts.push(dropoff);
     if (driverLocation) pts.push(driverLocation);
+    // Include every point along the route polyline so curved routes aren't cut off
+    if (routePath.length > 1) routePath.forEach((p) => pts.push(p));
+    if (secondaryPath.length > 1) secondaryPath.forEach((p) => pts.push(p));
+
     if (pts.length >= 2) {
       const bounds = new google.maps.LatLngBounds();
       pts.forEach((p) => bounds.extend(p));
-      map.fitBounds(bounds, { top: 80, bottom: 280, left: 40, right: 40 });
+      map.fitBounds(bounds, { top: 80, bottom: 220, left: 40, right: 40 });
     } else if (pts.length === 1) {
       map.panTo(pts[0]);
       map.setZoom(15);
     }
-  }, [pickup?.lat, pickup?.lng, dropoff?.lat, dropoff?.lng, driverLocation?.lat, driverLocation?.lng]);
+  }, [pickup?.lat, pickup?.lng, dropoff?.lat, dropoff?.lng, driverLocation?.lat, driverLocation?.lng, routePath, secondaryPath]);
 
   const handleLoad = useCallback((map: google.maps.Map) => { mapRef.current = map; }, []);
   const handleClick = useCallback((e: google.maps.MapMouseEvent) => {
@@ -263,13 +268,28 @@ function InnerMapGoogle({
           }} zIndex={5} />
         ))}
 
+        {/* Driver → Pickup dashed line (only when premium overlay is NOT handling it) */}
+        {!hasPremiumOverlay && driverLocation && pickup && (
+          <>
+            {/* White outline underneath */}
+            <Polyline path={[driverLocation, pickup]} options={{ strokeColor: '#ffffff', strokeWeight: 6, strokeOpacity: 1, zIndex: 1 }} />
+            {/* Dashed blue animated line */}
+            <Polyline path={[driverLocation, pickup]} options={{ strokeColor: '#2563EB', strokeWeight: 3, strokeOpacity: 0, zIndex: 3, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4, strokeColor: '#2563EB' }, offset: '0', repeat: '16px' }] }} />
+          </>
+        )}
         {/* Secondary route (only when premium overlay is NOT handling it) */}
         {!hasPremiumOverlay && secondaryPath.length > 1 && (
-          <Polyline path={secondaryPath} options={{ strokeColor: '#60a5fa', strokeWeight: 4, strokeOpacity: 0.7, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '15px' }] }} />
+          <>
+            <Polyline path={secondaryPath} options={{ strokeColor: '#ffffff', strokeWeight: 7, strokeOpacity: 1, zIndex: 1 }} />
+            <Polyline path={secondaryPath} options={{ strokeColor: '#60a5fa', strokeWeight: 4, strokeOpacity: 0.7, zIndex: 2, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3 }, offset: '0', repeat: '15px' }] }} />
+          </>
         )}
-        {/* Primary route: pickup → dropoff (solid blue) */}
+        {/* Primary route: pickup → dropoff (solid bold blue with white outline) */}
         {routePath.length > 1 && (
-          <Polyline path={routePath} options={{ strokeColor: '#2563EB', strokeWeight: 5, strokeOpacity: 0.85 }} />
+          <>
+            <Polyline path={routePath} options={{ strokeColor: '#ffffff', strokeWeight: 9, strokeOpacity: 1, zIndex: 1 }} />
+            <Polyline path={routePath} options={{ strokeColor: '#2563EB', strokeWeight: 5, strokeOpacity: 1, zIndex: 2 }} />
+          </>
         )}
       </GoogleMap>
     </div>
