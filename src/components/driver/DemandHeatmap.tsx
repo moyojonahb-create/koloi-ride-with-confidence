@@ -51,7 +51,7 @@ export default function DemandHeatmap({ townId, className }: DemandHeatmapProps)
     const fetchZones = async () => {
       setLoading(true);
       // Trigger zone recalculation (ignore errors if RPC doesn't exist)
-      await supabase.rpc('update_demand_zones').catch(() => {});
+      try { await supabase.rpc('update_demand_zones'); } catch {}
       
       const { data } = await supabase
         .from('ride_demand_zones')
