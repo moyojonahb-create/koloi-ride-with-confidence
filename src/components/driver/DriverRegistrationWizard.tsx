@@ -458,7 +458,7 @@ export default function DriverRegistrationWizard({ onSuccess, onClose }: DriverR
             <Button
               onClick={handleNext}
               disabled={isSubmitting || isNavigating}
-              className="rounded-full h-12 px-6 bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+              className="rounded-full h-12 px-6 bg-primary text-primary-foreground hover:brightness-110 font-semibold"
             >
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

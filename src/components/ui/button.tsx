@@ -16,7 +16,7 @@ const buttonVariants = cva(
         secondary: "bg-[var(--glass-bg-ultra)] text-secondary-foreground border-[0.5px] border-[var(--glass-border-subtle)] backdrop-blur-lg hover:bg-muted/60 shadow-[var(--shadow-xs)] rounded-full",
         ghost: "hover:bg-muted/50 hover:text-foreground rounded-xl",
         link: "text-primary underline-offset-4 hover:underline",
-        accent: "bg-accent text-accent-foreground font-bold hover:brightness-105 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-glow)] rounded-full",
+        accent: "bg-primary text-primary-foreground font-bold hover:brightness-110 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] rounded-full",
         glass: "bg-[var(--glass-bg)] backdrop-blur-2xl backdrop-saturate-[1.8] border-[0.5px] border-[var(--glass-border)] text-foreground shadow-[var(--glass-shadow)] hover:bg-[var(--glass-bg-heavy)] rounded-full",
       },
       size: {

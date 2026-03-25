@@ -111,7 +111,7 @@ const PhoneMockup = () => {
                 <p className="text-xl font-bold text-foreground">$5</p>
                 <p className="text-xs text-muted-foreground">2.1 km • 6 min</p>
               </div>
-              <button className="px-6 py-3 bg-accent text-accent-foreground font-bold rounded-full text-sm shadow-sm hover:brightness-105 transition-all">
+              <button className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-full text-sm shadow-sm hover:brightness-110 transition-all">
                 Request Ride
               </button>
             </div>
