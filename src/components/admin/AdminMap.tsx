@@ -299,7 +299,7 @@
             <div className="absolute top-3 right-12 z-[1000] bg-background/95 backdrop-blur-sm rounded-lg shadow-lg p-3 text-xs">
               <div className="font-bold mb-2">Fleet Status</div>
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-3 h-3 rounded-full bg-blue-500" />
+                 <div className="w-3 h-3 rounded-full bg-primary" />
                 <span>Available</span>
               </div>
               <div className="flex items-center gap-2 mb-1">
