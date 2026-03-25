@@ -860,28 +860,35 @@ export default function RideView() {
         {/* ── PINNED FIND DRIVERS BUTTON ── always visible at bottom */}
         <div className="shrink-0 px-4 pb-3 pt-2">
           {pickupLocation && dropoffLocation && fareEstimate ? (() => {
-            const activeTown = selectedTown.name;
             const extraPassengers = Math.max(passengerCount - 3, 0);
             const extraPassengerFee = extraPassengers * 0.5;
             const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee;
             const sym = fareEstimate.currencySymbol;
-            const code = fareEstimate.currencyCode;
             const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
             return (
               <PrimaryButton
                 onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
                 disabled={isRequesting}
-                className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center">
+                className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center active:scale-[0.97] transition-transform">
                 
-                {isRequesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Car className="w-4 h-4" />}
-                {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
+                {isRequesting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                    Finding your ride…
+                  </>
+                ) : (
+                  <>
+                    <Car className="w-4 h-4" />
+                    {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
+                  </>
+                )}
               </PrimaryButton>);
 
           })() :
           <SecondaryButton
             disabled
             className="w-full h-[48px] text-[15px] font-semibold rounded-2xl bg-primary/30 text-primary-foreground border-transparent">
-              {pickupLocation && dropoffLocation ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Calculating…</> : 'Find Drivers'}
+              {pickupLocation && dropoffLocation ? <><div className="w-4 h-4 border-2 border-primary-foreground/50 border-t-transparent rounded-full animate-spin mr-2" />Calculating…</> : 'Find Drivers'}
             </SecondaryButton>
           }
         </div>
