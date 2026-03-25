@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { joinRidePresence, countDriversViewing } from "@/lib/koloiRealtime";
@@ -270,6 +270,18 @@ export default function RideDetail() {
     } catch (e: unknown) { setToast((e as Error)?.message || "Message failed."); }
   };
 
+  const pendingOfferCount = premiumOffers.filter((o) => o.expiresAt > Date.now()).length;
+  const prevOfferCountRef = useRef(pendingOfferCount);
+
+  useEffect(() => {
+    if (pendingOfferCount > prevOfferCountRef.current) {
+      import('@/lib/notificationSounds').then(({ playNotificationSound }) => {
+        playNotificationSound('offerReceived');
+      });
+    }
+    prevOfferCountRef.current = pendingOfferCount;
+  }, [pendingOfferCount]);
+
   // ── LOADING or NOT FOUND — show inline, never full-screen blank ──
   if (loading || !ride) {
     return (
@@ -398,7 +410,6 @@ export default function RideDetail() {
   };
 
   const status = statusConfig[rideStatus] || { label: rideStatus, color: "bg-muted", icon: "•" };
-  const pendingOfferCount = premiumOffers.filter((o) => o.expiresAt > Date.now()).length;
 
   return (
     <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
