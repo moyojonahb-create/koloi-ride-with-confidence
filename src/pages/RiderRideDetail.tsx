@@ -109,20 +109,35 @@ export default function RiderRideDetail() {
     if (error) { setError(error.message); return; }
 
     const wasAccepted = ride?.status !== "accepted" && data.status === "accepted";
+    const wasArrived = ride?.status !== "driver_arrived" && ride?.status !== "arrived" && (data.status === "driver_arrived" || data.status === "arrived");
     const wasCompleted = ride?.status !== "completed" && data.status === "completed";
     setRide(data as Ride);
 
     if (wasAccepted) {
       playAcceptedSound();
+      haptic('medium');
       try {
         if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
           new Notification("🎉 Driver Accepted!", { body: "Your ride has been confirmed.", icon: "/icons/icon-192x192.png" });
         }
-      } catch (_) {
-        // ignore notification errors
-      }
+      } catch (_) {}
     }
-    if (wasCompleted && !hasRated) setShowRating(true);
+
+    if (wasArrived) {
+      playArrivedSound();
+      haptic('heavy');
+      try {
+        if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
+          new Notification("📍 Driver Has Arrived!", { body: "Your driver is waiting at the pickup point.", icon: "/icons/icon-192x192.png" });
+        }
+      } catch (_) {}
+    }
+
+    if (wasCompleted) {
+      playCompletedSound();
+      haptic('medium');
+      if (!hasRated) setShowRating(false); // Don't auto-show rating, show summary first
+    }
 
     if (data.driver_id && (data.status === "accepted" || data.status === "in_progress" || data.status === "arrived")) {
       try {
