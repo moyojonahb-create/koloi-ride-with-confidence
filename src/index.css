@@ -93,9 +93,9 @@
     --glass-blur-heavy: blur(40px) saturate(2);
     --glass-blur-nav: blur(20px) saturate(1.6);
     --glass-shadow: 0 1px 3px hsl(0 0% 0% / 0.04), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
-    --glass-shadow-lg: 0 8px 32px hsl(217 85% 29% / 0.06), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
+    --glass-shadow-lg: 0 8px 32px hsl(224 71% 37% / 0.06), 0 0 0 0.5px hsl(0 0% 0% / 0.03);
     --glass-shadow-elevated: 0 12px 40px hsl(0 0% 0% / 0.1), 0 0 0 0.5px hsl(0 0% 0% / 0.04);
-    --glass-glow-blue: 0 0 0 0.5px hsl(217 85% 29% / 0.15), 0 0 16px hsl(217 85% 29% / 0.06);
+    --glass-glow-blue: 0 0 0 0.5px hsl(224 71% 37% / 0.15), 0 0 16px hsl(224 71% 37% / 0.06);
     --glass-glow-yellow: 0 0 0 0.5px hsl(45 100% 51% / 0.15), 0 0 16px hsl(45 100% 51% / 0.08);
 
     /* iOS-style inset separator */
