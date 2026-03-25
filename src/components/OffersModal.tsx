@@ -294,7 +294,7 @@ export default function OffersModal({
                     <button
                   onClick={() => handleAccept(o.offerId, o.expired)}
                   disabled={o.expired || busyOfferId !== null}
-                  className="flex-1 border-none rounded-xl px-4 py-3.5 font-semibold cursor-pointer bg-gradient-to-r from-blue-600 to-sky-500 text-white disabled:opacity-50 transition-all hover:opacity-90 shadow-[0_8px_20px_rgba(37,99,235,0.35)]">
+                  className="flex-1 border border-white/30 rounded-xl px-4 py-3.5 font-semibold cursor-pointer bg-primary/20 backdrop-blur-xl text-primary disabled:opacity-50 transition-all hover:opacity-90 shadow-[0_4px_16px_hsl(var(--primary)/0.2)]">
                   
                       {busyOfferId === o.offerId ? "Accepting..." : "Accept"}
                     </button>
