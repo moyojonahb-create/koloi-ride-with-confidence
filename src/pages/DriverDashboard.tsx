@@ -793,6 +793,11 @@ export default function DriverDashboard() {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold truncate">{r.pickup_address}</p>
                         <p className="text-sm text-muted-foreground truncate">{r.dropoff_address}</p>
+                        {ridePreferences[r.id] && (
+                          <div className="mt-1">
+                            <RidePreferenceTags quietRide={ridePreferences[r.id]?.quiet_ride} coolTemperature={ridePreferences[r.id]?.cool_temperature} />
+                          </div>
+                        )}
                       </div>
                       <div className="text-right">
                         <p className="font-black text-lg">{fmtUSD(Number(r.fare))}</p>
