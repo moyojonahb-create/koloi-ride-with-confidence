@@ -82,7 +82,7 @@
  const rideDropoffIcon = L.divIcon({
    html: `
      <div class="flex flex-col items-center">
-       <div class="w-7 h-7 rounded-full bg-blue-600 border-2 border-white shadow-md flex items-center justify-center">
+       <div class="w-7 h-7 rounded-full border-2 border-white shadow-md flex items-center justify-center" style="background:#1B3FA0">
          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
            <path d="M12 4l-8 8h5v8h6v-8h5z"/>
          </svg>
