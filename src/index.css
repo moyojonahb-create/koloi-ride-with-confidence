@@ -45,13 +45,13 @@
     --radius: 0.875rem;
 
     /* Sidebar */
-    --sidebar-background: 217 85% 29%;
+    --sidebar-background: 224 71% 37%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 45 100% 51%;
     --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 217 70% 40%;
+    --sidebar-accent: 224 60% 45%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 217 70% 35%;
+    --sidebar-border: 225 69% 28%;
     --sidebar-ring: 45 100% 51%;
 
     /* PickMe design tokens */
