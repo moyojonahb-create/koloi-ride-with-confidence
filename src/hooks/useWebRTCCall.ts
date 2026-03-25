@@ -213,8 +213,9 @@ export function useWebRTCCall({
               setTimeout(() => setCallStatus("idle"), 2000);
             }
           }
-          if (session.status === "answered" && session.id === sessionIdRef.current) {
-            // Callee answered, initiate WebRTC connection as caller
+          if (session.status === "answered" && session.id === sessionIdRef.current && isCallerRef.current) {
+            // Only the CALLER initiates WebRTC when callee answers
+            stopRingtone();
             initiateWebRTC(session.id as string, true);
           }
         }
