@@ -656,7 +656,7 @@ export default function RiderRideDetail() {
                   <>
                     <Button
                       onClick={() => setShowEcoCashPay(true)}
-                      className="w-full h-12 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
+                      className="w-full h-12 rounded-2xl bg-primary hover:brightness-110 text-primary-foreground font-bold"
                     >
                       💰 Pay ${Number(ride.fare).toFixed(2)} with EcoCash
                     </Button>

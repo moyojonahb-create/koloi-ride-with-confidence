@@ -1034,7 +1034,7 @@ export default function DriverDashboard() {
                 </Button>
               )}
               <Button
-                className="w-full bg-accent text-accent-foreground hover:brightness-105"
+                className="w-full bg-primary text-primary-foreground hover:brightness-110"
                 size="lg"
                 onClick={handleCompleteTrip}
                 disabled={completing}
