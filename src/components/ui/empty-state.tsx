@@ -12,8 +12,8 @@ type EmptyStateProps = {
 export function EmptyState({ title, description, className, action }: EmptyStateProps) {
   return (
     <GlassCard className={cn("p-5 text-center space-y-2", className)}>
-      <p className="text-base font-semibold text-slate-900">{title}</p>
-      {description && <p className="text-sm text-slate-600">{description}</p>}
+      <p className="text-base font-semibold text-foreground">{title}</p>
+      {description && <p className="text-sm text-muted-foreground">{description}</p>}
       {action && <div className="pt-2">{action}</div>}
     </GlassCard>
   );
