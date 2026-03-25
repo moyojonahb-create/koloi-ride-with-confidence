@@ -216,7 +216,7 @@ function InnerMapGoogle({
     if (pts.length >= 2) {
       const bounds = new google.maps.LatLngBounds();
       pts.forEach((p) => bounds.extend(p));
-      map.fitBounds(bounds, { top: 80, bottom: 220, left: 40, right: 40 });
+      map.fitBounds(bounds, { top: 60, bottom: 320, left: 48, right: 48 });
     } else if (pts.length === 1) {
       map.panTo(pts[0]);
       map.setZoom(15);
