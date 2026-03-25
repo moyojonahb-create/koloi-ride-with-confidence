@@ -158,9 +158,9 @@ export default function RideDetail() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const load = async () => {
+  const load = async (silent = false) => {
     if (!rideId) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const { data: r, error: rErr } = await supabase.from("rides").select("*").eq("id", rideId).single();
       if (rErr) throw new Error(rErr.message);
