@@ -148,7 +148,7 @@ export default function RideDetail() {
 
   const { callStatus, isMuted, isSpeaker, callDuration, incomingCall, startCall, answerCall,
     declineCall: declineIncomingCall, endCall, toggleMute, toggleSpeaker
-  } = useWebRTCCall({ rideId: rideId ?? null, currentUserId: userId, otherUserId: ride?.user_id ?? null });
+  } = useWebRTCCall({ rideId: rideId ?? null, currentUserId: userId, otherUserId: driverUserIdForTracking });
 
   useEffect(() => { (async () => { const { data } = await supabase.auth.getUser(); if (data?.user) setUserId(data.user.id); })(); }, []);
 
@@ -545,9 +545,11 @@ export default function RideDetail() {
                   <p className="text-sm text-muted-foreground text-center py-6">No messages yet</p>
                 ) : (
                   messages.map((m) => (
-                    <div key={m.id} className={`flex ${m.sender_id === userId ? "justify-end" : "justify-start"}`}>
+                    <div key={m.id} className={`flex ${m.sender_id === userId ? "justify-start" : "justify-end"}`}>
                       <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${
-                        m.sender_id === userId ? "bg-primary text-primary-foreground" : "bg-card border border-border"
+                        m.sender_id === userId
+                          ? "bg-blue-500 text-white rounded-bl-sm"
+                          : "bg-amber-400 text-amber-950 rounded-br-sm"
                       }`}>
                         <p className="text-sm">{m.text}</p>
                       </div>
