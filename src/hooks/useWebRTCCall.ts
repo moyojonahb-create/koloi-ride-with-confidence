@@ -367,6 +367,7 @@ export function useWebRTCCall({
 
   const declineCall = useCallback(async () => {
     if (!incomingCall) return;
+    stopRingtone();
 
     try {
       await supabase
