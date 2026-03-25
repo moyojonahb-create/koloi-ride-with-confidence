@@ -205,13 +205,13 @@ export default function RiderRideDetail() {
     if (!authLoading && rideId) Promise.all([refreshRide(), refreshOffers()]).finally(() => setLoading(false));
   }, [authLoading, user, rideId, nav, refreshRide, refreshOffers]);
 
-  // Auto-adjust sheet based on ride status
+  // Auto-adjust sheet based on ride status — default collapsed for max map
   useEffect(() => {
     if (!ride) return;
     if (ride.status === "in_progress") {
       setSheetState('collapsed');
     } else if (ride.status === "accepted" || ride.status === "arrived" || ride.status === "driver_arrived") {
-      setSheetState('half');
+      setSheetState('collapsed');
     } else if (ride.status === "completed") {
       setSheetState('half');
     }
@@ -318,53 +318,45 @@ export default function RiderRideDetail() {
     return Math.max(1, Math.round(km / 25 * 60));
   })() : null;
 
-  // Collapsed content for bottom sheet
+  // Ultra-compact collapsed content — thin floating bar
   const collapsedContent = (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between h-8">
       {isAccepted && driverProfile ? (
         <>
-          <div className="flex items-center gap-3 min-w-0">
-            <Avatar className="h-10 w-10 shrink-0 ring-2 ring-primary/20">
+          <div className="flex items-center gap-2 min-w-0">
+            <Avatar className="h-7 w-7 shrink-0">
               {(driverProfile as Record<string, unknown>).avatar_url ? (
                 <AvatarImage src={(driverProfile as Record<string, unknown>).avatar_url as string} alt="Driver" />
               ) : null}
-              <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
+              <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
                 {(driverProfile as Record<string, unknown>).gender === 'female' ? '♀' : '♂'}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0">
-              <p className="font-semibold text-sm text-foreground truncate">
-                {isInProgress ? "On your way" : isArrived ? "Driver arrived" : "Driver en route"}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {String((driverProfile as Record<string, unknown>).plate_number || '')}
-              </p>
-            </div>
+            <span className="font-semibold text-sm text-foreground truncate">
+              {String((driverProfile as Record<string, unknown>).plate_number || 'Driver')}
+            </span>
+            <span className="text-xs text-muted-foreground">•</span>
+            <span className="text-xs text-muted-foreground truncate">
+              {isInProgress ? "On trip" : isArrived ? "Arrived" : "En route"}
+            </span>
           </div>
-          {etaMinutes && (
-            <div className="text-right shrink-0">
-              <p className="text-2xl font-black text-primary tabular-nums">{etaMinutes}</p>
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase">min</p>
-            </div>
-          )}
+          <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
         </>
       ) : ride ? (
         <>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <p className="font-semibold text-sm text-foreground">
+            <span className="font-semibold text-sm text-foreground">
               {isPending ? "Finding drivers…" : ride.status.replace('_', ' ')}
-            </p>
+            </span>
+            <span className="font-bold text-sm text-foreground">${ride.fare.toFixed(2)}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="font-black text-lg text-foreground">${ride.fare.toFixed(2)}</span>
-            <ChevronUp className="w-4 h-4 text-muted-foreground" />
-          </div>
+          <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
         </>
       ) : (
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm text-muted-foreground">Loading ride…</span>
+          <span className="text-sm text-muted-foreground">Loading…</span>
         </div>
       )}
     </div>
@@ -473,9 +465,31 @@ export default function RiderRideDetail() {
         <EmergencyButton />
       </div>
 
+      {/* ═══ ON-MAP ETA OVERLAY ═══ */}
+      {isAccepted && etaMinutes && !isArrived && sheetState === 'collapsed' && (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="absolute left-4 z-30 bg-card/95 backdrop-blur-sm rounded-2xl px-4 py-2.5 shadow-lg border border-border/30"
+          style={{ bottom: 100 }}
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+              {isInProgress ? <Navigation className="w-4 h-4 text-primary" /> : <Car className="w-4 h-4 text-primary" />}
+            </div>
+            <div>
+              <p className="text-xl font-black text-foreground tabular-nums leading-none">{etaMinutes} min</p>
+              <p className="text-[10px] text-muted-foreground font-medium">
+                {isInProgress ? "to destination" : "to pickup"}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* ═══ FLOATING ACTION BUTTONS (on map, right side) ═══ */}
       {isAccepted && driverPhone && (
-        <div className="absolute right-4 z-30 flex flex-col gap-3" style={{ bottom: sheetState === 'collapsed' ? 140 : sheetState === 'half' ? '50%' : '90%' }}>
+        <div className="absolute right-4 z-30 flex flex-col gap-3" style={{ bottom: 100 }}>
           <motion.button
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}

@@ -12,9 +12,9 @@ interface RideBottomSheetProps {
 }
 
 const SNAP_POINTS = {
-  collapsed: 120,
-  half: 0.42,
-  full: 0.88,
+  collapsed: 80,
+  half: 0.35,
+  full: 0.85,
 };
 
 export default function RideBottomSheet({
@@ -139,14 +139,14 @@ export default function RideBottomSheet({
     >
       {/* Drag Handle */}
       <div
-        className="flex flex-col items-center pt-3 pb-2 cursor-grab active:cursor-grabbing touch-none select-none"
+        className="flex flex-col items-center pt-2.5 pb-1.5 cursor-grab active:cursor-grabbing touch-none select-none"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
         onClick={handleHandleClick}
       >
-        <div className="w-9 h-[4px] bg-muted-foreground/20 rounded-full" />
+        <div className="w-8 h-[3px] bg-muted-foreground/20 rounded-full" />
       </div>
 
       {/* Content */}
