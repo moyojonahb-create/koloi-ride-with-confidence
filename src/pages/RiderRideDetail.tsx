@@ -318,53 +318,45 @@ export default function RiderRideDetail() {
     return Math.max(1, Math.round(km / 25 * 60));
   })() : null;
 
-  // Collapsed content for bottom sheet
+  // Ultra-compact collapsed content — thin floating bar
   const collapsedContent = (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between h-8">
       {isAccepted && driverProfile ? (
         <>
-          <div className="flex items-center gap-3 min-w-0">
-            <Avatar className="h-10 w-10 shrink-0 ring-2 ring-primary/20">
+          <div className="flex items-center gap-2 min-w-0">
+            <Avatar className="h-7 w-7 shrink-0">
               {(driverProfile as Record<string, unknown>).avatar_url ? (
                 <AvatarImage src={(driverProfile as Record<string, unknown>).avatar_url as string} alt="Driver" />
               ) : null}
-              <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
+              <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
                 {(driverProfile as Record<string, unknown>).gender === 'female' ? '♀' : '♂'}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0">
-              <p className="font-semibold text-sm text-foreground truncate">
-                {isInProgress ? "On your way" : isArrived ? "Driver arrived" : "Driver en route"}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {String((driverProfile as Record<string, unknown>).plate_number || '')}
-              </p>
-            </div>
+            <span className="font-semibold text-sm text-foreground truncate">
+              {String((driverProfile as Record<string, unknown>).plate_number || 'Driver')}
+            </span>
+            <span className="text-xs text-muted-foreground">•</span>
+            <span className="text-xs text-muted-foreground truncate">
+              {isInProgress ? "On trip" : isArrived ? "Arrived" : "En route"}
+            </span>
           </div>
-          {etaMinutes && (
-            <div className="text-right shrink-0">
-              <p className="text-2xl font-black text-primary tabular-nums">{etaMinutes}</p>
-              <p className="text-[10px] font-semibold text-muted-foreground uppercase">min</p>
-            </div>
-          )}
+          <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
         </>
       ) : ride ? (
         <>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-            <p className="font-semibold text-sm text-foreground">
+            <span className="font-semibold text-sm text-foreground">
               {isPending ? "Finding drivers…" : ride.status.replace('_', ' ')}
-            </p>
+            </span>
+            <span className="font-bold text-sm text-foreground">${ride.fare.toFixed(2)}</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="font-black text-lg text-foreground">${ride.fare.toFixed(2)}</span>
-            <ChevronUp className="w-4 h-4 text-muted-foreground" />
-          </div>
+          <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" />
         </>
       ) : (
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm text-muted-foreground">Loading ride…</span>
+          <span className="text-sm text-muted-foreground">Loading…</span>
         </div>
       )}
     </div>

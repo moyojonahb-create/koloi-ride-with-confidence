@@ -12,9 +12,9 @@ interface RideBottomSheetProps {
 }
 
 const SNAP_POINTS = {
-  collapsed: 120,
-  half: 0.42,
-  full: 0.88,
+  collapsed: 80,
+  half: 0.35,
+  full: 0.85,
 };
 
 export default function RideBottomSheet({
