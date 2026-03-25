@@ -485,36 +485,9 @@ export default function RideDetail() {
             </div>
           </div>
 
-          {/* Driver card — when accepted */}
+          {/* Action buttons — when driver accepted */}
           {driverProfile && (
             <div className="rounded-2xl border border-border bg-card p-3">
-              <div className="flex items-center gap-3">
-                {driverProfile.avatarUrl ? (
-                  <img src={driverProfile.avatarUrl} alt={driverProfile.fullName} className="w-14 h-14 rounded-2xl object-cover border border-border" />
-                ) : (
-                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center font-bold text-xl text-primary">
-                    {driverProfile.fullName.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-foreground truncate">{driverProfile.fullName}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground">
-                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      {driverProfile.ratingAvg > 0 ? driverProfile.ratingAvg.toFixed(1) : "New"}
-                    </span>
-                    <span className="text-xs text-muted-foreground">• {driverProfile.totalTrips} trips</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {[driverProfile.vehicleMake, driverProfile.vehicleModel].filter(Boolean).join(" ") || "Vehicle"} • {driverProfile.plateNumber || "—"}
-                  </p>
-                </div>
-                {driverProfile.etaMinutes != null && (
-                  <div className="bg-primary/10 text-primary font-bold text-sm px-3 py-1.5 rounded-xl">
-                    {driverProfile.etaMinutes}m
-                  </div>
-                )}
-              </div>
 
               {/* Action buttons — inDrive style row */}
               <div className="flex items-center gap-2 mt-3">
