@@ -88,7 +88,7 @@
     --glass-bg-ultra: hsla(0, 0%, 100%, 0.95);
     --glass-border: hsla(0, 0%, 100%, 0.5);
     --glass-border-subtle: hsla(217, 25%, 80%, 0.2);
-    --glass-border-light: hsl(217 85% 29% / 0.06);
+    --glass-border-light: hsl(224 71% 37% / 0.06);
     --glass-blur: blur(24px) saturate(1.8);
     --glass-blur-heavy: blur(40px) saturate(2);
     --glass-blur-nav: blur(20px) saturate(1.6);
