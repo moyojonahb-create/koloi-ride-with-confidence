@@ -274,7 +274,7 @@ function InnerMapGoogle({
             {/* White outline underneath */}
             <Polyline path={[driverLocation, pickup]} options={{ strokeColor: '#ffffff', strokeWeight: 6, strokeOpacity: 1, zIndex: 1 }} />
             {/* Dashed blue animated line */}
-            <Polyline path={[driverLocation, pickup]} options={{ strokeColor: '#2563EB', strokeWeight: 3, strokeOpacity: 0, zIndex: 3, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4, strokeColor: '#2563EB' }, offset: '0', repeat: '16px' }] }} />
+            <Polyline path={[driverLocation, pickup]} options={{ strokeColor: '#1B3FA0', strokeWeight: 3, strokeOpacity: 0, zIndex: 3, icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4, strokeColor: '#1B3FA0' }, offset: '0', repeat: '16px' }] }} />
           </>
         )}
         {/* Secondary route (only when premium overlay is NOT handling it) */}
