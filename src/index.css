@@ -205,9 +205,9 @@
     --glass-shadow: 0 1px 3px hsl(0 0% 0% / 0.2), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
     --glass-shadow-lg: 0 8px 32px hsl(0 0% 0% / 0.3), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
     --glass-shadow-elevated: 0 12px 40px hsl(0 0% 0% / 0.4), 0 0 0 0.5px hsl(0 0% 100% / 0.04);
-    --glass-glow-blue: 0 0 0 0.5px hsl(213 83% 56% / 0.2), 0 0 16px hsl(213 83% 56% / 0.06);
+    --glass-glow-blue: 0 0 0 0.5px hsl(225 65% 48% / 0.2), 0 0 16px hsl(225 65% 48% / 0.06);
     --glass-separator: 0.5px solid hsla(0, 0%, 100%, 0.06);
-    --gradient-primary: linear-gradient(135deg, hsl(217 85% 22%), hsl(213 83% 40%));
+    --gradient-primary: linear-gradient(135deg, hsl(225 69% 28%), hsl(225 65% 48%));
     --gradient-glass-shine: linear-gradient(180deg, hsla(0, 0%, 100%, 0.06) 0%, hsla(0, 0%, 100%, 0) 100%);
   }
 }
