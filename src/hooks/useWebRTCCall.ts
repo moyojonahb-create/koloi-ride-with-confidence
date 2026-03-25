@@ -62,6 +62,7 @@ export function useWebRTCCall({
   const remoteAudioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const iceCandidateQueueRef = useRef<RTCIceCandidateInit[]>([]);
+  const isCallerRef = useRef(false); // Track if this user is the caller
 
   // Refs for stable access in callbacks
   const sessionIdRef = useRef<string | null>(null);
