@@ -158,6 +158,10 @@ export function useWebRTCCall({
         (payload) => {
           const session = payload.new as Record<string, unknown>;
           if (session.status === "ringing" && callStatusRef.current === "idle") {
+            // Start incoming ringtone for callee
+            startRingtone('incoming');
+            // Show system notification for background support
+            showCallNotification(session.caller_id as string);
             setIncomingCall({
               sessionId: session.id as string,
               callerId: session.caller_id as string,
