@@ -347,6 +347,9 @@ export function useWebRTCCall({
     if (!incomingCall) return;
 
     try {
+      // Stop incoming ringtone
+      stopRingtone();
+
       await supabase
         .from("call_sessions")
         .update({ status: "answered" })
