@@ -11,18 +11,7 @@ interface AdminGuardProps {
 const AdminGuard = ({ children }: AdminGuardProps) => {
   const { isAdmin, isLoading, error } = useAdminAuth();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-          <p className="mt-4 text-muted-foreground">Verifying admin access...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !isAdmin) {
+  if (!isLoading && (error || !isAdmin)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="text-center max-w-md">
