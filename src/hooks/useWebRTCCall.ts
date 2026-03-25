@@ -208,6 +208,8 @@ export function useWebRTCCall({
   }, [currentUserId]);
 
   const cleanup = useCallback(async () => {
+    // Stop any ringtone
+    stopRingtone();
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
