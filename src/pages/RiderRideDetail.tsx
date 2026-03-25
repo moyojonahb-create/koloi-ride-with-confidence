@@ -777,7 +777,7 @@ export default function RiderRideDetail() {
 
           {/* Rate driver button */}
           {ride?.status === "completed" && !hasRated && !showRating && ride.driver_id && user && (
-            <Button className="w-full h-[52px] gap-2 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground font-bold" onClick={() => setShowRating(true)}>
+            <Button className="w-full h-[52px] gap-2 rounded-2xl bg-primary hover:brightness-110 text-primary-foreground font-bold" onClick={() => setShowRating(true)}>
               <Star className="h-4 w-4" /> Rate Your Driver
             </Button>
           )}
