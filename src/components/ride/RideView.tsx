@@ -268,8 +268,12 @@ export default function RideView() {
   const handleSendOffer = async (customFare: number) => {
     if (!user) {setAuthMode('login');setAuthModalOpen(true);return;}
     if (!pickupLocation || !dropoffLocation || !fareEstimate) {toast({ title: 'Select pickup and destination', variant: 'destructive' });return;}
+    
+    // ⚡ INSTANT UI RESPONSE — update state before network call
     haptic('medium');
-    setIsRequesting(true);setRideStatus('searching');
+    setIsRequesting(true);
+    setRideStatus('searching');
+    
     try {
       const result = await requestRide({
         pickup_address: pickupLocation.name, pickup_lat: pickupLocation.lat, pickup_lng: pickupLocation.lng,
@@ -312,14 +316,14 @@ export default function RideView() {
       }
 
       setCurrentRideId(result.ride.id);
-      toast({
-        title: scheduledAt ? 'Ride scheduled!' : 'Offer sent!',
-        description: bookForSomeoneElse && passengerName.trim() ?
-        `Passenger: ${passengerName.trim()}${passengerPhone.trim() ? ` (${passengerPhone.trim()})` : ''}` :
-        `${fareEstimate.currencySymbol}${customFare} — ${scheduledAt ? 'scheduled for later' : 'waiting for drivers…'}`
-      });
-      if (!scheduledAt) navigate(`/ride/${result.ride.id}`);else
-      {setRideStatus('idle');setScheduledAt(null);setRideStops([]);}
+      
+      // ⚡ Navigate instantly — the ride detail page renders map immediately
+      if (!scheduledAt) {
+        navigate(`/ride/${result.ride.id}`, { replace: true });
+      } else {
+        toast({ title: 'Ride scheduled!', description: 'Your ride has been scheduled for later.' });
+        setRideStatus('idle');setScheduledAt(null);setRideStops([]);
+      }
     } catch (error: unknown) {toast({ title: 'Failed to send offer', description: (error as Error).message, variant: 'destructive' });setRideStatus('idle');} finally {setIsRequesting(false);}
   };
 
@@ -856,28 +860,35 @@ export default function RideView() {
         {/* ── PINNED FIND DRIVERS BUTTON ── always visible at bottom */}
         <div className="shrink-0 px-4 pb-3 pt-2">
           {pickupLocation && dropoffLocation && fareEstimate ? (() => {
-            const activeTown = selectedTown.name;
             const extraPassengers = Math.max(passengerCount - 3, 0);
             const extraPassengerFee = extraPassengers * 0.5;
             const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee;
             const sym = fareEstimate.currencySymbol;
-            const code = fareEstimate.currencyCode;
             const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
             return (
               <PrimaryButton
                 onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
                 disabled={isRequesting}
-                className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center">
+                className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center active:scale-[0.97] transition-transform">
                 
-                {isRequesting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Car className="w-4 h-4" />}
-                {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
+                {isRequesting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                    Finding your ride…
+                  </>
+                ) : (
+                  <>
+                    <Car className="w-4 h-4" />
+                    {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
+                  </>
+                )}
               </PrimaryButton>);
 
           })() :
           <SecondaryButton
             disabled
             className="w-full h-[48px] text-[15px] font-semibold rounded-2xl bg-primary/30 text-primary-foreground border-transparent">
-              {pickupLocation && dropoffLocation ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Calculating…</> : 'Find Drivers'}
+              {pickupLocation && dropoffLocation ? <><div className="w-4 h-4 border-2 border-primary-foreground/50 border-t-transparent rounded-full animate-spin mr-2" />Calculating…</> : 'Find Drivers'}
             </SecondaryButton>
           }
         </div>
