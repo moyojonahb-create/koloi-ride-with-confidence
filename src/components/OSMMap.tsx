@@ -353,7 +353,7 @@ const OSMMap = forwardRef<HTMLDivElement, OSMMapProps>(function OSMMap({
         const decoded = decodePolyline(routeGeometry);
         if (decoded.length > 0) {
           routeLayerRef.current = L.polyline(decoded, {
-            color: '#2563eb', // Blue
+            color: '#1B3FA0',
             weight: 5,
             opacity: 0.9,
             lineCap: 'round',
