@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { completeTrip } from "@/lib/completeTrip";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
