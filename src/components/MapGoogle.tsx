@@ -288,7 +288,7 @@ function InnerMapGoogle({
         {routePath.length > 1 && (
           <>
             <Polyline path={routePath} options={{ strokeColor: '#ffffff', strokeWeight: 9, strokeOpacity: 1, zIndex: 1 }} />
-            <Polyline path={routePath} options={{ strokeColor: '#2563EB', strokeWeight: 5, strokeOpacity: 1, zIndex: 2 }} />
+            <Polyline path={routePath} options={{ strokeColor: '#1B3FA0', strokeWeight: 5, strokeOpacity: 1, zIndex: 2 }} />
           </>
         )}
       </GoogleMap>

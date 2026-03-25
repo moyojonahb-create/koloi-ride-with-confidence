@@ -59,12 +59,12 @@ const pickupIcon = L.divIcon({
 const dropoffIcon = L.divIcon({
   html: `
     <div class="flex flex-col items-center">
-      <div class="w-10 h-10 rounded-full bg-blue-600 border-4 border-white shadow-lg flex items-center justify-center">
+      <div class="w-10 h-10 rounded-full border-4 border-white shadow-lg flex items-center justify-center" style="background:#1B3FA0">
         <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 4l-8 8h5v8h6v-8h5z"/>
         </svg>
       </div>
-      <span class="mt-1 px-2 py-0.5 bg-blue-600 text-white text-xs font-bold rounded shadow">Drop-off</span>
+      <span class="mt-1 px-2 py-0.5 text-white text-xs font-bold rounded shadow" style="background:#1B3FA0">Drop-off</span>
     </div>
   `,
   className: 'custom-marker',
