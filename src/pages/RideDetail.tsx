@@ -451,69 +451,56 @@ export default function RideDetail() {
           <div className="w-10 h-1 rounded-full bg-border" />
         </div>
 
-        <div className="px-4 pb-4 space-y-3 max-h-[60vh] overflow-y-auto">
+        <div className="px-4 pb-3 space-y-2 max-h-[40vh] overflow-y-auto">
 
-          {/* Status bar */}
-          <div className="flex items-center gap-3">
-            <div className={`w-2.5 h-2.5 rounded-full ${status.color} ${isSearching ? 'animate-pulse' : ''}`} />
-            <p className="text-sm font-semibold text-foreground flex-1">{status.label}</p>
+          {/* Status + fare — single compact row */}
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${status.color} ${isSearching ? 'animate-pulse' : ''}`} />
+            <p className="text-xs font-semibold text-foreground flex-1 truncate">{status.label}</p>
             {isSearching && (
-              <span className="text-xs text-muted-foreground">{driversViewing} driver{driversViewing === 1 ? "" : "s"} nearby</span>
+              <span className="text-[10px] text-muted-foreground">{driversViewing} nearby</span>
             )}
+            <span className="text-sm font-bold text-foreground">${Number(ride.fare ?? 0).toFixed(2)}</span>
           </div>
 
-          {/* Route info — compact inDrive style */}
-          <div className="flex items-start gap-3 p-3 rounded-2xl bg-muted/50">
-            <div className="flex flex-col items-center gap-1 pt-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-              <div className="w-px h-6 bg-border" />
-              <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+          {/* Route info — ultra compact */}
+          <div className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-muted/40">
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+              <div className="w-px h-3 bg-border" />
+              <div className="w-1.5 h-1.5 rounded-full bg-accent" />
             </div>
-            <div className="flex-1 min-w-0 space-y-3">
-              <div>
-                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Pickup</p>
-                <p className="text-sm font-medium text-foreground truncate">{ride.pickup_address ?? "My location"}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Drop-off</p>
-                <p className="text-sm font-medium text-foreground truncate">{ride.dropoff_address ?? "—"}</p>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <p className="text-lg font-bold text-foreground">${Number(ride.fare ?? 0).toFixed(2)}</p>
-              <p className="text-[10px] text-muted-foreground">Fare</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-medium text-foreground truncate">{ride.pickup_address ?? "My location"}</p>
+              <p className="text-[11px] text-muted-foreground truncate">{ride.dropoff_address ?? "—"}</p>
             </div>
           </div>
 
-          {/* Action buttons — when driver accepted */}
+          {/* Action buttons — compact row */}
           {driverProfile && (
-            <div className="rounded-2xl border border-border bg-card p-3">
-
-              {/* Action buttons — inDrive style row */}
-              <div className="flex items-center gap-2 mt-3">
-                <button onClick={startCall} disabled={callStatus !== "idle"}
-                  className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.97] transition-all disabled:opacity-50">
-                  <Phone className="w-4 h-4" /> Call
-                </button>
-                <button onClick={() => setChatOpen(v => !v)}
-                  className="flex-1 h-11 rounded-xl bg-primary text-primary-foreground font-semibold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.97] transition-all">
-                  <MessageCircle className="w-4 h-4" /> Message
-                </button>
-                <button onClick={() => setToast("Safety center coming soon")}
-                  className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center active:scale-[0.97] transition-all">
-                  <Shield className="w-4.5 h-4.5 text-muted-foreground" />
-                </button>
-              </div>
+            <div className="flex items-center gap-1.5">
+              <button onClick={startCall} disabled={callStatus !== "idle"}
+                className="flex-1 h-9 rounded-xl bg-primary text-primary-foreground font-semibold text-xs inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-all disabled:opacity-50">
+                <Phone className="w-3.5 h-3.5" /> Call
+              </button>
+              <button onClick={() => setChatOpen(v => !v)}
+                className="flex-1 h-9 rounded-xl bg-primary text-primary-foreground font-semibold text-xs inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-all">
+                <MessageCircle className="w-3.5 h-3.5" /> Message
+              </button>
+              <button onClick={() => setToast("Safety center coming soon")}
+                className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center active:scale-[0.97] transition-all">
+                <Shield className="w-4 h-4 text-muted-foreground" />
+              </button>
             </div>
           )}
 
           {/* Settlement for completed trips */}
           {isCompleted && <SettlementInfo tripId={ride.id} />}
 
-          {/* View Offers button — when searching */}
+          {/* View Offers button */}
           {!accepted && (
             <button onClick={() => setShowOffersModal(true)}
-              className="w-full h-12 rounded-2xl border border-white/30 bg-primary/20 backdrop-blur-xl text-primary font-bold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_4px_16px_hsl(var(--primary)/0.2)]">
+              className="w-full h-10 rounded-xl border border-white/30 bg-primary/20 backdrop-blur-xl text-primary font-bold text-xs inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-all shadow-[0_4px_16px_hsl(var(--primary)/0.2)]">
               View Offers {pendingOfferCount > 0 && `(${pendingOfferCount})`}
             </button>
           )}
@@ -527,7 +514,7 @@ export default function RideDetail() {
                 await supabase.from("rides").update({ status: "cancelled" }).eq("id", rideId);
                 nav("/ride");
               }}
-              className="w-full h-12 rounded-2xl border border-white/30 bg-destructive/15 backdrop-blur-xl text-destructive font-bold text-sm inline-flex items-center justify-center active:scale-[0.98] transition-all">
+              className="w-full h-9 rounded-xl border border-white/30 bg-destructive/15 backdrop-blur-xl text-destructive font-semibold text-xs inline-flex items-center justify-center active:scale-[0.98] transition-all">
               Cancel Ride
             </button>
           )}
