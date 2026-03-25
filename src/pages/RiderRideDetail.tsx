@@ -417,7 +417,33 @@ export default function RiderRideDetail() {
         </div>
 
         <div className="px-4 pb-4 space-y-3">
-          {/* Route info - hide when completed since summary shows it */}
+          {/* Completed summary */}
+          {ride.status === "completed" && (
+            <RideCompleteSummary
+              fare={ride.fare}
+              distanceKm={ride.distance_km}
+              durationMinutes={ride.duration_minutes}
+              pickupAddress={ride.pickup_address}
+              dropoffAddress={ride.dropoff_address}
+              driverName={driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined}
+              onRate={() => setShowRating(true)}
+              onBookAgain={() => nav('/ride', { state: { rebook: { pickup: { name: ride.pickup_address, lat: ride.pickup_lat, lng: ride.pickup_lon }, dropoff: { name: ride.dropoff_address, lat: ride.dropoff_lat, lng: ride.dropoff_lon } } } })}
+              onSaveLocation={() => {
+                if (user) {
+                  supabase.from('favorite_locations').insert({
+                    user_id: user.id,
+                    name: ride.dropoff_address,
+                    address: ride.dropoff_address,
+                    latitude: ride.dropoff_lat,
+                    longitude: ride.dropoff_lon
+                  }).then(() => toast.success('Location saved!'));
+                }
+              }}
+              hasRated={hasRated}
+            />
+          )}
+
+          {/* Route info + fare - shown when not completed */}
           {ride.status !== "completed" && (
           <div className="bg-card rounded-2xl p-4 border border-border/40">
             <div className="flex items-start gap-3">
@@ -432,43 +458,16 @@ export default function RiderRideDetail() {
               </div>
             </div>
 
-            {ride.status === "completed" && (
-              <div className="mt-4">
-                <RideCompleteSummary
-                  fare={ride.fare}
-                  distanceKm={ride.distance_km}
-                  durationMinutes={ride.duration_minutes}
-                  pickupAddress={ride.pickup_address}
-                  dropoffAddress={ride.dropoff_address}
-                  driverName={driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined}
-                  onRate={() => setShowRating(true)}
-                  onBookAgain={() => nav('/ride', { state: { rebook: { pickup: { name: ride.pickup_address, lat: ride.pickup_lat, lng: ride.pickup_lon }, dropoff: { name: ride.dropoff_address, lat: ride.dropoff_lat, lng: ride.dropoff_lon } } } })}
-                  onSaveLocation={() => {
-                    if (user) {
-                      supabase.from('favorite_locations').insert({
-                        user_id: user.id,
-                        name: ride.dropoff_address,
-                        address: ride.dropoff_address,
-                        latitude: ride.dropoff_lat,
-                        longitude: ride.dropoff_lon
-                      }).then(() => toast.success('Location saved!'));
-                    }
-                  }}
-                  hasRated={hasRated}
-                />
-              </div>
-            )}
-
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/30">
               <div>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Your offer</p>
                 {isPending ? (
                   <div className="flex items-center gap-2 mt-1">
-                    <Button variant="outline" size="icon" className="h-8 w-8 glass-btn" onClick={() => updateFare(ride.fare - 5)} disabled={updatingFare || ride.fare <= 10}>
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateFare(ride.fare - 5)} disabled={updatingFare || ride.fare <= 10}>
                       <Minus className="h-4 w-4" />
                     </Button>
                     <span className="font-black text-xl min-w-[60px] text-center text-foreground">${ride.fare.toFixed(2)}</span>
-                    <Button variant="outline" size="icon" className="h-8 w-8 glass-btn" onClick={() => updateFare(ride.fare + 5)} disabled={updatingFare}>
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateFare(ride.fare + 5)} disabled={updatingFare}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
@@ -478,10 +477,11 @@ export default function RiderRideDetail() {
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status</p>
-                <p className="font-semibold capitalize text-primary">{ride.status}</p>
+                <p className="font-semibold capitalize text-primary">{ride.status.replace('_', ' ')}</p>
               </div>
             </div>
           </div>
+          )}
 
           {/* Enhanced searching experience */}
           {isPending && (
