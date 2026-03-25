@@ -1,24 +1,27 @@
 // PickMe notification sounds
 // Uses Web Audio API for reliable playback
 
-type NotificationType = 'newRequest' | 'accepted' | 'message';
+type NotificationType = 'newRequest' | 'accepted' | 'message' | 'offerReceived';
 
 const frequencies: Record<NotificationType, number[]> = {
   newRequest: [440, 554, 659, 880, 1047, 880, 1047],
   accepted: [523, 659, 784, 1047, 784, 1047],
   message: [784, 988, 784, 988],
+  offerReceived: [659, 784, 988, 1175],
 };
 
 const durations: Record<NotificationType, number> = {
   newRequest: 180,
   accepted: 200,
   message: 120,
+  offerReceived: 150,
 };
 
 const volumes: Record<NotificationType, number> = {
   newRequest: 0.6,
   accepted: 0.5,
   message: 0.4,
+  offerReceived: 0.55,
 };
 
 let audioContext: AudioContext | null = null;
