@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { completeTrip } from "@/lib/completeTrip";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
@@ -30,7 +31,10 @@ import CancellationPolicy from "@/components/ride/CancellationPolicy";
 import EmergencyButton from "@/components/ride/EmergencyButton";
 import DriverRatingModal from "@/components/ride/DriverRatingModal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { playAcceptedSound, playNewRequestSound } from "@/lib/notificationSounds";
+import { playAcceptedSound, playNewRequestSound, playArrivedSound, playCompletedSound } from "@/lib/notificationSounds";
+import SearchingOverlay from "@/components/ride/SearchingOverlay";
+import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
+import { haptic } from "@/lib/haptics";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
@@ -106,20 +110,35 @@ export default function RiderRideDetail() {
     if (error) { setError(error.message); return; }
 
     const wasAccepted = ride?.status !== "accepted" && data.status === "accepted";
+    const wasArrived = ride?.status !== "driver_arrived" && ride?.status !== "arrived" && (data.status === "driver_arrived" || data.status === "arrived");
     const wasCompleted = ride?.status !== "completed" && data.status === "completed";
     setRide(data as Ride);
 
     if (wasAccepted) {
       playAcceptedSound();
+      haptic('medium');
       try {
         if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
           new Notification("🎉 Driver Accepted!", { body: "Your ride has been confirmed.", icon: "/icons/icon-192x192.png" });
         }
-      } catch (_) {
-        // ignore notification errors
-      }
+      } catch (_) {}
     }
-    if (wasCompleted && !hasRated) setShowRating(true);
+
+    if (wasArrived) {
+      playArrivedSound();
+      haptic('heavy');
+      try {
+        if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
+          new Notification("📍 Driver Has Arrived!", { body: "Your driver is waiting at the pickup point.", icon: "/icons/icon-192x192.png" });
+        }
+      } catch (_) {}
+    }
+
+    if (wasCompleted) {
+      playCompletedSound();
+      haptic('medium');
+      if (!hasRated) setShowRating(false); // Don't auto-show rating, show summary first
+    }
 
     if (data.driver_id && (data.status === "accepted" || data.status === "in_progress" || data.status === "arrived")) {
       try {
@@ -363,17 +382,71 @@ export default function RiderRideDetail() {
         </div>
       </div>
 
-      {/* ETA Banner removed from map - now shown below accepted driver card */}
+      {/* Driver arrived banner */}
+      {(ride.status === "driver_arrived" || ride.status === "arrived") && (
+        <motion.div
+          initial={{ y: -40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="absolute top-24 left-4 right-4 z-30 bg-primary text-primary-foreground rounded-2xl p-4 flex items-center gap-3 shadow-lg"
+        >
+          <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center shrink-0">
+            <MapPin className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="font-bold text-sm">Your driver has arrived!</p>
+            <p className="text-xs opacity-80">Head to the pickup point</p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* In-progress reassurance */}
+      {ride.status === "in_progress" && (
+        <motion.div
+          initial={{ y: -40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="absolute top-24 left-4 right-4 z-30 bg-card border border-border/40 rounded-2xl p-3 flex items-center gap-3 shadow-sm"
+        >
+          <Shield className="w-5 h-5 text-primary shrink-0" />
+          <p className="text-sm font-medium text-foreground">You're on your way safely ✓</p>
+        </motion.div>
+      )}
 
       {/* Bottom glass panel */}
-      <div className="absolute left-0 right-0 z-50 glass-card-heavy max-h-[50vh] overflow-y-auto" style={{ bottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="sticky top-0 pt-3 pb-2 z-10" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, background: 'var(--gradient-primary)' }}>
-          <div className="w-10 h-1 rounded-full bg-primary-foreground/40 mx-auto" />
+      <div className="absolute left-0 right-0 z-50 bg-card max-h-[50vh] overflow-y-auto shadow-[0_-4px_30px_rgba(0,0,0,0.08)]" style={{ bottom: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="sticky top-0 pt-3 pb-2 z-10 bg-card" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
+          <div className="w-10 h-1 rounded-full bg-primary mx-auto" />
         </div>
 
         <div className="px-4 pb-4 space-y-3">
-          {/* Route info */}
-          <div className="glass-card rounded-2xl p-4 glass-glow-blue">
+          {/* Completed summary */}
+          {ride.status === "completed" && (
+            <RideCompleteSummary
+              fare={ride.fare}
+              distanceKm={ride.distance_km}
+              durationMinutes={ride.duration_minutes}
+              pickupAddress={ride.pickup_address}
+              dropoffAddress={ride.dropoff_address}
+              driverName={driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined}
+              onRate={() => setShowRating(true)}
+              onBookAgain={() => nav('/ride', { state: { rebook: { pickup: { name: ride.pickup_address, lat: ride.pickup_lat, lng: ride.pickup_lon }, dropoff: { name: ride.dropoff_address, lat: ride.dropoff_lat, lng: ride.dropoff_lon } } } })}
+              onSaveLocation={() => {
+                if (user) {
+                  supabase.from('favorite_locations').insert({
+                    user_id: user.id,
+                    name: ride.dropoff_address,
+                    address: ride.dropoff_address,
+                    latitude: ride.dropoff_lat,
+                    longitude: ride.dropoff_lon
+                  }).then(() => toast.success('Location saved!'));
+                }
+              }}
+              hasRated={hasRated}
+            />
+          )}
+
+          {/* Route info + fare - shown when not completed */}
+          {ride.status !== "completed" && (
+          <div className="bg-card rounded-2xl p-4 border border-border/40">
             <div className="flex items-start gap-3">
               <div className="flex flex-col items-center">
                 <div className="w-3 h-3 rounded-full bg-accent" />
@@ -386,27 +459,16 @@ export default function RiderRideDetail() {
               </div>
             </div>
 
-            {ride.status === "completed" && (
-              <div className="mt-4">
-                <TripReceipt
-                  ride={{ ...ride, payment_method: 'cash', vehicle_type: 'standard', created_at: new Date().toISOString() }}
-                  driverName={driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined}
-                  onRateDriver={!hasRated && ride.driver_id ? () => setShowRating(true) : undefined}
-                  hasRated={hasRated}
-                />
-              </div>
-            )}
-
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/30">
               <div>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Your offer</p>
                 {isPending ? (
                   <div className="flex items-center gap-2 mt-1">
-                    <Button variant="outline" size="icon" className="h-8 w-8 glass-btn" onClick={() => updateFare(ride.fare - 5)} disabled={updatingFare || ride.fare <= 10}>
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateFare(ride.fare - 5)} disabled={updatingFare || ride.fare <= 10}>
                       <Minus className="h-4 w-4" />
                     </Button>
                     <span className="font-black text-xl min-w-[60px] text-center text-foreground">${ride.fare.toFixed(2)}</span>
-                    <Button variant="outline" size="icon" className="h-8 w-8 glass-btn" onClick={() => updateFare(ride.fare + 5)} disabled={updatingFare}>
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateFare(ride.fare + 5)} disabled={updatingFare}>
                       <Plus className="h-4 w-4" />
                     </Button>
                   </div>
@@ -416,29 +478,20 @@ export default function RiderRideDetail() {
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status</p>
-                <p className="font-semibold capitalize text-primary">{ride.status}</p>
+                <p className="font-semibold capitalize text-primary">{ride.status.replace('_', ' ')}</p>
               </div>
             </div>
           </div>
+          )}
 
-          {/* Expiry countdown */}
-          {isPending && ride.expires_at && (
-            <div className={`glass-card rounded-2xl p-4 ${secondsLeft <= 10 ? 'ring-1 ring-destructive/30' : 'glass-glow-blue'}`}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-muted-foreground" />
-                  <span className="font-semibold text-foreground text-sm">Waiting for drivers…</span>
-                </div>
-                <span className={`font-black text-lg ${secondsLeft <= 10 ? 'text-destructive' : 'text-primary'}`}>
-                  {secondsLeft}s
-                </span>
-              </div>
-              <div className="w-full h-2 bg-muted/50 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-200 ${secondsLeft <= 10 ? 'bg-destructive' : 'bg-primary'}`}
-                  style={{ width: `${Math.min(100, secondsLeft / 30 * 100)}%` }} />
-              </div>
-            </div>
+          {/* Enhanced searching experience */}
+          {isPending && (
+            <SearchingOverlay
+              secondsLeft={secondsLeft}
+              driversNearby={nearbyDrivers.length}
+              offersCount={offers.length}
+              onCancel={handleCancelRide}
+            />
           )}
 
           {/* Offers section */}

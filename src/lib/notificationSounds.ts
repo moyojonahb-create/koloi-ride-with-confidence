@@ -105,3 +105,29 @@ export function playUrgentAlert(): void {
 export function playNewRequestSound(): void { playNotificationSound('newRequest'); }
 export function playAcceptedSound(): void { playNotificationSound('accepted'); }
 export function playMessageSound(): void { playNotificationSound('message'); }
+
+export function playArrivedSound(): void {
+  try {
+    const ctx = getAudioContext();
+    const currentTime = ctx.currentTime;
+    const notes = [659, 784, 988, 1175, 988, 1175];
+    notes.forEach((freq, i) => {
+      playTone(freq, 250, currentTime + i * 0.28, 0.55, 'sine');
+    });
+  } catch (e) {
+    console.warn('Audio playback not available:', e);
+  }
+}
+
+export function playCompletedSound(): void {
+  try {
+    const ctx = getAudioContext();
+    const currentTime = ctx.currentTime;
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((freq, i) => {
+      playTone(freq, 300, currentTime + i * 0.3, 0.5, 'sine');
+    });
+  } catch (e) {
+    console.warn('Audio playback not available:', e);
+  }
+}
