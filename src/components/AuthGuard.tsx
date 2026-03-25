@@ -19,7 +19,13 @@ export default function AuthGuard({ children }: Props) {
   }, [user, loading, navigate]);
 
   // After first auth check, never show spinner again — render instantly
-  if (loading && !checkedOnce.current) return null;
+  if (loading && !checkedOnce.current) {
+    return (
+      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!user) return null;
 
