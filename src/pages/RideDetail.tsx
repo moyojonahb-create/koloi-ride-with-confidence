@@ -51,7 +51,7 @@ function SettlementInfo({ tripId }: { tripId: string }) {
   }
   return (
     <button onClick={handleSettle} disabled={settling}
-      className="mt-3 w-full py-3 rounded-2xl bg-primary text-primary-foreground font-bold text-sm active:scale-[0.98] transition-all">
+      className="mt-3 w-full py-3 rounded-2xl border border-white/30 bg-primary/20 backdrop-blur-xl text-primary font-bold text-sm active:scale-[0.98] transition-all shadow-[0_4px_16px_hsl(var(--primary)/0.2)]">
       {settling ? "Settling..." : "Settle Now"}
     </button>
   );

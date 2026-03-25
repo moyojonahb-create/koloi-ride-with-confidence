@@ -107,7 +107,7 @@ export default function RideUI({
             disabled={!canRequest}
             className={`w-full py-3 font-semibold rounded-b-3xl transition ${
               canRequest
-                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                ? "border border-white/30 bg-primary/20 backdrop-blur-xl text-primary hover:bg-primary/30 shadow-[0_4px_16px_hsl(var(--primary)/0.2)]"
                 : "bg-muted text-muted-foreground cursor-not-allowed"
             }`}
           >
