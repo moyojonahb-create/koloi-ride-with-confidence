@@ -514,7 +514,7 @@ export default function RideDetail() {
                 await supabase.from("rides").update({ status: "cancelled" }).eq("id", rideId);
                 nav("/ride");
               }}
-              className="w-full h-9 rounded-xl border border-white/30 bg-destructive/15 backdrop-blur-xl text-destructive font-semibold text-xs inline-flex items-center justify-center active:scale-[0.98] transition-all">
+              className="w-full h-9 rounded-xl bg-destructive text-white font-semibold text-xs inline-flex items-center justify-center active:scale-[0.98] transition-all">
               Cancel Ride
             </button>
           )}
