@@ -454,8 +454,8 @@ export default function RideDetail() {
       </div>
 
       {/* ── Bottom Panel — inDrive style ── */}
-      <div className="absolute bottom-0 left-0 right-0 z-50 bg-card shadow-[0_-8px_40px_rgba(0,0,0,0.12)]" style={{ borderRadius: '28px 28px 0 0' }}
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
+      <div className="absolute bottom-0 left-0 right-0 z-50 bg-card shadow-[0_-8px_40px_rgba(0,0,0,0.12)]"
+        style={{ borderRadius: '28px 28px 0 0', paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
 
         {/* Handle */}
         <div className="flex justify-center pt-3 pb-2">
