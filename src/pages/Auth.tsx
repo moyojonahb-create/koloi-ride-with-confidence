@@ -30,6 +30,8 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [signupError, setSignupError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
   
 
   useEffect(() => {
@@ -40,16 +42,13 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError(null);
     if (!email || !password) return;
     setIsSubmitting(true);
     try {
       const { error } = await signIn(email, password);
       if (error) {
-        toast({
-          title: 'Login failed',
-          description: error.message || 'Invalid credentials',
-          variant: 'destructive',
-        });
+        setLoginError(error.message || 'Invalid credentials');
       } else {
         toast({ title: 'Welcome back!' });
         navigate('/app');
@@ -75,16 +74,17 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSignupError(null);
     if (!fullName || fullName.length < 2) {
-      toast({ title: 'Name must be at least 2 characters', variant: 'destructive' });
+      setSignupError('Name must be at least 2 characters.');
       return;
     }
     if (!phone || phone.replace(/\D/g, '').length < 9) {
-      toast({ title: 'Please enter a valid phone number', variant: 'destructive' });
+      setSignupError('Please enter a valid phone number.');
       return;
     }
     if (!password || password.length < 8) {
-      toast({ title: 'Password must be at least 8 characters', variant: 'destructive' });
+      setSignupError('Password must be at least 8 characters.');
       return;
     }
     const hasUpper = /[A-Z]/.test(password);
@@ -92,7 +92,7 @@ const Auth = () => {
     const hasDigit = /[0-9]/.test(password);
     const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password);
     if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
-      toast({ title: 'Weak password', description: 'Must include uppercase, lowercase, number, and special character (e.g. !@#$%).', variant: 'destructive' });
+      setSignupError('Password must include uppercase, lowercase, number, and special character (e.g. !@#$%).');
       return;
     }
 
@@ -100,7 +100,6 @@ const Auth = () => {
     try {
       const formattedPhone = formatPhone(phone);
 
-      // Check if phone is already registered
       const { data: existingPhone } = await supabase
         .from('profiles')
         .select('id')
@@ -108,7 +107,7 @@ const Auth = () => {
         .maybeSingle();
 
       if (existingPhone) {
-        toast({ title: 'Phone already registered', description: 'This phone number is already linked to an account. Please sign in.', variant: 'destructive' });
+        setSignupError('This phone number is already linked to an account. Please sign in instead.');
         setIsSubmitting(false);
         return;
       }
@@ -119,16 +118,15 @@ const Auth = () => {
       if (error) {
         let message = error.message;
         if (message.includes('already registered') || message.includes('already been registered')) {
-          message = 'An account with this email/phone already exists. Please sign in.';
+          message = 'An account with this email/phone already exists. Please sign in instead.';
         }
         if (message.includes('weak_password') || message.includes('Password should contain')) {
           message = 'Password must include uppercase, lowercase, number, and a special character (e.g. !@#$%).';
         }
-        toast({ title: 'Signup failed', description: message, variant: 'destructive' });
+        setSignupError(message);
         return;
       }
 
-      // Update profile with phone number
       const { data: authData } = await supabase.auth.getUser();
       if (authData?.user) {
         await supabase.from('profiles').update({ phone: formattedPhone }).eq('user_id', authData.user.id);
@@ -204,6 +202,11 @@ const Auth = () => {
 
           {mode === 'login' ? (
             <form onSubmit={handleLogin} className="space-y-4">
+              {loginError && (
+                <div className="rounded-xl bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive font-medium animate-in fade-in slide-in-from-top-2 duration-300">
+                  ⚠️ {loginError}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="login-email">Email or Phone</Label>
                 <Input
@@ -267,6 +270,11 @@ const Auth = () => {
             </form>
           ) : (
             <form onSubmit={handleSignup} className="space-y-4">
+              {signupError && (
+                <div className="rounded-xl bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive font-medium animate-in fade-in slide-in-from-top-2 duration-300">
+                  ⚠️ {signupError}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="signup-name">Full Name</Label>
                 <Input
@@ -363,14 +371,14 @@ const Auth = () => {
             {mode === 'login' ? (
               <p className="text-muted-foreground">
                 Don't have an account?{' '}
-                <button onClick={() => setMode('signup')} className="text-accent font-medium hover:underline">
+                <button onClick={() => { setMode('signup'); setSignupError(null); setLoginError(null); }} className="text-accent font-medium hover:underline">
                   Sign up
                 </button>
               </p>
             ) : (
               <p className="text-muted-foreground">
                 Already have an account?{' '}
-                <button onClick={() => setMode('login')} className="text-accent font-medium hover:underline">
+                <button onClick={() => { setMode('login'); setSignupError(null); setLoginError(null); }} className="text-accent font-medium hover:underline">
                   Sign in
                 </button>
               </p>
