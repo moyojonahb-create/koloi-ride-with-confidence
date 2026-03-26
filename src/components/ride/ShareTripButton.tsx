@@ -65,14 +65,23 @@ export default function ShareTripButton({ rideId, pickupAddress, dropoffAddress,
 
   return (
     <button
-      onClick={handleShare}
-      className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center active:scale-[0.95] transition-all"
+      onClick={(e) => {
+        e.stopPropagation();
+        handleShare();
+      }}
+      className="flex items-center gap-1.5 px-3 h-9 rounded-xl bg-primary/10 active:scale-[0.95] transition-all"
       title="Share Trip"
     >
       {copied ? (
-        <Check className="w-4 h-4 text-primary" />
+        <>
+          <Check className="w-4 h-4 text-primary" />
+          <span className="text-xs font-medium text-primary">Copied!</span>
+        </>
       ) : (
-        <Share2 className="w-4 h-4 text-primary" />
+        <>
+          <Share2 className="w-4 h-4 text-primary" />
+          <span className="text-xs font-medium text-primary">Share</span>
+        </>
       )}
     </button>
   );
