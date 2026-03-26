@@ -30,7 +30,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [accountType, setAccountType] = useState<'rider' | 'driver'>('rider');
+  
 
   useEffect(() => {
     if (!loading && user) {
