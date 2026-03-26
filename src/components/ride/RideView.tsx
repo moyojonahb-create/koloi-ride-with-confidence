@@ -48,8 +48,7 @@ import { useLandmarks as useLandmarksSearch, type Landmark } from '@/hooks/useLa
 import { DEFAULT_TOWN, detectTown, type TownConfig } from '@/lib/towns';
 import TownSelectorSheet from './TownSelectorSheet';
 import ShareTripButton from './ShareTripButton';
-import RidePreferences from './RidePreferences';
-import AccessibilityFilters from './AccessibilityFilters';
+import { useRiderPreferences } from '@/components/settings/RiderPreferencesSettings';
 
 // ── types ──
 import { type ServiceType } from '@/components/VehicleTypeSelector';
@@ -115,11 +114,12 @@ export default function RideView() {
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
   const [activeStopId, setActiveStopId] = useState<string | null>(null);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
-  const [genderPreference, setGenderPreference] = useState<GenderPreference>('any');
-  const [quietRide, setQuietRide] = useState(false);
-  const [coolTemp, setCoolTemp] = useState(false);
-  const [wavRequired, setWavRequired] = useState(false);
-  const [hearingImpaired, setHearingImpaired] = useState(false);
+  const { prefs: riderPrefs, loaded: prefsLoaded } = useRiderPreferences();
+  const genderPreference = riderPrefs.gender_preference as GenderPreference;
+  const quietRide = riderPrefs.quiet_ride;
+  const coolTemp = riderPrefs.cool_temperature;
+  const wavRequired = riderPrefs.wav_required;
+  const hearingImpaired = riderPrefs.hearing_impaired;
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
   const nearbyDrivers = useNearbyDrivers(rideStatus === 'idle' || rideStatus === 'searching');
@@ -755,14 +755,20 @@ export default function RideView() {
             }
           </div>
 
-          {/* Women-only ride toggle */}
-          <GenderPreferenceToggle value={genderPreference} onChange={setGenderPreference} />
-
-          {/* Ride Preferences */}
-          <RidePreferences quietRide={quietRide} coolTemp={coolTemp} onQuietChange={setQuietRide} onCoolChange={setCoolTemp} />
-
-          {/* Accessibility Filters */}
-          <AccessibilityFilters wavRequired={wavRequired} hearingImpaired={hearingImpaired} onWavChange={setWavRequired} onHearingChange={setHearingImpaired} />
+          {/* Preferences set in Profile Settings — shown as tags */}
+          {(quietRide || coolTemp || wavRequired || hearingImpaired || genderPreference !== 'any') && (
+            <div className="glass-card rounded-2xl px-3 py-2">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">Your Preferences</p>
+              <div className="flex flex-wrap gap-1">
+                {quietRide && <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">🤫 Quiet Ride</span>}
+                {coolTemp && <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-600 font-medium">❄️ Cool Temp</span>}
+                {wavRequired && <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 font-medium">♿ WAV</span>}
+                {hearingImpaired && <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 font-medium">👂 Hearing</span>}
+                {genderPreference !== 'any' && <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-600 font-medium">🛡️ Women Only</span>}
+              </div>
+              <p className="text-[9px] text-muted-foreground mt-1">Change in Profile → Ride Preferences</p>
+            </div>
+          )}
 
           {/* ── Fare breakdown + Negotiation (expanded) ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
