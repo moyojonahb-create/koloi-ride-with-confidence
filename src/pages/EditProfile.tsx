@@ -94,11 +94,11 @@ export default function EditProfile() {
         .upload(path, file, { upsert: true });
       if (uploadErr) throw uploadErr;
 
-      const { data: urlData } = supabase.storage
+      const { data: signedData, error: signedErr } = await supabase.storage
         .from('driver-avatars')
-        .getPublicUrl(path);
-
-      setAvatarUrl(urlData.publicUrl);
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      if (signedErr || !signedData?.signedUrl) throw signedErr || new Error('Failed to get URL');
+      setAvatarUrl(signedData.signedUrl);
       toast.success('Photo uploaded!');
     } catch (e: unknown) {
       toast.error('Upload failed', { description: (e as Error).message });
