@@ -133,7 +133,7 @@ export default function RiderRideDetail() {
     if (wasCompleted) {
       playCompletedSound();
       haptic('medium');
-      if (!hasRated) setShowRating(false);
+      if (!hasRated) setShowRating(true);
     }
 
     if (data.driver_id && (data.status === "accepted" || data.status === "in_progress" || data.status === "arrived")) {
