@@ -713,22 +713,25 @@ export default function DriverDashboard() {
       <div className="max-w-lg mx-auto p-5 space-y-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-2 animate-fade-in">
-          <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
-            <Star className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
-            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">{profile.rating_avg?.toFixed(1) || '—'}</p>
-            <p className="text-[10px] text-primary-foreground/70 font-medium">Rating</p>
-          </div>
-          <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
-            <TrendingUp className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
-            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">{profile.total_trips || 0}</p>
-            <p className="text-[10px] text-primary-foreground/70 font-medium">Trips</p>
-          </div>
-          <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
-            <Zap className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
-            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">${driverBalance % 1 === 0 ? driverBalance : driverBalance.toFixed(2)}</p>
-            <p className="text-[10px] text-primary-foreground/70 font-medium">Wallet</p>
-          </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { icon: Star, value: profile.rating_avg?.toFixed(1) || '—', label: 'Rating' },
+            { icon: TrendingUp, value: String(profile.total_trips || 0), label: 'Trips' },
+            { icon: Zap, value: `$${driverBalance % 1 === 0 ? driverBalance : driverBalance.toFixed(2)}`, label: 'Wallet' },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08, type: 'spring', stiffness: 400, damping: 30 }}
+              className="rounded-2xl p-3 text-center"
+              style={{ background: 'var(--gradient-primary)' }}
+            >
+              <stat.icon className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
+              <p className="text-lg font-extrabold tabular-nums text-primary-foreground">{stat.value}</p>
+              <p className="text-[10px] text-primary-foreground/70 font-medium">{stat.label}</p>
+            </motion.div>
+          ))}
         </div>
 
         {/* Earnings Dashboard (toggled via icon) */}
