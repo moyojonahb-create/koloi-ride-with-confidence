@@ -859,7 +859,7 @@ export default function DriverDashboard() {
         {/* Offer Modal */}
         {selectedRide && (
           <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-            <GlassCard className="w-full max-w-lg mx-auto rounded-t-3xl p-4 space-y-4">
+            <GlassCard className="w-full max-w-lg mx-auto rounded-t-3xl p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-lg">Make an Offer</h3>
                 <Button variant="ghost" size="sm" onClick={() => setSelectedRide(null)}>
@@ -867,10 +867,50 @@ export default function DriverDashboard() {
                 </Button>
               </div>
 
-              <div className="text-sm text-muted-foreground">
-                <p>{selectedRide.pickup_address}</p>
-                <p>→ {selectedRide.dropoff_address}</p>
+              {/* Route with dots */}
+              <div className="flex items-start gap-2.5 bg-muted/50 rounded-xl p-2.5">
+                <div className="flex flex-col items-center mt-1">
+                  <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                  <div className="w-0.5 h-4 bg-border" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-destructive" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{selectedRide.pickup_address}</p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">{selectedRide.dropoff_address}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-xs text-muted-foreground">{selectedRide.distance_km?.toFixed(1)} km</p>
+                  <p className="text-xs text-muted-foreground">~{selectedRide.duration_minutes} min</p>
+                </div>
               </div>
+
+              {/* Trip meta + preferences */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {selectedRide.passenger_count && selectedRide.passenger_count > 1 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
+                    👥 {selectedRide.passenger_count} passengers
+                  </span>
+                )}
+                {selectedRide.payment_method && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
+                    <CreditCard className="w-2.5 h-2.5" /> {selectedRide.payment_method}
+                  </span>
+                )}
+              </div>
+
+              {/* Rider preferences */}
+              {ridePreferences[selectedRide.id] && (
+                <div className="space-y-1">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Rider Preferences</p>
+                  <RidePreferenceTags
+                    quietRide={ridePreferences[selectedRide.id]?.quiet_ride}
+                    coolTemperature={ridePreferences[selectedRide.id]?.cool_temperature}
+                    wavRequired={ridePreferences[selectedRide.id]?.wav_required}
+                    hearingImpaired={ridePreferences[selectedRide.id]?.hearing_impaired}
+                    genderPreference={ridePreferences[selectedRide.id]?.gender_preference}
+                  />
+                </div>
+              )}
 
               {/* Price Stepper */}
               <div className="flex items-center justify-center gap-4">
