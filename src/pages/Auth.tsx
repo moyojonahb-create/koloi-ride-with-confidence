@@ -83,8 +83,16 @@ const Auth = () => {
       toast({ title: 'Please enter a valid phone number', variant: 'destructive' });
       return;
     }
-    if (!password || password.length < 6) {
-      toast({ title: 'Password must be at least 6 characters', variant: 'destructive' });
+    if (!password || password.length < 8) {
+      toast({ title: 'Password must be at least 8 characters', variant: 'destructive' });
+      return;
+    }
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasDigit = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password);
+    if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+      toast({ title: 'Weak password', description: 'Must include uppercase, lowercase, number, and special character (e.g. !@#$%).', variant: 'destructive' });
       return;
     }
 
