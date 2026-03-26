@@ -288,7 +288,7 @@ function QuickAction({ icon, label, sublabel, onClick, accent }: {
     <button
       onClick={() => { haptic('light'); onClick(); }}
       className={`flex flex-col items-center justify-center gap-1 p-3 rounded-2xl active:scale-95 transition-all ${
-        accent ? 'bg-primary text-primary-foreground shadow-md' : 'bg-primary/15 text-primary shadow-sm'
+        accent ? 'bg-amber-400 text-amber-950 shadow-md' : 'bg-amber-400/15 text-amber-700 shadow-sm'
       }`}
     >
       {icon}
