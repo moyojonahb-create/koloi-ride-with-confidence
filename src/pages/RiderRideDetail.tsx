@@ -467,6 +467,73 @@ export default function RiderRideDetail() {
         <EmergencyButton />
       </div>
 
+      {/* ═══ DRIVER STATUS POPUP BANNERS ═══ */}
+      <AnimatePresence>
+        {isAccepted && !isArrived && !isInProgress && ride?.status === 'accepted' && (
+          <motion.div
+            key="driver-on-way"
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="absolute top-24 left-4 right-4 z-30 bg-primary text-primary-foreground rounded-2xl px-5 py-4 shadow-lg flex items-center gap-3"
+          >
+            <motion.div
+              animate={{ x: [0, 6, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+            >
+              <Car className="w-6 h-6" />
+            </motion.div>
+            <div>
+              <p className="font-bold text-sm">Driver is on the way!</p>
+              <p className="text-xs opacity-80">Your driver has accepted and is heading to your pickup point.</p>
+            </div>
+          </motion.div>
+        )}
+        {(ride?.status === 'enroute' || ride?.status === 'enroute_pickup') && (
+          <motion.div
+            key="driver-enroute"
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="absolute top-24 left-4 right-4 z-30 bg-primary text-primary-foreground rounded-2xl px-5 py-4 shadow-lg flex items-center gap-3"
+          >
+            <motion.div
+              animate={{ x: [0, 8, 0] }}
+              transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+            >
+              <Navigation className="w-6 h-6" />
+            </motion.div>
+            <div>
+              <p className="font-bold text-sm">Driver is coming to you!</p>
+              <p className="text-xs opacity-80">{etaMinutes ? `Estimated arrival in ${etaMinutes} min` : 'Almost there...'}</p>
+            </div>
+          </motion.div>
+        )}
+        {isArrived && (
+          <motion.div
+            key="driver-waiting"
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="absolute top-24 left-4 right-4 z-30 bg-amber-500 text-white rounded-2xl px-5 py-4 shadow-lg flex items-center gap-3"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              <MapPin className="w-6 h-6" />
+            </motion.div>
+            <div>
+              <p className="font-bold text-sm">Driver is waiting for you!</p>
+              <p className="text-xs opacity-90">Your driver has arrived at the pickup point. Please head out now.</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ═══ ON-MAP ETA OVERLAY ═══ */}
       {isAccepted && etaMinutes && !isArrived && sheetState === 'collapsed' && (
         <motion.div
