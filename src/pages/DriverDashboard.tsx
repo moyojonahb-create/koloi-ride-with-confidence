@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -77,6 +78,8 @@ import { runLocationFraudChecks } from "@/lib/fraudDetection";
 import { useFatigueMonitor } from "@/hooks/useFatigueMonitor";
 import FatigueAlert from "@/components/driver/FatigueAlert";
 import RidePreferenceTags from "@/components/ride/RidePreferenceTags";
+import RideRequestCard from "@/components/driver/RideRequestCard";
+import DriverOfferModal from "@/components/driver/DriverOfferModal";
 
 // Smart USD format: $4 for whole, $4.50 for halves
 function fmtUSD(n: number): string {
@@ -710,22 +713,25 @@ export default function DriverDashboard() {
       <div className="max-w-lg mx-auto p-5 space-y-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-2 animate-fade-in">
-          <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
-            <Star className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
-            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">{profile.rating_avg?.toFixed(1) || '—'}</p>
-            <p className="text-[10px] text-primary-foreground/70 font-medium">Rating</p>
-          </div>
-          <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
-            <TrendingUp className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
-            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">{profile.total_trips || 0}</p>
-            <p className="text-[10px] text-primary-foreground/70 font-medium">Trips</p>
-          </div>
-          <div className="rounded-2xl p-3 text-center" style={{ background: 'var(--gradient-primary)' }}>
-            <Zap className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
-            <p className="text-lg font-extrabold tabular-nums text-primary-foreground">${driverBalance % 1 === 0 ? driverBalance : driverBalance.toFixed(2)}</p>
-            <p className="text-[10px] text-primary-foreground/70 font-medium">Wallet</p>
-          </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { icon: Star, value: profile.rating_avg?.toFixed(1) || '—', label: 'Rating' },
+            { icon: TrendingUp, value: String(profile.total_trips || 0), label: 'Trips' },
+            { icon: Zap, value: `$${driverBalance % 1 === 0 ? driverBalance : driverBalance.toFixed(2)}`, label: 'Wallet' },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08, type: 'spring', stiffness: 400, damping: 30 }}
+              className="rounded-2xl p-3 text-center"
+              style={{ background: 'var(--gradient-primary)' }}
+            >
+              <stat.icon className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
+              <p className="text-lg font-extrabold tabular-nums text-primary-foreground">{stat.value}</p>
+              <p className="text-[10px] text-primary-foreground/70 font-medium">{stat.label}</p>
+            </motion.div>
+          ))}
         </div>
 
         {/* Earnings Dashboard (toggled via icon) */}
@@ -742,19 +748,23 @@ export default function DriverDashboard() {
 
         {/* Trial Banner */}
         {profile && trialActive && (
-          <Card className="border-amber-500 bg-amber-500/10">
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-amber-600 shrink-0" />
-                <div>
-                  <p className="font-semibold text-sm">Free Trial Active</p>
-                  <p className="text-xs text-muted-foreground">
-                    {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} remaining — no fees until trial ends
-                  </p>
-                </div>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-accent/30 bg-accent/8 p-3.5"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center shrink-0">
+                <Clock className="h-4.5 w-4.5 text-accent" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="font-semibold text-sm text-foreground">Free Trial Active</p>
+                <p className="text-xs text-muted-foreground">
+                  {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} remaining — no fees
+                </p>
+              </div>
+            </div>
+          </motion.div>
         )}
 
         {/* Available Rides — top priority */}
@@ -778,180 +788,37 @@ export default function DriverDashboard() {
           ) : rides.length === 0 ? (
             <EmptyState title="No open ride requests right now" description="Stay online — new requests will appear automatically." className="py-8" />
           ) : (
-            rides.map((r) => {
-              const secsLeft = getSecondsRemaining(r.expires_at ?? null);
-              const prefs = ridePreferences[r.id];
-              const hasPrefs = prefs && (prefs.quiet_ride || prefs.cool_temperature || prefs.wav_required || prefs.hearing_impaired || (prefs.gender_preference && prefs.gender_preference !== 'any'));
-              return (
-                <GlassCard
+            rides.map((r, i) => (
+                <RideRequestCard
                   key={r.id}
-                  className="cursor-pointer hover:border-primary/40 transition-all active:scale-[0.98] p-3 space-y-2.5"
+                  ride={r}
+                  preferences={ridePreferences[r.id] ?? null}
+                  secsLeft={getSecondsRemaining(r.expires_at ?? null)}
+                  index={i}
                   onClick={() => chooseRide(r)}
-                >
-                  {/* Route */}
-                  <div className="flex items-start gap-2.5">
-                    <div className="flex flex-col items-center mt-0.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                      <div className="w-0.5 h-5 bg-border" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-destructive" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{r.pickup_address}</p>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">{r.dropoff_address}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-lg font-black text-primary">{fmtUSD(Number(r.fare))}</p>
-                    </div>
-                  </div>
-
-                  {/* Trip meta chips */}
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
-                      <Navigation className="w-2.5 h-2.5" /> {r.distance_km?.toFixed(1)} km
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
-                      <Clock className="w-2.5 h-2.5" /> ~{r.duration_minutes} min
-                    </span>
-                    {r.passenger_count && r.passenger_count > 1 && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
-                        👥 {r.passenger_count}
-                      </span>
-                    )}
-                    {r.payment_method && r.payment_method !== 'cash' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
-                        <CreditCard className="w-2.5 h-2.5" /> {r.payment_method}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Preferences */}
-                  {hasPrefs && (
-                    <RidePreferenceTags
-                      quietRide={prefs.quiet_ride}
-                      coolTemperature={prefs.cool_temperature}
-                      wavRequired={prefs.wav_required}
-                      hearingImpaired={prefs.hearing_impaired}
-                      genderPreference={prefs.gender_preference}
-                    />
-                  )}
-
-                  {/* Expiry bar */}
-                  {r.expires_at && secsLeft > 0 && (
-                    <div>
-                      <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
-                        <span>Expires</span>
-                        <span className={`font-bold ${secsLeft <= 10 ? 'text-destructive' : 'text-primary'}`}>{secsLeft}s</span>
-                      </div>
-                      <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-200 ease-linear ${secsLeft <= 10 ? 'bg-destructive' : 'bg-primary'}`}
-                          style={{ width: `${Math.min(100, (secsLeft / 30) * 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </GlassCard>
-              );
-            })
+                  fmtUSD={fmtUSD}
+                />
+            ))
           )}
         </div>
 
         {/* Offer Modal */}
         {selectedRide && (
-          <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-            <GlassCard className="w-full max-w-lg mx-auto rounded-t-3xl p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-lg">Make an Offer</h3>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedRide(null)}>
-                  Cancel
-                </Button>
-              </div>
-
-              {/* Route with dots */}
-              <div className="flex items-start gap-2.5 bg-muted/50 rounded-xl p-2.5">
-                <div className="flex flex-col items-center mt-1">
-                  <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                  <div className="w-0.5 h-4 bg-border" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-destructive" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{selectedRide.pickup_address}</p>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">{selectedRide.dropoff_address}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-xs text-muted-foreground">{selectedRide.distance_km?.toFixed(1)} km</p>
-                  <p className="text-xs text-muted-foreground">~{selectedRide.duration_minutes} min</p>
-                </div>
-              </div>
-
-              {/* Trip meta + preferences */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {selectedRide.passenger_count && selectedRide.passenger_count > 1 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
-                    👥 {selectedRide.passenger_count} passengers
-                  </span>
-                )}
-                {selectedRide.payment_method && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
-                    <CreditCard className="w-2.5 h-2.5" /> {selectedRide.payment_method}
-                  </span>
-                )}
-              </div>
-
-              {/* Rider preferences */}
-              {ridePreferences[selectedRide.id] && (
-                <div className="space-y-1">
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Rider Preferences</p>
-                  <RidePreferenceTags
-                    quietRide={ridePreferences[selectedRide.id]?.quiet_ride}
-                    coolTemperature={ridePreferences[selectedRide.id]?.cool_temperature}
-                    wavRequired={ridePreferences[selectedRide.id]?.wav_required}
-                    hearingImpaired={ridePreferences[selectedRide.id]?.hearing_impaired}
-                    genderPreference={ridePreferences[selectedRide.id]?.gender_preference}
-                  />
-                </div>
-              )}
-
-              {/* Price Stepper */}
-              <div className="flex items-center justify-center gap-4">
-                <SecondaryButton type="button" onClick={dec} className="w-10 h-10 rounded-full p-0 inline-flex items-center justify-center">
-                  <Minus className="h-4 w-4" />
-                </SecondaryButton>
-                <div className="text-center">
-                  <p className="text-3xl font-black">
-                    {fmtUSD(offerPrice)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Increments of $0.50
-                  </p>
-                </div>
-                <SecondaryButton type="button" onClick={inc} className="w-10 h-10 rounded-full p-0 inline-flex items-center justify-center">
-                  <Plus className="h-4 w-4" />
-                </SecondaryButton>
-              </div>
-
-              {/* ETA and Note */}
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="text-xs text-muted-foreground">ETA (min)</label>
-                  <InputField
-                    type="number"
-                    value={eta}
-                    onChange={(e) => setEta(Math.max(1, Number(e.target.value) || 10))}
-                  />
-                </div>
-                <div className="flex-2">
-                  <label className="text-xs text-muted-foreground">Note (optional)</label>
-                  <InputField value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g., Night service" />
-                </div>
-              </div>
-
-              <PrimaryButton className="w-full inline-flex items-center justify-center" onClick={sendOffer} disabled={submitting}>
-                <Send className="h-4 w-4 mr-2" />
-                {submitting ? "Sending..." : `Send Offer • ${fmtUSD(offerPrice)}`}
-              </PrimaryButton>
-            </GlassCard>
-          </div>
+          <DriverOfferModal
+            ride={selectedRide}
+            preferences={ridePreferences[selectedRide.id] ?? null}
+            offerPrice={offerPrice}
+            eta={eta}
+            note={note}
+            submitting={submitting}
+            onClose={() => setSelectedRide(null)}
+            onInc={inc}
+            onDec={dec}
+            onEtaChange={setEta}
+            onNoteChange={setNote}
+            onSubmit={sendOffer}
+            fmtUSD={fmtUSD}
+          />
         )}
 
         {/* Contact Rider — collapsed message panel */}
@@ -1033,23 +900,25 @@ export default function DriverDashboard() {
         )}
 
         {/* Navigation Map */}
-        <Card className="overflow-hidden">
-          <CardContent className="p-0">
-            <div className="h-[45vh] min-h-[300px] rounded-xl overflow-hidden">
-              <MapGoogle
-                driverLocation={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
-                pickup={activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : undefined}
-                dropoff={activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : undefined}
-                routeGeometry={pickupToDropoffRoute.route?.geometry ?? undefined}
-                secondaryRouteGeometry={driverToPickupRoute.route?.geometry ?? undefined}
-                drivers={nearbyDrivers}
-                defaultCenter={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
-                defaultZoom={15}
-                className="w-full h-full"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="rounded-2xl overflow-hidden border border-border/30 shadow-sm"
+        >
+          <div className="h-[45vh] min-h-[300px]">
+            <MapGoogle
+              driverLocation={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
+              pickup={activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : undefined}
+              dropoff={activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : undefined}
+              routeGeometry={pickupToDropoffRoute.route?.geometry ?? undefined}
+              secondaryRouteGeometry={driverToPickupRoute.route?.geometry ?? undefined}
+              drivers={nearbyDrivers}
+              defaultCenter={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
+              defaultZoom={15}
+              className="w-full h-full"
+            />
+          </div>
+        </motion.div>
 
         {/* Active Trip — fare + complete */}
         {activeTrip && (
