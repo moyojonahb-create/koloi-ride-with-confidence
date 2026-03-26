@@ -539,6 +539,7 @@ export default function RideView() {
                 driverName={matchedDriver.name} />
               
             </div>
+            </div>
           </div>
         </motion.div>
       </div>);
