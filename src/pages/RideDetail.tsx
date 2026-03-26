@@ -562,7 +562,7 @@ export default function RideDetail() {
           )}
 
           {/* Settlement for completed trips */}
-          {isCompleted && <SettlementInfo tripId={ride.id} />}
+          {isCompleted && <SettlementInfo tripId={ride.id} onSettled={() => setTimeout(() => navigate('/app'), 2000)} />}
 
           {/* View Offers button */}
           {!accepted && (
