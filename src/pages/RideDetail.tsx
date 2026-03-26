@@ -10,7 +10,11 @@ import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import PremiumOffersSheet from "@/components/ride/PremiumOffersSheet";
 import { type PremiumOffer } from "@/components/ride/PremiumOfferCard";
-import { ArrowLeft, MessageCircle, Phone, Shield, Star, Car, ChevronDown, ChevronUp, MapPin, Navigation, X, Send } from "lucide-react";
+import { ArrowLeft, MessageCircle, Phone, Shield, Star, Car, ChevronDown, ChevronUp, MapPin, Navigation, X, Send, Share2, CheckCircle2 } from "lucide-react";
+import { motion } from "framer-motion";
+import ShareTripButton from "@/components/ride/ShareTripButton";
+import DriverRatingModal from "@/components/ride/DriverRatingModal";
+import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
 
 function SettlementInfo({ tripId }: { tripId: string }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
