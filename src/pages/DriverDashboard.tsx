@@ -995,7 +995,7 @@ export default function DriverDashboard() {
                   {/* Ride preferences tags */}
                   {ridePreferences[activeTrip.id] && (
                     <div className="mt-1.5">
-                      <RidePreferenceTags quietRide={ridePreferences[activeTrip.id]?.quiet_ride} coolTemperature={ridePreferences[activeTrip.id]?.cool_temperature} />
+                      <RidePreferenceTags quietRide={ridePreferences[activeTrip.id]?.quiet_ride} coolTemperature={ridePreferences[activeTrip.id]?.cool_temperature} wavRequired={ridePreferences[activeTrip.id]?.wav_required} hearingImpaired={ridePreferences[activeTrip.id]?.hearing_impaired} genderPreference={ridePreferences[activeTrip.id]?.gender_preference} />
                     </div>
                   )}
                 </div>
