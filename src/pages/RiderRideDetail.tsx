@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRideRealtime } from "@/hooks/useRideRealtime";
 import { useDriverTracking } from "@/hooks/useDriverTracking";
 import { useNearbyDrivers } from "@/hooks/useNearbyDrivers";
-import { useWebRTCCall } from "@/hooks/useWebRTCCall";
+import { useAgoraCall } from "@/hooks/useAgoraCall";
 import { getSecondsRemaining } from "@/lib/rideExpiry";
 import {
   fetchPendingOffers,
@@ -96,7 +96,7 @@ export default function RiderRideDetail() {
     callStatus, isMuted, isSpeaker, callDuration, incomingCall,
     startCall, answerCall, declineCall: declineIncomingCall, endCall,
     toggleMute, toggleSpeaker
-  } = useWebRTCCall({
+  } = useAgoraCall({
     rideId: rideId ?? null,
     currentUserId: user?.id ?? "",
     otherUserId: (driverProfile as Record<string, unknown>)?.user_id as string ?? null

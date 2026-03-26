@@ -7,6 +7,7 @@ import AgoraRTC, {
 } from "agora-rtc-sdk-ng";
 import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
+import { startRingtone, stopRingtone } from "@/lib/notificationSounds";
 
 export type CallStatus =
   | "idle"
@@ -25,14 +26,27 @@ interface UseAgoraCallOptions {
 /** Request mic permission early so mobile browsers don't block it later */
 async function ensureMicPermission(): Promise<boolean> {
   try {
-    // On mobile, getUserMedia must be called from a user gesture context
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    // Stop immediately – Agora will create its own track
     stream.getTracks().forEach((t) => t.stop());
     return true;
   } catch (err) {
     console.warn("[AgoraCall] Mic permission denied:", err);
     return false;
+  }
+}
+
+/** Show a system notification for incoming calls (works when app is in background) */
+function showCallNotification(_callerId: string) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    const n = new Notification('Incoming Call 📞', {
+      body: 'Someone is calling you on your ride',
+      tag: 'incoming-call',
+      requireInteraction: true,
+    });
+    n.onclick = () => { window.focus(); n.close(); };
+  } else if (Notification.permission !== 'denied') {
+    Notification.requestPermission();
   }
 }
 
@@ -88,6 +102,8 @@ export function useAgoraCall({
         (payload) => {
           const session = payload.new as Record<string, unknown>;
           if (session.status === "ringing" && callStatusRef.current === "idle") {
+            startRingtone('incoming');
+            showCallNotification(session.caller_id as string);
             setIncomingCall({
               sessionId: session.id as string,
               callerId: session.caller_id as string,
@@ -114,6 +130,7 @@ export function useAgoraCall({
               session.id === sessionIdRef.current ||
               (session.id as string) === incomingCallRef.current?.sessionId
             ) {
+              stopRingtone();
               cleanup();
               setCallStatus("ended");
               setIncomingCall(null);
@@ -125,6 +142,7 @@ export function useAgoraCall({
             session.id === sessionIdRef.current
           ) {
             console.log("[AgoraCall] Callee answered, joining channel…");
+            stopRingtone();
             joinChannel(session.id as string);
           }
         }
@@ -283,6 +301,7 @@ export function useAgoraCall({
     }
 
     try {
+      startRingtone('outgoing');
       setCallStatus("ringing");
       console.log(
         "[AgoraCall] Starting call: ride=",
@@ -335,6 +354,7 @@ export function useAgoraCall({
     }
 
     try {
+      stopRingtone();
       console.log("[AgoraCall] Answering call:", incomingCall.sessionId);
       await supabase
         .from("call_sessions")
@@ -353,6 +373,7 @@ export function useAgoraCall({
 
   const declineCall = useCallback(async () => {
     if (!incomingCall) return;
+    stopRingtone();
 
     try {
       await supabase

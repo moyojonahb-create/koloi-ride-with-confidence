@@ -65,7 +65,7 @@ import DriverNavigationView from "@/components/driver/DriverNavigationView";
 import FullScreenNavigation from "@/components/driver/FullScreenNavigation";
 import DriverSettingsSheet from "@/components/driver/DriverSettingsSheet";
 import type { Coordinates } from "@/lib/osrm";
-import { useWebRTCCall } from "@/hooks/useWebRTCCall";
+import { useAgoraCall } from "@/hooks/useAgoraCall";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
@@ -188,7 +188,7 @@ export default function DriverDashboard() {
     endCall,
     toggleMute,
     toggleSpeaker,
-  } = useWebRTCCall({
+  } = useAgoraCall({
     rideId: activeTrip?.id ?? null,
     currentUserId: user?.id ?? "",
     otherUserId: activeTrip?.user_id ?? null,

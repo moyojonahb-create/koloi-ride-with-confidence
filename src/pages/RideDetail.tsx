@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { resolveAvatarUrl } from "@/lib/avatarUrl";
 import { joinRidePresence, countDriversViewing } from "@/lib/koloiRealtime";
-import { useWebRTCCall } from "@/hooks/useWebRTCCall";
+import { useAgoraCall } from "@/hooks/useAgoraCall";
 import TripGoogleMap from "@/components/TripGoogleMap";
 import { useDriverTracking } from "@/hooks/useDriverTracking";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
@@ -158,7 +158,7 @@ export default function RideDetail() {
 
   const { callStatus, isMuted, isSpeaker, callDuration, incomingCall, startCall, answerCall,
     declineCall: declineIncomingCall, endCall, toggleMute, toggleSpeaker
-  } = useWebRTCCall({ rideId: rideId ?? null, currentUserId: userId, otherUserId: driverUserIdForTracking });
+  } = useAgoraCall({ rideId: rideId ?? null, currentUserId: userId, otherUserId: driverUserIdForTracking });
 
   useEffect(() => { (async () => { const { data } = await supabase.auth.getUser(); if (data?.user) setUserId(data.user.id); })(); }, []);
 
