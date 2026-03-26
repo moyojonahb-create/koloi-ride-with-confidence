@@ -62,6 +62,7 @@ import { InputField } from "@/components/ui/input-field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SectionHeader } from "@/components/ui/section-header";
 import DriverNavigationView from "@/components/driver/DriverNavigationView";
+import FullScreenNavigation from "@/components/driver/FullScreenNavigation";
 import DriverSettingsSheet from "@/components/driver/DriverSettingsSheet";
 import type { Coordinates } from "@/lib/osrm";
 import { useWebRTCCall } from "@/hooks/useWebRTCCall";
@@ -136,6 +137,7 @@ export default function DriverDashboard() {
   const [pendingOnlineAfterSelfie, setPendingOnlineAfterSelfie] = useState(false);
   const [townPricingMap, setTownPricingMap] = useState<Record<string, TownPricingConfig>>({});
   const [ridePreferences, setRidePreferences] = useState<Record<string, { quiet_ride: boolean; cool_temperature: boolean; wav_required?: boolean; hearing_impaired?: boolean; gender_preference?: string }>>({});
+  const [fullNavMode, setFullNavMode] = useState(false);
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -618,6 +620,52 @@ export default function DriverDashboard() {
     );
   }
 
+  // Full-screen navigation mode
+  if (fullNavMode && activeTrip) {
+    return (
+      <>
+        {/* Active Call Overlay */}
+        {callStatus !== "idle" && (
+          <ActiveCallOverlay
+            status={callStatus}
+            duration={callDuration}
+            isMuted={isMuted}
+            isSpeaker={isSpeaker}
+            onToggleMute={toggleMute}
+            onToggleSpeaker={toggleSpeaker}
+            onEndCall={endCall}
+            otherUserName="Rider"
+          />
+        )}
+        {incomingCall && (
+          <IncomingCallModal
+            callerId={incomingCall.callerId}
+            onAnswer={answerCall}
+            onDecline={declineIncomingCall}
+          />
+        )}
+        <FullScreenNavigation
+          activeTrip={activeTrip}
+          driverCoords={driverCoords}
+          userId={user!.id}
+          riderPhone={riderPhone}
+          onTripUpdate={(trip) => {
+            setActiveTrip(trip);
+          }}
+          onTripComplete={() => {
+            setFullNavMode(false);
+            setActiveTrip(null);
+            fetchDriverBalance();
+            refresh();
+          }}
+          onExit={() => setFullNavMode(false)}
+          onStartCall={startCall}
+          callStatus={callStatus}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
       {/* Selfie Verification */}
@@ -961,10 +1009,22 @@ export default function DriverDashboard() {
                     await supabase.from("rides").update({ status: "enroute" }).eq("id", activeTrip.id);
                     setActiveTrip({ ...activeTrip, status: "enroute" });
                     toast.info("Status: Enroute — heading to pickup");
+                    setFullNavMode(true);
                   }}
                 >
                   <Navigation className="h-4 w-4 mr-2" />
                   Enroute to Pickup
+                </Button>
+              )}
+              {/* Navigate button for already-enroute trips */}
+              {['enroute', 'enroute_pickup', 'arrived', 'in_progress'].includes(activeTrip.status) && (
+                <Button
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700 mb-2"
+                  size="lg"
+                  onClick={() => setFullNavMode(true)}
+                >
+                  <Navigation className="h-4 w-4 mr-2" />
+                  Open Navigation
                 </Button>
               )}
               {activeTrip.status === 'enroute' && (
