@@ -1,5 +1,5 @@
-import { Share2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { Share2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ShareTripProps {
@@ -10,36 +10,52 @@ interface ShareTripProps {
 }
 
 export default function ShareTripButton({ rideId, pickupAddress, dropoffAddress, driverName }: ShareTripProps) {
-  const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/track/${rideId}`;
-    const text = [
-      `🚗 I'm on a PickMe ride!`,
-      driverName ? `Driver: ${driverName}` : '',
-      `From: ${pickupAddress}`,
-      `To: ${dropoffAddress}`,
-      `Track my trip live: ${shareUrl}`,
-    ].filter(Boolean).join('\n');
+  const [copied, setCopied] = useState(false);
 
+  const shareUrl = `${window.location.origin}/track/${rideId}`;
+  const text = [
+    `🚗 Track my Voyex ride live!`,
+    driverName ? `Driver: ${driverName}` : '',
+    `From: ${pickupAddress}`,
+    `To: ${dropoffAddress}`,
+    ``,
+    shareUrl,
+  ].filter(Boolean).join('\n');
+
+  const handleShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'My PickMe Trip', text, url: shareUrl });
+        await navigator.share({ title: 'My Voyex Trip', text, url: shareUrl });
       } catch {
-        // User cancelled share
+        // User cancelled
       }
     } else {
+      await handleCopy();
+    }
+  };
+
+  const handleCopy = async () => {
+    try {
       await navigator.clipboard.writeText(text);
-      toast.success('Live tracking link copied!');
+      setCopied(true);
+      toast.success('Trip link copied!');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error('Failed to copy');
     }
   };
 
   return (
-    <Button
-      variant="outline"
+    <button
       onClick={handleShare}
-      className="flex items-center gap-2 h-11 rounded-2xl glass-card border-primary/20 text-primary hover:bg-primary/5"
+      className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center active:scale-[0.95] transition-all"
+      title="Share Trip"
     >
-      <Share2 className="w-4 h-4" />
-      <span className="text-sm font-semibold">Share Trip</span>
-    </Button>
+      {copied ? (
+        <Check className="w-4 h-4 text-primary" />
+      ) : (
+        <Share2 className="w-4 h-4 text-primary" />
+      )}
+    </button>
   );
 }
