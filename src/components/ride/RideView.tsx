@@ -750,21 +750,21 @@ export default function RideView() {
           <p className="text-[11px] text-accent font-medium -mt-1.5 ml-1">⚡ Extra passenger charges applied</p>
           }
 
-          <div className='glass-card rounded-2xl p-3 space-y-3'>
+          <div className='glass-card rounded-2xl px-3 py-2 space-y-2'>
             <div className='flex items-center justify-between'>
               <p className='text-xs font-semibold'>Book for someone else</p>
-              <button onClick={() => setBookForSomeoneElse((v) => !v)} className={cn('h-7 w-12 rounded-full transition-colors', bookForSomeoneElse ? 'bg-primary' : 'bg-muted')}>
-                <span className={cn('block h-6 w-6 rounded-full bg-white transition-transform', bookForSomeoneElse ? 'translate-x-6' : 'translate-x-0')} />
+              <button onClick={() => setBookForSomeoneElse((v) => !v)} className={cn('h-5 w-9 rounded-full transition-colors', bookForSomeoneElse ? 'bg-primary' : 'bg-muted')}>
+                <span className={cn('block h-4 w-4 rounded-full bg-white transition-transform', bookForSomeoneElse ? 'translate-x-[16px]' : 'translate-x-0.5')} />
               </button>
             </div>
             {bookForSomeoneElse &&
             <>
-                <div className='grid grid-cols-1 gap-2'>
+                <div className='grid grid-cols-1 gap-1.5'>
                   <InputField placeholder='Passenger name' value={passengerName} onChange={(e) => setPassengerName(e.target.value)} />
                   <InputField placeholder='Passenger phone' value={passengerPhone} onChange={(e) => setPassengerPhone(e.target.value)} />
                 </div>
                 <IconPillButton onClick={handlePickPassengerFromContacts}><ContactRound className='w-4 h-4' />Pick from contacts</IconPillButton>
-                <p className='text-xs text-muted-foreground'>Driver can contact this passenger.</p>
+                <p className='text-[10px] text-muted-foreground'>Driver can contact this passenger.</p>
               </>
             }
           </div>
