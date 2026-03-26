@@ -960,33 +960,48 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          cool_temperature: boolean
           created_at: string
           full_name: string | null
+          gender_preference: string
+          hearing_impaired: boolean
           id: string
           phone: string | null
+          quiet_ride: boolean
           referral_code: string | null
           updated_at: string
           user_id: string
+          wav_required: boolean
         }
         Insert: {
           avatar_url?: string | null
+          cool_temperature?: boolean
           created_at?: string
           full_name?: string | null
+          gender_preference?: string
+          hearing_impaired?: boolean
           id?: string
           phone?: string | null
+          quiet_ride?: boolean
           referral_code?: string | null
           updated_at?: string
           user_id: string
+          wav_required?: boolean
         }
         Update: {
           avatar_url?: string | null
+          cool_temperature?: boolean
           created_at?: string
           full_name?: string | null
+          gender_preference?: string
+          hearing_impaired?: boolean
           id?: string
           phone?: string | null
+          quiet_ride?: boolean
           referral_code?: string | null
           updated_at?: string
           user_id?: string
+          wav_required?: boolean
         }
         Relationships: []
       }
