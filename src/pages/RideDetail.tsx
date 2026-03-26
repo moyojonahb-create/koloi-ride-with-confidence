@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
+import { resolveAvatarUrl } from "@/lib/avatarUrl";
 import { joinRidePresence, countDriversViewing } from "@/lib/koloiRealtime";
 import { useWebRTCCall } from "@/hooks/useWebRTCCall";
 import TripGoogleMap from "@/components/TripGoogleMap";
@@ -128,10 +129,11 @@ export default function RideDetail() {
         .maybeSingle();
 
       const acceptedOffer = offers.find((o) => o.driver_id === d.user_id);
+      const resolvedAvatar = await resolveAvatarUrl(d.avatar_url);
       setDriverProfile({
         fullName: p?.full_name || "Your driver",
         phone: p?.phone || null,
-        avatarUrl: d.avatar_url || null,
+        avatarUrl: resolvedAvatar,
         ratingAvg: Number(d.rating_avg || 0),
         totalTrips: Number(d.total_trips || 0),
         vehicleMake: d.vehicle_make || null,
@@ -182,13 +184,14 @@ export default function RideDetail() {
         for (const p of profilesRes.data ?? []) if (p.full_name) profileMap[p.user_id] = p.full_name;
 
         const OFFER_WINDOW_MS = 60_000;
-        const premium: PremiumOffer[] = pendingRaw.map((off) => {
+        const premium: PremiumOffer[] = await Promise.all(pendingRaw.map(async (off) => {
           const d = driverMap[off.driver_id];
           const createdMs = off.created_at ? new Date(off.created_at).getTime() : Date.now();
+          const resolvedOfferAvatar = await resolveAvatarUrl(d?.avatar_url ?? null);
           return {
             offerId: off.id, driverId: off.driver_id,
             driverName: profileMap[off.driver_id] || 'Driver',
-            avatarUrl: d?.avatar_url ?? null,
+            avatarUrl: resolvedOfferAvatar,
             ratingAvg: Number(d?.rating_avg ?? 0),
             totalTrips: Number(d?.total_trips ?? 0),
             carModel: d ? `${d.vehicle_make || ''} ${d.vehicle_model || ''}`.trim() || 'Vehicle' : 'Vehicle',
@@ -199,7 +202,7 @@ export default function RideDetail() {
             acceptedAt: createdMs,
             expiresAt: createdMs + OFFER_WINDOW_MS
           };
-        });
+        }));
         setPremiumOffers(premium);
       } else {
         setPremiumOffers([]);

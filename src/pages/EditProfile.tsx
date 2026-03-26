@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabaseClient';
+import { resolveAvatarUrl } from '@/lib/avatarUrl';
 import { ArrowLeft, User, Camera, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +39,8 @@ export default function EditProfile() {
     if (data) {
       setFullName(data.full_name || '');
       setPhone(data.phone || '');
-      setAvatarUrl(data.avatar_url);
+      const resolved = await resolveAvatarUrl(data.avatar_url);
+      setAvatarUrl(resolved);
     } else {
       setFullName(user!.user_metadata?.full_name || '');
       setPhone(user!.user_metadata?.phone || user!.phone || '');
@@ -92,11 +94,11 @@ export default function EditProfile() {
         .upload(path, file, { upsert: true });
       if (uploadErr) throw uploadErr;
 
-      const { data: urlData } = supabase.storage
+      const { data: signedData, error: signedErr } = await supabase.storage
         .from('driver-avatars')
-        .getPublicUrl(path);
-
-      setAvatarUrl(urlData.publicUrl);
+        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      if (signedErr || !signedData?.signedUrl) throw signedErr || new Error('Failed to get URL');
+      setAvatarUrl(signedData.signedUrl);
       toast.success('Photo uploaded!');
     } catch (e: unknown) {
       toast.error('Upload failed', { description: (e as Error).message });
