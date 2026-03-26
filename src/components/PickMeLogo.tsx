@@ -49,11 +49,13 @@ const PickMeLogo = ({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <img 
-        src={pickmeLogo} 
-        alt="PickMe" 
-        className={`${fullLogoSizeClasses[size]} w-auto object-contain`}
-      />
+      <div className="rounded-full bg-white p-2 shadow-sm flex items-center justify-center">
+        <img 
+          src={pickmeLogo} 
+          alt="PickMe" 
+          className={`${fullLogoSizeClasses[size]} w-auto object-contain`}
+        />
+      </div>
       
       {showTagline && (
         <span className={`text-xs ${isLight ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
