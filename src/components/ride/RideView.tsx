@@ -114,11 +114,12 @@ export default function RideView() {
   const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
   const [activeStopId, setActiveStopId] = useState<string | null>(null);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
-  const [genderPreference, setGenderPreference] = useState<GenderPreference>('any');
-  const [quietRide, setQuietRide] = useState(false);
-  const [coolTemp, setCoolTemp] = useState(false);
-  const [wavRequired, setWavRequired] = useState(false);
-  const [hearingImpaired, setHearingImpaired] = useState(false);
+  const { prefs: riderPrefs, loaded: prefsLoaded } = useRiderPreferences();
+  const genderPreference = riderPrefs.gender_preference as GenderPreference;
+  const quietRide = riderPrefs.quiet_ride;
+  const coolTemp = riderPrefs.cool_temperature;
+  const wavRequired = riderPrefs.wav_required;
+  const hearingImpaired = riderPrefs.hearing_impaired;
 
   const { landmarks, loading: landmarksLoading } = useLandmarksSearch({ searchQuery, limit: 30, userLocation: gpsState.coords, radiusKm: proximityRadius, townCenter: selectedTown.center, townRadiusKm: selectedTown.radiusKm });
   const nearbyDrivers = useNearbyDrivers(rideStatus === 'idle' || rideStatus === 'searching');
