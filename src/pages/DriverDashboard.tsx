@@ -620,6 +620,52 @@ export default function DriverDashboard() {
     );
   }
 
+  // Full-screen navigation mode
+  if (fullNavMode && activeTrip) {
+    return (
+      <>
+        {/* Active Call Overlay */}
+        {callStatus !== "idle" && (
+          <ActiveCallOverlay
+            status={callStatus}
+            duration={callDuration}
+            isMuted={isMuted}
+            isSpeaker={isSpeaker}
+            onToggleMute={toggleMute}
+            onToggleSpeaker={toggleSpeaker}
+            onEndCall={endCall}
+            otherUserName="Rider"
+          />
+        )}
+        {incomingCall && (
+          <IncomingCallModal
+            callerId={incomingCall.callerId}
+            onAnswer={answerCall}
+            onDecline={declineIncomingCall}
+          />
+        )}
+        <FullScreenNavigation
+          activeTrip={activeTrip}
+          driverCoords={driverCoords}
+          userId={user!.id}
+          riderPhone={riderPhone}
+          onTripUpdate={(trip) => {
+            setActiveTrip(trip);
+          }}
+          onTripComplete={() => {
+            setFullNavMode(false);
+            setActiveTrip(null);
+            fetchDriverBalance();
+            refresh();
+          }}
+          onExit={() => setFullNavMode(false)}
+          onStartCall={startCall}
+          callStatus={callStatus}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="flex flex-col h-[100dvh] bg-background">
       {/* Selfie Verification */}
