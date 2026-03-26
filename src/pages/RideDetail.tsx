@@ -184,11 +184,11 @@ export default function RideDetail() {
         for (const p of profilesRes.data ?? []) if (p.full_name) profileMap[p.user_id] = p.full_name;
 
         const OFFER_WINDOW_MS = 60_000;
-        const premium: PremiumOffer[] = pendingRaw.map((off) => {
+        const premium: PremiumOffer[] = await Promise.all(pendingRaw.map(async (off) => {
           const d = driverMap[off.driver_id];
           const createdMs = off.created_at ? new Date(off.created_at).getTime() : Date.now();
-            const resolvedOfferAvatar = await resolveAvatarUrl(d?.avatar_url ?? null);
-            return {
+          const resolvedOfferAvatar = await resolveAvatarUrl(d?.avatar_url ?? null);
+          return {
             offerId: off.id, driverId: off.driver_id,
             driverName: profileMap[off.driver_id] || 'Driver',
             avatarUrl: resolvedOfferAvatar,
@@ -202,7 +202,7 @@ export default function RideDetail() {
             acceptedAt: createdMs,
             expiresAt: createdMs + OFFER_WINDOW_MS
           };
-        });
+        }));
         setPremiumOffers(premium);
       } else {
         setPremiumOffers([]);
