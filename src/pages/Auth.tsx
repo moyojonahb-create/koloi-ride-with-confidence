@@ -203,7 +203,7 @@ const Auth = () => {
           {mode === 'login' ? (
             <form onSubmit={handleLogin} className="space-y-4">
               {loginError && (
-                <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm text-red-600 font-medium animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="rounded-xl bg-destructive/10 border border-destructive/30 px-4 py-3 text-sm text-destructive font-medium animate-in fade-in slide-in-from-top-2 duration-300">
                   ⚠️ {loginError}
                 </div>
               )}
