@@ -164,6 +164,34 @@ export default function RiderWalletPage() {
           </Button>
         </div>
 
+        {/* Quick Actions */}
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={() => setShowDeposit(true)}
+            className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-primary/15 active:scale-95 transition-all"
+          >
+            <Smartphone className="w-5 h-5 text-primary" />
+            <span className="text-[10px] font-semibold text-primary">EcoCash</span>
+            <span className="text-[8px] text-muted-foreground">Top Up</span>
+          </button>
+          <button
+            onClick={() => setShowTransactions(true)}
+            className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-accent/15 active:scale-95 transition-all"
+          >
+            <ArrowDownLeft className="w-5 h-5 text-accent-foreground" />
+            <span className="text-[10px] font-semibold text-accent-foreground">Transactions</span>
+            <span className="text-[8px] text-muted-foreground">{transactions.length} total</span>
+          </button>
+          <button
+            onClick={() => navigate('/profile')}
+            className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-primary/15 active:scale-95 transition-all"
+          >
+            <Gift className="w-5 h-5 text-primary" />
+            <span className="text-[10px] font-semibold text-primary">Referrals</span>
+            <span className="text-[8px] text-muted-foreground">${referralEarnings} earned</span>
+          </button>
+        </div>
+
         {/* Settings panel (collapsible) */}
         {showSettings && (
           <WalletSettings
@@ -173,9 +201,40 @@ export default function RiderWalletPage() {
           />
         )}
 
+        {/* Recent Transactions */}
+        {transactions.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Recent</h2>
+              <button onClick={() => setShowTransactions(true)} className="text-xs text-primary font-medium">
+                View All
+              </button>
+            </div>
+            <div className="space-y-1.5">
+              {transactions.slice(0, 3).map((tx) => {
+                const isPositive = Number(tx.amount) > 0;
+                return (
+                  <div key={tx.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-muted/30">
+                    <div className={`p-1.5 rounded-full ${isPositive ? 'bg-primary/10' : 'bg-destructive/10'}`}>
+                      {isPositive ? <ArrowDownLeft className="w-3.5 h-3.5 text-primary" /> : <ArrowUpRight className="w-3.5 h-3.5 text-destructive" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-foreground truncate">{tx.description || tx.transaction_type}</p>
+                      <p className="text-[10px] text-muted-foreground">{format(new Date(tx.created_at), 'dd MMM, HH:mm')}</p>
+                    </div>
+                    <span className={`text-xs font-bold ${isPositive ? 'text-primary' : 'text-destructive'}`}>
+                      {isPositive ? '+' : ''}${Math.abs(Number(tx.amount)).toFixed(2)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Quick info */}
         <div className="bg-accent/30 rounded-xl p-3 text-sm text-muted-foreground">
-          💡 Top up your wallet via EcoCash, OneMoney, Telecash, InnBucks, ZimSwitch, Mukuru, or Bank Transfer. Your balance is credited once admin verifies payment.
+          💡 Top up via EcoCash, OneMoney, Telecash, InnBucks, ZimSwitch, Mukuru, or Bank Transfer. Balance credited once verified.
         </div>
 
         {/* Deposit History */}
