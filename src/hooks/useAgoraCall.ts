@@ -282,11 +282,23 @@ export function useAgoraCall({
         await client.join(appId, channelName, token, agoraUid);
         console.log("[AgoraCall] Joined channel successfully");
 
+        // Use higher quality encoding for clarity on mobile networks
         const micTrack = await AgoraRTC.createMicrophoneAudioTrack({
-          encoderConfig: "speech_low_quality", // optimised for voice on mobile
+          encoderConfig: "speech_standard",
+          AEC: true,  // echo cancellation
+          ANS: true,  // noise suppression
+          AGC: true,  // auto gain control
         });
         localTrackRef.current = micTrack;
+
+        // Verify mic track is active before publishing
+        console.log("[AgoraCall] Mic track created, enabled:", micTrack.enabled, "muted:", micTrack.muted);
+        if (!micTrack.enabled) {
+          micTrack.setEnabled(true);
+        }
+
         await client.publish([micTrack]);
+        console.log("[AgoraCall] Audio published successfully");
 
         setCallStatus("connected");
         console.log("[AgoraCall] Connected & publishing audio");
