@@ -8,54 +8,28 @@ interface PickMeLogoProps {
   iconOnly?: boolean;
 }
 
+const sizeClasses = {
+  sm: 'h-8',
+  md: 'h-10',
+  lg: 'h-12',
+  xl: 'h-20',
+};
+
 const PickMeLogo = ({ 
   className = '', 
   variant = 'default', 
   showTagline = false,
   size = 'md',
-  iconOnly = false
 }: PickMeLogoProps) => {
   const isLight = variant === 'inverted' || variant === 'light';
-  
-  // Circle container sizes for iconOnly mode
-  const circleSizeClasses = {
-    sm: 'w-9 h-9',
-    md: 'w-12 h-12',
-    lg: 'w-14 h-14',
-    xl: 'w-20 h-20'
-  };
-
-  // Full logo display sizes
-  const fullLogoSizeClasses = {
-    sm: 'h-10',
-    md: 'h-12',
-    lg: 'h-14',
-    xl: 'h-24'
-  };
-
-  if (iconOnly) {
-    return (
-      <div className={`flex items-center gap-2 ${className}`}>
-        <div className={`${circleSizeClasses[size]} rounded-full bg-card overflow-hidden flex items-center justify-center shadow-sm ring-1 ring-border/20`}>
-          <img 
-            src={pickmeLogo} 
-            alt="PickMe" 
-            className="w-[85%] h-[85%] object-contain"
-          />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center overflow-hidden ring-1 ring-border/15">
-        <img 
-          src={pickmeLogo} 
-          alt="PickMe" 
-          className="w-[150%] h-[150%] object-cover"
-        />
-      </div>
+      <img 
+        src={pickmeLogo} 
+        alt="PickMe" 
+        className={`${sizeClasses[size]} w-auto object-contain`}
+      />
       
       {showTagline && (
         <span className={`text-xs ${isLight ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
