@@ -80,7 +80,7 @@ export default function DriverOfferCard({
       </div>
 
       {/* Recommended range */}
-      <p className="text-[10px] text-muted-foreground text-center">
+      <p className="text-[10px] text-muted-foreground text-center px-4">
         Suggested range: {formatFare(recommendedMin, currencySymbol, currencyCode)} – {formatFare(recommendedMax, currencySymbol, currencyCode)}
       </p>
 
