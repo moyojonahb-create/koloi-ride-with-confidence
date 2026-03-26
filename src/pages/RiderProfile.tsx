@@ -19,6 +19,7 @@ import BottomNavBar from '@/components/BottomNavBar';
 import PickMeLogo from '@/components/PickMeLogo';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
+import RiderPreferencesSettings from '@/components/settings/RiderPreferencesSettings';
 import { toast } from 'sonner';
 import { haptic } from '@/lib/haptics';
 import { format } from 'date-fns';
