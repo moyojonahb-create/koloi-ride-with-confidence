@@ -538,6 +538,29 @@ export default function RiderRideDetail() {
             </div>
           </motion.div>
         )}
+        {isInProgress && (
+          <motion.div
+            key="trip-in-progress"
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="absolute top-24 left-4 right-4 z-30 bg-emerald-600 text-white rounded-2xl px-5 py-4 shadow-lg flex items-center gap-3"
+          >
+            <motion.div
+              animate={{ x: [0, 6, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+            >
+              <Navigation className="w-6 h-6" />
+            </motion.div>
+            <div>
+              <p className="font-bold text-sm">Trip in progress</p>
+              <p className="text-xs opacity-90">
+                {etaMinutes ? `${etaMinutes} min • ${distanceLeftKm ? distanceLeftKm.toFixed(1) + ' km left' : 'calculating...'}` : 'On your way to destination'}
+              </p>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* ═══ ON-MAP LIVE TRIP INFO ═══ */}
