@@ -310,17 +310,21 @@ export default function RiderRideDetail() {
   const pickupCoords = ride ? { lat: ride.pickup_lat, lng: ride.pickup_lon } : null;
   const dropoffCoords = ride ? { lat: ride.dropoff_lat, lng: ride.dropoff_lon } : null;
 
-  // ETA calculation
-  const etaMinutes = driverLocation && ride ? (() => {
+  // Distance & ETA calculation
+  const tripMetrics = driverLocation && ride ? (() => {
     const R = 6371;
     const targetLat = isInProgress ? ride.dropoff_lat : ride.pickup_lat;
     const targetLng = isInProgress ? ride.dropoff_lon : ride.pickup_lon;
     const dLat = (targetLat - driverLocation.lat) * Math.PI / 180;
     const dLon = (targetLng - driverLocation.lng) * Math.PI / 180;
     const a = Math.sin(dLat / 2) ** 2 + Math.cos(driverLocation.lat * Math.PI / 180) * Math.cos(targetLat * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-    const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return Math.max(1, Math.round(km / 25 * 60));
+    const distanceKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const etaMin = Math.max(1, Math.round(distanceKm / 25 * 60));
+    return { distanceKm, etaMinutes: etaMin };
   })() : null;
+
+  const etaMinutes = tripMetrics?.etaMinutes ?? null;
+  const distanceLeftKm = tripMetrics?.distanceKm ?? null;
 
   // Ultra-compact collapsed content — thin floating bar
   const collapsedContent = (
