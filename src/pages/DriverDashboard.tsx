@@ -81,6 +81,7 @@ import FatigueAlert from "@/components/driver/FatigueAlert";
 import RidePreferenceTags from "@/components/ride/RidePreferenceTags";
 import RideRequestCard from "@/components/driver/RideRequestCard";
 import DriverOfferModal from "@/components/driver/DriverOfferModal";
+import PassengerInfoCard from "@/components/driver/PassengerInfoCard";
 
 // Smart USD format: $4 for whole, $4.50 for halves
 function fmtUSD(n: number): string {
