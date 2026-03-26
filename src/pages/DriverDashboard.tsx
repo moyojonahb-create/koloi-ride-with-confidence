@@ -713,7 +713,7 @@ export default function DriverDashboard() {
       <div className="max-w-lg mx-auto p-5 space-y-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5">
           {[
             { icon: Star, value: profile.rating_avg?.toFixed(1) || '—', label: 'Rating' },
             { icon: TrendingUp, value: String(profile.total_trips || 0), label: 'Trips' },
@@ -724,7 +724,7 @@ export default function DriverDashboard() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08, type: 'spring', stiffness: 400, damping: 30 }}
-              className="rounded-xl p-2 text-center aspect-square flex flex-col items-center justify-center"
+              className="rounded-lg p-1.5 text-center flex flex-col items-center justify-center"
               style={{ background: 'var(--gradient-primary)' }}
             >
               <stat.icon className="h-3 w-3 text-primary-foreground/80 mb-0.5" />
