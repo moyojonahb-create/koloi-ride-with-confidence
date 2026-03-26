@@ -644,6 +644,30 @@ export default function RiderRideDetail() {
           {/* ─── ACTIVE RIDE: DRIVER CARD + ROUTE ─── */}
           {isAccepted && driverProfile && ride && (
             <>
+              {/* ─── DRIVER ARRIVED ALERT CARD ─── */}
+              {isArrived && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  className="rounded-2xl bg-amber-500 text-white p-5 shadow-lg"
+                >
+                  <div className="flex items-center gap-4">
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ repeat: Infinity, duration: 1.5 }}
+                      className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0"
+                    >
+                      <MapPin className="w-7 h-7 text-white" />
+                    </motion.div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-black text-lg leading-tight">Driver Has Arrived!</p>
+                      <p className="text-sm text-white/90 mt-1">Your driver is waiting at the pickup point. Please head out now.</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Driver info card */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
