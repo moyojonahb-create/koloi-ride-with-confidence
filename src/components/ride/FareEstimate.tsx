@@ -30,8 +30,13 @@ export default function FareEstimate({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn('bg-secondary/50 rounded-2xl p-4', className)}
+      className={cn('bg-secondary/50 rounded-2xl overflow-hidden', className)}
     >
+      {/* Blue top bar */}
+      <div className="px-4 py-1.5 text-center text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary">
+        Fare Estimate
+      </div>
+      <div className="p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center shadow-sm">
@@ -69,6 +74,7 @@ export default function FareEstimate({
             </p>
           )}
         </div>
+      </div>
       </div>
     </motion.div>
   );
