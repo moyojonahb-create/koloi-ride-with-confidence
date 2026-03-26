@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
+import { resolveAvatarUrl } from "@/lib/avatarUrl";
 import { joinRidePresence, countDriversViewing } from "@/lib/koloiRealtime";
 import { useWebRTCCall } from "@/hooks/useWebRTCCall";
 import TripGoogleMap from "@/components/TripGoogleMap";
