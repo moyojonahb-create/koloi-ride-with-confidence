@@ -32,12 +32,14 @@ const METHOD_LABELS: Record<string, string> = {
 export default function RiderWalletPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { balance, deposit, refresh: refreshWallet, loading: walletLoading } = useWallet();
+  const { balance, transactions, deposit, refresh: refreshWallet, loading: walletLoading } = useWallet();
   const { hasPin, loading: pinLoading, setPin, verifyPin, refresh: refreshPin } = useWalletPin();
   const [showDeposit, setShowDeposit] = useState(false);
   const [deposits, setDeposits] = useState<RiderDeposit[]>([]);
   const [loadingDeposits, setLoadingDeposits] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
+  const [showTransactions, setShowTransactions] = useState(false);
+  const [referralEarnings, setReferralEarnings] = useState(0);
 
   // PIN gate state
   const [pinVerified, setPinVerified] = useState(false);
