@@ -24,8 +24,7 @@ export default function RiderProfile() {
   const location = useLocation();
   const isMapp = location.pathname.startsWith('/mapp');
   const prefix = isMapp ? '/mapp' : '';
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
-  const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
+  const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
