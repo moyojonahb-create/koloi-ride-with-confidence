@@ -16,7 +16,7 @@ import ShareTripButton from "@/components/ride/ShareTripButton";
 import DriverRatingModal from "@/components/ride/DriverRatingModal";
 import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
 
-function SettlementInfo({ tripId }: { tripId: string }) {
+function SettlementInfo({ tripId, onSettled }: { tripId: string; onSettled?: () => void }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [settling, setSettling] = useState(false);
@@ -30,6 +30,7 @@ function SettlementInfo({ tripId }: { tripId: string }) {
       .then(({ data }) => {
         setSettlement(data);
         setLoading(false);
+        if (data) onSettled?.();
       });
   }, [tripId]);
 
@@ -41,6 +42,7 @@ function SettlementInfo({ tripId }: { tripId: string }) {
       await supabase.functions.invoke("settle-trip", { body: { tripId } });
       const { data } = await supabase.from("platform_ledger").select("status, created_at").eq("trip_id", tripId).maybeSingle();
       setSettlement(data);
+      onSettled?.();
     } catch (err: unknown) { console.warn("Settlement fetch failed:", err); }
     setSettling(false);
   };
