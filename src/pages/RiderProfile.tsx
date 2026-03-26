@@ -282,11 +282,11 @@ export default function RiderProfile() {
 
 /* ——— Sub-components ——— */
 
-function QuickAction({ icon, label, sublabel, onClick, accent, color = 'amber' }: {
-  icon: React.ReactNode; label: string; sublabel?: string; onClick: () => void; accent?: boolean; color?: 'amber' | 'primary';
+function QuickAction({ icon, label, sublabel, onClick, accent, color = 'yellow' }: {
+  icon: React.ReactNode; label: string; sublabel?: string; onClick: () => void; accent?: boolean; color?: 'yellow' | 'primary';
 }) {
   const colorMap = {
-    amber: { bg: 'bg-amber-400/15', text: 'text-amber-700', accentBg: 'bg-amber-400', accentText: 'text-amber-950' },
+    yellow: { bg: 'bg-yellow-400/20', text: 'text-yellow-700', accentBg: 'bg-yellow-400', accentText: 'text-yellow-900' },
     primary: { bg: 'bg-primary/15', text: 'text-primary', accentBg: 'bg-primary', accentText: 'text-primary-foreground' },
   };
   const c = colorMap[color];
