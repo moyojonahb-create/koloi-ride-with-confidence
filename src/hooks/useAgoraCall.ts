@@ -130,6 +130,7 @@ export function useAgoraCall({
               session.id === sessionIdRef.current ||
               (session.id as string) === incomingCallRef.current?.sessionId
             ) {
+              stopRingtone();
               cleanup();
               setCallStatus("ended");
               setIncomingCall(null);
