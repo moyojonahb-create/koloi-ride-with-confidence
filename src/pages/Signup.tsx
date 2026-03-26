@@ -21,7 +21,8 @@ const signupSchema = z.object({
     .max(20, 'Phone number too long')
     .regex(/^\+?[0-9\s-]+$/, 'Enter a valid phone number'),
   email: z.string().email('Enter a valid email address').max(255, 'Email too long').optional().or(z.literal('')),
-  password: z.string().min(6, 'Password must be at least 6 characters').max(72, 'Password too long'),
+  password: z.string().min(6, 'Password must be at least 6 characters').max(72, 'Password too long')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~])/, 'Must include uppercase, lowercase, number, and special character'),
 });
 
 type SignupFormData = z.infer<typeof signupSchema>;
