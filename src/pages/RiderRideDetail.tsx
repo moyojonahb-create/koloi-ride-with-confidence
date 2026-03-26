@@ -310,17 +310,21 @@ export default function RiderRideDetail() {
   const pickupCoords = ride ? { lat: ride.pickup_lat, lng: ride.pickup_lon } : null;
   const dropoffCoords = ride ? { lat: ride.dropoff_lat, lng: ride.dropoff_lon } : null;
 
-  // ETA calculation
-  const etaMinutes = driverLocation && ride ? (() => {
+  // Distance & ETA calculation
+  const tripMetrics = driverLocation && ride ? (() => {
     const R = 6371;
     const targetLat = isInProgress ? ride.dropoff_lat : ride.pickup_lat;
     const targetLng = isInProgress ? ride.dropoff_lon : ride.pickup_lon;
     const dLat = (targetLat - driverLocation.lat) * Math.PI / 180;
     const dLon = (targetLng - driverLocation.lng) * Math.PI / 180;
     const a = Math.sin(dLat / 2) ** 2 + Math.cos(driverLocation.lat * Math.PI / 180) * Math.cos(targetLat * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-    const km = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return Math.max(1, Math.round(km / 25 * 60));
+    const distanceKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const etaMin = Math.max(1, Math.round(distanceKm / 25 * 60));
+    return { distanceKm, etaMinutes: etaMin };
   })() : null;
+
+  const etaMinutes = tripMetrics?.etaMinutes ?? null;
+  const distanceLeftKm = tripMetrics?.distanceKm ?? null;
 
   // Ultra-compact collapsed content — thin floating bar
   const collapsedContent = (
@@ -534,10 +538,61 @@ export default function RiderRideDetail() {
             </div>
           </motion.div>
         )}
+        {isInProgress && (
+          <motion.div
+            key="trip-in-progress"
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="absolute top-24 left-4 right-4 z-30 bg-emerald-600 text-white rounded-2xl px-5 py-4 shadow-lg flex items-center gap-3"
+          >
+            <motion.div
+              animate={{ x: [0, 6, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+            >
+              <Navigation className="w-6 h-6" />
+            </motion.div>
+            <div>
+              <p className="font-bold text-sm">Trip in progress</p>
+              <p className="text-xs opacity-90">
+                {etaMinutes ? `${etaMinutes} min • ${distanceLeftKm ? distanceLeftKm.toFixed(1) + ' km left' : 'calculating...'}` : 'On your way to destination'}
+              </p>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
-      {/* ═══ ON-MAP ETA OVERLAY ═══ */}
-      {isAccepted && etaMinutes && !isArrived && sheetState === 'collapsed' && (
+      {/* ═══ ON-MAP LIVE TRIP INFO ═══ */}
+      {isInProgress && sheetState === 'collapsed' && (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="absolute left-4 right-4 z-30 bg-card/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg border border-border/30"
+          style={{ bottom: 100 }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                <Navigation className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-lg font-black text-foreground tabular-nums leading-none">{etaMinutes ?? '—'} min</p>
+                <p className="text-[10px] text-muted-foreground font-medium">to destination</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <p className="text-sm font-bold text-foreground tabular-nums">{distanceLeftKm ? distanceLeftKm.toFixed(1) : '—'}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">km left</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ═══ ON-MAP ETA OVERLAY (pre-pickup) ═══ */}
+      {isAccepted && etaMinutes && !isArrived && !isInProgress && sheetState === 'collapsed' && (
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -546,13 +601,11 @@ export default function RiderRideDetail() {
         >
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              {isInProgress ? <Navigation className="w-4 h-4 text-primary" /> : <Car className="w-4 h-4 text-primary" />}
+              <Car className="w-4 h-4 text-primary" />
             </div>
             <div>
               <p className="text-xl font-black text-foreground tabular-nums leading-none">{etaMinutes} min</p>
-              <p className="text-[10px] text-muted-foreground font-medium">
-                {isInProgress ? "to destination" : "to pickup"}
-              </p>
+              <p className="text-[10px] text-muted-foreground font-medium">to pickup</p>
             </div>
           </div>
         </motion.div>
@@ -663,6 +716,36 @@ export default function RiderRideDetail() {
                     <div className="flex-1 min-w-0">
                       <p className="font-black text-lg leading-tight">🚗 Your driver has arrived</p>
                       <p className="text-sm text-white/90 mt-1">Head to your pickup point now — your driver is waiting.</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ─── IN-PROGRESS LIVE TRIP CARD ─── */}
+              {isInProgress && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  className="rounded-2xl bg-emerald-600 text-white p-5 shadow-lg"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <motion.div
+                      animate={{ x: [0, 4, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+                    >
+                      <Navigation className="w-5 h-5" />
+                    </motion.div>
+                    <p className="font-bold text-sm">Trip in Progress</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white/15 rounded-xl px-3 py-2.5 text-center">
+                      <p className="text-2xl font-black tabular-nums leading-none">{etaMinutes ?? '—'}</p>
+                      <p className="text-[10px] text-white/80 font-medium mt-1">min ETA</p>
+                    </div>
+                    <div className="bg-white/15 rounded-xl px-3 py-2.5 text-center">
+                      <p className="text-2xl font-black tabular-nums leading-none">{distanceLeftKm ? distanceLeftKm.toFixed(1) : '—'}</p>
+                      <p className="text-[10px] text-white/80 font-medium mt-1">km left</p>
                     </div>
                   </div>
                 </motion.div>
