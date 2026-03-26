@@ -118,11 +118,11 @@
           setTimeout(function () { s.remove(); }, 400);
         }
 
-        // Minimum 0.6s display so it never feels like a flash
+        // Minimum 5s display for branding
         setTimeout(function () {
           window.__splashMinDone = true;
           tryHide();
-        }, 600);
+        }, 5000);
 
         // React calls window.__dismissSplash() when the app is mounted
         window.__dismissSplash = function () {
@@ -130,12 +130,12 @@
           tryHide();
         };
 
-        // Hard fallback: never leave splash stuck beyond 2.5s
+        // Hard fallback: never leave splash stuck beyond 6s
         setTimeout(function () {
           window.__splashMinDone = true;
           window.__splashReady = true;
           tryHide();
-        }, 2500);
+        }, 6000);
       })();
     </script>
   </body>
