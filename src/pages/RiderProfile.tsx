@@ -99,48 +99,46 @@ export default function RiderProfile() {
       {/* Header */}
       <div className="relative overflow-hidden" style={{ background: 'var(--gradient-primary)' }}>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 0%, transparent 50%)' }} />
-        <div className="relative px-4 pb-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)' }}>
-          {/* Logo top center */}
-          <div className="flex justify-center mb-2">
-            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md">
-              <PickMeLogo className="h-6" />
+        <div className="relative px-3 pb-3" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 4px)' }}>
+          {/* Logo + nav row */}
+          <div className="flex items-center justify-between mb-2">
+            <button onClick={() => navigate(-1)} className="w-7 h-7 flex items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur-sm active:scale-95 transition-all">
+              <ArrowLeft className="w-3.5 h-3.5 text-primary-foreground" />
+            </button>
+            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
+              <PickMeLogo className="h-5" />
             </div>
-          </div>
-          <div className="flex items-center justify-between mb-3">
-            <button onClick={() => navigate(-1)} className="w-8 h-8 flex items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur-sm active:scale-95 transition-all">
-              <ArrowLeft className="w-4 h-4 text-primary-foreground" />
-            </button>
-            <h2 className="text-xs font-semibold text-primary-foreground/80 tracking-wide">Profile</h2>
-            <button onClick={() => navigate(`${prefix}/edit-profile`)} className="w-8 h-8 flex items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur-sm active:scale-95 transition-all">
-              <Edit3 className="w-3.5 h-3.5 text-primary-foreground" />
+            <button onClick={() => navigate(`${prefix}/edit-profile`)} className="w-7 h-7 flex items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur-sm active:scale-95 transition-all">
+              <Edit3 className="w-3 h-3 text-primary-foreground" />
             </button>
           </div>
-          <div className="flex items-center gap-3">
+          {/* User info */}
+          <div className="flex items-center gap-2.5">
             <label className="relative cursor-pointer group shrink-0">
-              <div className="w-11 h-11 rounded-full bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center ring-2 ring-primary-foreground/20 overflow-hidden">
+              <div className="w-10 h-10 rounded-full bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center ring-2 ring-primary-foreground/20 overflow-hidden">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-sm font-bold text-primary-foreground">{initials}</span>
                 )}
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-accent flex items-center justify-center border-2 border-primary group-hover:scale-110 transition-transform">
-                {uploading ? <Loader2 className="w-2.5 h-2.5 animate-spin text-accent-foreground" /> : <Camera className="w-2.5 h-2.5 text-accent-foreground" />}
+              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-accent flex items-center justify-center border-[1.5px] border-primary group-hover:scale-110 transition-transform">
+                {uploading ? <Loader2 className="w-2 h-2 animate-spin text-accent-foreground" /> : <Camera className="w-2 h-2 text-accent-foreground" />}
               </div>
               <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
             </label>
             <div className="min-w-0 flex-1">
-              <h1 className="text-base font-bold text-primary-foreground truncate leading-tight">{userName}</h1>
-              {userEmail && <p className="text-[11px] text-primary-foreground/60 truncate mt-0.5">{userEmail}</p>}
-              <div className="flex items-center gap-1.5 mt-1">
+              <h1 className="text-sm font-bold text-primary-foreground truncate leading-tight">{userName}</h1>
+              {userEmail && <p className="text-[10px] text-primary-foreground/60 truncate">{userEmail}</p>}
+              <div className="flex items-center gap-1 mt-0.5">
                 {isAdmin && (
-                  <Badge className="h-4 text-[9px] bg-primary-foreground/15 text-primary-foreground border-0 px-1.5 cursor-pointer" onClick={() => navigate(`${prefix}/admin`)}>
-                    <ShieldCheck className="w-2.5 h-2.5 mr-0.5" /> Admin
+                  <Badge className="h-3.5 text-[8px] bg-primary-foreground/15 text-primary-foreground border-0 px-1 cursor-pointer" onClick={() => navigate(`${prefix}/admin`)}>
+                    <ShieldCheck className="w-2 h-2 mr-0.5" /> Admin
                   </Badge>
                 )}
                 {isApprovedDriver && (
-                  <Badge className="h-4 text-[9px] bg-primary-foreground/15 text-primary-foreground border-0 px-1.5 cursor-pointer" onClick={() => navigate(`${prefix}/driver`)}>
-                    <CarFront className="w-2.5 h-2.5 mr-0.5" /> Driver
+                  <Badge className="h-3.5 text-[8px] bg-primary-foreground/15 text-primary-foreground border-0 px-1 cursor-pointer" onClick={() => navigate(`${prefix}/driver`)}>
+                    <CarFront className="w-2 h-2 mr-0.5" /> Driver
                   </Badge>
                 )}
               </div>
