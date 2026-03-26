@@ -45,8 +45,19 @@ export default function RiderProfile() {
         .select('avatar_url')
         .eq('user_id', user.id)
         .maybeSingle()
-        .then(({ data }) => {
-          if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+        .then(async ({ data }) => {
+          if (data?.avatar_url) {
+            // If it's already a full URL, use it directly
+            if (data.avatar_url.startsWith('http')) {
+              setAvatarUrl(data.avatar_url);
+            } else {
+              // It's a storage path — generate a signed URL
+              const { data: signedData } = await supabase.storage
+                .from('driver-avatars')
+                .createSignedUrl(data.avatar_url, 60 * 60 * 24 * 365);
+              if (signedData?.signedUrl) setAvatarUrl(signedData.signedUrl);
+            }
+          }
         });
     }
   }, [user]);
