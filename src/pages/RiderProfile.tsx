@@ -106,12 +106,12 @@ export default function RiderProfile() {
             <button onClick={() => navigate(-1)} className="w-7 h-7 flex items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur-sm active:scale-95 transition-all">
               <ArrowLeft className="w-3.5 h-3.5 text-primary-foreground" />
             </button>
-            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">
-              <PickMeLogo className="h-5" />
+            <div className="flex items-center gap-2">
+              <button onClick={() => navigate(`${prefix}/edit-profile`)} className="w-7 h-7 flex items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur-sm active:scale-95 transition-all">
+                <Edit3 className="w-3 h-3 text-primary-foreground" />
+              </button>
+              <PickMeLogo size="sm" />
             </div>
-            <button onClick={() => navigate(`${prefix}/edit-profile`)} className="w-7 h-7 flex items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur-sm active:scale-95 transition-all">
-              <Edit3 className="w-3 h-3 text-primary-foreground" />
-            </button>
           </div>
           {/* User info */}
           <div className="flex items-center gap-2.5">
