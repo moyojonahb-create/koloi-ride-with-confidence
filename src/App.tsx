@@ -100,9 +100,9 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth" element={<SuspenseWrap><Auth /></SuspenseWrap>} />
           <Route path="/login" element={<Navigate to="/auth" replace />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/signup" element={<SuspenseWrap><Signup /></SuspenseWrap>} />
 
           {/* Legacy / mapp compatibility redirects */}
           <Route path="/mapp" element={<Navigate to="/ride" replace />} />
