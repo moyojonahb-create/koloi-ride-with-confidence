@@ -622,12 +622,8 @@ export default function FullScreenNavigation({
             {currentStep ? (
               <div className="flex items-start gap-4">
                 {/* Maneuver icon */}
-                <div
-                  className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0 ${
-                    isPickupPhase
-                      ? "bg-blue-500/15 text-blue-600"
-                      : "bg-emerald-500/15 text-emerald-600"
-                  }`}
+                 <div
+                   className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 bg-accent/15 text-accent"
                 >
                   <ManeuverIcon step={currentStep} />
                 </div>
