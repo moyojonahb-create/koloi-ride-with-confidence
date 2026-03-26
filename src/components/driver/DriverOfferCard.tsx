@@ -86,7 +86,7 @@ export default function DriverOfferCard({
 
       {/* Counter offer section */}
       {showCounter ? (
-        <div className="space-y-3">
+        <div className="space-y-3 px-4 pb-4">
           <div className="flex items-center justify-center gap-4">
             <button onClick={dec} disabled={counterFare <= riderOffer} className="w-10 h-10 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30">
               <Minus className="w-4 h-4" />
