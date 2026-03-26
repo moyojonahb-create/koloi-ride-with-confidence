@@ -281,14 +281,19 @@ export default function RiderProfile() {
 
 /* ——— Sub-components ——— */
 
-function QuickAction({ icon, label, sublabel, onClick, accent }: {
-  icon: React.ReactNode; label: string; sublabel?: string; onClick: () => void; accent?: boolean;
+function QuickAction({ icon, label, sublabel, onClick, accent, color = 'amber' }: {
+  icon: React.ReactNode; label: string; sublabel?: string; onClick: () => void; accent?: boolean; color?: 'amber' | 'primary';
 }) {
+  const colorMap = {
+    amber: { bg: 'bg-amber-400/15', text: 'text-amber-700', accentBg: 'bg-amber-400', accentText: 'text-amber-950' },
+    primary: { bg: 'bg-primary/15', text: 'text-primary', accentBg: 'bg-primary', accentText: 'text-primary-foreground' },
+  };
+  const c = colorMap[color];
   return (
     <button
       onClick={() => { haptic('light'); onClick(); }}
       className={`flex flex-col items-center justify-center gap-1 p-3 rounded-2xl active:scale-95 transition-all ${
-        accent ? 'bg-amber-400 text-amber-950 shadow-md' : 'bg-amber-400/15 text-amber-700 shadow-sm'
+        accent ? `${c.accentBg} ${c.accentText} shadow-md` : `${c.bg} ${c.text} shadow-sm`
       }`}
     >
       {icon}
