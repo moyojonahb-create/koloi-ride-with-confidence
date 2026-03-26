@@ -748,19 +748,23 @@ export default function DriverDashboard() {
 
         {/* Trial Banner */}
         {profile && trialActive && (
-          <Card className="border-amber-500 bg-amber-500/10">
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-amber-600 shrink-0" />
-                <div>
-                  <p className="font-semibold text-sm">Free Trial Active</p>
-                  <p className="text-xs text-muted-foreground">
-                    {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} remaining — no fees until trial ends
-                  </p>
-                </div>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-accent/30 bg-accent/8 p-3.5"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center shrink-0">
+                <Clock className="h-4.5 w-4.5 text-accent" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="font-semibold text-sm text-foreground">Free Trial Active</p>
+                <p className="text-xs text-muted-foreground">
+                  {trialDaysLeft} day{trialDaysLeft !== 1 ? "s" : ""} remaining — no fees
+                </p>
+              </div>
+            </div>
+          </motion.div>
         )}
 
         {/* Available Rides — top priority */}
