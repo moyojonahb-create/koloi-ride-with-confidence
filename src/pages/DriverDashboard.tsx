@@ -671,7 +671,7 @@ export default function DriverDashboard() {
           <Button variant="ghost" size="icon" onClick={() => nav(-1)} className="w-11 h-11 rounded-2xl active:scale-90 transition-all">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="font-extrabold text-lg tracking-tight">Driver Dashboard</h1>
+          <h1 className="font-extrabold tracking-tight text-base">Driver Dashboard</h1>
           <div className="flex items-center gap-2.5">
             <Button
               variant="ghost"
