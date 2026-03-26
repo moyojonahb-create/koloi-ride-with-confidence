@@ -301,6 +301,7 @@ export function useAgoraCall({
     }
 
     try {
+      startRingtone('outgoing');
       setCallStatus("ringing");
       console.log(
         "[AgoraCall] Starting call: ride=",
