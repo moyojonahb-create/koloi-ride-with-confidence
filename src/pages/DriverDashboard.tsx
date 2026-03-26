@@ -95,6 +95,10 @@ type Ride = {
   created_at: string;
   expires_at?: string | null;
   town_id?: string | null;
+  passenger_count?: number;
+  payment_method?: string;
+  gender_preference?: string | null;
+  vehicle_type?: string;
 };
 
 export default function DriverDashboard() {
