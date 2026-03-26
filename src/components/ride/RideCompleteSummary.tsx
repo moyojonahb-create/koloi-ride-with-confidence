@@ -60,8 +60,13 @@ export default function RideCompleteSummary({
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35 }}
-        className="bg-card rounded-2xl p-4 border border-border/40 shadow-sm"
+        className="bg-card rounded-2xl border border-border/40 shadow-sm overflow-hidden"
       >
+        {/* Blue top bar */}
+        <div className="px-4 py-1.5 text-center text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary">
+          Trip Summary
+        </div>
+        <div className="p-4">
         {/* Route */}
         <div className="flex items-start gap-3 mb-4">
           <div className="flex flex-col items-center mt-1">
