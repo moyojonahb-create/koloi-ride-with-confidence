@@ -308,15 +308,16 @@ export default function RideView() {
 
       // Save ride preferences if any selected
       if (result.ride.id && (quietRide || coolTemp || wavRequired || hearingImpaired || genderPreference !== 'any')) {
-        supabase.from('ride_preferences').insert([{
+        const prefsPayload = {
           ride_id: result.ride.id,
           quiet_ride: quietRide,
           cool_temperature: coolTemp,
-        }]).then(() => {
-          // Update extended preferences via raw insert for new columns
-          supabase.from('ride_preferences').update(
-            { wav_required: wavRequired, hearing_impaired: hearingImpaired, gender_preference: genderPreference } as never
-          ).eq('ride_id', result.ride.id).then(() => {});
+          wav_required: wavRequired,
+          hearing_impaired: hearingImpaired,
+          gender_preference: genderPreference,
+        };
+        supabase.from('ride_preferences').insert([prefsPayload] as never).then(({ error }) => {
+          if (error) console.error('Failed to save ride preferences:', error.message);
         });
       }
 
