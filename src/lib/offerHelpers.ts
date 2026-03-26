@@ -1,5 +1,6 @@
 // Offer/bidding system helpers - RLS safe implementation
 import { supabase } from '@/lib/supabaseClient';
+import { resolveAvatarUrl } from '@/lib/avatarUrl';
 
 export type Offer = {
   id: string;
