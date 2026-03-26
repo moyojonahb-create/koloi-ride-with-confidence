@@ -663,6 +663,22 @@ export default function RideDetail() {
         }}
         onClose={() => setShowOffersModal(false)} />
 
+      {/* Driver Rating Modal */}
+      {showRatingModal && rideId && ride.driver_id && (
+        <DriverRatingModal
+          rideId={rideId}
+          driverId={ride.driver_id}
+          riderId={userId}
+          driverName={driverProfile?.fullName}
+          driverAvatar={driverProfile?.avatarUrl ?? undefined}
+          fare={Number(ride.fare ?? 0)}
+          onClose={() => {
+            setShowRatingModal(false);
+            setHasRated(true);
+          }}
+        />
+      )}
+
       {/* Toast */}
       {toast && (
         <div className="fixed bottom-24 left-4 right-4 z-[9999] p-4 rounded-2xl bg-card border border-border shadow-lg text-sm font-medium text-foreground text-center">
