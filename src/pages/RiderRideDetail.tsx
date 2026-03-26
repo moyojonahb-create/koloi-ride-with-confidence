@@ -24,7 +24,7 @@ import MapGoogle from "@/components/MapGoogle";
 import TripGoogleMap from "@/components/TripGoogleMap";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { ArrowLeft, MapPin, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock, Star, Shield, Navigation, Car, ChevronUp } from "lucide-react";
+import { ArrowLeft, MapPin, Users, Eye, Minus, Plus, MessageCircle, Phone, Clock, Star, Shield, Navigation, Car, ChevronUp, CheckCircle2 } from "lucide-react";
 import CancellationPolicy from "@/components/ride/CancellationPolicy";
 import EmergencyButton from "@/components/ride/EmergencyButton";
 import DriverRatingModal from "@/components/ride/DriverRatingModal";
@@ -82,6 +82,7 @@ export default function RiderRideDetail() {
   const [secondsLeft, setSecondsLeft] = useState(30);
   const [showEcoCashPay, setShowEcoCashPay] = useState(false);
   const [sheetState, setSheetState] = useState<SheetState>('half');
+  const [showAcceptedOverlay, setShowAcceptedOverlay] = useState(false);
 
   const { balance: walletBalance } = useWallet();
   const [walletPin, setWalletPin] = useState<string | null>(null);
@@ -114,10 +115,13 @@ export default function RiderRideDetail() {
 
     if (wasAccepted) {
       playAcceptedSound();
-      haptic('medium');
+      haptic('heavy');
+      setShowAcceptedOverlay(true);
+      setModalOpen(false);
+      setTimeout(() => setShowAcceptedOverlay(false), 4000);
       try {
         if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
-          new Notification("🎉 Driver Accepted!", { body: "Your ride has been confirmed.", icon: "/icons/icon-192x192.png" });
+          new Notification("🎉 Driver Accepted!", { body: "Your ride has been confirmed. Driver is on the way!", icon: "/icons/icon-192x192.png" });
         }
       } catch (_) {}
     }
@@ -157,9 +161,16 @@ export default function RiderRideDetail() {
       const list = await fetchPendingOffers(rideId);
       if (list.length > lastOfferCount && lastOfferCount > 0) {
         playNewRequestSound();
+        haptic('medium');
+        // Auto-open offers modal so rider sees the new offer immediately
+        setModalOpen(true);
+        toast.success("🚗 New driver offer received!", {
+          description: `${list.length} driver${list.length > 1 ? 's' : ''} bidding on your ride — tap to review`,
+          duration: 8000,
+        });
         try {
           if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
-            new Notification("New Driver Offer!", { body: "A driver has made an offer.", icon: "/icons/icon-192x192.png" });
+            new Notification("🚗 New Driver Offer!", { body: "A driver has made an offer on your ride. Tap to review.", icon: "/icons/icon-192x192.png" });
           }
         } catch (_) {}
       }
@@ -492,6 +503,75 @@ export default function RiderRideDetail() {
           </div>
         </motion.div>
       )}
+
+      {/* ═══ DRIVER ACCEPTED FULL-SCREEN OVERLAY ═══ */}
+      <AnimatePresence>
+        {showAcceptedOverlay && (
+          <motion.div
+            key="accepted-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[9999] bg-primary/95 backdrop-blur-md flex flex-col items-center justify-center text-primary-foreground"
+            onClick={() => setShowAcceptedOverlay(false)}
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: [0, 1.3, 1] }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
+              className="w-24 h-24 rounded-full bg-primary-foreground/20 flex items-center justify-center mb-6"
+            >
+              <CheckCircle2 className="w-14 h-14 text-primary-foreground" />
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl font-black mb-2"
+            >
+              Driver Accepted!
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-lg opacity-90 text-center px-8"
+            >
+              Your driver is on the way to pick you up
+            </motion.p>
+            {driverProfile && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="mt-6 bg-primary-foreground/15 rounded-2xl px-6 py-4 flex items-center gap-4"
+              >
+                <Avatar className="h-14 w-14 border-2 border-primary-foreground/30">
+                  {driverProfile.avatar_url && <AvatarImage src={driverProfile.avatar_url} />}
+                  <AvatarFallback className="bg-primary-foreground/20 text-primary-foreground font-bold">
+                    <Car className="w-6 h-6" />
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-bold text-lg">
+                    {driverProfile.vehicle_make} {driverProfile.vehicle_model}
+                  </p>
+                  <p className="text-sm opacity-80">{driverProfile.plate_number}</p>
+                </div>
+              </motion.div>
+            )}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.6 }}
+              transition={{ delay: 1.2 }}
+              className="mt-8 text-xs"
+            >
+              Tap anywhere to dismiss
+            </motion.p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ═══ DRIVER STATUS POPUP BANNERS ═══ */}
       <AnimatePresence>
