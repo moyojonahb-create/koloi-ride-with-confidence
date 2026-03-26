@@ -158,6 +158,7 @@ export default function RiderProfile() {
             sublabel={stats.completedRides > 0 ? `${stats.completedRides} trips` : 'Book now'}
             onClick={() => navigate(`${prefix}/ride`)}
             accent
+            color="primary"
           />
           <QuickAction
             icon={<Wallet className="w-5 h-5" />}
