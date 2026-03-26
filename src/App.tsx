@@ -5,15 +5,17 @@ import AuthGuard from "./components/AuthGuard";
 import AdminGuard from "./components/admin/AdminGuard";
 import ErrorBoundary from "./components/ErrorBoundary";
 
-// Core pages — eagerly loaded for instant navigation
+// ─── Core pages — eagerly loaded for INSTANT navigation ───
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Signup from "./pages/Signup";
+import Ride from "./pages/Ride";
+import RideDetail from "./pages/RideDetail";
+import DriverDashboard from "./pages/DriverDashboard";
+import RiderRideDetail from "./pages/RiderRideDetail";
+import AppDashboard from "./pages/AppDashboard";
 
-// Lazy-loaded pages
-const Ride = lazy(() => import("./pages/Ride"));
-const RideDetail = lazy(() => import("./pages/RideDetail"));
-const AppDashboard = lazy(() => import("./pages/AppDashboard"));
+// ─── Lazy-loaded pages (secondary screens) ───
 const RideHistory = lazy(() => import("./pages/RideHistory"));
 const RiderProfile = lazy(() => import("./pages/RiderProfile"));
 const EditProfile = lazy(() => import("./pages/EditProfile"));
@@ -25,13 +27,11 @@ const Offline = lazy(() => import("./pages/Offline"));
 const Install = lazy(() => import("./pages/Install"));
 const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 const DriverApplication = lazy(() => import("./pages/DriverApplication"));
-const DriverDashboard = lazy(() => import("./pages/DriverDashboard"));
 const DriverDepositPage = lazy(() => import("./pages/DriverDepositPage"));
 const DriverLeaderboard = lazy(() => import("./pages/DriverLeaderboard"));
 const DriverModeLanding = lazy(() => import("./pages/DriverModeLanding"));
 const DriverRegistrationPage = lazy(() => import("./pages/DriverRegistrationPage"));
 const DriverWalletPage = lazy(() => import("./pages/DriverWalletPage"));
-const RiderRideDetail = lazy(() => import("./pages/RiderRideDetail"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminDrivers = lazy(() => import("./pages/admin/AdminDrivers"));
 const AdminDriverDetail = lazy(() => import("./pages/admin/AdminDriverDetail"));
@@ -59,6 +59,23 @@ const LiveTrackingPage = lazy(() => import("./pages/LiveTrackingPage"));
 
 function SuspenseWrap({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={null}>{children}</Suspense>;
+}
+
+// ─── Prefetch secondary pages during idle time ───
+function prefetchSecondaryPages() {
+  const pages = [
+    () => import("./pages/RideHistory"),
+    () => import("./pages/RiderProfile"),
+    () => import("./pages/EditProfile"),
+    () => import("./pages/RiderWalletPage"),
+    () => import("./pages/DriverModeLanding"),
+    () => import("./pages/DriverWalletPage"),
+    () => import("./pages/DriverDepositPage"),
+  ];
+  // Stagger prefetch so we don't block the main thread
+  pages.forEach((load, i) => {
+    setTimeout(() => { load().catch(() => {}); }, 1500 + i * 300);
+  });
 }
 
 export default function App() {
