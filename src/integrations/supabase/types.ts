@@ -1755,6 +1755,7 @@ export type Database = {
       }
       admin_set_fx_rate: { Args: { p_zar_per_usd: number }; Returns: Json }
       can_driver_operate: { Args: { p_driver_id: string }; Returns: boolean }
+      cleanup_old_messages: { Args: never; Returns: number }
       complete_trip_and_charge_flat_r4: {
         Args: { p_trip_id: string }
         Returns: Json
