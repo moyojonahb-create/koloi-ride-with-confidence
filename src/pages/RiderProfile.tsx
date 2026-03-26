@@ -217,6 +217,12 @@ export default function RiderProfile() {
           </div>
         )}
 
+        {/* Ride Preferences */}
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Ride Preferences</p>
+          <RiderPreferencesSettings />
+        </div>
+
         {/* Settings rows */}
         <div className="space-y-1.5">
           {/* Dark Mode */}
