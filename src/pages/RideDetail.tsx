@@ -129,10 +129,11 @@ export default function RideDetail() {
         .maybeSingle();
 
       const acceptedOffer = offers.find((o) => o.driver_id === d.user_id);
+      const resolvedAvatar = await resolveAvatarUrl(d.avatar_url);
       setDriverProfile({
         fullName: p?.full_name || "Your driver",
         phone: p?.phone || null,
-        avatarUrl: d.avatar_url || null,
+        avatarUrl: resolvedAvatar,
         ratingAvg: Number(d.rating_avg || 0),
         totalTrips: Number(d.total_trips || 0),
         vehicleMake: d.vehicle_make || null,
