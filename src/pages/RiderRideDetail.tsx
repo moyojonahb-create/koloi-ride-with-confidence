@@ -212,7 +212,9 @@ export default function RiderRideDetail() {
     if (!ride) return;
     if (ride.status === "in_progress") {
       setSheetState('collapsed');
-    } else if (ride.status === "accepted" || ride.status === "arrived" || ride.status === "driver_arrived") {
+    } else if (ride.status === "arrived" || ride.status === "driver_arrived") {
+      setSheetState('half');
+    } else if (ride.status === "accepted") {
       setSheetState('collapsed');
     } else if (ride.status === "completed") {
       setSheetState('half');
