@@ -107,7 +107,7 @@ const Auth = () => {
 
       const signupEmail = email.trim() || `${formattedPhone.replace(/\+/g, '')}@pickme.phone`;
 
-      const { error, data: signUpData } = await signUp(signupEmail, password, fullName);
+      const { error } = await signUp(signupEmail, password, fullName);
       if (error) {
         let message = error.message;
         if (message.includes('already registered') || message.includes('already been registered')) {
