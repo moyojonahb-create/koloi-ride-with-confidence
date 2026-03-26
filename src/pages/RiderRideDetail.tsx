@@ -684,24 +684,37 @@ export default function RiderRideDetail() {
               })()}
 
               {/* Complete trip */}
-              <Button
-                className="w-full h-[52px] rounded-2xl font-bold text-base bg-primary hover:bg-primary/90 text-primary-foreground"
-                onClick={async () => {
-                  try {
-                    const result = await completeTrip(ride.id);
-                    if (result.ok) {
-                      toast.success(`Trip completed! Fare: $${Number(result.fare_usd).toFixed(2)}`);
-                      refreshRide();
-                    } else {
-                      toast.error(result.reason || "Could not complete trip");
+              {isInProgress && (
+                <Button
+                  className="w-full h-[52px] rounded-2xl font-bold text-base bg-amber-500 hover:bg-amber-600 text-white"
+                  onClick={async () => {
+                    try {
+                      const result = await completeTrip(ride.id);
+                      if (result.ok) {
+                        toast.success(`Trip completed! Fare: $${Number(result.fare_usd).toFixed(2)}`);
+                        setShowRating(true);
+                        refreshRide();
+                      } else {
+                        toast.error(result.reason || "Could not complete trip");
+                      }
+                    } catch (e: unknown) {
+                      toast.error((e as Error)?.message || "Failed to complete trip");
                     }
-                  } catch (e: unknown) {
-                    toast.error((e as Error)?.message || "Failed to complete trip");
-                  }
-                }}
-              >
-                ✅ Complete Trip
-              </Button>
+                  }}
+                >
+                  ✅ Complete Trip
+                </Button>
+              )}
+
+              {/* Cancel ride */}
+              {!isInProgress && (
+                <Button
+                  className="w-full h-11 rounded-2xl font-bold text-sm bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                  onClick={handleCancelRide}
+                >
+                  Cancel Ride
+                </Button>
+              )}
 
               {/* Communication panel */}
               {showCommunication && user && (

@@ -972,6 +972,20 @@ export default function DriverDashboard() {
                   className="w-full bg-primary text-primary-foreground hover:brightness-105 mb-2"
                   size="lg"
                   onClick={async () => {
+                    await supabase.from("rides").update({ status: "arrived" }).eq("id", activeTrip.id);
+                    setActiveTrip({ ...activeTrip, status: "arrived" });
+                    toast.info("Status: Arrived — waiting for rider");
+                  }}
+                >
+                  <MapPin className="h-4 w-4 mr-2" />
+                  I've Arrived
+                </Button>
+              )}
+              {activeTrip.status === 'arrived' && (
+                <Button
+                  className="w-full bg-primary text-primary-foreground hover:brightness-105 mb-2"
+                  size="lg"
+                  onClick={async () => {
                     await supabase.from("rides").update({ status: "in_progress" }).eq("id", activeTrip.id);
                     setActiveTrip({ ...activeTrip, status: "in_progress" });
                     toast.info("Rider picked up — navigating to dropoff");
@@ -982,7 +996,7 @@ export default function DriverDashboard() {
                 </Button>
               )}
               <Button
-                className="w-full bg-primary text-primary-foreground hover:brightness-110"
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold"
                 size="lg"
                 onClick={handleCompleteTrip}
                 disabled={completing}
