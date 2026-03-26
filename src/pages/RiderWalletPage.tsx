@@ -282,6 +282,17 @@ export default function RiderWalletPage() {
         currentBalance={balance}
       />
 
+      <TransactionsSheet
+        isOpen={showTransactions}
+        onClose={() => setShowTransactions(false)}
+        transactions={transactions.map(t => ({
+          ...t,
+          amount: Number(t.amount),
+          transaction_type: t.transaction_type as 'deposit' | 'withdrawal' | 'trip_fee' | 'refund',
+        }))}
+        title="All Transactions"
+      />
+
       <BottomNavBar />
     </div>
   );
