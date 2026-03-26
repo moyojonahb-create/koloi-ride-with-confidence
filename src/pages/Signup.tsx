@@ -21,7 +21,8 @@ const signupSchema = z.object({
     .max(20, 'Phone number too long')
     .regex(/^\+?[0-9\s-]+$/, 'Enter a valid phone number'),
   email: z.string().email('Enter a valid email address').max(255, 'Email too long').optional().or(z.literal('')),
-  password: z.string().min(6, 'Password must be at least 6 characters').max(72, 'Password too long'),
+  password: z.string().min(6, 'Password must be at least 6 characters').max(72, 'Password too long')
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~])/, 'Must include uppercase, lowercase, number, and special character'),
 });
 
 type SignupFormData = z.infer<typeof signupSchema>;
@@ -175,6 +176,9 @@ const Signup = () => {
         let message = error.message;
         if (message.includes('already registered')) {
           message = 'An account with this email/phone already exists. Please sign in.';
+        }
+        if (message.includes('weak_password') || message.includes('Password should contain')) {
+          message = 'Password must include uppercase, lowercase, number, and a special character (e.g. !@#$%).';
         }
         toast({ title: 'Signup failed', description: message, variant: 'destructive' });
         return;

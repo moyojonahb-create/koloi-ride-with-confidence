@@ -83,8 +83,16 @@ const Auth = () => {
       toast({ title: 'Please enter a valid phone number', variant: 'destructive' });
       return;
     }
-    if (!password || password.length < 6) {
-      toast({ title: 'Password must be at least 6 characters', variant: 'destructive' });
+    if (!password || password.length < 8) {
+      toast({ title: 'Password must be at least 8 characters', variant: 'destructive' });
+      return;
+    }
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasDigit = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password);
+    if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
+      toast({ title: 'Weak password', description: 'Must include uppercase, lowercase, number, and special character (e.g. !@#$%).', variant: 'destructive' });
       return;
     }
 
@@ -113,8 +121,8 @@ const Auth = () => {
         if (message.includes('already registered') || message.includes('already been registered')) {
           message = 'An account with this email/phone already exists. Please sign in.';
         }
-        if (message.includes('email') && message.includes('confirm')) {
-          message = 'Please check your email to confirm your account, or try signing in.';
+        if (message.includes('weak_password') || message.includes('Password should contain')) {
+          message = 'Password must include uppercase, lowercase, number, and a special character (e.g. !@#$%).';
         }
         toast({ title: 'Signup failed', description: message, variant: 'destructive' });
         return;
@@ -297,7 +305,7 @@ const Auth = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="signup-password">Password</Label>
+                <Label htmlFor="signup-password">Password <span className="text-muted-foreground font-normal text-xs">(must include A-Z, a-z, 0-9, special char)</span></Label>
                 <div className="relative">
                   <Input
                     id="signup-password"
