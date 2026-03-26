@@ -187,10 +187,11 @@ export default function RideDetail() {
         const premium: PremiumOffer[] = pendingRaw.map((off) => {
           const d = driverMap[off.driver_id];
           const createdMs = off.created_at ? new Date(off.created_at).getTime() : Date.now();
-          return {
+            const resolvedOfferAvatar = await resolveAvatarUrl(d?.avatar_url ?? null);
+            return {
             offerId: off.id, driverId: off.driver_id,
             driverName: profileMap[off.driver_id] || 'Driver',
-            avatarUrl: d?.avatar_url ?? null,
+            avatarUrl: resolvedOfferAvatar,
             ratingAvg: Number(d?.rating_avg ?? 0),
             totalTrips: Number(d?.total_trips ?? 0),
             carModel: d ? `${d.vehicle_make || ''} ${d.vehicle_model || ''}`.trim() || 'Vehicle' : 'Vehicle',
