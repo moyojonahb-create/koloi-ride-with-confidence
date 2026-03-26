@@ -21,6 +21,8 @@ interface RideRequestCardProps {
     passenger_count?: number;
     payment_method?: string;
     expires_at?: string | null;
+    passenger_name?: string | null;
+    passenger_phone?: string | null;
   };
   preferences?: RidePrefs | null;
   secsLeft: number;
