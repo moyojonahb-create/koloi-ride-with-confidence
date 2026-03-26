@@ -133,7 +133,7 @@ export default function RiderRideDetail() {
     if (wasCompleted) {
       playCompletedSound();
       haptic('medium');
-      if (!hasRated) setShowRating(false);
+      if (!hasRated) setShowRating(true);
     }
 
     if (data.driver_id && (data.status === "accepted" || data.status === "in_progress" || data.status === "arrived")) {
@@ -467,6 +467,73 @@ export default function RiderRideDetail() {
         <EmergencyButton />
       </div>
 
+      {/* ═══ DRIVER STATUS POPUP BANNERS ═══ */}
+      <AnimatePresence>
+        {isAccepted && !isArrived && !isInProgress && ride?.status === 'accepted' && (
+          <motion.div
+            key="driver-on-way"
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="absolute top-24 left-4 right-4 z-30 bg-primary text-primary-foreground rounded-2xl px-5 py-4 shadow-lg flex items-center gap-3"
+          >
+            <motion.div
+              animate={{ x: [0, 6, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+            >
+              <Car className="w-6 h-6" />
+            </motion.div>
+            <div>
+              <p className="font-bold text-sm">Driver is on the way!</p>
+              <p className="text-xs opacity-80">Your driver has accepted and is heading to your pickup point.</p>
+            </div>
+          </motion.div>
+        )}
+        {(ride?.status === 'enroute' || ride?.status === 'enroute_pickup') && (
+          <motion.div
+            key="driver-enroute"
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="absolute top-24 left-4 right-4 z-30 bg-primary text-primary-foreground rounded-2xl px-5 py-4 shadow-lg flex items-center gap-3"
+          >
+            <motion.div
+              animate={{ x: [0, 8, 0] }}
+              transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+            >
+              <Navigation className="w-6 h-6" />
+            </motion.div>
+            <div>
+              <p className="font-bold text-sm">Driver is coming to you!</p>
+              <p className="text-xs opacity-80">{etaMinutes ? `Estimated arrival in ${etaMinutes} min` : 'Almost there...'}</p>
+            </div>
+          </motion.div>
+        )}
+        {isArrived && (
+          <motion.div
+            key="driver-waiting"
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="absolute top-24 left-4 right-4 z-30 bg-amber-500 text-white rounded-2xl px-5 py-4 shadow-lg flex items-center gap-3"
+          >
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
+              <MapPin className="w-6 h-6" />
+            </motion.div>
+            <div>
+              <p className="font-bold text-sm">Driver is waiting for you!</p>
+              <p className="text-xs opacity-90">Your driver has arrived at the pickup point. Please head out now.</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ═══ ON-MAP ETA OVERLAY ═══ */}
       {isAccepted && etaMinutes && !isArrived && sheetState === 'collapsed' && (
         <motion.div
@@ -684,24 +751,37 @@ export default function RiderRideDetail() {
               })()}
 
               {/* Complete trip */}
-              <Button
-                className="w-full h-[52px] rounded-2xl font-bold text-base bg-primary hover:bg-primary/90 text-primary-foreground"
-                onClick={async () => {
-                  try {
-                    const result = await completeTrip(ride.id);
-                    if (result.ok) {
-                      toast.success(`Trip completed! Fare: $${Number(result.fare_usd).toFixed(2)}`);
-                      refreshRide();
-                    } else {
-                      toast.error(result.reason || "Could not complete trip");
+              {isInProgress && (
+                <Button
+                  className="w-full h-[52px] rounded-2xl font-bold text-base bg-amber-500 hover:bg-amber-600 text-white"
+                  onClick={async () => {
+                    try {
+                      const result = await completeTrip(ride.id);
+                      if (result.ok) {
+                        toast.success(`Trip completed! Fare: $${Number(result.fare_usd).toFixed(2)}`);
+                        setShowRating(true);
+                        refreshRide();
+                      } else {
+                        toast.error(result.reason || "Could not complete trip");
+                      }
+                    } catch (e: unknown) {
+                      toast.error((e as Error)?.message || "Failed to complete trip");
                     }
-                  } catch (e: unknown) {
-                    toast.error((e as Error)?.message || "Failed to complete trip");
-                  }
-                }}
-              >
-                ✅ Complete Trip
-              </Button>
+                  }}
+                >
+                  ✅ Complete Trip
+                </Button>
+              )}
+
+              {/* Cancel ride */}
+              {!isInProgress && (
+                <Button
+                  className="w-full h-11 rounded-2xl font-bold text-sm bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                  onClick={handleCancelRide}
+                >
+                  Cancel Ride
+                </Button>
+              )}
 
               {/* Communication panel */}
               {showCommunication && user && (
