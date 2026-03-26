@@ -99,6 +99,7 @@ export default function RideView() {
   const [bookForSomeoneElse, setBookForSomeoneElse] = useState(false);
   const [passengerName, setPassengerName] = useState('');
   const [passengerPhone, setPassengerPhone] = useState('');
+  const [contactPickerOpen, setContactPickerOpen] = useState(false);
   const [rideStatus, setRideStatus] = useState<RideStatus>('idle');
   const [isRequesting, setIsRequesting] = useState(false);
   const [currentRideId, setCurrentRideId] = useState<string | null>(null);
