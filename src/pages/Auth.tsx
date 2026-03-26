@@ -270,6 +270,11 @@ const Auth = () => {
             </form>
           ) : (
             <form onSubmit={handleSignup} className="space-y-4">
+              {signupError && (
+                <div className="rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm text-red-600 font-medium animate-in fade-in slide-in-from-top-2 duration-300">
+                  ⚠️ {signupError}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="signup-name">Full Name</Label>
                 <Input
