@@ -321,6 +321,26 @@ export default function RideView() {
         });
       }
 
+      // Notify passenger if booking for someone else
+      if (bookForSomeoneElse && passengerPhone.trim() && result.ride.id) {
+        // Look up user by phone in profiles
+        const { data: passengerProfile } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('phone', passengerPhone.trim())
+          .maybeSingle();
+
+        if (passengerProfile?.user_id) {
+          const bookerName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Someone';
+          await supabase.from('notifications').insert({
+            user_id: passengerProfile.user_id,
+            title: '🚗 Ride booked for you!',
+            body: `${bookerName} has requested a ride for you from ${pickupLocation!.name} to ${dropoffLocation!.name}.`,
+            notification_type: 'ride_requested',
+          });
+        }
+      }
+
       setCurrentRideId(result.ride.id);
       
       // ⚡ Navigate instantly — the ride detail page renders map immediately
