@@ -796,8 +796,8 @@ export default function FullScreenNavigation({
             }`}
           >
             {isPickupPhase
-              ? `🔵 Heading to Pickup`
-              : `🟢 En route to Destination`}
+              ? `Heading to Pickup`
+              : `En route to Destination`}
           </div>
 
           {/* Live metrics */}
