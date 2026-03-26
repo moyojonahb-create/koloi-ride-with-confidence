@@ -49,11 +49,11 @@ const PickMeLogo = ({
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center overflow-hidden ring-1 ring-border/10">
+      <div className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center overflow-hidden ring-1 ring-border/15">
         <img 
           src={pickmeLogo} 
           alt="PickMe" 
-          className="w-[130%] h-[130%] object-cover"
+          className="w-[150%] h-[150%] object-cover"
         />
       </div>
       
