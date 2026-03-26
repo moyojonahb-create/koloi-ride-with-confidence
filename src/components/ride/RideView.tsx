@@ -695,13 +695,14 @@ export default function RideView() {
 
 
           {/* Multi-stop + Schedule */}
-          <MultiStopInput
-            stops={rideStops}
-            onAddStop={handleAddStop}
-            onRemoveStop={handleRemoveStop}
-            onStopClick={handleStopClick} />
-          
-          <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
+          <div className="grid grid-cols-2 gap-2">
+            <MultiStopInput
+              stops={rideStops}
+              onAddStop={handleAddStop}
+              onRemoveStop={handleRemoveStop}
+              onStopClick={handleStopClick} />
+            <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
+          </div>
 
           {/* Passenger selector — compact inline */}
           <div className="flex items-center justify-between glass-card rounded-2xl px-3 py-2">
