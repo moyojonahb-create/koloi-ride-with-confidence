@@ -89,6 +89,8 @@ export function useAgoraCall({
         (payload) => {
           const session = payload.new as Record<string, unknown>;
           if (session.status === "ringing" && callStatusRef.current === "idle") {
+            startRingtone();
+            showCallNotification(session.caller_id as string);
             setIncomingCall({
               sessionId: session.id as string,
               callerId: session.caller_id as string,
