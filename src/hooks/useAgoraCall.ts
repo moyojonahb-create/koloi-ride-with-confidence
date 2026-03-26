@@ -142,6 +142,7 @@ export function useAgoraCall({
             session.id === sessionIdRef.current
           ) {
             console.log("[AgoraCall] Callee answered, joining channel…");
+            stopRingtone();
             joinChannel(session.id as string);
           }
         }
