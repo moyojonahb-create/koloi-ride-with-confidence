@@ -789,11 +789,7 @@ export default function FullScreenNavigation({
         >
           {/* Phase label */}
           <div
-            className={`px-4 py-2 text-center text-xs font-bold tracking-wider uppercase ${
-              isPickupPhase
-                ? "bg-blue-500/10 text-blue-600"
-                : "bg-emerald-500/10 text-emerald-600"
-            }`}
+            className="px-4 py-2 text-center text-xs font-bold tracking-wider uppercase bg-blue-500/10 text-blue-600"
           >
             {isPickupPhase
               ? `Heading to Pickup`
