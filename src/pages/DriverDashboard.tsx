@@ -81,6 +81,7 @@ import FatigueAlert from "@/components/driver/FatigueAlert";
 import RidePreferenceTags from "@/components/ride/RidePreferenceTags";
 import RideRequestCard from "@/components/driver/RideRequestCard";
 import DriverOfferModal from "@/components/driver/DriverOfferModal";
+import PassengerInfoCard from "@/components/driver/PassengerInfoCard";
 
 // Smart USD format: $4 for whole, $4.50 for halves
 function fmtUSD(n: number): string {
@@ -328,7 +329,7 @@ export default function DriverDashboard() {
       // Fetch active trip (accepted/in_progress) assigned to this driver
       const { data: activeTripData } = await supabase
         .from("rides")
-        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, payment_method")
+        .select("id, pickup_address, dropoff_address, fare, status, user_id, pickup_lat, pickup_lon, dropoff_lat, dropoff_lon, payment_method, passenger_name, passenger_phone")
         .eq("driver_id", p.id)
         .in("status", ["accepted", "enroute", "enroute_pickup", "in_progress", "arrived"])
         .order("updated_at", { ascending: false })
@@ -351,8 +352,8 @@ export default function DriverDashboard() {
           dropoff_lat: activeTripData.dropoff_lat,
           dropoff_lon: activeTripData.dropoff_lon,
           payment_method: activeTripData.payment_method || 'cash',
-          passenger_name: null,
-          passenger_phone: null,
+          passenger_name: activeTripData.passenger_name || null,
+          passenger_phone: activeTripData.passenger_phone || null,
         });
 
         // Notify driver when rider accepts their offer
@@ -872,6 +873,15 @@ export default function DriverDashboard() {
         {/* Contact Rider — collapsed message panel */}
         {activeTrip && (
           <>
+            {/* Ride for Someone Else — passenger card */}
+            {activeTrip.passenger_name && activeTrip.passenger_phone && (
+              <PassengerInfoCard
+                passengerName={activeTrip.passenger_name}
+                passengerPhone={activeTrip.passenger_phone}
+                onMessage={() => setMessagesOpen(!messagesOpen)}
+              />
+            )}
+
             <Card className="glass-card border-0">
               <CardContent className="pt-4 space-y-3">
                 <div className="flex items-center justify-between">

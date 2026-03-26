@@ -56,6 +56,7 @@ import IntercitySelector from './IntercitySelector';
 import { type IntercityRoute } from '@/lib/intercityRoutes';
 import { useNearbyDrivers } from '@/hooks/useNearbyDrivers';
 import GenderPreferenceToggle, { type GenderPreference } from './GenderPreferenceToggle';
+import ContactPickerSheet from './ContactPickerSheet';
 
 interface SelectedLocation {name: string;lat: number;lng: number;}
 interface GPSState {status: 'idle' | 'loading' | 'success' | 'denied' | 'unavailable';coords: {lat: number;lng: number;} | null;error: string | null;}
@@ -98,6 +99,7 @@ export default function RideView() {
   const [bookForSomeoneElse, setBookForSomeoneElse] = useState(false);
   const [passengerName, setPassengerName] = useState('');
   const [passengerPhone, setPassengerPhone] = useState('');
+  const [contactPickerOpen, setContactPickerOpen] = useState(false);
   const [rideStatus, setRideStatus] = useState<RideStatus>('idle');
   const [isRequesting, setIsRequesting] = useState(false);
   const [currentRideId, setCurrentRideId] = useState<string | null>(null);
@@ -244,49 +246,15 @@ export default function RideView() {
     } finally {setReverseGeoLoading(false);}
   }, [activeField]);
 
-  const handlePickPassengerFromContacts = async () => {
-    try {
-      // Try Capacitor Contacts plugin first (native apps)
-      const { Contacts } = await import('@capacitor-community/contacts').catch(() => ({ Contacts: null }));
-      if (Contacts) {
-        const permission = await Contacts.requestPermissions();
-        if (permission.contacts !== 'granted') {
-          toast({ title: 'Permission denied', description: 'Please allow contacts access in your phone settings.' });
-          return;
-        }
-        const result = await Contacts.pickContact();
-        if (result?.contact) {
-          const c = result.contact;
-          const name = c.name?.display || c.name?.given || '';
-          const phone = c.phones?.[0]?.number || '';
-          if (name) setPassengerName(name);
-          if (phone) setPassengerPhone(phone);
-          haptic('light');
-          toast({ title: '✅ Contact added', description: `${name || 'Contact'} selected` });
-        }
-        return;
-      }
+  const handlePickPassengerFromContacts = () => {
+    setContactPickerOpen(true);
+  };
 
-      // Fallback: Web Contact Picker API (Chrome on Android)
-      const nav = navigator as Navigator & {
-        contacts?: {select: (properties: string[], options?: {multiple?: boolean;}) => Promise<Array<Record<string, unknown>>>;};
-      };
-      if (!nav.contacts?.select) {
-        toast({ title: 'Contacts not available', description: 'Use this on your phone to pick from contacts, or type the details manually.' });
-        return;
-      }
-      const selected = await nav.contacts.select(['name', 'tel'], { multiple: false });
-      if (!selected?.length) return;
-      const first = selected[0];
-      const names = first.name as string[] | undefined;
-      const tels = first.tel as string[] | undefined;
-      if (names?.[0]) setPassengerName(names[0]);
-      if (tels?.[0]) setPassengerPhone(tels[0]);
-      haptic('light');
-      toast({ title: '✅ Contact added', description: `${names?.[0] || 'Contact'} selected` });
-    } catch {
-      toast({ title: 'Could not read contacts', description: 'Please enter passenger details manually.' });
-    }
+  const handleContactSelected = (name: string, phone: string) => {
+    setPassengerName(name);
+    setPassengerPhone(phone);
+    haptic('light');
+    toast({ title: '✅ Contact selected', description: `${name} — ${phone}` });
   };
 
   const handleSendOffer = async (customFare: number) => {
@@ -1053,6 +1021,7 @@ export default function RideView() {
       {/* Modals */}
       <OffersModal isOpen={offersOpen} tripId={currentRideId || ''} viewing={viewingDrivers} offers={offers} onAcceptOffer={handleAcceptOffer} onDeclineOffer={handleDeclineOffer} onCancelRide={handleCancelRide} onClose={() => setOffersOpen(false)} />
       <AuthModalWrapper isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} mode={authMode} onSwitchMode={() => setAuthMode((m) => m === 'login' ? 'signup' : 'login')} />
+      <ContactPickerSheet open={contactPickerOpen} onClose={() => setContactPickerOpen(false)} onSelect={handleContactSelected} />
     </div>);
 
 }
