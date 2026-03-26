@@ -144,7 +144,7 @@ export default function App() {
           {/* Public live trip tracking */}
           <Route path="/track/:tripId" element={<SuspenseWrap><LiveTrackingPage /></SuspenseWrap>} />
 
-          <Route path="/app" element={<AuthGuard><AppDashboard /></AuthGuard>} />
+          <Route path="/app" element={<SuspenseWrap><AuthGuard><AppDashboard /></AuthGuard></SuspenseWrap>} />
 
           <Route path="/safety" element={<SuspenseWrap><SafetyPage /></SuspenseWrap>} />
           <Route path="/terms" element={<SuspenseWrap><TermsOfService /></SuspenseWrap>} />
