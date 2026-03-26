@@ -540,8 +540,36 @@ export default function RiderRideDetail() {
         )}
       </AnimatePresence>
 
-      {/* ═══ ON-MAP ETA OVERLAY ═══ */}
-      {isAccepted && etaMinutes && !isArrived && sheetState === 'collapsed' && (
+      {/* ═══ ON-MAP LIVE TRIP INFO ═══ */}
+      {isInProgress && sheetState === 'collapsed' && (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="absolute left-4 right-4 z-30 bg-card/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg border border-border/30"
+          style={{ bottom: 100 }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                <Navigation className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-lg font-black text-foreground tabular-nums leading-none">{etaMinutes ?? '—'} min</p>
+                <p className="text-[10px] text-muted-foreground font-medium">to destination</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <p className="text-sm font-bold text-foreground tabular-nums">{distanceLeftKm ? distanceLeftKm.toFixed(1) : '—'}</p>
+                <p className="text-[10px] text-muted-foreground font-medium">km left</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ═══ ON-MAP ETA OVERLAY (pre-pickup) ═══ */}
+      {isAccepted && etaMinutes && !isArrived && !isInProgress && sheetState === 'collapsed' && (
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -550,13 +578,11 @@ export default function RiderRideDetail() {
         >
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-              {isInProgress ? <Navigation className="w-4 h-4 text-primary" /> : <Car className="w-4 h-4 text-primary" />}
+              <Car className="w-4 h-4 text-primary" />
             </div>
             <div>
               <p className="text-xl font-black text-foreground tabular-nums leading-none">{etaMinutes} min</p>
-              <p className="text-[10px] text-muted-foreground font-medium">
-                {isInProgress ? "to destination" : "to pickup"}
-              </p>
+              <p className="text-[10px] text-muted-foreground font-medium">to pickup</p>
             </div>
           </div>
         </motion.div>
