@@ -1182,23 +1182,32 @@ export type Database = {
         Row: {
           cool_temperature: boolean
           created_at: string
+          gender_preference: string
+          hearing_impaired: boolean
           id: string
           quiet_ride: boolean
           ride_id: string
+          wav_required: boolean
         }
         Insert: {
           cool_temperature?: boolean
           created_at?: string
+          gender_preference?: string
+          hearing_impaired?: boolean
           id?: string
           quiet_ride?: boolean
           ride_id: string
+          wav_required?: boolean
         }
         Update: {
           cool_temperature?: boolean
           created_at?: string
+          gender_preference?: string
+          hearing_impaired?: boolean
           id?: string
           quiet_ride?: boolean
           ride_id?: string
+          wav_required?: boolean
         }
         Relationships: [
           {
