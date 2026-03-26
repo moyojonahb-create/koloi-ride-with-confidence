@@ -82,6 +82,7 @@ export default function RiderRideDetail() {
   const [secondsLeft, setSecondsLeft] = useState(30);
   const [showEcoCashPay, setShowEcoCashPay] = useState(false);
   const [sheetState, setSheetState] = useState<SheetState>('half');
+  const [showAcceptedOverlay, setShowAcceptedOverlay] = useState(false);
 
   const { balance: walletBalance } = useWallet();
   const [walletPin, setWalletPin] = useState<string | null>(null);
