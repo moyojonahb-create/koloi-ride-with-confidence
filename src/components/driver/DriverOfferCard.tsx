@@ -49,9 +49,13 @@ export default function DriverOfferCard({
   const dec = () => setCounterFare(prev => Math.max(prev - step, riderOffer));
 
   return (
-    <div className="glass-card rounded-2xl p-4 space-y-3 glass-glow-blue">
+    <div className="glass-card rounded-2xl space-y-3 glass-glow-blue overflow-hidden">
+      {/* Blue top bar */}
+      <div className="px-4 py-1.5 text-center text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary">
+        Rider Offer
+      </div>
       {/* Route */}
-      <div className="flex items-start gap-2">
+      <div className="flex items-start gap-2 px-4">
         <div className="flex flex-col items-center mt-1">
           <MapPin className="h-3.5 w-3.5 text-accent" />
           <div className="w-0.5 h-4 bg-border" />
