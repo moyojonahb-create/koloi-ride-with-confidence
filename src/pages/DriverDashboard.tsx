@@ -137,6 +137,7 @@ export default function DriverDashboard() {
   const [pendingOnlineAfterSelfie, setPendingOnlineAfterSelfie] = useState(false);
   const [townPricingMap, setTownPricingMap] = useState<Record<string, TownPricingConfig>>({});
   const [ridePreferences, setRidePreferences] = useState<Record<string, { quiet_ride: boolean; cool_temperature: boolean; wav_required?: boolean; hearing_impaired?: boolean; gender_preference?: string }>>({});
+  const [fullNavMode, setFullNavMode] = useState(false);
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
