@@ -57,6 +57,8 @@ type Ride = {
   duration_minutes: number;
   expires_at?: string | null;
   route_polyline?: string | null;
+  passenger_name?: string | null;
+  passenger_phone?: string | null;
 };
 
 export default function RiderRideDetail() {
