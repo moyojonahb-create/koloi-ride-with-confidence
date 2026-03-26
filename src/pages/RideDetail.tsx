@@ -108,6 +108,8 @@ export default function RideDetail() {
   const [premiumOffers, setPremiumOffers] = useState<PremiumOffer[]>([]);
   const [driverUserIdForTracking, setDriverUserIdForTracking] = useState<string | null>(null);
   const [driverProfile, setDriverProfile] = useState<DriverProfile | null>(null);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
 
   useEffect(() => {
     if (!ride?.driver_id) { setDriverUserIdForTracking(null); return; }
