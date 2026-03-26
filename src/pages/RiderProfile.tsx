@@ -41,16 +41,8 @@ export default function RiderProfile() {
         .maybeSingle()
         .then(async ({ data }) => {
           if (data?.avatar_url) {
-            // If it's already a full URL, use it directly
-            if (data.avatar_url.startsWith('http')) {
-              setAvatarUrl(data.avatar_url);
-            } else {
-              // It's a storage path — generate a signed URL
-              const { data: signedData } = await supabase.storage
-                .from('driver-avatars')
-                .createSignedUrl(data.avatar_url, 60 * 60 * 24 * 365);
-              if (signedData?.signedUrl) setAvatarUrl(signedData.signedUrl);
-            }
+            const resolved = await resolveAvatarUrl(data.avatar_url);
+            if (resolved) setAvatarUrl(resolved);
           }
         });
     }
