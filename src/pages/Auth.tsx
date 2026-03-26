@@ -107,11 +107,14 @@ const Auth = () => {
 
       const signupEmail = email.trim() || `${formattedPhone.replace(/\+/g, '')}@pickme.phone`;
 
-      const { error } = await signUp(signupEmail, password, fullName);
+      const { error, data: signUpData } = await signUp(signupEmail, password, fullName);
       if (error) {
         let message = error.message;
-        if (message.includes('already registered')) {
+        if (message.includes('already registered') || message.includes('already been registered')) {
           message = 'An account with this email/phone already exists. Please sign in.';
+        }
+        if (message.includes('email') && message.includes('confirm')) {
+          message = 'Please check your email to confirm your account, or try signing in.';
         }
         toast({ title: 'Signup failed', description: message, variant: 'destructive' });
         return;
