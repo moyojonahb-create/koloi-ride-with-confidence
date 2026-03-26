@@ -49,9 +49,13 @@ export default function DriverOfferCard({
   const dec = () => setCounterFare(prev => Math.max(prev - step, riderOffer));
 
   return (
-    <div className="glass-card rounded-2xl p-4 space-y-3 glass-glow-blue">
+    <div className="glass-card rounded-2xl space-y-3 glass-glow-blue overflow-hidden">
+      {/* Blue top bar */}
+      <div className="px-4 py-1.5 text-center text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary">
+        Rider Offer
+      </div>
       {/* Route */}
-      <div className="flex items-start gap-2">
+      <div className="flex items-start gap-2 px-4">
         <div className="flex flex-col items-center mt-1">
           <MapPin className="h-3.5 w-3.5 text-accent" />
           <div className="w-0.5 h-4 bg-border" />
@@ -68,7 +72,7 @@ export default function DriverOfferCard({
       </div>
 
       {/* Rider's offer */}
-      <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-accent/10">
+      <div className="flex items-center justify-between mx-4 px-3 py-2.5 rounded-xl bg-accent/10">
         <span className="text-xs font-semibold text-foreground">Rider's Offer</span>
         <span className="text-lg font-black text-accent">
           {formatFare(riderOffer, currencySymbol, currencyCode)}
@@ -76,13 +80,13 @@ export default function DriverOfferCard({
       </div>
 
       {/* Recommended range */}
-      <p className="text-[10px] text-muted-foreground text-center">
+      <p className="text-[10px] text-muted-foreground text-center px-4">
         Suggested range: {formatFare(recommendedMin, currencySymbol, currencyCode)} – {formatFare(recommendedMax, currencySymbol, currencyCode)}
       </p>
 
       {/* Counter offer section */}
       {showCounter ? (
-        <div className="space-y-3">
+        <div className="space-y-3 px-4 pb-4">
           <div className="flex items-center justify-center gap-4">
             <button onClick={dec} disabled={counterFare <= riderOffer} className="w-10 h-10 rounded-full glass-card flex items-center justify-center active:scale-90 transition-all disabled:opacity-30">
               <Minus className="w-4 h-4" />
@@ -118,7 +122,7 @@ export default function DriverOfferCard({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 px-4 pb-4">
           <Button
             onClick={() => onAccept(rideId)}
             disabled={isSubmitting}

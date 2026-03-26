@@ -472,7 +472,12 @@ export default function RideView() {
           transition={{ type: 'spring', stiffness: 300, damping: 30, delay: 0.4 }}
           className="absolute bottom-0 left-0 right-0 z-50">
           
-          <div className="glass-card-heavy rounded-t-[28px] px-4 pt-4 pb-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+           <div className="glass-card-heavy rounded-t-[28px] overflow-hidden pb-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 20px)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
+            {/* Blue top bar */}
+            <div className="px-4 py-1.5 text-center text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary">
+              Ride Confirmed
+            </div>
+            <div className="px-4 pt-4">
             <div className="w-10 h-1 rounded-full bg-foreground/10 mx-auto mb-4" />
             <div className="flex items-center gap-3 mb-5">
               <motion.div
@@ -533,6 +538,7 @@ export default function RideView() {
                 dropoffAddress={dropoffLocation?.name}
                 driverName={matchedDriver.name} />
               
+            </div>
             </div>
           </div>
         </motion.div>

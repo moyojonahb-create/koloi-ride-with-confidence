@@ -47,8 +47,13 @@ export default function RideRequestCard({ ride, preferences, secsLeft, index, on
       transition={{ delay: index * 0.06, type: 'spring', stiffness: 400, damping: 30 }}
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
-      className="w-full text-left bg-card rounded-2xl p-3.5 space-y-2.5 border border-border/40 shadow-sm hover:shadow-md hover:border-primary/30 transition-all active:bg-muted/50"
+      className="w-full text-left bg-card rounded-2xl space-y-2.5 border border-border/40 shadow-sm hover:shadow-md hover:border-primary/30 transition-all active:bg-muted/50 overflow-hidden"
     >
+      {/* Blue top bar */}
+      <div className="px-4 py-1.5 text-center text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary">
+        New Ride Request
+      </div>
+      <div className="px-3.5 pb-3.5 space-y-2.5">
       {/* Route + fare */}
       <div className="flex items-start gap-3">
         <div className="flex flex-col items-center mt-1 shrink-0">
@@ -117,6 +122,7 @@ export default function RideRequestCard({ ride, preferences, secsLeft, index, on
           </div>
         </div>
       )}
+      </div>
     </motion.button>
   );
 }
