@@ -1,5 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { resolveAvatarUrl } from "@/lib/avatarUrl";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,12 @@ interface DriverAvatarUploadProps {
 export default function DriverAvatarUpload({ currentAvatarUrl, gender, onUploaded }: DriverAvatarUploadProps) {
   const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentAvatarUrl ?? null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    resolveAvatarUrl(currentAvatarUrl).then(url => setPreviewUrl(url));
+  }, [currentAvatarUrl]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
