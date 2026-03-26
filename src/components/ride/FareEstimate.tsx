@@ -75,6 +75,7 @@ export default function FareEstimate({
           )}
         </div>
       </div>
+      </div>
     </motion.div>
   );
 }
