@@ -297,7 +297,7 @@ const Auth = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="signup-password">Password</Label>
+                <Label htmlFor="signup-password">Password <span className="text-muted-foreground font-normal text-xs">(must include A-Z, a-z, 0-9, special char)</span></Label>
                 <div className="relative">
                   <Input
                     id="signup-password"
