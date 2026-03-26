@@ -4,9 +4,15 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { useWallet } from '@/hooks/useWallet';
+import { useProfileStats } from '@/hooks/useProfileStats';
 import { supabase } from '@/lib/supabaseClient';
 import { resolveAvatarUrl } from '@/lib/avatarUrl';
-import { ArrowLeft, User, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, ChevronRight, Edit3, History, Camera, Loader2, Wallet, Moon, Sun, Trash2, Gift } from 'lucide-react';
+import {
+  ArrowLeft, User, LogOut, Shield, Car, Bell, ShieldCheck, CarFront,
+  MapPin, ChevronRight, Edit3, History, Camera, Loader2, Wallet,
+  Moon, Sun, Trash2, Gift, Navigation, Banknote, Users, Copy, Check,
+  DollarSign, TrendingUp,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import BottomNavBar from '@/components/BottomNavBar';
@@ -14,12 +20,14 @@ import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { haptic } from '@/lib/haptics';
+import { format } from 'date-fns';
 
 export default function RiderProfile() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useUserRole();
   const { isApproved: isApprovedDriver } = useDriverStatus();
   const { balance } = useWallet();
+  const { stats } = useProfileStats();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,6 +35,7 @@ export default function RiderProfile() {
   const prefix = isMapp ? '/mapp' : '';
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Rider';
   const userEmail = user?.email || '';
@@ -51,21 +60,14 @@ export default function RiderProfile() {
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Photo must be less than 5MB');
-      return;
-    }
+    if (file.size > 5 * 1024 * 1024) { toast.error('Photo must be less than 5MB'); return; }
     setUploading(true);
     try {
       const ext = file.name.split('.').pop();
       const path = `${user.id}/avatar.${ext}`;
-      const { error: uploadErr } = await supabase.storage
-        .from('driver-avatars')
-        .upload(path, file, { upsert: true });
+      const { error: uploadErr } = await supabase.storage.from('driver-avatars').upload(path, file, { upsert: true });
       if (uploadErr) throw uploadErr;
-      const { data: signedData, error: signedErr } = await supabase.storage
-        .from('driver-avatars')
-        .createSignedUrl(path, 60 * 60 * 24 * 365);
+      const { data: signedData, error: signedErr } = await supabase.storage.from('driver-avatars').createSignedUrl(path, 60 * 60 * 24 * 365);
       if (signedErr || !signedData?.signedUrl) throw signedErr || new Error('Failed to get URL');
       setAvatarUrl(signedData.signedUrl);
       await supabase.from('profiles').update({ avatar_url: path }).eq('user_id', user.id);
@@ -77,11 +79,23 @@ export default function RiderProfile() {
     }
   };
 
+  const handleCopyReferral = async () => {
+    if (!stats.referralCode) return;
+    const text = `Join PickMe and ride! Use my code: ${stats.referralCode} — You earn $2!`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Join PickMe', text }); return; } catch { /* fallback */ }
+    }
+    await navigator.clipboard.writeText(stats.referralCode);
+    setCopied(true);
+    toast.success('Referral code copied!');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const handleSignOut = async () => { haptic('medium'); await signOut(); navigate('/'); };
 
   return (
     <div className="min-h-[100dvh] bg-background">
-      {/* Compact header */}
+      {/* Header */}
       <div className="relative overflow-hidden" style={{ background: 'var(--gradient-primary)' }}>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 0%, transparent 50%)' }} />
         <div className="relative px-4 pb-6" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
@@ -94,8 +108,6 @@ export default function RiderProfile() {
               <Edit3 className="w-4 h-4 text-primary-foreground" />
             </button>
           </div>
-
-          {/* Avatar + info inline */}
           <div className="flex items-center gap-3.5">
             <label className="relative cursor-pointer group shrink-0">
               <div className="w-14 h-14 rounded-full bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center ring-2 ring-primary-foreground/20 overflow-hidden">
@@ -106,11 +118,7 @@ export default function RiderProfile() {
                 )}
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-accent flex items-center justify-center border-2 border-primary group-hover:scale-110 transition-transform">
-                {uploading ? (
-                  <Loader2 className="w-3 h-3 animate-spin text-accent-foreground" />
-                ) : (
-                  <Camera className="w-3 h-3 text-accent-foreground" />
-                )}
+                {uploading ? <Loader2 className="w-3 h-3 animate-spin text-accent-foreground" /> : <Camera className="w-3 h-3 text-accent-foreground" />}
               </div>
               <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
             </label>
@@ -136,13 +144,72 @@ export default function RiderProfile() {
 
       {/* Content */}
       <div className="px-4 py-4 space-y-3">
-        {/* Quick actions row */}
+        {/* Quick actions row with stats */}
         <div className="grid grid-cols-4 gap-2">
-          <QuickAction icon={<MapPin className="w-5 h-5" />} label="Ride" onClick={() => navigate(`${prefix}/ride`)} accent />
-          <QuickAction icon={<Wallet className="w-5 h-5" />} label={`$${balance.toFixed(0)}`} onClick={() => navigate(`${prefix}/wallet`)} />
-          <QuickAction icon={<History className="w-5 h-5" />} label="History" onClick={() => navigate(`${prefix}/history`)} />
-          <QuickAction icon={<Car className="w-5 h-5" />} label="Drive" onClick={() => navigate(`${prefix}/driver`)} />
+          <QuickAction
+            icon={<MapPin className="w-5 h-5" />}
+            label="Ride"
+            sublabel={stats.completedRides > 0 ? `${stats.completedRides} trips` : 'Book now'}
+            onClick={() => navigate(`${prefix}/ride`)}
+            accent
+          />
+          <QuickAction
+            icon={<Wallet className="w-5 h-5" />}
+            label={`$${balance.toFixed(0)}`}
+            sublabel="Balance"
+            onClick={() => navigate(`${prefix}/wallet`)}
+          />
+          <QuickAction
+            icon={<History className="w-5 h-5" />}
+            label="History"
+            sublabel={stats.lastRideDate ? format(new Date(stats.lastRideDate), 'MMM d') : 'No rides'}
+            onClick={() => navigate(`${prefix}/history`)}
+          />
+          <QuickAction
+            icon={<Car className="w-5 h-5" />}
+            label="Drive"
+            sublabel={isApprovedDriver ? 'Active' : 'Earn $'}
+            onClick={() => navigate(`${prefix}/driver`)}
+          />
         </div>
+
+        {/* Ride Activity Summary */}
+        {stats.completedRides > 0 && (
+          <div className="glass-card rounded-2xl p-3.5">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Ride Activity</p>
+            <div className="grid grid-cols-3 gap-3">
+              <StatMini icon={<Navigation className="w-3.5 h-3.5 text-primary" />} value={`${stats.totalDistance.toFixed(0)} km`} label="Distance" />
+              <StatMini icon={<Banknote className="w-3.5 h-3.5 text-accent" />} value={`$${stats.totalSpent.toFixed(0)}`} label="Spent" />
+              <StatMini icon={<TrendingUp className="w-3.5 h-3.5 text-primary" />} value={`${stats.completedRides}`} label="Trips" />
+            </div>
+          </div>
+        )}
+
+        {/* Referral Card */}
+        {stats.referralCode && (
+          <div className="glass-card rounded-2xl p-3.5 bg-gradient-to-r from-primary/5 to-accent/5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Gift className="w-4 h-4 text-accent" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Invite & Earn $2</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {stats.referralCount > 0
+                      ? `${stats.referralCount} referred · $${stats.referralEarnings} earned`
+                      : 'Share your code with friends'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleCopyReferral}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold active:scale-95 transition-all"
+              >
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {stats.referralCode}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Settings rows */}
         <div className="space-y-1.5">
@@ -150,17 +217,34 @@ export default function RiderProfile() {
           <div className="w-full flex items-center gap-3 px-4 py-3 glass-card rounded-2xl">
             {theme === 'dark' ? <Moon className="w-4 h-4 text-primary" /> : <Sun className="w-4 h-4 text-accent" />}
             <span className="text-sm font-medium text-foreground flex-1">Dark Mode</span>
-            <Switch
-              checked={theme === 'dark'}
-              onCheckedChange={(v) => setTheme(v ? 'dark' : 'light')}
-            />
+            <Switch checked={theme === 'dark'} onCheckedChange={(v) => setTheme(v ? 'dark' : 'light')} />
           </div>
 
-          <NavRow icon={<Bell className="w-4 h-4 text-primary" />} label="Notifications" onClick={() => navigate(`${prefix}/edit-profile`)} />
-          <NavRow icon={<Gift className="w-4 h-4 text-accent" />} label="Invite Friends" onClick={() => navigate(`${prefix}/edit-profile`)} />
-          <NavRow icon={<User className="w-4 h-4 text-primary" />} label="Edit Profile" onClick={() => navigate(`${prefix}/edit-profile`)} />
-          <NavRow icon={<Shield className="w-4 h-4 text-primary" />} label="Safety" onClick={() => navigate(`${prefix}/safety`)} />
-          <NavRow icon={<Trash2 className="w-4 h-4 text-destructive" />} label="Delete Account" onClick={() => navigate('/delete-account')} />
+          <NavRow
+            icon={<Bell className="w-4 h-4 text-primary" />}
+            label="Notifications"
+            sublabel={stats.unreadNotifications > 0 ? `${stats.unreadNotifications} unread` : 'Manage alerts'}
+            onClick={() => navigate(`${prefix}/edit-profile`)}
+            badge={stats.unreadNotifications > 0 ? stats.unreadNotifications : undefined}
+          />
+          <NavRow
+            icon={<User className="w-4 h-4 text-primary" />}
+            label="Edit Profile"
+            sublabel="Photo, name, phone"
+            onClick={() => navigate(`${prefix}/edit-profile`)}
+          />
+          <NavRow
+            icon={<Shield className="w-4 h-4 text-primary" />}
+            label="Safety"
+            sublabel="Emergency contacts, SOS"
+            onClick={() => navigate(`${prefix}/safety`)}
+          />
+          <NavRow
+            icon={<Trash2 className="w-4 h-4 text-destructive" />}
+            label="Delete Account"
+            sublabel="Permanent action"
+            onClick={() => navigate('/delete-account')}
+          />
         </div>
 
         <Button variant="outline" className="w-full h-11 rounded-2xl text-destructive border-destructive/20 hover:bg-destructive/5 glass-card text-sm" onClick={handleSignOut}>
@@ -175,28 +259,57 @@ export default function RiderProfile() {
   );
 }
 
-function QuickAction({ icon, label, onClick, accent }: { icon: React.ReactNode; label: string; onClick: () => void; accent?: boolean }) {
+/* ——— Sub-components ——— */
+
+function QuickAction({ icon, label, sublabel, onClick, accent }: {
+  icon: React.ReactNode; label: string; sublabel?: string; onClick: () => void; accent?: boolean;
+}) {
   return (
     <button
       onClick={() => { haptic('light'); onClick(); }}
-      className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl active:scale-95 transition-all ${
+      className={`flex flex-col items-center justify-center gap-1 p-3 rounded-2xl active:scale-95 transition-all ${
         accent ? 'bg-primary text-primary-foreground shadow-md' : 'bg-primary/15 text-primary shadow-sm'
       }`}
     >
       {icon}
-      <span className="text-[10px] font-semibold">{label}</span>
+      <span className="text-[10px] font-semibold leading-tight">{label}</span>
+      {sublabel && (
+        <span className={`text-[8px] leading-tight ${accent ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+          {sublabel}
+        </span>
+      )}
     </button>
   );
 }
 
-const NavRow = React.forwardRef<HTMLButtonElement, { icon: React.ReactNode; label: string; onClick: () => void }>(
-  ({ icon, label, onClick }, ref) => {
-    return (
-      <button ref={ref} onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3 glass-card hover:bg-foreground/[0.02] active:scale-[0.98] transition-all text-left rounded-2xl">
-        {icon}
-        <span className="text-sm font-medium text-foreground flex-1">{label}</span>
-        <ChevronRight className="w-4 h-4 text-muted-foreground" />
-      </button>
-    );
-  }
-);
+function StatMini({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      {icon}
+      <div>
+        <p className="text-sm font-bold text-foreground leading-tight">{value}</p>
+        <p className="text-[9px] text-muted-foreground">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+function NavRow({ icon, label, sublabel, onClick, badge }: {
+  icon: React.ReactNode; label: string; sublabel?: string; onClick: () => void; badge?: number;
+}) {
+  return (
+    <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3 glass-card hover:bg-foreground/[0.02] active:scale-[0.98] transition-all text-left rounded-2xl">
+      {icon}
+      <div className="flex-1 min-w-0">
+        <span className="text-sm font-medium text-foreground block">{label}</span>
+        {sublabel && <span className="text-[10px] text-muted-foreground">{sublabel}</span>}
+      </div>
+      {badge !== undefined && badge > 0 && (
+        <span className="w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center">
+          {badge > 9 ? '9+' : badge}
+        </span>
+      )}
+      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+    </button>
+  );
+}
