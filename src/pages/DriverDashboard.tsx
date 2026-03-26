@@ -724,12 +724,12 @@ export default function DriverDashboard() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08, type: 'spring', stiffness: 400, damping: 30 }}
-              className="rounded-2xl p-3 text-center"
+              className="rounded-xl p-2 text-center aspect-square flex flex-col items-center justify-center"
               style={{ background: 'var(--gradient-primary)' }}
             >
-              <stat.icon className="h-4 w-4 mx-auto text-primary-foreground/80 mb-1" />
-              <p className="text-lg font-extrabold tabular-nums text-primary-foreground">{stat.value}</p>
-              <p className="text-[10px] text-primary-foreground/70 font-medium">{stat.label}</p>
+              <stat.icon className="h-3 w-3 text-primary-foreground/80 mb-0.5" />
+              <p className="text-sm font-extrabold tabular-nums text-primary-foreground leading-tight">{stat.value}</p>
+              <p className="text-[8px] text-primary-foreground/70 font-medium">{stat.label}</p>
             </motion.div>
           ))}
         </div>
