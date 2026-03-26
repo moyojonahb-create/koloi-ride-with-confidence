@@ -22,7 +22,6 @@ export default function DriverAvatarUpload({ currentAvatarUrl, gender, onUploade
   useEffect(() => {
     resolveAvatarUrl(currentAvatarUrl).then(url => setPreviewUrl(url));
   }, [currentAvatarUrl]);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
