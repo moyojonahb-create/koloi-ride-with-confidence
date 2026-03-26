@@ -780,81 +780,17 @@ export default function DriverDashboard() {
           ) : rides.length === 0 ? (
             <EmptyState title="No open ride requests right now" description="Stay online — new requests will appear automatically." className="py-8" />
           ) : (
-            rides.map((r) => {
-              const secsLeft = getSecondsRemaining(r.expires_at ?? null);
-              const prefs = ridePreferences[r.id];
-              const hasPrefs = prefs && (prefs.quiet_ride || prefs.cool_temperature || prefs.wav_required || prefs.hearing_impaired || (prefs.gender_preference && prefs.gender_preference !== 'any'));
-              return (
-                <GlassCard
+            rides.map((r, i) => (
+                <RideRequestCard
                   key={r.id}
-                  className="cursor-pointer hover:border-primary/40 transition-all active:scale-[0.98] p-3 space-y-2.5"
+                  ride={r}
+                  preferences={ridePreferences[r.id] ?? null}
+                  secsLeft={getSecondsRemaining(r.expires_at ?? null)}
+                  index={i}
                   onClick={() => chooseRide(r)}
-                >
-                  {/* Route */}
-                  <div className="flex items-start gap-2.5">
-                    <div className="flex flex-col items-center mt-0.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                      <div className="w-0.5 h-5 bg-border" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-destructive" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{r.pickup_address}</p>
-                      <p className="text-xs text-muted-foreground truncate mt-0.5">{r.dropoff_address}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-lg font-black text-primary">{fmtUSD(Number(r.fare))}</p>
-                    </div>
-                  </div>
-
-                  {/* Trip meta chips */}
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
-                      <Navigation className="w-2.5 h-2.5" /> {r.distance_km?.toFixed(1)} km
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
-                      <Clock className="w-2.5 h-2.5" /> ~{r.duration_minutes} min
-                    </span>
-                    {r.passenger_count && r.passenger_count > 1 && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
-                        👥 {r.passenger_count}
-                      </span>
-                    )}
-                    {r.payment_method && r.payment_method !== 'cash' && (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-medium">
-                        <CreditCard className="w-2.5 h-2.5" /> {r.payment_method}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Preferences */}
-                  {hasPrefs && (
-                    <RidePreferenceTags
-                      quietRide={prefs.quiet_ride}
-                      coolTemperature={prefs.cool_temperature}
-                      wavRequired={prefs.wav_required}
-                      hearingImpaired={prefs.hearing_impaired}
-                      genderPreference={prefs.gender_preference}
-                    />
-                  )}
-
-                  {/* Expiry bar */}
-                  {r.expires_at && secsLeft > 0 && (
-                    <div>
-                      <div className="flex justify-between text-[10px] text-muted-foreground mb-0.5">
-                        <span>Expires</span>
-                        <span className={`font-bold ${secsLeft <= 10 ? 'text-destructive' : 'text-primary'}`}>{secsLeft}s</span>
-                      </div>
-                      <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-200 ease-linear ${secsLeft <= 10 ? 'bg-destructive' : 'bg-primary'}`}
-                          style={{ width: `${Math.min(100, (secsLeft / 30) * 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </GlassCard>
-              );
-            })
+                  fmtUSD={fmtUSD}
+                />
+            ))
           )}
         </div>
 
