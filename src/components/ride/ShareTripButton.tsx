@@ -22,26 +22,44 @@ export default function ShareTripButton({ rideId, pickupAddress, dropoffAddress,
     shareUrl,
   ].filter(Boolean).join('\n');
 
+  const fallbackCopy = (value: string) => {
+    const ta = document.createElement('textarea');
+    ta.value = value;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  };
+
   const handleShare = async () => {
-    if (navigator.share) {
-      try {
+    try {
+      if (navigator.share) {
         await navigator.share({ title: 'My Voyex Trip', text, url: shareUrl });
-      } catch {
-        // User cancelled
+        return;
       }
-    } else {
-      await handleCopy();
+    } catch {
+      // share cancelled or failed, fall through to copy
     }
+    await handleCopy();
   };
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(text);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        fallbackCopy(text);
+      }
       setCopied(true);
-      toast.success('Trip link copied!');
-      setTimeout(() => setCopied(false), 2000);
+      toast.success('Trip link copied!', { description: shareUrl });
+      setTimeout(() => setCopied(false), 3000);
     } catch {
-      toast.error('Failed to copy');
+      fallbackCopy(text);
+      setCopied(true);
+      toast.success('Trip link copied!', { description: shareUrl });
+      setTimeout(() => setCopied(false), 3000);
     }
   };
 
