@@ -74,16 +74,17 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSignupError(null);
     if (!fullName || fullName.length < 2) {
-      toast({ title: 'Name must be at least 2 characters', variant: 'destructive' });
+      setSignupError('Name must be at least 2 characters.');
       return;
     }
     if (!phone || phone.replace(/\D/g, '').length < 9) {
-      toast({ title: 'Please enter a valid phone number', variant: 'destructive' });
+      setSignupError('Please enter a valid phone number.');
       return;
     }
     if (!password || password.length < 8) {
-      toast({ title: 'Password must be at least 8 characters', variant: 'destructive' });
+      setSignupError('Password must be at least 8 characters.');
       return;
     }
     const hasUpper = /[A-Z]/.test(password);
@@ -91,7 +92,7 @@ const Auth = () => {
     const hasDigit = /[0-9]/.test(password);
     const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password);
     if (!hasUpper || !hasLower || !hasDigit || !hasSpecial) {
-      toast({ title: 'Weak password', description: 'Must include uppercase, lowercase, number, and special character (e.g. !@#$%).', variant: 'destructive' });
+      setSignupError('Password must include uppercase, lowercase, number, and special character (e.g. !@#$%).');
       return;
     }
 
@@ -99,7 +100,6 @@ const Auth = () => {
     try {
       const formattedPhone = formatPhone(phone);
 
-      // Check if phone is already registered
       const { data: existingPhone } = await supabase
         .from('profiles')
         .select('id')
@@ -107,7 +107,7 @@ const Auth = () => {
         .maybeSingle();
 
       if (existingPhone) {
-        toast({ title: 'Phone already registered', description: 'This phone number is already linked to an account. Please sign in.', variant: 'destructive' });
+        setSignupError('This phone number is already linked to an account. Please sign in instead.');
         setIsSubmitting(false);
         return;
       }
@@ -118,16 +118,15 @@ const Auth = () => {
       if (error) {
         let message = error.message;
         if (message.includes('already registered') || message.includes('already been registered')) {
-          message = 'An account with this email/phone already exists. Please sign in.';
+          message = 'An account with this email/phone already exists. Please sign in instead.';
         }
         if (message.includes('weak_password') || message.includes('Password should contain')) {
           message = 'Password must include uppercase, lowercase, number, and a special character (e.g. !@#$%).';
         }
-        toast({ title: 'Signup failed', description: message, variant: 'destructive' });
+        setSignupError(message);
         return;
       }
 
-      // Update profile with phone number
       const { data: authData } = await supabase.auth.getUser();
       if (authData?.user) {
         await supabase.from('profiles').update({ phone: formattedPhone }).eq('user_id', authData.user.id);
