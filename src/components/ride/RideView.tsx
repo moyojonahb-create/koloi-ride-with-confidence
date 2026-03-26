@@ -246,6 +246,28 @@ export default function RideView() {
 
   const handlePickPassengerFromContacts = async () => {
     try {
+      // Try Capacitor Contacts plugin first (native apps)
+      const { Contacts } = await import('@capacitor-community/contacts').catch(() => ({ Contacts: null }));
+      if (Contacts) {
+        const permission = await Contacts.requestPermissions();
+        if (permission.contacts !== 'granted') {
+          toast({ title: 'Permission denied', description: 'Please allow contacts access in your phone settings.' });
+          return;
+        }
+        const result = await Contacts.pickContact();
+        if (result?.contact) {
+          const c = result.contact;
+          const name = c.name?.display || c.name?.given || '';
+          const phone = c.phones?.[0]?.number || '';
+          if (name) setPassengerName(name);
+          if (phone) setPassengerPhone(phone);
+          haptic('light');
+          toast({ title: '✅ Contact added', description: `${name || 'Contact'} selected` });
+        }
+        return;
+      }
+
+      // Fallback: Web Contact Picker API (Chrome on Android)
       const nav = navigator as Navigator & {
         contacts?: {select: (properties: string[], options?: {multiple?: boolean;}) => Promise<Array<Record<string, unknown>>>;};
       };
