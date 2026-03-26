@@ -250,7 +250,7 @@ export default function RideView() {
         contacts?: {select: (properties: string[], options?: {multiple?: boolean;}) => Promise<Array<Record<string, unknown>>>;};
       };
       if (!nav.contacts?.select) {
-        toast({ title: 'Contacts not supported', description: 'Please enter passenger details manually.' });
+        toast({ title: 'Contacts not available', description: 'Use this on your phone to pick from contacts, or type the details manually.' });
         return;
       }
       const selected = await nav.contacts.select(['name', 'tel'], { multiple: false });
@@ -260,6 +260,8 @@ export default function RideView() {
       const tels = first.tel as string[] | undefined;
       if (names?.[0]) setPassengerName(names[0]);
       if (tels?.[0]) setPassengerPhone(tels[0]);
+      haptic('light');
+      toast({ title: '✅ Contact added', description: `${names?.[0] || 'Contact'} selected` });
     } catch {
       toast({ title: 'Could not read contacts', description: 'Please enter passenger details manually.' });
     }
