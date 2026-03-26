@@ -1009,10 +1009,22 @@ export default function DriverDashboard() {
                     await supabase.from("rides").update({ status: "enroute" }).eq("id", activeTrip.id);
                     setActiveTrip({ ...activeTrip, status: "enroute" });
                     toast.info("Status: Enroute — heading to pickup");
+                    setFullNavMode(true);
                   }}
                 >
                   <Navigation className="h-4 w-4 mr-2" />
                   Enroute to Pickup
+                </Button>
+              )}
+              {/* Navigate button for already-enroute trips */}
+              {['enroute', 'enroute_pickup', 'arrived', 'in_progress'].includes(activeTrip.status) && (
+                <Button
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700 mb-2"
+                  size="lg"
+                  onClick={() => setFullNavMode(true)}
+                >
+                  <Navigation className="h-4 w-4 mr-2" />
+                  Open Navigation
                 </Button>
               )}
               {activeTrip.status === 'enroute' && (
