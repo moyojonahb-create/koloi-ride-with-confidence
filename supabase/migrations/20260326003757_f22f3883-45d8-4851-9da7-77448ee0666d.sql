@@ -1,0 +1,1 @@
+ALTER TABLE public.referrals ALTER COLUMN bonus_amount SET DEFAULT 2;
