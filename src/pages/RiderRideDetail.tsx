@@ -520,17 +520,17 @@ export default function RiderRideDetail() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -60, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="absolute top-24 left-4 right-4 z-30 bg-amber-500 text-white rounded-2xl px-5 py-4 shadow-lg flex items-center gap-3"
+            className="absolute top-24 left-4 right-4 z-30 bg-blue-600 text-white rounded-2xl px-5 py-4 shadow-lg flex items-center gap-3"
           >
             <motion.div
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
             >
-              <MapPin className="w-6 h-6" />
+              <Car className="w-6 h-6" />
             </motion.div>
             <div>
-              <p className="font-bold text-sm">Driver is waiting for you!</p>
-              <p className="text-xs opacity-90">Your driver has arrived at the pickup point. Please head out now.</p>
+              <p className="font-bold text-sm">🚗 Your driver has arrived</p>
+              <p className="text-xs opacity-90">Head to your pickup point now — your driver is waiting.</p>
             </div>
           </motion.div>
         )}
@@ -650,7 +650,7 @@ export default function RiderRideDetail() {
                   initial={{ opacity: 0, scale: 0.95, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  className="rounded-2xl bg-amber-500 text-white p-5 shadow-lg"
+                  className="rounded-2xl bg-blue-600 text-white p-5 shadow-lg"
                 >
                   <div className="flex items-center gap-4">
                     <motion.div
@@ -658,11 +658,11 @@ export default function RiderRideDetail() {
                       transition={{ repeat: Infinity, duration: 1.5 }}
                       className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0"
                     >
-                      <MapPin className="w-7 h-7 text-white" />
+                      <Car className="w-7 h-7 text-white" />
                     </motion.div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-black text-lg leading-tight">Driver Has Arrived!</p>
-                      <p className="text-sm text-white/90 mt-1">Your driver is waiting at the pickup point. Please head out now.</p>
+                      <p className="font-black text-lg leading-tight">🚗 Your driver has arrived</p>
+                      <p className="text-sm text-white/90 mt-1">Head to your pickup point now — your driver is waiting.</p>
                     </div>
                   </div>
                 </motion.div>
