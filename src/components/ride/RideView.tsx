@@ -823,13 +823,8 @@ export default function RideView() {
 
                 
 
-                {/* Negotiation + Payment — always visible */}
-                <NegotiationCard
-                  pricing={townPricing}
-                  distanceKm={fareEstimate.distanceKm}
-                  durationMinutes={fareEstimate.durationMinutes}
-                  onSendOffer={(fare) => handleSendOffer(fare + extraPassengerFee)}
-                  isSubmitting={isRequesting} />
+
+
 
                 <div>
                   <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
