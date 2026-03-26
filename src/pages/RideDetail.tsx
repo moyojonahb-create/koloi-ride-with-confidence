@@ -505,6 +505,34 @@ export default function RideDetail() {
             </div>
           </div>
 
+          {/* Driver Arrived — big card */}
+          {isDriverArrived && driverProfile && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="p-4 rounded-2xl bg-primary text-primary-foreground"
+            >
+              <div className="flex items-center gap-3">
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  <CheckCircle2 className="w-8 h-8" />
+                </motion.div>
+                <div className="flex-1">
+                  <p className="text-base font-bold">Your driver has arrived!</p>
+                  <p className="text-sm opacity-80">Meet {driverProfile.fullName} at the pickup point</p>
+                </div>
+              </div>
+              {driverProfile.plateNumber && (
+                <div className="mt-2 flex items-center gap-2 bg-primary-foreground/15 rounded-xl px-3 py-2">
+                  <Car className="w-4 h-4" />
+                  <span className="text-sm font-semibold">{driverProfile.vehicleMake} {driverProfile.vehicleModel} · {driverProfile.plateNumber}</span>
+                </div>
+              )}
+            </motion.div>
+          )}
+
           {/* Action buttons — compact row */}
           {driverProfile && (
             <div className="flex items-center gap-1.5">
@@ -516,6 +544,14 @@ export default function RideDetail() {
                 className="flex-1 h-9 rounded-xl bg-primary text-primary-foreground font-semibold text-xs inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-all">
                 <MessageCircle className="w-3.5 h-3.5" /> Message
               </button>
+              {rideId && ride.pickup_address && ride.dropoff_address && (
+                <ShareTripButton
+                  rideId={rideId}
+                  pickupAddress={ride.pickup_address}
+                  dropoffAddress={ride.dropoff_address}
+                  driverName={driverProfile.fullName}
+                />
+              )}
               <button onClick={() => setToast("Safety center coming soon")}
                 className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center active:scale-[0.97] transition-all">
                 <Shield className="w-4 h-4 text-muted-foreground" />
