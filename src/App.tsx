@@ -91,7 +91,7 @@ export default function App() {
   useEffect(() => {
     (window as any).__dismissSplash?.();
     // Prefetch secondary pages after app mounts
-    prefetchSecondaryPages();
+    prefetchPages();
   }, []);
 
   return (
