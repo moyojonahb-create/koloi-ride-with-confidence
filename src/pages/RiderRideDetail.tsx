@@ -115,10 +115,13 @@ export default function RiderRideDetail() {
 
     if (wasAccepted) {
       playAcceptedSound();
-      haptic('medium');
+      haptic('heavy');
+      setShowAcceptedOverlay(true);
+      setModalOpen(false);
+      setTimeout(() => setShowAcceptedOverlay(false), 4000);
       try {
         if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
-          new Notification("🎉 Driver Accepted!", { body: "Your ride has been confirmed.", icon: "/icons/icon-192x192.png" });
+          new Notification("🎉 Driver Accepted!", { body: "Your ride has been confirmed. Driver is on the way!", icon: "/icons/icon-192x192.png" });
         }
       } catch (_) {}
     }
