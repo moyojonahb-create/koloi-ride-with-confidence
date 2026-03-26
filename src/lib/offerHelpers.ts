@@ -92,7 +92,8 @@ export async function fetchDriversByIds(driverIds: string[]): Promise<Record<str
   
   const map: Record<string, DriverProfile & { full_name?: string | null }> = {};
   for (const row of (data ?? []) as DriverProfile[]) {
-    map[row.user_id] = { ...row, full_name: nameMap[row.user_id] || null };
+    const resolvedAvatar = await resolveAvatarUrl(row.avatar_url);
+    map[row.user_id] = { ...row, avatar_url: resolvedAvatar, full_name: nameMap[row.user_id] || null };
   }
   return map;
 }
