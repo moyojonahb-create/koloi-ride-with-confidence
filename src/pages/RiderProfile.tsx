@@ -98,7 +98,7 @@ export default function RiderProfile() {
   return (
     <div className="min-h-[100dvh] bg-background">
       {/* Header */}
-      <div className="relative overflow-hidden" style={{ background: 'var(--gradient-primary)' }}>
+      <div className="sticky top-0 z-30 relative overflow-hidden" style={{ background: 'var(--gradient-primary)' }}>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 0%, transparent 50%)' }} />
         <div className="relative px-4 pb-2" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)' }}>
           {/* Profile info (left) + logo (right) */}
