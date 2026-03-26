@@ -62,6 +62,7 @@ import { InputField } from "@/components/ui/input-field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SectionHeader } from "@/components/ui/section-header";
 import DriverNavigationView from "@/components/driver/DriverNavigationView";
+import FullScreenNavigation from "@/components/driver/FullScreenNavigation";
 import DriverSettingsSheet from "@/components/driver/DriverSettingsSheet";
 import type { Coordinates } from "@/lib/osrm";
 import { useWebRTCCall } from "@/hooks/useWebRTCCall";
