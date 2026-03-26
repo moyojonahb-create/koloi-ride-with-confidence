@@ -5,6 +5,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { useWallet } from '@/hooks/useWallet';
 import { supabase } from '@/lib/supabaseClient';
+import { resolveAvatarUrl } from '@/lib/avatarUrl';
 import { ArrowLeft, User, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, ChevronRight, Edit3, History, Camera, Loader2, Wallet, Moon, Sun, Trash2, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
