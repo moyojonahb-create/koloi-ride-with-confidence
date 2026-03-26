@@ -5,15 +5,10 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 import { useWallet } from '@/hooks/useWallet';
 import { supabase } from '@/lib/supabaseClient';
-import { ArrowLeft, User, CreditCard, Calendar, Gift, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, Zap, ChevronRight, Edit3, History, Camera, Loader2, Wallet, Moon, Sun, Trash2 } from 'lucide-react';
+import { ArrowLeft, User, LogOut, Shield, Car, Bell, ShieldCheck, CarFront, MapPin, ChevronRight, Edit3, History, Camera, Loader2, Wallet, Moon, Sun, Trash2, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import BottomNavBar from '@/components/BottomNavBar';
-import PaymentMethodSelector, { type PaymentMethod } from '@/components/ride/PaymentMethodSelector';
-import ScheduleRide from '@/components/ride/ScheduleRide';
-import ReferralShare from '@/components/ride/ReferralShare';
-import EcoBadge from '@/components/rider/EcoBadge';
-import RiderSettingsPanel from '@/components/settings/RiderSettingsPanel';
 import { Switch } from '@/components/ui/switch';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
@@ -29,8 +24,6 @@ export default function RiderProfile() {
   const location = useLocation();
   const isMapp = location.pathname.startsWith('/mapp');
   const prefix = isMapp ? '/mapp' : '';
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
-  const [scheduledAt, setScheduledAt] = useState<Date | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -158,64 +151,20 @@ export default function RiderProfile() {
           <QuickAction icon={<Car className="w-5 h-5" />} label="Drive" onClick={() => navigate(`${prefix}/driver`)} />
         </div>
 
-        {/* Payment */}
-        <section className="glass-card p-4">
-          <div className="flex items-center gap-2 mb-2.5">
-            <CreditCard className="w-3.5 h-3.5 text-primary" />
-            <h2 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Payment</h2>
-          </div>
-          <PaymentMethodSelector selected={paymentMethod} onSelect={setPaymentMethod} />
-        </section>
-
-        {/* Schedule */}
-        <section className="glass-card p-4">
-          <div className="flex items-center gap-2 mb-2.5">
-            <Calendar className="w-3.5 h-3.5 text-primary" />
-            <h2 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Schedule</h2>
-          </div>
-          <ScheduleRide scheduledAt={scheduledAt} onSchedule={setScheduledAt} />
-        </section>
-
-        <div className="grid grid-cols-1 gap-3">
-          <section className="glass-card p-4">
-            <div className="flex items-center gap-2 mb-2.5">
-              <Gift className="w-3.5 h-3.5 text-accent" />
-              <h2 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Invite Friends</h2>
-            </div>
-            <ReferralShare />
-          </section>
-
-          <section className="glass-card p-4">
-            <div className="flex items-center gap-2 mb-2.5">
-              <Bell className="w-3.5 h-3.5 text-primary" />
-              <h2 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Notifications</h2>
-            </div>
-            <RiderSettingsPanel />
-          </section>
-
-          {/* Dark Mode */}
-          <section className="glass-card p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {theme === 'dark' ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-accent" />}
-                <div>
-                  <p className="text-sm font-medium text-foreground">Dark Mode</p>
-                  <p className="text-xs text-muted-foreground">Easier on your eyes at night</p>
-                </div>
-              </div>
-              <Switch
-                checked={theme === 'dark'}
-                onCheckedChange={(v) => setTheme(v ? 'dark' : 'light')}
-              />
-            </div>
-          </section>
-        </div>
-
-        {/* Eco Badge */}
-        <EcoBadge />
-
-        {/* Links */}
+        {/* Settings rows */}
         <div className="space-y-1.5">
+          {/* Dark Mode */}
+          <div className="w-full flex items-center gap-3 px-4 py-3 glass-card rounded-2xl">
+            {theme === 'dark' ? <Moon className="w-4 h-4 text-primary" /> : <Sun className="w-4 h-4 text-accent" />}
+            <span className="text-sm font-medium text-foreground flex-1">Dark Mode</span>
+            <Switch
+              checked={theme === 'dark'}
+              onCheckedChange={(v) => setTheme(v ? 'dark' : 'light')}
+            />
+          </div>
+
+          <NavRow icon={<Bell className="w-4 h-4 text-primary" />} label="Notifications" onClick={() => navigate(`${prefix}/edit-profile`)} />
+          <NavRow icon={<Gift className="w-4 h-4 text-accent" />} label="Invite Friends" onClick={() => navigate(`${prefix}/edit-profile`)} />
           <NavRow icon={<User className="w-4 h-4 text-primary" />} label="Edit Profile" onClick={() => navigate(`${prefix}/edit-profile`)} />
           <NavRow icon={<Shield className="w-4 h-4 text-primary" />} label="Safety" onClick={() => navigate(`${prefix}/safety`)} />
           <NavRow icon={<Trash2 className="w-4 h-4 text-destructive" />} label="Delete Account" onClick={() => navigate('/delete-account')} />
