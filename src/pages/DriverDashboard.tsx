@@ -873,6 +873,15 @@ export default function DriverDashboard() {
         {/* Contact Rider — collapsed message panel */}
         {activeTrip && (
           <>
+            {/* Ride for Someone Else — passenger card */}
+            {activeTrip.passenger_name && activeTrip.passenger_phone && (
+              <PassengerInfoCard
+                passengerName={activeTrip.passenger_name}
+                passengerPhone={activeTrip.passenger_phone}
+                onMessage={() => setMessagesOpen(!messagesOpen)}
+              />
+            )}
+
             <Card className="glass-card border-0">
               <CardContent className="pt-4 space-y-3">
                 <div className="flex items-center justify-between">
