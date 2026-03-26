@@ -698,6 +698,36 @@ export default function RiderRideDetail() {
                 </motion.div>
               )}
 
+              {/* ─── IN-PROGRESS LIVE TRIP CARD ─── */}
+              {isInProgress && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  className="rounded-2xl bg-emerald-600 text-white p-5 shadow-lg"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <motion.div
+                      animate={{ x: [0, 4, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+                    >
+                      <Navigation className="w-5 h-5" />
+                    </motion.div>
+                    <p className="font-bold text-sm">Trip in Progress</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white/15 rounded-xl px-3 py-2.5 text-center">
+                      <p className="text-2xl font-black tabular-nums leading-none">{etaMinutes ?? '—'}</p>
+                      <p className="text-[10px] text-white/80 font-medium mt-1">min ETA</p>
+                    </div>
+                    <div className="bg-white/15 rounded-xl px-3 py-2.5 text-center">
+                      <p className="text-2xl font-black tabular-nums leading-none">{distanceLeftKm ? distanceLeftKm.toFixed(1) : '—'}</p>
+                      <p className="text-[10px] text-white/80 font-medium mt-1">km left</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Driver info card */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
