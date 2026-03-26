@@ -469,7 +469,7 @@ export default function RideDetail() {
             <div className={`w-2 h-2 rounded-full ${status.color} ${isSearching ? 'animate-pulse' : ''}`} />
             <p className="text-xs font-semibold text-foreground flex-1 truncate">{status.label}</p>
             {isSearching && (
-              <span className="text-xs text-muted-foreground bg-primary rounded px-1">{driversViewing} nearby</span>
+              <span className="text-xs text-muted-foreground rounded px-1 bg-destructive-foreground">{driversViewing} nearby</span>
             )}
             <span className="text-sm font-bold text-foreground">${Number(ride.fare ?? 0).toFixed(2)}</span>
           </div>
