@@ -266,6 +266,51 @@ export default function FullScreenNavigation({
     enabled: voiceEnabled,
   });
 
+  // ── Realtime subscription for instant route switching & auto-exit ──
+  useEffect(() => {
+    const channel = supabase
+      .channel(`nav-trip-${activeTrip.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "rides",
+          filter: `id=eq.${activeTrip.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as Record<string, unknown>;
+          const newStatus = updated.status as string;
+
+          // Auto-exit on completion
+          if (newStatus === "completed" || newStatus === "cancelled") {
+            if (voiceEnabled) speak("Trip completed. Returning to dashboard.", true);
+            onTripComplete();
+            return;
+          }
+
+          // Update trip status for route switching
+          if (newStatus !== activeTrip.status) {
+            onTripUpdate({ ...activeTrip, status: newStatus });
+            // Force route re-fetch on phase change
+            lastFetchPhase.current = "";
+
+            // Voice announcements for transitions
+            if (newStatus === "arrived" && voiceEnabled) {
+              speak("You have arrived at the pickup point.", true);
+            } else if (newStatus === "in_progress" && voiceEnabled) {
+              speak("Rider picked up. Navigating to destination.", true);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeTrip.id, activeTrip.status, voiceEnabled]);
+
   // Trip phase
   const isPickupPhase = ["accepted", "enroute", "enroute_pickup"].includes(
     activeTrip.status
