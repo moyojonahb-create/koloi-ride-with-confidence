@@ -645,27 +645,6 @@ export default function RideView() {
             <p className="text-[10px] text-muted-foreground">{selectedTown.radiusKm}km area</p>
           </div>
 
-          {/* Quick actions */}
-          <div className="grid grid-cols-2 gap-2">
-            <SecondaryButton
-              onClick={() => {
-                setActiveField(activeField ?? 'dropoff');
-                setSearchQuery('Home');
-              }}
-              className="h-12 rounded-2xl">
-              
-              🏠 Home
-            </SecondaryButton>
-            <SecondaryButton
-              onClick={() => {
-                setActiveField(activeField ?? 'dropoff');
-                setSearchQuery('Work');
-              }}
-              className="h-12 rounded-2xl">
-              
-              💼 Work
-            </SecondaryButton>
-          </div>
 
           {/* Pickup & Dropoff — premium cards with swap */}
           <div className="space-y-2 relative">
