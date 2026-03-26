@@ -102,7 +102,9 @@ export default function RiderProfile() {
         <div className="relative px-4 pb-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)' }}>
           {/* Logo top center */}
           <div className="flex justify-center mb-2">
-            <PickMeLogo className="h-7" />
+            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-md">
+              <PickMeLogo className="h-6" />
+            </div>
           </div>
           <div className="flex items-center justify-between mb-3">
             <button onClick={() => navigate(-1)} className="w-8 h-8 flex items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur-sm active:scale-95 transition-all">
