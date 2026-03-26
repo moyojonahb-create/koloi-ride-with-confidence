@@ -5,17 +5,19 @@ import AuthGuard from "./components/AuthGuard";
 import AdminGuard from "./components/admin/AdminGuard";
 import ErrorBoundary from "./components/ErrorBoundary";
 
-// ─── Core pages — eagerly loaded for INSTANT navigation ───
+// ─── Only the landing page is eagerly loaded ───
 import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Signup from "./pages/Signup";
-import Ride from "./pages/Ride";
-import RideDetail from "./pages/RideDetail";
-import DriverDashboard from "./pages/DriverDashboard";
-import RiderRideDetail from "./pages/RiderRideDetail";
-import AppDashboard from "./pages/AppDashboard";
 
-// ─── Lazy-loaded pages (secondary screens) ───
+// ─── Everything else is lazy — prefetched in idle time ───
+const Auth = lazy(() => import("./pages/Auth"));
+const Signup = lazy(() => import("./pages/Signup"));
+const Ride = lazy(() => import("./pages/Ride"));
+const RideDetail = lazy(() => import("./pages/RideDetail"));
+const DriverDashboard = lazy(() => import("./pages/DriverDashboard"));
+const RiderRideDetail = lazy(() => import("./pages/RiderRideDetail"));
+const AppDashboard = lazy(() => import("./pages/AppDashboard"));
+
+// ─── Secondary screens ───
 const RideHistory = lazy(() => import("./pages/RideHistory"));
 const RiderProfile = lazy(() => import("./pages/RiderProfile"));
 const EditProfile = lazy(() => import("./pages/EditProfile"));
@@ -48,33 +50,38 @@ const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminTownPricing = lazy(() => import("./pages/admin/AdminTownPricing"));
 const ImportOsmPlaces = lazy(() => import("./pages/admin/ImportOsmPlaces"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-
-// Negotiation screens
 const DriverRequestsScreen = lazy(() => import("./pages/negotiate/DriverRequestsScreen"));
 const RiderOffersScreen = lazy(() => import("./pages/negotiate/RiderOffersScreen"));
 const RiderRequestScreen = lazy(() => import("./pages/negotiate/RiderRequestScreen"));
-
-// Live tracking (public)
 const LiveTrackingPage = lazy(() => import("./pages/LiveTrackingPage"));
 
 function SuspenseWrap({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={null}>{children}</Suspense>;
 }
 
-// ─── Prefetch secondary pages during idle time ───
-function prefetchSecondaryPages() {
-  const pages = [
+// Prefetch critical user-facing pages during idle time
+function prefetchPages() {
+  const critical = [
+    () => import("./pages/Auth"),
+    () => import("./pages/Ride"),
+    () => import("./pages/RideDetail"),
+    () => import("./pages/DriverDashboard"),
+    () => import("./pages/AppDashboard"),
+  ];
+  const secondary = [
     () => import("./pages/RideHistory"),
     () => import("./pages/RiderProfile"),
-    () => import("./pages/EditProfile"),
     () => import("./pages/RiderWalletPage"),
     () => import("./pages/DriverModeLanding"),
-    () => import("./pages/DriverWalletPage"),
-    () => import("./pages/DriverDepositPage"),
   ];
-  // Stagger prefetch so we don't block the main thread
-  pages.forEach((load, i) => {
-    setTimeout(() => { load().catch(() => {}); }, 1500 + i * 300);
+
+  // Critical pages: start immediately after mount
+  critical.forEach((load, i) => {
+    setTimeout(() => { load().catch(() => {}); }, 500 + i * 200);
+  });
+  // Secondary pages: after critical are done
+  secondary.forEach((load, i) => {
+    setTimeout(() => { load().catch(() => {}); }, 2000 + i * 400);
   });
 }
 
@@ -84,7 +91,7 @@ export default function App() {
   useEffect(() => {
     (window as any).__dismissSplash?.();
     // Prefetch secondary pages after app mounts
-    prefetchSecondaryPages();
+    prefetchPages();
   }, []);
 
   return (
@@ -93,9 +100,9 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth" element={<SuspenseWrap><Auth /></SuspenseWrap>} />
           <Route path="/login" element={<Navigate to="/auth" replace />} />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/signup" element={<SuspenseWrap><Signup /></SuspenseWrap>} />
 
           {/* Legacy / mapp compatibility redirects */}
           <Route path="/mapp" element={<Navigate to="/ride" replace />} />
@@ -111,9 +118,9 @@ export default function App() {
           <Route path="/mapp/safety" element={<Navigate to="/safety" replace />} />
           <Route path="/mapp/*" element={<Navigate to="/ride" replace />} />
 
-          <Route path="/ride" element={<AuthGuard><Ride /></AuthGuard>} />
-          <Route path="/ride/:rideId" element={<AuthGuard><RideDetail /></AuthGuard>} />
-          <Route path="/rider/ride/:rideId" element={<AuthGuard><RiderRideDetail /></AuthGuard>} />
+          <Route path="/ride" element={<SuspenseWrap><AuthGuard><Ride /></AuthGuard></SuspenseWrap>} />
+          <Route path="/ride/:rideId" element={<SuspenseWrap><AuthGuard><RideDetail /></AuthGuard></SuspenseWrap>} />
+          <Route path="/rider/ride/:rideId" element={<SuspenseWrap><AuthGuard><RiderRideDetail /></AuthGuard></SuspenseWrap>} />
           <Route path="/history" element={<SuspenseWrap><AuthGuard><RideHistory /></AuthGuard></SuspenseWrap>} />
           <Route path="/ride-history" element={<Navigate to="/history" replace />} />
           <Route path="/profile" element={<SuspenseWrap><AuthGuard><RiderProfile /></AuthGuard></SuspenseWrap>} />
@@ -124,7 +131,7 @@ export default function App() {
           <Route path="/driver-mode" element={<Navigate to="/driver" replace />} />
           <Route path="/driver/register" element={<SuspenseWrap><DriverRegistrationPage /></SuspenseWrap>} />
           <Route path="/driver/application" element={<SuspenseWrap><DriverApplication /></SuspenseWrap>} />
-          <Route path="/driver/dashboard" element={<AuthGuard><DriverDashboard /></AuthGuard>} />
+          <Route path="/driver/dashboard" element={<SuspenseWrap><AuthGuard><DriverDashboard /></AuthGuard></SuspenseWrap>} />
           <Route path="/driver/deposit" element={<SuspenseWrap><AuthGuard><DriverDepositPage /></AuthGuard></SuspenseWrap>} />
           <Route path="/driver/leaderboard" element={<SuspenseWrap><AuthGuard><DriverLeaderboard /></AuthGuard></SuspenseWrap>} />
           <Route path="/driver/wallet" element={<SuspenseWrap><AuthGuard><DriverWalletPage /></AuthGuard></SuspenseWrap>} />
@@ -137,7 +144,7 @@ export default function App() {
           {/* Public live trip tracking */}
           <Route path="/track/:tripId" element={<SuspenseWrap><LiveTrackingPage /></SuspenseWrap>} />
 
-          <Route path="/app" element={<AuthGuard><AppDashboard /></AuthGuard>} />
+          <Route path="/app" element={<SuspenseWrap><AuthGuard><AppDashboard /></AuthGuard></SuspenseWrap>} />
 
           <Route path="/safety" element={<SuspenseWrap><SafetyPage /></SuspenseWrap>} />
           <Route path="/terms" element={<SuspenseWrap><TermsOfService /></SuspenseWrap>} />

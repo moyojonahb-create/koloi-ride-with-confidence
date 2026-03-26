@@ -36,16 +36,19 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    // Prevent warnings from large vendor chunks by splitting dependencies into smaller chunks
     chunkSizeWarningLimit: 1000,
+    target: 'es2020',
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            const parts = id.toString().split('node_modules/')[1].split('/');
-            const pkg = parts[0].startsWith('@') ? `${parts[0]}/${parts[1]}` : parts[0];
-            return `vendor.${pkg}`;
-          }
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-toast', '@radix-ui/react-popover'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-query': ['@tanstack/react-query'],
+          'vendor-maps': ['leaflet', 'react-leaflet'],
+          'vendor-charts': ['recharts'],
         },
       },
     },
