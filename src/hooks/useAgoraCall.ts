@@ -354,6 +354,7 @@ export function useAgoraCall({
     }
 
     try {
+      stopRingtone();
       console.log("[AgoraCall] Answering call:", incomingCall.sessionId);
       await supabase
         .from("call_sessions")
