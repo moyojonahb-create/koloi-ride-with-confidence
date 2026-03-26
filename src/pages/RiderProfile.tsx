@@ -217,11 +217,19 @@ export default function RiderProfile() {
           </div>
         )}
 
-        {/* Ride Preferences */}
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Ride Preferences</p>
-          <RiderPreferencesSettings />
-        </div>
+        {/* Preferences — collapsible */}
+        <details className="glass-card rounded-2xl overflow-hidden group">
+          <summary className="flex items-center justify-between px-4 py-3 cursor-pointer list-none active:scale-[0.98] transition-all">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-foreground">Preferences</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground transition-transform group-open:rotate-90" />
+          </summary>
+          <div className="px-2 pb-3">
+            <RiderPreferencesSettings />
+          </div>
+        </details>
 
         {/* Settings rows */}
         <div className="space-y-1.5">
