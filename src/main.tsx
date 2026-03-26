@@ -19,7 +19,16 @@ window.addEventListener('error', (event) => {
   console.error('[PickMe] Global runtime error:', event.error || event.message);
 });
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,      // 5 min — avoid refetching on every mount
+      gcTime: 10 * 60 * 1000,         // 10 min garbage collection
+      retry: 1,                        // single retry to stay fast
+      refetchOnWindowFocus: false,     // don't refetch when tab regains focus
+    },
+  },
+});
 
 // Register PWA service workers only in production.
 // In development they can cache stale assets/routes and cause the app
