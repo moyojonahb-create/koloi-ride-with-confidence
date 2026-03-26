@@ -145,6 +145,21 @@ const Signup = () => {
       ...data,
       phone: formatPhoneNumber(data.phone),
     };
+
+    // Check if phone number is already registered
+    const { data: existingPhone } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('phone', formattedData.phone)
+      .maybeSingle();
+
+    if (existingPhone) {
+      toast({ title: 'Phone already registered', description: 'This phone number is already linked to an account. Please sign in instead.', variant: 'destructive' });
+      return;
+    }
+
+    // Email uniqueness is enforced by Supabase Auth at signup time
+
     setFormData(formattedData);
     setStep('verify-phone');
     // Send OTP immediately

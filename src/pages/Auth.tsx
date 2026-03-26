@@ -91,6 +91,20 @@ const Auth = () => {
     setIsSubmitting(true);
     try {
       const formattedPhone = formatPhone(phone);
+
+      // Check if phone is already registered
+      const { data: existingPhone } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('phone', formattedPhone)
+        .maybeSingle();
+
+      if (existingPhone) {
+        toast({ title: 'Phone already registered', description: 'This phone number is already linked to an account. Please sign in.', variant: 'destructive' });
+        setIsSubmitting(false);
+        return;
+      }
+
       const signupEmail = email.trim() || `${formattedPhone.replace(/\+/g, '')}@pickme.phone`;
 
       const { error } = await signUp(signupEmail, password, fullName);
