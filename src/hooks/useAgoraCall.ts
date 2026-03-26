@@ -241,11 +241,36 @@ export function useAgoraCall({
         client.on(
           "user-published",
           async (user: IAgoraRTCRemoteUser, mediaType) => {
-            await client.subscribe(user, mediaType);
-            if (mediaType === "audio") {
-              console.log("[AgoraCall] Remote audio playing");
-              user.audioTrack?.play();
+            try {
+              await client.subscribe(user, mediaType);
+              if (mediaType === "audio" && user.audioTrack) {
+                console.log("[AgoraCall] Remote audio subscribed, playing…");
+                // On mobile, playback may need a small delay after subscribe
+                await new Promise((r) => setTimeout(r, 200));
+                user.audioTrack.play();
+                // Verify playback started
+                console.log("[AgoraCall] Remote audio isPlaying:", user.audioTrack.isPlaying);
+                // Retry once if not playing (mobile quirk)
+                if (!user.audioTrack.isPlaying) {
+                  console.warn("[AgoraCall] Retrying audio play…");
+                  await new Promise((r) => setTimeout(r, 500));
+                  user.audioTrack.play();
+                }
+              }
+            } catch (playErr) {
+              console.error("[AgoraCall] Failed to play remote audio:", playErr);
+              toast.error("Audio playback failed", {
+                description: "Please check your volume settings",
+              });
             }
+          }
+        );
+
+        // Also handle users already in the channel
+        client.on(
+          "user-joined",
+          (user: IAgoraRTCRemoteUser) => {
+            console.log("[AgoraCall] Remote user joined:", user.uid);
           }
         );
 
@@ -257,11 +282,23 @@ export function useAgoraCall({
         await client.join(appId, channelName, token, agoraUid);
         console.log("[AgoraCall] Joined channel successfully");
 
+        // Use higher quality encoding for clarity on mobile networks
         const micTrack = await AgoraRTC.createMicrophoneAudioTrack({
-          encoderConfig: "speech_low_quality", // optimised for voice on mobile
+          encoderConfig: "speech_standard",
+          AEC: true,  // echo cancellation
+          ANS: true,  // noise suppression
+          AGC: true,  // auto gain control
         });
         localTrackRef.current = micTrack;
+
+        // Verify mic track is active before publishing
+        console.log("[AgoraCall] Mic track created, enabled:", micTrack.enabled, "muted:", micTrack.muted);
+        if (!micTrack.enabled) {
+          micTrack.setEnabled(true);
+        }
+
         await client.publish([micTrack]);
+        console.log("[AgoraCall] Audio published successfully");
 
         setCallStatus("connected");
         console.log("[AgoraCall] Connected & publishing audio");
