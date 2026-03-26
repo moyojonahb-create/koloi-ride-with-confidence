@@ -315,6 +315,8 @@ export default function RideView() {
 
       // Notify passenger if booking for someone else
       if (bookForSomeoneElse && passengerPhone.trim() && result.ride.id) {
+        const bookerName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Someone';
+
         // Look up user by phone in profiles
         const { data: passengerProfile } = await supabase
           .from('profiles')
@@ -323,13 +325,42 @@ export default function RideView() {
           .maybeSingle();
 
         if (passengerProfile?.user_id) {
-          const bookerName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Someone';
+          // User exists — send in-app notification
           await supabase.from('notifications').insert({
             user_id: passengerProfile.user_id,
             title: '🚗 Ride booked for you!',
             body: `${bookerName} has requested a ride for you from ${pickupLocation!.name} to ${dropoffLocation!.name}.`,
             notification_type: 'ride_requested',
           });
+        } else {
+          // User doesn't exist — send SMS invite
+          try {
+            const session = (await supabase.auth.getSession()).data.session;
+            if (session?.access_token) {
+              fetch(
+                `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sms-invite`,
+                {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`,
+                  },
+                  body: JSON.stringify({
+                    phone: passengerPhone.trim(),
+                    bookerName,
+                    pickup: pickupLocation!.name,
+                    dropoff: dropoffLocation!.name,
+                  }),
+                }
+              ).then(res => {
+                if (res.ok) {
+                  toast({ title: '📱 SMS sent', description: `Invite sent to ${passengerName || passengerPhone}` });
+                }
+              }).catch(() => {});
+            }
+          } catch {
+            // SMS is best-effort
+          }
         }
       }
 

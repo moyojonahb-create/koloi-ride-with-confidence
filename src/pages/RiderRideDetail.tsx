@@ -57,6 +57,8 @@ type Ride = {
   duration_minutes: number;
   expires_at?: string | null;
   route_polyline?: string | null;
+  passenger_name?: string | null;
+  passenger_phone?: string | null;
 };
 
 export default function RiderRideDetail() {
@@ -472,6 +474,24 @@ export default function RiderRideDetail() {
 
         <EmergencyButton />
       </div>
+
+      {/* ═══ "BOOKED FOR YOU" BANNER ═══ */}
+      {ride && ride.passenger_name && ride.user_id !== user?.id && (
+        <motion.div
+          initial={{ y: -40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="absolute z-30 left-4 right-4 flex items-center gap-3 bg-amber-500 text-white rounded-2xl px-4 py-3 shadow-lg"
+          style={{ top: 'calc(env(safe-area-inset-top) + 64px)' }}
+        >
+          <Users className="w-5 h-5 shrink-0" />
+          <div>
+            <p className="text-xs font-bold">This ride was booked for you</p>
+            <p className="text-[10px] opacity-90">
+              Requested by someone on your behalf
+            </p>
+          </div>
+        </motion.div>
+      )}
 
       {/* ═══ DRIVER STATUS POPUP BANNERS ═══ */}
       <AnimatePresence>

@@ -21,6 +21,8 @@ interface RideRequestCardProps {
     passenger_count?: number;
     payment_method?: string;
     expires_at?: string | null;
+    passenger_name?: string | null;
+    passenger_phone?: string | null;
   };
   preferences?: RidePrefs | null;
   secsLeft: number;
@@ -62,6 +64,16 @@ export default function RideRequestCard({ ride, preferences, secsLeft, index, on
           <p className="text-xl font-black text-primary tabular-nums">{fmtUSD(Number(ride.fare))}</p>
         </div>
       </div>
+
+      {/* Ride for someone else badge */}
+      {ride.passenger_name && (
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/20">
+          <Users className="w-3 h-3 text-amber-600" />
+          <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400">
+            Ride for: {ride.passenger_name}
+          </span>
+        </div>
+      )}
 
       {/* Meta chips */}
       <div className="flex items-center gap-1.5 flex-wrap">

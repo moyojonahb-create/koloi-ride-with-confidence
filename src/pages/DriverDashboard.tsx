@@ -104,6 +104,8 @@ type Ride = {
   payment_method?: string;
   gender_preference?: string | null;
   vehicle_type?: string;
+  passenger_name?: string | null;
+  passenger_phone?: string | null;
 };
 
 export default function DriverDashboard() {
