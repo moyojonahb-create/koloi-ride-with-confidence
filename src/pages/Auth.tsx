@@ -42,16 +42,13 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError(null);
     if (!email || !password) return;
     setIsSubmitting(true);
     try {
       const { error } = await signIn(email, password);
       if (error) {
-        toast({
-          title: 'Login failed',
-          description: error.message || 'Invalid credentials',
-          variant: 'destructive',
-        });
+        setLoginError(error.message || 'Invalid credentials');
       } else {
         toast({ title: 'Welcome back!' });
         navigate('/app');
