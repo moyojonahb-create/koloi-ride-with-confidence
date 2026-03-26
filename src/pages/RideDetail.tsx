@@ -291,7 +291,16 @@ export default function RideDetail() {
     prevOfferCountRef.current = pendingOfferCount;
   }, [pendingOfferCount]);
 
-  // ── LOADING or NOT FOUND — show inline, never full-screen blank ──
+  // Auto-show rating modal on completion
+  const rideStatusForHook = ride?.status ?? "pending";
+  const isCompletedForHook = rideStatusForHook === "completed";
+  useEffect(() => {
+    if (isCompletedForHook && !hasRated && driverProfile) {
+      const timer = setTimeout(() => setShowRatingModal(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [isCompletedForHook, hasRated, driverProfile]);
+
   if (loading || !ride) {
     return (
       <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
