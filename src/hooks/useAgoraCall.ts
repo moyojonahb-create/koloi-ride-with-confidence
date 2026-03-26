@@ -22,6 +22,20 @@ interface UseAgoraCallOptions {
   otherUserId: string | null;
 }
 
+/** Request mic permission early so mobile browsers don't block it later */
+async function ensureMicPermission(): Promise<boolean> {
+  try {
+    // On mobile, getUserMedia must be called from a user gesture context
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    // Stop immediately – Agora will create its own track
+    stream.getTracks().forEach((t) => t.stop());
+    return true;
+  } catch (err) {
+    console.warn("[AgoraCall] Mic permission denied:", err);
+    return false;
+  }
+}
+
 export function useAgoraCall({
   rideId,
   currentUserId,
@@ -40,6 +54,7 @@ export function useAgoraCall({
   const clientRef = useRef<IAgoraRTCClient | null>(null);
   const localTrackRef = useRef<IMicrophoneAudioTrack | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const joiningRef = useRef(false); // prevent double-join
 
   // Use refs for values needed in realtime callbacks to avoid stale closures
   const sessionIdRef = useRef<string | null>(null);
@@ -47,15 +62,18 @@ export function useAgoraCall({
   const incomingCallRef = useRef<typeof incomingCall>(null);
 
   // Keep refs in sync
-  useEffect(() => { sessionIdRef.current = sessionId; }, [sessionId]);
   useEffect(() => { callStatusRef.current = callStatus; }, [callStatus]);
   useEffect(() => { incomingCallRef.current = incomingCall; }, [incomingCall]);
+
+  // Helper to set sessionId + ref atomically
+  const setSessionIdSync = useCallback((id: string | null) => {
+    sessionIdRef.current = id;
+    setSessionId(id);
+  }, []);
 
   // Listen for incoming calls and status changes via realtime
   useEffect(() => {
     if (!currentUserId) return;
-
-    
 
     const channel = supabase
       .channel(`call-session-${currentUserId}-${Date.now()}`)
@@ -69,7 +87,6 @@ export function useAgoraCall({
         },
         (payload) => {
           const session = payload.new as Record<string, unknown>;
-          
           if (session.status === "ringing" && callStatusRef.current === "idle") {
             setIncomingCall({
               sessionId: session.id as string,
@@ -92,18 +109,22 @@ export function useAgoraCall({
             session.callee_id === currentUserId;
           if (!isParticipant) return;
 
-          
-
           if (session.status === "ended" || session.status === "declined") {
-            if (session.id === sessionIdRef.current || (session.id as string) === incomingCallRef.current?.sessionId) {
+            if (
+              session.id === sessionIdRef.current ||
+              (session.id as string) === incomingCallRef.current?.sessionId
+            ) {
               cleanup();
               setCallStatus("ended");
               setIncomingCall(null);
               setTimeout(() => setCallStatus("idle"), 2000);
             }
           }
-          if (session.status === "answered" && session.id === sessionIdRef.current) {
-            
+          if (
+            session.status === "answered" &&
+            session.id === sessionIdRef.current
+          ) {
+            console.log("[AgoraCall] Callee answered, joining channel…");
             joinChannel(session.id as string);
           }
         }
@@ -113,10 +134,10 @@ export function useAgoraCall({
     return () => {
       supabase.removeChannel(channel);
     };
-    // Only re-subscribe when currentUserId changes
   }, [currentUserId]);
 
   const cleanup = useCallback(async () => {
+    joiningRef.current = false;
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -135,78 +156,110 @@ export function useAgoraCall({
 
   const joinChannel = useCallback(
     async (sid: string) => {
+      // Guard against double-join (both realtime event and direct call)
+      if (joiningRef.current) {
+        console.log("[AgoraCall] Already joining, skipping duplicate");
+        return;
+      }
+      joiningRef.current = true;
+
       try {
         setCallStatus("connecting");
 
-        // Ensure we have an active session before invoking the edge function
+        // Ensure mic permission on mobile before anything else
+        const hasMic = await ensureMicPermission();
+        if (!hasMic) {
+          toast.error("Microphone access required", {
+            description: "Please allow microphone access to make calls.",
+          });
+          setCallStatus("error");
+          joiningRef.current = false;
+          setTimeout(() => setCallStatus("idle"), 3000);
+          return;
+        }
+
+        // Ensure we have an active auth session
         const { data: sessionData } = await supabase.auth.getSession();
         if (!sessionData?.session?.access_token) {
-          toast.error("Voice token error", { description: "No session token. Please log in again." });
-          
+          toast.error("Voice token error", {
+            description: "No session token. Please log in again.",
+          });
           setCallStatus("error");
+          joiningRef.current = false;
           setTimeout(() => setCallStatus("idle"), 3000);
           return;
         }
 
-        
+        console.log("[AgoraCall] Requesting token for session:", sid);
 
-        const { data, error } = await supabase.functions.invoke("agora-token", {
-          body: { session_id: sid },
-        });
+        const { data, error } = await supabase.functions.invoke(
+          "agora-token",
+          { body: { session_id: sid } }
+        );
 
-        if (error) {
-          
-          toast.error("Voice token error", { description: error.message || String(error) });
+        if (error || !data?.token) {
+          console.error("[AgoraCall] Token error:", error || "no token");
+          toast.error("Voice token error", {
+            description: error?.message || "No token in response",
+          });
           setCallStatus("error");
+          joiningRef.current = false;
           setTimeout(() => setCallStatus("idle"), 3000);
           return;
         }
 
-        if (!data?.token) {
-          
-          toast.error("Call failed", { description: "No token in response" });
-          setCallStatus("error");
-          setTimeout(() => setCallStatus("idle"), 3000);
-          return;
-        }
-
-        
         const { token, channelName, agoraUid, appId } = data;
+        console.log("[AgoraCall] Got token, joining channel:", channelName);
+
+        // Cleanup any previous client
+        if (clientRef.current) {
+          await clientRef.current.leave().catch(() => {});
+          clientRef.current = null;
+        }
 
         const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
         clientRef.current = client;
 
-        client.on("user-published", async (user: IAgoraRTCRemoteUser, mediaType) => {
-          await client.subscribe(user, mediaType);
-          if (mediaType === "audio") {
-            user.audioTrack?.play();
+        client.on(
+          "user-published",
+          async (user: IAgoraRTCRemoteUser, mediaType) => {
+            await client.subscribe(user, mediaType);
+            if (mediaType === "audio") {
+              console.log("[AgoraCall] Remote audio playing");
+              user.audioTrack?.play();
+            }
           }
-        });
+        );
 
         client.on("user-left", () => {
-          
+          console.log("[AgoraCall] Remote user left");
           endCall();
         });
 
         await client.join(appId, channelName, token, agoraUid);
+        console.log("[AgoraCall] Joined channel successfully");
 
-        const micTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        const micTrack = await AgoraRTC.createMicrophoneAudioTrack({
+          encoderConfig: "speech_low_quality", // optimised for voice on mobile
+        });
         localTrackRef.current = micTrack;
         await client.publish([micTrack]);
 
         setCallStatus("connected");
-        
+        console.log("[AgoraCall] Connected & publishing audio");
 
         const start = Date.now();
         timerRef.current = setInterval(() => {
           setCallDuration(Math.floor((Date.now() - start) / 1000));
         }, 1000);
       } catch (err) {
-        
+        console.error("[AgoraCall] joinChannel error:", err);
         toast.error("Call failed", { description: String(err) });
         setCallStatus("error");
         cleanup();
         setTimeout(() => setCallStatus("idle"), 3000);
+      } finally {
+        joiningRef.current = false;
       }
     },
     [cleanup]
@@ -214,14 +267,31 @@ export function useAgoraCall({
 
   const startCall = useCallback(async () => {
     if (!rideId || !currentUserId || !otherUserId) {
-      
-      toast.error("Cannot start call", { description: "Missing ride or user info" });
+      toast.error("Cannot start call", {
+        description: "Missing ride or user info",
+      });
+      return;
+    }
+
+    // Request mic permission immediately on user tap (required by mobile browsers)
+    const hasMic = await ensureMicPermission();
+    if (!hasMic) {
+      toast.error("Microphone access required", {
+        description: "Please allow microphone access to make calls.",
+      });
       return;
     }
 
     try {
       setCallStatus("ringing");
-      console.log("[AgoraCall] Starting call: ride=", rideId, "caller=", currentUserId, "callee=", otherUserId);
+      console.log(
+        "[AgoraCall] Starting call: ride=",
+        rideId,
+        "caller=",
+        currentUserId,
+        "callee=",
+        otherUserId
+      );
 
       const { data, error } = await supabase
         .from("call_sessions")
@@ -240,20 +310,29 @@ export function useAgoraCall({
       }
 
       console.log("[AgoraCall] Call session created:", data.id);
-      setSessionId(data.id);
-      // sessionIdRef is updated via useEffect sync
-      // Now waiting for callee to answer (realtime UPDATE will trigger joinChannel)
-      toast.info("Calling rider...", { description: "Waiting for answer" });
+      // Set ref IMMEDIATELY so realtime handler can match it
+      setSessionIdSync(data.id);
+
+      toast.info("Calling…", { description: "Waiting for answer" });
     } catch (err: unknown) {
       console.error("[AgoraCall] Failed to start call:", err);
       toast.error("Call failed", { description: (err as Error).message });
       setCallStatus("error");
       setTimeout(() => setCallStatus("idle"), 2000);
     }
-  }, [rideId, currentUserId, otherUserId]);
+  }, [rideId, currentUserId, otherUserId, setSessionIdSync]);
 
   const answerCall = useCallback(async () => {
     if (!incomingCall) return;
+
+    // Request mic permission immediately on user tap
+    const hasMic = await ensureMicPermission();
+    if (!hasMic) {
+      toast.error("Microphone access required", {
+        description: "Please allow microphone access to answer calls.",
+      });
+      return;
+    }
 
     try {
       console.log("[AgoraCall] Answering call:", incomingCall.sessionId);
@@ -262,7 +341,7 @@ export function useAgoraCall({
         .update({ status: "answered" })
         .eq("id", incomingCall.sessionId);
 
-      setSessionId(incomingCall.sessionId);
+      setSessionIdSync(incomingCall.sessionId);
       setIncomingCall(null);
       await joinChannel(incomingCall.sessionId);
     } catch (err: unknown) {
@@ -270,7 +349,7 @@ export function useAgoraCall({
       toast.error("Failed to answer", { description: (err as Error).message });
       setCallStatus("error");
     }
-  }, [incomingCall, joinChannel]);
+  }, [incomingCall, joinChannel, setSessionIdSync]);
 
   const declineCall = useCallback(async () => {
     if (!incomingCall) return;
@@ -296,13 +375,14 @@ export function useAgoraCall({
           .update({ status: "ended", ended_at: new Date().toISOString() })
           .eq("id", sid);
       } catch (err) {
-        console.warn('Failed to end call session:', err);
-      }    }
+        console.warn("Failed to end call session:", err);
+      }
+    }
     await cleanup();
     setCallStatus("ended");
-    setSessionId(null);
+    setSessionIdSync(null);
     setTimeout(() => setCallStatus("idle"), 2000);
-  }, [cleanup]);
+  }, [cleanup, setSessionIdSync]);
 
   const toggleMute = useCallback(() => {
     if (localTrackRef.current) {
