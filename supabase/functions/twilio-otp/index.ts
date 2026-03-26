@@ -1,12 +1,11 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// In-memory OTP store (in production, use a database)
+// In-memory OTP store
 const otpStore = new Map<string, { code: string; expires: number; attempts: number }>();
 
 // Rate limiting: max 3 OTPs per phone per 10 minutes
@@ -18,7 +17,7 @@ function generateOTP(): string {
 
 function isRateLimited(phone: string): boolean {
   const now = Date.now();
-  const window = 10 * 60 * 1000; // 10 minutes
+  const window = 10 * 60 * 1000;
   const entry = rateLimitStore.get(phone);
   if (!entry || now - entry.windowStart > window) {
     rateLimitStore.set(phone, { count: 1, windowStart: now });
@@ -35,31 +34,6 @@ serve(async (req) => {
   }
 
   try {
-    // --- JWT Authentication ---
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claimsData, error: claimsError } = await supabase.auth.getUser(token);
-    if (claimsError || !claimsData?.user) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    // --- End Authentication ---
-
     const TWILIO_ACCOUNT_SID = Deno.env.get('TWILIO_ACCOUNT_SID');
     const TWILIO_AUTH_TOKEN = Deno.env.get('TWILIO_AUTH_TOKEN');
     const TWILIO_PHONE_NUMBER = Deno.env.get('TWILIO_PHONE_NUMBER');
@@ -70,10 +44,16 @@ serve(async (req) => {
     }
 
     const { action, phone, code } = await req.json();
-    console.log(`Twilio OTP action: ${action}, phone: ${phone}, user: ${claimsData.user.id}`);
+    console.log(`Twilio OTP action: ${action}, phone: ${phone}`);
+
+    if (!phone || typeof phone !== 'string' || phone.length < 10 || phone.length > 20) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid phone number' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (action === 'send') {
-      // Rate limit check
       if (isRateLimited(phone)) {
         return new Response(
           JSON.stringify({ success: false, message: 'Too many OTP requests. Please wait 10 minutes.' }),
@@ -132,7 +112,6 @@ serve(async (req) => {
         );
       }
 
-      // Brute-force protection: max 5 attempts
       if (stored.attempts >= 5) {
         otpStore.delete(phone);
         return new Response(
