@@ -250,7 +250,7 @@ export default function RideView() {
         contacts?: {select: (properties: string[], options?: {multiple?: boolean;}) => Promise<Array<Record<string, unknown>>>;};
       };
       if (!nav.contacts?.select) {
-        toast({ title: 'Contacts not supported', description: 'Please enter passenger details manually.' });
+        toast({ title: 'Contacts not available', description: 'Use this on your phone to pick from contacts, or type the details manually.' });
         return;
       }
       const selected = await nav.contacts.select(['name', 'tel'], { multiple: false });
@@ -260,6 +260,8 @@ export default function RideView() {
       const tels = first.tel as string[] | undefined;
       if (names?.[0]) setPassengerName(names[0]);
       if (tels?.[0]) setPassengerPhone(tels[0]);
+      haptic('light');
+      toast({ title: '✅ Contact added', description: `${names?.[0] || 'Contact'} selected` });
     } catch {
       toast({ title: 'Could not read contacts', description: 'Please enter passenger details manually.' });
     }
@@ -319,6 +321,26 @@ export default function RideView() {
         supabase.from('ride_preferences').insert([prefsPayload] as never).then(({ error }) => {
           if (error) console.error('Failed to save ride preferences:', error.message);
         });
+      }
+
+      // Notify passenger if booking for someone else
+      if (bookForSomeoneElse && passengerPhone.trim() && result.ride.id) {
+        // Look up user by phone in profiles
+        const { data: passengerProfile } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('phone', passengerPhone.trim())
+          .maybeSingle();
+
+        if (passengerProfile?.user_id) {
+          const bookerName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Someone';
+          await supabase.from('notifications').insert({
+            user_id: passengerProfile.user_id,
+            title: '🚗 Ride booked for you!',
+            body: `${bookerName} has requested a ride for you from ${pickupLocation!.name} to ${dropoffLocation!.name}.`,
+            notification_type: 'ride_requested',
+          });
+        }
       }
 
       setCurrentRideId(result.ride.id);
