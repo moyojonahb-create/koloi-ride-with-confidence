@@ -72,7 +72,7 @@ export default function DriverOfferCard({
       </div>
 
       {/* Rider's offer */}
-      <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-accent/10">
+      <div className="flex items-center justify-between mx-4 px-3 py-2.5 rounded-xl bg-accent/10">
         <span className="text-xs font-semibold text-foreground">Rider's Offer</span>
         <span className="text-lg font-black text-accent">
           {formatFare(riderOffer, currencySymbol, currencyCode)}
