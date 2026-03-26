@@ -826,23 +826,8 @@ export default function RideView() {
 
 
 
-                <div>
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Payment</p>
-                  <div className="flex gap-2">
-                    {[{ key: 'cash' as const, icon: Banknote, label: 'Cash' }, { key: 'ecocash' as const, icon: Phone, label: 'EcoCash' }, { key: 'wallet' as const, icon: Wallet, label: 'Wallet' }].map((pm) =>
-                    <button
-                      key={pm.key}
-                      onClick={() => setPaymentMethod(pm.key)}
-                      className={cn("flex-1 flex items-center gap-2 px-3 py-3 rounded-2xl transition-all active:scale-[0.98] glass-card mx-0 text-lg text-center",
 
-                      paymentMethod === pm.key ? 'ring-1 ring-primary/25' : ''
-                      )}>
-                        <pm.icon className={cn('w-4 h-4', paymentMethod === pm.key ? 'text-primary' : 'text-muted-foreground')} />
-                        <span className={cn('font-medium text-sm', paymentMethod === pm.key ? 'text-primary' : 'text-foreground')}>{pm.label}</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
+
 
                 {rideStatus !== 'idle' &&
                 <button onClick={handleCancelRide} className="w-full text-center text-sm text-destructive font-medium py-1.5 hover:underline transition-colors">Cancel Ride</button>
