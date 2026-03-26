@@ -619,7 +619,7 @@ export default function RideDetail() {
                       <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${
                         m.sender_id === userId
                           ? "bg-blue-500 text-white rounded-bl-sm"
-                          : "bg-amber-400 text-amber-950 rounded-br-sm"
+                          : "bg-yellow-400 text-yellow-950 rounded-br-sm"
                       }`}>
                         <p className="text-sm">{m.text}</p>
                       </div>

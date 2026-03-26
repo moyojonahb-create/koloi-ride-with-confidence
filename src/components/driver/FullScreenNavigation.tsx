@@ -483,7 +483,7 @@ export default function FullScreenNavigation({
         return {
           label: completing ? "Completing..." : "Complete Trip",
           icon: <CheckCircle2 className="h-5 w-5" />,
-          color: "bg-amber-500 hover:bg-amber-600",
+          color: "bg-yellow-500 hover:bg-yellow-600",
           action: handleComplete,
         };
       default:
