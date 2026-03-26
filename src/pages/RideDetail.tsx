@@ -10,7 +10,11 @@ import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import PremiumOffersSheet from "@/components/ride/PremiumOffersSheet";
 import { type PremiumOffer } from "@/components/ride/PremiumOfferCard";
-import { ArrowLeft, MessageCircle, Phone, Shield, Star, Car, ChevronDown, ChevronUp, MapPin, Navigation, X, Send } from "lucide-react";
+import { ArrowLeft, MessageCircle, Phone, Shield, Star, Car, ChevronDown, ChevronUp, MapPin, Navigation, X, Send, Share2, CheckCircle2 } from "lucide-react";
+import { motion } from "framer-motion";
+import ShareTripButton from "@/components/ride/ShareTripButton";
+import DriverRatingModal from "@/components/ride/DriverRatingModal";
+import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
 
 function SettlementInfo({ tripId }: { tripId: string }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
@@ -104,6 +108,8 @@ export default function RideDetail() {
   const [premiumOffers, setPremiumOffers] = useState<PremiumOffer[]>([]);
   const [driverUserIdForTracking, setDriverUserIdForTracking] = useState<string | null>(null);
   const [driverProfile, setDriverProfile] = useState<DriverProfile | null>(null);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
 
   useEffect(() => {
     if (!ride?.driver_id) { setDriverUserIdForTracking(null); return; }
@@ -285,7 +291,16 @@ export default function RideDetail() {
     prevOfferCountRef.current = pendingOfferCount;
   }, [pendingOfferCount]);
 
-  // ── LOADING or NOT FOUND — show inline, never full-screen blank ──
+  // Auto-show rating modal on completion
+  const rideStatusForHook = ride?.status ?? "pending";
+  const isCompletedForHook = rideStatusForHook === "completed";
+  useEffect(() => {
+    if (isCompletedForHook && !hasRated && driverProfile) {
+      const timer = setTimeout(() => setShowRatingModal(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [isCompletedForHook, hasRated, driverProfile]);
+
   if (loading || !ride) {
     return (
       <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
@@ -399,10 +414,10 @@ export default function RideDetail() {
   const isActive = ["accepted", "driver_arriving", "driver_arrived", "in_progress", "near_destination"].includes(rideStatus);
   const isCompleted = rideStatus === "completed";
   const isCancelled = rideStatus === "cancelled";
-
+  const isDriverArrived = rideStatus === "driver_arrived";
   const statusConfig: Record<string, { label: string; color: string; icon: string }> = {
-    pending: { label: "Looking for drivers", color: "bg-amber-500", icon: "🔍" },
-    searching: { label: "Looking for drivers", color: "bg-amber-500", icon: "🔍" },
+    pending: { label: "Looking for drivers", color: "bg-yellow-500", icon: "🔍" },
+    searching: { label: "Looking for drivers", color: "bg-yellow-500", icon: "🔍" },
     accepted: { label: "Driver accepted", color: "bg-primary", icon: "✓" },
     driver_arriving: { label: "Driver on the way", color: "bg-primary", icon: "🚗" },
     driver_arrived: { label: "Driver has arrived", color: "bg-primary", icon: "📍" },
@@ -490,6 +505,34 @@ export default function RideDetail() {
             </div>
           </div>
 
+          {/* Driver Arrived — big card */}
+          {isDriverArrived && driverProfile && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="p-4 rounded-2xl bg-primary text-primary-foreground"
+            >
+              <div className="flex items-center gap-3">
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                >
+                  <CheckCircle2 className="w-8 h-8" />
+                </motion.div>
+                <div className="flex-1">
+                  <p className="text-base font-bold">Your driver has arrived!</p>
+                  <p className="text-sm opacity-80">Meet {driverProfile.fullName} at the pickup point</p>
+                </div>
+              </div>
+              {driverProfile.plateNumber && (
+                <div className="mt-2 flex items-center gap-2 bg-primary-foreground/15 rounded-xl px-3 py-2">
+                  <Car className="w-4 h-4" />
+                  <span className="text-sm font-semibold">{driverProfile.vehicleMake} {driverProfile.vehicleModel} · {driverProfile.plateNumber}</span>
+                </div>
+              )}
+            </motion.div>
+          )}
+
           {/* Action buttons — compact row */}
           {driverProfile && (
             <div className="flex items-center gap-1.5">
@@ -501,6 +544,14 @@ export default function RideDetail() {
                 className="flex-1 h-9 rounded-xl bg-primary text-primary-foreground font-semibold text-xs inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-all">
                 <MessageCircle className="w-3.5 h-3.5" /> Message
               </button>
+              {rideId && ride.pickup_address && ride.dropoff_address && (
+                <ShareTripButton
+                  rideId={rideId}
+                  pickupAddress={ride.pickup_address}
+                  dropoffAddress={ride.dropoff_address}
+                  driverName={driverProfile.fullName}
+                />
+              )}
               <button onClick={() => setToast("Safety center coming soon")}
                 className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center active:scale-[0.97] transition-all">
                 <Shield className="w-4 h-4 text-muted-foreground" />
@@ -568,7 +619,7 @@ export default function RideDetail() {
                       <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${
                         m.sender_id === userId
                           ? "bg-blue-500 text-white rounded-bl-sm"
-                          : "bg-amber-400 text-amber-950 rounded-br-sm"
+                          : "bg-yellow-400 text-yellow-950 rounded-br-sm"
                       }`}>
                         <p className="text-sm">{m.text}</p>
                       </div>
@@ -611,6 +662,22 @@ export default function RideDetail() {
           nav("/ride");
         }}
         onClose={() => setShowOffersModal(false)} />
+
+      {/* Driver Rating Modal */}
+      {showRatingModal && rideId && ride.driver_id && (
+        <DriverRatingModal
+          rideId={rideId}
+          driverId={ride.driver_id}
+          riderId={userId}
+          driverName={driverProfile?.fullName}
+          driverAvatar={driverProfile?.avatarUrl ?? undefined}
+          fare={Number(ride.fare ?? 0)}
+          onClose={() => {
+            setShowRatingModal(false);
+            setHasRated(true);
+          }}
+        />
+      )}
 
       {/* Toast */}
       {toast && (
