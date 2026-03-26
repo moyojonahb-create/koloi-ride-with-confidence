@@ -100,28 +100,27 @@ export default function RiderProfile() {
       {/* Header */}
       <div className="relative overflow-hidden" style={{ background: 'var(--gradient-primary)' }}>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 0%, transparent 50%)' }} />
-        <div className="relative px-4 pb-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)' }}>
-          {/* Top row: profile info (left) + logo (right) */}
-          <div className="flex items-start justify-between mb-3">
-            {/* Avatar + name + badges */}
+        <div className="relative px-4 pb-2" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)' }}>
+          {/* Profile info (left) + logo (right) */}
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <label className="relative cursor-pointer group shrink-0">
-                <div className="w-14 h-14 rounded-full bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center ring-2 ring-primary-foreground/30 overflow-hidden">
+                <div className="w-12 h-12 rounded-full bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center ring-2 ring-primary-foreground/30 overflow-hidden">
                   {avatarUrl ? (
                     <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-lg font-bold text-primary-foreground">{initials}</span>
+                    <span className="text-base font-bold text-primary-foreground">{initials}</span>
                   )}
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-accent flex items-center justify-center border-2 border-primary group-hover:scale-110 transition-transform">
-                  {uploading ? <Loader2 className="w-2.5 h-2.5 animate-spin text-accent-foreground" /> : <Camera className="w-2.5 h-2.5 text-accent-foreground" />}
+                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-accent flex items-center justify-center border-[1.5px] border-primary group-hover:scale-110 transition-transform">
+                  {uploading ? <Loader2 className="w-2 h-2 animate-spin text-accent-foreground" /> : <Camera className="w-2 h-2 text-accent-foreground" />}
                 </div>
                 <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
               </label>
               <div className="min-w-0">
-                <h1 className="text-base font-bold text-primary-foreground truncate leading-tight">{userName}</h1>
-                {userEmail && <p className="text-xs text-primary-foreground/60 truncate mt-0.5">{userEmail}</p>}
-                <div className="flex items-center gap-1.5 mt-1">
+                <h1 className="text-sm font-bold text-primary-foreground truncate leading-tight">{userName}</h1>
+                {userEmail && <p className="text-[10px] text-primary-foreground/60 truncate mt-0.5">{userEmail}</p>}
+                <div className="flex items-center gap-1.5 mt-0.5">
                   {isAdmin && (
                     <Badge className="h-4 text-[9px] bg-primary-foreground/15 text-primary-foreground border-0 px-1.5 cursor-pointer" onClick={() => navigate(`${prefix}/admin`)}>
                       <ShieldCheck className="w-2.5 h-2.5 mr-0.5" /> Admin
@@ -137,12 +136,14 @@ export default function RiderProfile() {
             </div>
             <PickMeLogo size="sm" />
           </div>
-
-          {/* Back button below */}
-          <button onClick={() => navigate(-1)} className="w-8 h-8 flex items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur-sm active:scale-95 transition-all">
-            <ArrowLeft className="w-4 h-4 text-primary-foreground" />
-          </button>
         </div>
+      </div>
+
+      {/* Back button outside header */}
+      <div className="px-4 pt-2">
+        <button onClick={() => navigate(-1)} className="w-8 h-8 flex items-center justify-center rounded-full bg-muted active:scale-95 transition-all">
+          <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+        </button>
       </div>
 
       {/* Content */}
