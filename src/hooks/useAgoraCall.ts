@@ -373,6 +373,7 @@ export function useAgoraCall({
 
   const declineCall = useCallback(async () => {
     if (!incomingCall) return;
+    stopRingtone();
 
     try {
       await supabase
