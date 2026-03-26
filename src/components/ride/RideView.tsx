@@ -755,14 +755,20 @@ export default function RideView() {
             }
           </div>
 
-          {/* Women-only ride toggle */}
-          <GenderPreferenceToggle value={genderPreference} onChange={setGenderPreference} />
-
-          {/* Ride Preferences */}
-          <RidePreferences quietRide={quietRide} coolTemp={coolTemp} onQuietChange={setQuietRide} onCoolChange={setCoolTemp} />
-
-          {/* Accessibility Filters */}
-          <AccessibilityFilters wavRequired={wavRequired} hearingImpaired={hearingImpaired} onWavChange={setWavRequired} onHearingChange={setHearingImpaired} />
+          {/* Preferences set in Profile Settings — shown as tags */}
+          {(quietRide || coolTemp || wavRequired || hearingImpaired || genderPreference !== 'any') && (
+            <div className="glass-card rounded-2xl px-3 py-2">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">Your Preferences</p>
+              <div className="flex flex-wrap gap-1">
+                {quietRide && <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">🤫 Quiet Ride</span>}
+                {coolTemp && <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-600 font-medium">❄️ Cool Temp</span>}
+                {wavRequired && <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 font-medium">♿ WAV</span>}
+                {hearingImpaired && <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 font-medium">👂 Hearing</span>}
+                {genderPreference !== 'any' && <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-600 font-medium">🛡️ Women Only</span>}
+              </div>
+              <p className="text-[9px] text-muted-foreground mt-1">Change in Profile → Ride Preferences</p>
+            </div>
+          )}
 
           {/* ── Fare breakdown + Negotiation (expanded) ── */}
           {pickupLocation && dropoffLocation && fareEstimate && (() => {
