@@ -188,7 +188,7 @@ export default function DriverDashboard() {
     endCall,
     toggleMute,
     toggleSpeaker,
-  } = useWebRTCCall({
+  } = useAgoraCall({
     rideId: activeTrip?.id ?? null,
     currentUserId: user?.id ?? "",
     otherUserId: activeTrip?.user_id ?? null,

@@ -1,6 +1,6 @@
 import { Mic, MicOff, PhoneOff, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCallDuration, type CallStatus } from "@/hooks/useWebRTCCall";
+import { formatCallDuration, type CallStatus } from "@/hooks/useAgoraCall";
 
 interface ActiveCallOverlayProps {
   status: CallStatus;

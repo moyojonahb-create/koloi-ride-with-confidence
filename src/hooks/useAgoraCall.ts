@@ -26,14 +26,27 @@ interface UseAgoraCallOptions {
 /** Request mic permission early so mobile browsers don't block it later */
 async function ensureMicPermission(): Promise<boolean> {
   try {
-    // On mobile, getUserMedia must be called from a user gesture context
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    // Stop immediately – Agora will create its own track
     stream.getTracks().forEach((t) => t.stop());
     return true;
   } catch (err) {
     console.warn("[AgoraCall] Mic permission denied:", err);
     return false;
+  }
+}
+
+/** Show a system notification for incoming calls (works when app is in background) */
+function showCallNotification(_callerId: string) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    const n = new Notification('Incoming Call 📞', {
+      body: 'Someone is calling you on your ride',
+      tag: 'incoming-call',
+      requireInteraction: true,
+    });
+    n.onclick = () => { window.focus(); n.close(); };
+  } else if (Notification.permission !== 'denied') {
+    Notification.requestPermission();
   }
 }
 

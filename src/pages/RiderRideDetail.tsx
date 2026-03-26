@@ -96,7 +96,7 @@ export default function RiderRideDetail() {
     callStatus, isMuted, isSpeaker, callDuration, incomingCall,
     startCall, answerCall, declineCall: declineIncomingCall, endCall,
     toggleMute, toggleSpeaker
-  } = useWebRTCCall({
+  } = useAgoraCall({
     rideId: rideId ?? null,
     currentUserId: user?.id ?? "",
     otherUserId: (driverProfile as Record<string, unknown>)?.user_id as string ?? null
