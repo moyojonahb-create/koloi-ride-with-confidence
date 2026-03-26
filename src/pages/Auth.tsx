@@ -113,8 +113,8 @@ const Auth = () => {
         if (message.includes('already registered') || message.includes('already been registered')) {
           message = 'An account with this email/phone already exists. Please sign in.';
         }
-        if (message.includes('email') && message.includes('confirm')) {
-          message = 'Please check your email to confirm your account, or try signing in.';
+        if (message.includes('weak_password') || message.includes('Password should contain')) {
+          message = 'Password must include uppercase, lowercase, number, and a special character (e.g. !@#$%).';
         }
         toast({ title: 'Signup failed', description: message, variant: 'destructive' });
         return;
