@@ -143,11 +143,6 @@ export default function RiderProfile() {
                 )}
               </div>
             </div>
-
-            {/* Edit button */}
-            <button onClick={() => navigate(`${prefix}/edit-profile`)} className="w-8 h-8 flex items-center justify-center rounded-full bg-primary-foreground/10 backdrop-blur-sm active:scale-95 transition-all">
-              <Edit3 className="w-3.5 h-3.5 text-primary-foreground" />
-            </button>
           </div>
         </div>
       </div>
