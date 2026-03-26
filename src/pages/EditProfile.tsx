@@ -39,7 +39,8 @@ export default function EditProfile() {
     if (data) {
       setFullName(data.full_name || '');
       setPhone(data.phone || '');
-      setAvatarUrl(data.avatar_url);
+      const resolved = await resolveAvatarUrl(data.avatar_url);
+      setAvatarUrl(resolved);
     } else {
       setFullName(user!.user_metadata?.full_name || '');
       setPhone(user!.user_metadata?.phone || user!.phone || '');
