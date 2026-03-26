@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, User, Phone, ChevronRight, ShieldAlert, Loader2 } from 'lucide-react';
+import { Search, X, User, Phone, ChevronRight, ShieldAlert, Loader2, UserPlus } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -24,12 +24,17 @@ export default function ContactPickerSheet({ open, onClose, onSelect }: ContactP
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [phonePickContact, setPhonePickContact] = useState<Contact | null>(null);
+  const [showManual, setShowManual] = useState(false);
+  const [manualName, setManualName] = useState('');
+  const [manualPhone, setManualPhone] = useState('');
 
-  // Load contacts when sheet opens
   useEffect(() => {
     if (!open) return;
     setSearch('');
     setPhonePickContact(null);
+    setShowManual(false);
+    setManualName('');
+    setManualPhone('');
     loadContacts();
   }, [open]);
 
@@ -42,7 +47,8 @@ export default function ContactPickerSheet({ open, onClose, onSelect }: ContactP
       if (Contacts) {
         const perm = await Contacts.requestPermissions();
         if (perm.contacts !== 'granted') {
-          setError('Permission required to access contacts. Please allow in your phone settings.');
+          setError('Permission required to access contacts.');
+          setShowManual(true);
           setLoading(false);
           return;
         }
@@ -56,7 +62,6 @@ export default function ContactPickerSheet({ open, onClose, onSelect }: ContactP
             phones: (c.phones || []).map(p => p.number || '').filter(Boolean),
           }))
           .filter(c => c.phones.length > 0);
-        // Deduplicate by name
         const seen = new Set<string>();
         const unique = mapped.filter(c => {
           const key = `${c.name}-${c.phones[0]}`;
@@ -85,9 +90,10 @@ export default function ContactPickerSheet({ open, onClose, onSelect }: ContactP
         return;
       }
 
-      setError('Contacts not available on this device. Please enter details manually.');
+      // No contact APIs available — show manual entry
+      setShowManual(true);
     } catch {
-      setError('Could not load contacts. Please enter details manually.');
+      setShowManual(true);
     }
     setLoading(false);
   };
@@ -119,7 +125,15 @@ export default function ContactPickerSheet({ open, onClose, onSelect }: ContactP
     onClose();
   };
 
-  // Group contacts by first letter
+  const handleManualSubmit = () => {
+    const name = manualName.trim();
+    const phone = manualPhone.trim();
+    if (!name || !phone) return;
+    haptic('light');
+    onSelect(name, phone);
+    onClose();
+  };
+
   const grouped = useMemo(() => {
     const groups: Record<string, Contact[]> = {};
     for (const c of filtered) {
@@ -130,28 +144,33 @@ export default function ContactPickerSheet({ open, onClose, onSelect }: ContactP
     return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
   }, [filtered]);
 
+  const hasContacts = contacts.length > 0;
+
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent side="bottom" className="h-[85dvh] rounded-t-3xl p-0 flex flex-col">
         {/* Header */}
         <div className="shrink-0 px-5 pt-5 pb-3 border-b border-border/40">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold text-foreground">Select Contact</h2>
+            <h2 className="text-lg font-bold text-foreground">
+              {showManual && !hasContacts ? 'Enter Contact' : 'Select Contact'}
+            </h2>
             <Button variant="ghost" size="icon" onClick={onClose} className="w-9 h-9 rounded-xl">
               <X className="w-5 h-5" />
             </Button>
           </div>
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by name or number..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 h-11 rounded-xl bg-muted/50 border-0 text-sm"
-              autoFocus
-            />
-          </div>
+          {hasContacts && (
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or number..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10 h-11 rounded-xl bg-muted/50 border-0 text-sm"
+                autoFocus
+              />
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -163,7 +182,52 @@ export default function ContactPickerSheet({ open, onClose, onSelect }: ContactP
             </div>
           )}
 
-          {error && (
+          {/* Manual entry form */}
+          {!loading && (showManual || (!hasContacts && !error)) && (
+            <div className="px-5 py-6 space-y-4">
+              <div className="flex flex-col items-center gap-2 mb-2">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                  <UserPlus className="w-7 h-7 text-primary" />
+                </div>
+                <p className="text-sm text-muted-foreground text-center">
+                  Enter the person's details below
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Full Name</label>
+                  <Input
+                    placeholder="e.g. Tendai Moyo"
+                    value={manualName}
+                    onChange={(e) => setManualName(e.target.value)}
+                    className="h-12 rounded-xl bg-muted/50 border-0 text-sm"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Phone Number</label>
+                  <Input
+                    placeholder="e.g. +263 77 123 4567"
+                    value={manualPhone}
+                    onChange={(e) => setManualPhone(e.target.value)}
+                    type="tel"
+                    className="h-12 rounded-xl bg-muted/50 border-0 text-sm"
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={handleManualSubmit}
+                disabled={!manualName.trim() || !manualPhone.trim()}
+                className="w-full h-12 rounded-xl font-semibold text-sm"
+              >
+                Select This Person
+              </Button>
+            </div>
+          )}
+
+          {!loading && error && !showManual && (
             <div className="flex flex-col items-center justify-center py-16 px-6 gap-3 text-center">
               <ShieldAlert className="w-10 h-10 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">{error}</p>
@@ -173,14 +237,7 @@ export default function ContactPickerSheet({ open, onClose, onSelect }: ContactP
             </div>
           )}
 
-          {!loading && !error && contacts.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 gap-2">
-              <User className="w-10 h-10 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">No contacts found</p>
-            </div>
-          )}
-
-          {!loading && !error && filtered.length === 0 && contacts.length > 0 && (
+          {!loading && !error && filtered.length === 0 && hasContacts && (
             <div className="flex flex-col items-center justify-center py-16 gap-2">
               <Search className="w-8 h-8 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">No contacts match "{search}"</p>
@@ -268,12 +325,21 @@ export default function ContactPickerSheet({ open, onClose, onSelect }: ContactP
           )}
         </AnimatePresence>
 
-        {/* Footer count */}
-        {!loading && !error && contacts.length > 0 && (
-          <div className="shrink-0 px-5 py-3 border-t border-border/40 bg-background">
-            <p className="text-xs text-muted-foreground text-center">
+        {/* Footer — manual entry toggle when contacts loaded */}
+        {!loading && hasContacts && (
+          <div className="shrink-0 px-5 py-3 border-t border-border/40 bg-background flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
               {filtered.length} of {contacts.length} contacts
             </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs text-primary"
+              onClick={() => setShowManual(!showManual)}
+            >
+              <UserPlus className="w-3.5 h-3.5 mr-1" />
+              Enter manually
+            </Button>
           </div>
         )}
       </SheetContent>
