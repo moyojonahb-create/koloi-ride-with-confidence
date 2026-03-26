@@ -932,7 +932,7 @@ export default function DriverDashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold truncate">{activeTrip.pickup_address}</p>
-                  <p className="text-sm text-muted-foreground truncate">{activeTrip.dropoff_address}</p>
+                  <p className="text-sm text-muted-foreground truncate mt-5">{activeTrip.dropoff_address}</p>
                   {/* Ride preferences tags */}
                   {ridePreferences[activeTrip.id] && (
                     <div className="mt-1.5">
