@@ -104,7 +104,11 @@ export default function NavigationCard({
       )}
 
       {/* Navigation Card */}
-      <Card className="border-primary/30 bg-primary/5">
+      <Card className="border-primary/30 bg-primary/5 overflow-hidden">
+        {/* Blue top bar */}
+        <div className="px-4 py-1.5 text-center text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary">
+          Active Trip Navigation
+        </div>
         <CardContent className="pt-4 space-y-3">
           <div className="flex items-center gap-2 mb-1">
             <Navigation className="h-4 w-4 text-primary" />

@@ -54,6 +54,10 @@ export default function PremiumOfferCard({ offer, riderFare, onAccept, onDecline
       layout
       className="bg-card rounded-2xl border border-border/40 shadow-sm overflow-hidden"
     >
+      {/* Blue top bar */}
+      <div className="px-4 py-1.5 text-center text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary">
+        Driver Offer
+      </div>
       {/* Countdown progress bar */}
       <div className="h-1 bg-muted">
         <motion.div

@@ -122,6 +122,7 @@ export default function RideRequestCard({ ride, preferences, secsLeft, index, on
           </div>
         </div>
       )}
+      </div>
     </motion.button>
   );
 }

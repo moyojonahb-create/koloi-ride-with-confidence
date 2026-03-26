@@ -122,7 +122,7 @@ export default function DriverOfferCard({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 px-4 pb-4">
           <Button
             onClick={() => onAccept(rideId)}
             disabled={isSubmitting}
