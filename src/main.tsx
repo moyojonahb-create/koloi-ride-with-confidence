@@ -3,6 +3,7 @@ import './lib/envPolyfill';
 
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "next-themes";
 import App from "./App";
 import { AuthProvider } from "./hooks/useAuth";
 import { I18nProvider } from "./lib/i18n";
