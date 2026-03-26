@@ -53,13 +53,15 @@ if ('serviceWorker' in navigator) {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <ErrorBoundary>
-      <I18nProvider>
-        <FemaleThemeProvider>
-          <AuthProvider>
-            <App />
-          </AuthProvider>
-        </FemaleThemeProvider>
-      </I18nProvider>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <I18nProvider>
+          <FemaleThemeProvider>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </FemaleThemeProvider>
+        </I18nProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   </QueryClientProvider>
 );
