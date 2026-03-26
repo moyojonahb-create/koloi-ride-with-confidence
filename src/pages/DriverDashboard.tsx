@@ -400,12 +400,19 @@ export default function DriverDashboard() {
         if (allRideIds.length > 0) {
           const { data: allPrefs } = await supabase
             .from("ride_preferences")
-            .select("ride_id, quiet_ride, cool_temperature")
+            .select("ride_id, quiet_ride, cool_temperature, wav_required, hearing_impaired, gender_preference")
             .in("ride_id", allRideIds);
           if (allPrefs) {
-            const prefsMap: Record<string, { quiet_ride: boolean; cool_temperature: boolean }> = {};
+            const prefsMap: Record<string, { quiet_ride: boolean; cool_temperature: boolean; wav_required?: boolean; hearing_impaired?: boolean; gender_preference?: string }> = {};
             for (const pref of allPrefs) {
-              prefsMap[pref.ride_id] = { quiet_ride: pref.quiet_ride, cool_temperature: pref.cool_temperature };
+              const p = pref as Record<string, unknown>;
+              prefsMap[pref.ride_id] = { 
+                quiet_ride: pref.quiet_ride, 
+                cool_temperature: pref.cool_temperature,
+                wav_required: (p.wav_required as boolean) ?? false,
+                hearing_impaired: (p.hearing_impaired as boolean) ?? false,
+                gender_preference: (p.gender_preference as string) ?? 'any',
+              };
             }
             setRidePreferences(prev => ({ ...prev, ...prefsMap }));
           }
