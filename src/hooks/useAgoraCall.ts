@@ -241,11 +241,36 @@ export function useAgoraCall({
         client.on(
           "user-published",
           async (user: IAgoraRTCRemoteUser, mediaType) => {
-            await client.subscribe(user, mediaType);
-            if (mediaType === "audio") {
-              console.log("[AgoraCall] Remote audio playing");
-              user.audioTrack?.play();
+            try {
+              await client.subscribe(user, mediaType);
+              if (mediaType === "audio" && user.audioTrack) {
+                console.log("[AgoraCall] Remote audio subscribed, playing…");
+                // On mobile, playback may need a small delay after subscribe
+                await new Promise((r) => setTimeout(r, 200));
+                user.audioTrack.play();
+                // Verify playback started
+                console.log("[AgoraCall] Remote audio isPlaying:", user.audioTrack.isPlaying);
+                // Retry once if not playing (mobile quirk)
+                if (!user.audioTrack.isPlaying) {
+                  console.warn("[AgoraCall] Retrying audio play…");
+                  await new Promise((r) => setTimeout(r, 500));
+                  user.audioTrack.play();
+                }
+              }
+            } catch (playErr) {
+              console.error("[AgoraCall] Failed to play remote audio:", playErr);
+              toast.error("Audio playback failed", {
+                description: "Please check your volume settings",
+              });
             }
+          }
+        );
+
+        // Also handle users already in the channel
+        client.on(
+          "user-joined",
+          (user: IAgoraRTCRemoteUser) => {
+            console.log("[AgoraCall] Remote user joined:", user.uid);
           }
         );
 
