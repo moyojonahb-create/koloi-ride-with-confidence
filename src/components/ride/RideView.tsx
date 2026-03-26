@@ -307,12 +307,17 @@ export default function RideView() {
       }
 
       // Save ride preferences if any selected
-      if (result.ride.id && (quietRide || coolTemp)) {
-        supabase.from('ride_preferences').insert({
+      if (result.ride.id && (quietRide || coolTemp || wavRequired || hearingImpaired || genderPreference !== 'any')) {
+        supabase.from('ride_preferences').insert([{
           ride_id: result.ride.id,
           quiet_ride: quietRide,
           cool_temperature: coolTemp,
-        }).then(() => {});
+        }]).then(() => {
+          // Update extended preferences via raw insert for new columns
+          supabase.from('ride_preferences').update(
+            { wav_required: wavRequired, hearing_impaired: hearingImpaired, gender_preference: genderPreference } as never
+          ).eq('ride_id', result.ride.id).then(() => {});
+        });
       }
 
       setCurrentRideId(result.ride.id);

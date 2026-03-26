@@ -128,7 +128,7 @@ export default function DriverDashboard() {
   const [selfieCheckOpen, setSelfieCheckOpen] = useState(false);
   const [pendingOnlineAfterSelfie, setPendingOnlineAfterSelfie] = useState(false);
   const [townPricingMap, setTownPricingMap] = useState<Record<string, TownPricingConfig>>({});
-  const [ridePreferences, setRidePreferences] = useState<Record<string, { quiet_ride: boolean; cool_temperature: boolean }>>({});
+  const [ridePreferences, setRidePreferences] = useState<Record<string, { quiet_ride: boolean; cool_temperature: boolean; wav_required?: boolean; hearing_impaired?: boolean; gender_preference?: string }>>({});
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -400,12 +400,19 @@ export default function DriverDashboard() {
         if (allRideIds.length > 0) {
           const { data: allPrefs } = await supabase
             .from("ride_preferences")
-            .select("ride_id, quiet_ride, cool_temperature")
+            .select("ride_id, quiet_ride, cool_temperature, wav_required, hearing_impaired, gender_preference")
             .in("ride_id", allRideIds);
           if (allPrefs) {
-            const prefsMap: Record<string, { quiet_ride: boolean; cool_temperature: boolean }> = {};
+            const prefsMap: Record<string, { quiet_ride: boolean; cool_temperature: boolean; wav_required?: boolean; hearing_impaired?: boolean; gender_preference?: string }> = {};
             for (const pref of allPrefs) {
-              prefsMap[pref.ride_id] = { quiet_ride: pref.quiet_ride, cool_temperature: pref.cool_temperature };
+              const p = pref as Record<string, unknown>;
+              prefsMap[pref.ride_id] = { 
+                quiet_ride: pref.quiet_ride, 
+                cool_temperature: pref.cool_temperature,
+                wav_required: (p.wav_required as boolean) ?? false,
+                hearing_impaired: (p.hearing_impaired as boolean) ?? false,
+                gender_preference: (p.gender_preference as string) ?? 'any',
+              };
             }
             setRidePreferences(prev => ({ ...prev, ...prefsMap }));
           }
@@ -787,7 +794,7 @@ export default function DriverDashboard() {
                         <p className="text-sm text-muted-foreground truncate">{r.dropoff_address}</p>
                         {ridePreferences[r.id] && (
                           <div className="mt-1">
-                            <RidePreferenceTags quietRide={ridePreferences[r.id]?.quiet_ride} coolTemperature={ridePreferences[r.id]?.cool_temperature} />
+                            <RidePreferenceTags quietRide={ridePreferences[r.id]?.quiet_ride} coolTemperature={ridePreferences[r.id]?.cool_temperature} wavRequired={ridePreferences[r.id]?.wav_required} hearingImpaired={ridePreferences[r.id]?.hearing_impaired} genderPreference={ridePreferences[r.id]?.gender_preference} />
                           </div>
                         )}
                       </div>
@@ -988,7 +995,7 @@ export default function DriverDashboard() {
                   {/* Ride preferences tags */}
                   {ridePreferences[activeTrip.id] && (
                     <div className="mt-1.5">
-                      <RidePreferenceTags quietRide={ridePreferences[activeTrip.id]?.quiet_ride} coolTemperature={ridePreferences[activeTrip.id]?.cool_temperature} />
+                      <RidePreferenceTags quietRide={ridePreferences[activeTrip.id]?.quiet_ride} coolTemperature={ridePreferences[activeTrip.id]?.cool_temperature} wavRequired={ridePreferences[activeTrip.id]?.wav_required} hearingImpaired={ridePreferences[activeTrip.id]?.hearing_impaired} genderPreference={ridePreferences[activeTrip.id]?.gender_preference} />
                     </div>
                   )}
                 </div>
