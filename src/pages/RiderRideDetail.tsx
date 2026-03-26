@@ -157,9 +157,16 @@ export default function RiderRideDetail() {
       const list = await fetchPendingOffers(rideId);
       if (list.length > lastOfferCount && lastOfferCount > 0) {
         playNewRequestSound();
+        haptic('medium');
+        // Auto-open offers modal so rider sees the new offer immediately
+        setModalOpen(true);
+        toast.success("🚗 New driver offer received!", {
+          description: `${list.length} driver${list.length > 1 ? 's' : ''} bidding on your ride — tap to review`,
+          duration: 8000,
+        });
         try {
           if (typeof globalThis.Notification !== "undefined" && Notification.permission === "granted") {
-            new Notification("New Driver Offer!", { body: "A driver has made an offer.", icon: "/icons/icon-192x192.png" });
+            new Notification("🚗 New Driver Offer!", { body: "A driver has made an offer on your ride. Tap to review.", icon: "/icons/icon-192x192.png" });
           }
         } catch (_) {}
       }
