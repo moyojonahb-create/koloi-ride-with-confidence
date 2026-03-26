@@ -92,6 +92,19 @@ export default function RiderWalletPage() {
     setLoadingDeposits(false);
   }, [user]);
 
+  // Load referral earnings
+  useEffect(() => {
+    if (!user || !pinVerified) return;
+    (async () => {
+      const { count } = await supabase
+        .from('referrals')
+        .select('*', { count: 'exact', head: true })
+        .eq('referrer_id', user.id)
+        .eq('status', 'completed');
+      setReferralEarnings((count || 0) * 2);
+    })();
+  }, [user, pinVerified]);
+
   useEffect(() => { if (pinVerified) loadDeposits(); }, [loadDeposits, pinVerified]);
 
   const handleRefresh = () => { refreshWallet(); loadDeposits(); };
