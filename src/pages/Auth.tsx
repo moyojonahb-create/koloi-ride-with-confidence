@@ -378,7 +378,7 @@ const Auth = () => {
             ) : (
               <p className="text-muted-foreground">
                 Already have an account?{' '}
-                <button onClick={() => setMode('login')} className="text-accent font-medium hover:underline">
+                <button onClick={() => { setMode('login'); setSignupError(null); setLoginError(null); }} className="text-accent font-medium hover:underline">
                   Sign in
                 </button>
               </p>
