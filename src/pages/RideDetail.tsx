@@ -405,10 +405,19 @@ export default function RideDetail() {
   const isActive = ["accepted", "driver_arriving", "driver_arrived", "in_progress", "near_destination"].includes(rideStatus);
   const isCompleted = rideStatus === "completed";
   const isCancelled = rideStatus === "cancelled";
+  const isDriverArrived = rideStatus === "driver_arrived";
+
+  // Auto-show rating modal on completion
+  useEffect(() => {
+    if (isCompleted && !hasRated && driverProfile) {
+      const timer = setTimeout(() => setShowRatingModal(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [isCompleted, hasRated, driverProfile]);
 
   const statusConfig: Record<string, { label: string; color: string; icon: string }> = {
-    pending: { label: "Looking for drivers", color: "bg-amber-500", icon: "🔍" },
-    searching: { label: "Looking for drivers", color: "bg-amber-500", icon: "🔍" },
+    pending: { label: "Looking for drivers", color: "bg-yellow-500", icon: "🔍" },
+    searching: { label: "Looking for drivers", color: "bg-yellow-500", icon: "🔍" },
     accepted: { label: "Driver accepted", color: "bg-primary", icon: "✓" },
     driver_arriving: { label: "Driver on the way", color: "bg-primary", icon: "🚗" },
     driver_arrived: { label: "Driver has arrived", color: "bg-primary", icon: "📍" },
