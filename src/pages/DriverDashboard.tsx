@@ -65,7 +65,7 @@ import DriverNavigationView from "@/components/driver/DriverNavigationView";
 import FullScreenNavigation from "@/components/driver/FullScreenNavigation";
 import DriverSettingsSheet from "@/components/driver/DriverSettingsSheet";
 import type { Coordinates } from "@/lib/osrm";
-import { useWebRTCCall } from "@/hooks/useWebRTCCall";
+import { useAgoraCall } from "@/hooks/useAgoraCall";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
