@@ -796,100 +796,21 @@ export default function DriverDashboard() {
 
         {/* Offer Modal */}
         {selectedRide && (
-          <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-            <GlassCard className="w-full max-w-lg mx-auto rounded-t-3xl p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-lg">Make an Offer</h3>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedRide(null)}>
-                  Cancel
-                </Button>
-              </div>
-
-              {/* Route with dots */}
-              <div className="flex items-start gap-2.5 bg-muted/50 rounded-xl p-2.5">
-                <div className="flex flex-col items-center mt-1">
-                  <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                  <div className="w-0.5 h-4 bg-border" />
-                  <div className="w-2.5 h-2.5 rounded-full bg-destructive" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">{selectedRide.pickup_address}</p>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">{selectedRide.dropoff_address}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-xs text-muted-foreground">{selectedRide.distance_km?.toFixed(1)} km</p>
-                  <p className="text-xs text-muted-foreground">~{selectedRide.duration_minutes} min</p>
-                </div>
-              </div>
-
-              {/* Trip meta + preferences */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {selectedRide.passenger_count && selectedRide.passenger_count > 1 && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
-                    👥 {selectedRide.passenger_count} passengers
-                  </span>
-                )}
-                {selectedRide.payment_method && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
-                    <CreditCard className="w-2.5 h-2.5" /> {selectedRide.payment_method}
-                  </span>
-                )}
-              </div>
-
-              {/* Rider preferences */}
-              {ridePreferences[selectedRide.id] && (
-                <div className="space-y-1">
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Rider Preferences</p>
-                  <RidePreferenceTags
-                    quietRide={ridePreferences[selectedRide.id]?.quiet_ride}
-                    coolTemperature={ridePreferences[selectedRide.id]?.cool_temperature}
-                    wavRequired={ridePreferences[selectedRide.id]?.wav_required}
-                    hearingImpaired={ridePreferences[selectedRide.id]?.hearing_impaired}
-                    genderPreference={ridePreferences[selectedRide.id]?.gender_preference}
-                  />
-                </div>
-              )}
-
-              {/* Price Stepper */}
-              <div className="flex items-center justify-center gap-4">
-                <SecondaryButton type="button" onClick={dec} className="w-10 h-10 rounded-full p-0 inline-flex items-center justify-center">
-                  <Minus className="h-4 w-4" />
-                </SecondaryButton>
-                <div className="text-center">
-                  <p className="text-3xl font-black">
-                    {fmtUSD(offerPrice)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Increments of $0.50
-                  </p>
-                </div>
-                <SecondaryButton type="button" onClick={inc} className="w-10 h-10 rounded-full p-0 inline-flex items-center justify-center">
-                  <Plus className="h-4 w-4" />
-                </SecondaryButton>
-              </div>
-
-              {/* ETA and Note */}
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="text-xs text-muted-foreground">ETA (min)</label>
-                  <InputField
-                    type="number"
-                    value={eta}
-                    onChange={(e) => setEta(Math.max(1, Number(e.target.value) || 10))}
-                  />
-                </div>
-                <div className="flex-2">
-                  <label className="text-xs text-muted-foreground">Note (optional)</label>
-                  <InputField value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g., Night service" />
-                </div>
-              </div>
-
-              <PrimaryButton className="w-full inline-flex items-center justify-center" onClick={sendOffer} disabled={submitting}>
-                <Send className="h-4 w-4 mr-2" />
-                {submitting ? "Sending..." : `Send Offer • ${fmtUSD(offerPrice)}`}
-              </PrimaryButton>
-            </GlassCard>
-          </div>
+          <DriverOfferModal
+            ride={selectedRide}
+            preferences={ridePreferences[selectedRide.id] ?? null}
+            offerPrice={offerPrice}
+            eta={eta}
+            note={note}
+            submitting={submitting}
+            onClose={() => setSelectedRide(null)}
+            onInc={inc}
+            onDec={dec}
+            onEtaChange={setEta}
+            onNoteChange={setNote}
+            onSubmit={sendOffer}
+            fmtUSD={fmtUSD}
+          />
         )}
 
         {/* Contact Rider — collapsed message panel */}
