@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { haptic } from '@/lib/haptics';
 import { useAuth } from '@/hooks/useAuth';
+import EmailVerificationBanner from '@/components/auth/EmailVerificationBanner';
 import { useOSRMRoute } from '@/hooks/useOSRMRoute';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
 import { useLandmarks } from '@/hooks/useLandmarks';
