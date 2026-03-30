@@ -41,6 +41,11 @@ export async function requestRide(input: RequestRideInput) {
     return { ok: false as const, error: "Too many ride requests. Please wait a moment and try again." };
   }
 
+  // Email verification gate — phone-auth users are exempt
+  if (user.email && !user.email_confirmed_at) {
+    return { ok: false as const, error: "Please verify your email address before requesting a ride. Check your inbox for a verification link." };
+  }
+
   const pickup_address = (input.pickup_address || "").trim();
   const dropoff_address = (input.dropoff_address || "").trim();
   const fare = Number(input.fare);

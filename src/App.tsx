@@ -97,6 +97,7 @@ export default function App() {
 
   return (
     <Router>
+      <AdminEmergencyAlerts />
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Index />} />
