@@ -1,7 +1,8 @@
-// ✅ Request Ride utility - RLS safe implementation with offline support
+// ✅ Request Ride utility - RLS safe implementation with offline support & rate limiting
 import { supabase } from '@/lib/supabaseClient';
 import { queueOfflineRide } from '@/lib/offlineQueue';
 import { detectSuspiciousPatterns, reportFraudFlag } from '@/lib/fraudDetection';
+import { isRateLimited } from '@/lib/rateLimit';
 
 type RequestRideInput = {
   pickup_address: string;
