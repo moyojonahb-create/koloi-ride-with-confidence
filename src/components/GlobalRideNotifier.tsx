@@ -7,18 +7,18 @@ import { toast } from 'sonner';
 
 /**
  * Global component that listens for new ride requests 24/7.
- * Fires audio + vibration + browser notification for every new pending ride
- * as long as the user is an approved, online driver.
+ * Uses pure realtime — no polling — for scalability.
  */
 export default function GlobalRideNotifier() {
   const { user } = useAuth();
   const isDriverOnlineRef = useRef(false);
 
-  // Poll driver online status every 15s
+  // Subscribe to driver's own online status via realtime (no polling)
   useEffect(() => {
     if (!user) return;
 
-    const check = async () => {
+    // Initial fetch
+    const fetchStatus = async () => {
       const { data } = await supabase
         .from('drivers')
         .select('is_online')
@@ -27,13 +27,32 @@ export default function GlobalRideNotifier() {
         .maybeSingle();
       isDriverOnlineRef.current = !!data?.is_online;
     };
+    fetchStatus();
 
-    check();
-    const interval = setInterval(check, 15000);
-    return () => clearInterval(interval);
+    // Listen for changes to this driver's record
+    const channel = supabase
+      .channel(`driver-status-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'drivers',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const row = payload.new as Record<string, unknown>;
+          isDriverOnlineRef.current = row.status === 'approved' && !!row.is_online;
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
-  // Permanent realtime subscription for new rides
+  // Permanent realtime subscription for new rides (no polling)
   useEffect(() => {
     if (!user) return;
 
@@ -47,11 +66,8 @@ export default function GlobalRideNotifier() {
           const ride = payload.new as Record<string, unknown>;
           if (ride.status !== 'pending') return;
 
-          // Skip if already expired
           const expiresAt = ride.expires_at ? new Date(ride.expires_at as string).getTime() : null;
           if (expiresAt && expiresAt <= Date.now()) return;
-
-          // Skip driver's own rides
           if (ride.user_id === user.id) return;
 
           playNewRequestSound();

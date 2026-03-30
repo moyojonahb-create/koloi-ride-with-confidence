@@ -7,6 +7,10 @@ interface DriverPosition {
   lng: number;
 }
 
+/**
+ * Pure-realtime driver tracking — no polling fallback.
+ * Subscribes to live_locations changes for the specific driver.
+ */
 export function useDriverTracking(
   driverUserId: string | null,
   rideStatus: string | null
@@ -22,6 +26,7 @@ export function useDriverTracking(
       return;
     }
 
+    // Initial fetch
     const fetchInitial = async () => {
       const { data } = await supabase
         .from("live_locations")
@@ -34,16 +39,11 @@ export function useDriverTracking(
         setPosition({ lat: data.latitude, lng: data.longitude });
       }
     };
-
     fetchInitial();
-  }, [driverUserId, isActive]);
 
-  useEffect(() => {
-    if (!isActive || !driverUserId) return;
-
-    const channelName = `driver-track-${driverUserId}-${Date.now()}`;
+    // Pure realtime subscription — no polling
     const channel = supabase
-      .channel(channelName)
+      .channel(`driver-track-${driverUserId}`)
       .on(
         "postgres_changes",
         {
@@ -65,21 +65,7 @@ export function useDriverTracking(
 
     channelRef.current = channel;
 
-    const poll = setInterval(async () => {
-      const { data } = await supabase
-        .from("live_locations")
-        .select("latitude, longitude")
-        .eq("user_id", driverUserId)
-        .eq("user_type", "driver")
-        .maybeSingle();
-
-      if (data) {
-        setPosition({ lat: data.latitude, lng: data.longitude });
-      }
-    }, 8000);
-
     return () => {
-      clearInterval(poll);
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
