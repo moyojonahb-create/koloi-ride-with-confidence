@@ -32,6 +32,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { playAcceptedSound, playNewRequestSound, playArrivedSound, playCompletedSound } from "@/lib/notificationSounds";
 import SearchingOverlay from "@/components/ride/SearchingOverlay";
 import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
+import TripReceiptButton from "@/components/ride/TripReceiptButton";
+import DisputeForm from "@/components/ride/DisputeForm";
 import { haptic } from "@/lib/haptics";
 import IncomingCallModal from "@/components/ride/IncomingCallModal";
 import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
