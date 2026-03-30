@@ -15,6 +15,8 @@ import { motion } from "framer-motion";
 import ShareTripButton from "@/components/ride/ShareTripButton";
 import DriverRatingModal from "@/components/ride/DriverRatingModal";
 import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
+import TripReceiptButton from "@/components/ride/TripReceiptButton";
+import DisputeForm from "@/components/ride/DisputeForm";
 
 function SettlementInfo({ tripId, onSettled }: { tripId: string; onSettled?: () => void }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
