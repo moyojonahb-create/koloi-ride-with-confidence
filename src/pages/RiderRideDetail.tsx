@@ -794,6 +794,22 @@ export default function RiderRideDetail() {
               }}
               hasRated={hasRated}
             />
+            <div className="flex items-center gap-2 mt-3">
+              <TripReceiptButton data={{
+                rideId: ride.id,
+                pickupAddress: ride.pickup_address,
+                dropoffAddress: ride.dropoff_address,
+                fare: ride.fare,
+                distanceKm: ride.distance_km,
+                durationMinutes: ride.duration_minutes,
+                driverName: driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined,
+                vehicleInfo: driverProfile ? `${driverProfile.vehicle_make || ''} ${driverProfile.vehicle_model || ''}`.trim() : undefined,
+                plateNumber: driverProfile?.plate_number || undefined,
+                paymentMethod: ride.payment_method,
+                completedAt: ride.updated_at,
+              }} />
+              <DisputeForm rideId={ride.id} role="rider" />
+            </div>
           )}
 
           {/* ─── ACTIVE RIDE: DRIVER CARD + ROUTE ─── */}
