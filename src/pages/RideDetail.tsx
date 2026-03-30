@@ -70,6 +70,7 @@ type RideRow = {
   id: string; user_id: string; pickup_address: string | null; dropoff_address: string | null;
   fare: number | null; status: string | null; pickup_lat?: number | null; pickup_lon?: number | null;
   dropoff_lat?: number | null; dropoff_lon?: number | null; driver_id?: string | null;
+  distance_km?: number | null; duration_minutes?: number | null; payment_method?: string | null;
 };
 type OfferRow = {
   id: string; ride_id: string; driver_id: string; price: number;
