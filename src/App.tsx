@@ -50,6 +50,7 @@ const AdminRiderDepositsPage = lazy(() => import("./pages/admin/AdminRiderDeposi
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminTownPricing = lazy(() => import("./pages/admin/AdminTownPricing"));
 const ImportOsmPlaces = lazy(() => import("./pages/admin/ImportOsmPlaces"));
+const AdminDisputes = lazy(() => import("./pages/admin/AdminDisputes"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DriverRequestsScreen = lazy(() => import("./pages/negotiate/DriverRequestsScreen"));
 const RiderOffersScreen = lazy(() => import("./pages/negotiate/RiderOffersScreen"));
