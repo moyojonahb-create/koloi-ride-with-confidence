@@ -4,6 +4,7 @@ import { Capacitor } from "@capacitor/core";
 import AuthGuard from "./components/AuthGuard";
 import AdminGuard from "./components/admin/AdminGuard";
 import ErrorBoundary from "./components/ErrorBoundary";
+import AdminEmergencyAlerts from "./components/admin/AdminEmergencyAlerts";
 
 // ─── Only the landing page is eagerly loaded ───
 import Index from "./pages/Index";
