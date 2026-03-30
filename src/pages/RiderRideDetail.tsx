@@ -61,6 +61,8 @@ type Ride = {
   route_polyline?: string | null;
   passenger_name?: string | null;
   passenger_phone?: string | null;
+  payment_method?: string;
+  updated_at?: string;
 };
 
 export default function RiderRideDetail() {
