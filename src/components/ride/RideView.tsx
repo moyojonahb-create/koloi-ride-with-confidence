@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { haptic } from '@/lib/haptics';
 import { useAuth } from '@/hooks/useAuth';
+import EmailVerificationBanner from '@/components/auth/EmailVerificationBanner';
 import { useOSRMRoute } from '@/hooks/useOSRMRoute';
 import { usePricingSettings } from '@/hooks/usePricingSettings';
 import { useLandmarks } from '@/hooks/useLandmarks';
@@ -683,6 +684,10 @@ export default function RideView() {
 
         {/* Scrollable content */}
         <div className="flex-1 px-4 pb-2 space-y-2.5 min-h-0 overflow-y-auto overscroll-contain">
+          {/* Email verification gate */}
+          {user?.email && !user?.email_confirmed_at && (
+            <EmailVerificationBanner email={user.email} emailConfirmedAt={user.email_confirmed_at ?? null} />
+          )}
 
           {/* Service type indicator */}
           {serviceType !== 'ride' &&

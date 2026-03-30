@@ -15,6 +15,8 @@ import { motion } from "framer-motion";
 import ShareTripButton from "@/components/ride/ShareTripButton";
 import DriverRatingModal from "@/components/ride/DriverRatingModal";
 import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
+import TripReceiptButton from "@/components/ride/TripReceiptButton";
+import DisputeForm from "@/components/ride/DisputeForm";
 
 function SettlementInfo({ tripId, onSettled }: { tripId: string; onSettled?: () => void }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
@@ -68,6 +70,7 @@ type RideRow = {
   id: string; user_id: string; pickup_address: string | null; dropoff_address: string | null;
   fare: number | null; status: string | null; pickup_lat?: number | null; pickup_lon?: number | null;
   dropoff_lat?: number | null; dropoff_lon?: number | null; driver_id?: string | null;
+  distance_km?: number | null; duration_minutes?: number | null; payment_method?: string | null;
 };
 type OfferRow = {
   id: string; ride_id: string; driver_id: string; price: number;
@@ -563,6 +566,20 @@ export default function RideDetail() {
 
           {/* Settlement for completed trips */}
           {isCompleted && <SettlementInfo tripId={ride.id} onSettled={() => setTimeout(() => nav('/app'), 2000)} />}
+          {isCompleted && (
+            <div className="flex items-center gap-2 mt-2">
+              <TripReceiptButton data={{
+                rideId: ride.id,
+                pickupAddress: ride.pickup_address,
+                dropoffAddress: ride.dropoff_address,
+                fare: ride.fare,
+                distanceKm: ride.distance_km,
+                durationMinutes: ride.duration_minutes,
+                paymentMethod: ride.payment_method,
+              }} />
+              <DisputeForm rideId={ride.id} role="driver" />
+            </div>
+          )}
 
           {/* View Offers button */}
           {!accepted && (

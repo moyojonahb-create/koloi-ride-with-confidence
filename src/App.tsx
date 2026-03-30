@@ -4,6 +4,7 @@ import { Capacitor } from "@capacitor/core";
 import AuthGuard from "./components/AuthGuard";
 import AdminGuard from "./components/admin/AdminGuard";
 import ErrorBoundary from "./components/ErrorBoundary";
+import AdminEmergencyAlerts from "./components/admin/AdminEmergencyAlerts";
 
 // ─── Only the landing page is eagerly loaded ───
 import Index from "./pages/Index";
@@ -49,6 +50,7 @@ const AdminRiderDepositsPage = lazy(() => import("./pages/admin/AdminRiderDeposi
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 const AdminTownPricing = lazy(() => import("./pages/admin/AdminTownPricing"));
 const ImportOsmPlaces = lazy(() => import("./pages/admin/ImportOsmPlaces"));
+const AdminDisputes = lazy(() => import("./pages/admin/AdminDisputes"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DriverRequestsScreen = lazy(() => import("./pages/negotiate/DriverRequestsScreen"));
 const RiderOffersScreen = lazy(() => import("./pages/negotiate/RiderOffersScreen"));
@@ -96,6 +98,7 @@ export default function App() {
 
   return (
     <Router>
+      <AdminEmergencyAlerts />
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -168,6 +171,7 @@ export default function App() {
           <Route path="/admin/settings" element={<SuspenseWrap><AdminGuard><AdminSettings /></AdminGuard></SuspenseWrap>} />
           <Route path="/admin/town-pricing" element={<SuspenseWrap><AdminGuard><AdminTownPricing /></AdminGuard></SuspenseWrap>} />
           <Route path="/admin/import-places" element={<SuspenseWrap><AdminGuard><ImportOsmPlaces /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/disputes" element={<SuspenseWrap><AdminGuard><AdminDisputes /></AdminGuard></SuspenseWrap>} />
 
           <Route path="*" element={<SuspenseWrap><NotFound /></SuspenseWrap>} />
         </Routes>
