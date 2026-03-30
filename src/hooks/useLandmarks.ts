@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { getCached, setCache } from '@/lib/queryCache';
 
 export interface Landmark {
   id: string;
