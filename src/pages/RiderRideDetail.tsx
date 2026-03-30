@@ -775,41 +775,43 @@ export default function RiderRideDetail() {
 
           {/* ─── COMPLETED SUMMARY ─── */}
           {ride?.status === "completed" && (
-            <RideCompleteSummary
-              fare={ride.fare}
-              distanceKm={ride.distance_km}
-              durationMinutes={ride.duration_minutes}
-              pickupAddress={ride.pickup_address}
-              dropoffAddress={ride.dropoff_address}
-              driverName={driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined}
-              onRate={() => setShowRating(true)}
-              onBookAgain={() => nav('/ride', { state: { rebook: { pickup: { name: ride.pickup_address, lat: ride.pickup_lat, lng: ride.pickup_lon }, dropoff: { name: ride.dropoff_address, lat: ride.dropoff_lat, lng: ride.dropoff_lon } } } })}
-              onSaveLocation={() => {
-                if (user) {
-                  supabase.from('favorite_locations').insert({
-                    user_id: user.id, name: ride.dropoff_address, address: ride.dropoff_address,
-                    latitude: ride.dropoff_lat, longitude: ride.dropoff_lon
-                  }).then(() => toast.success('Location saved!'));
-                }
-              }}
-              hasRated={hasRated}
-            />
-            <div className="flex items-center gap-2 mt-3">
-              <TripReceiptButton data={{
-                rideId: ride.id,
-                pickupAddress: ride.pickup_address,
-                dropoffAddress: ride.dropoff_address,
-                fare: ride.fare,
-                distanceKm: ride.distance_km,
-                durationMinutes: ride.duration_minutes,
-                driverName: driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined,
-                vehicleInfo: driverProfile ? `${driverProfile.vehicle_make || ''} ${driverProfile.vehicle_model || ''}`.trim() : undefined,
-                plateNumber: driverProfile?.plate_number || undefined,
-                paymentMethod: ride.payment_method,
-                completedAt: ride.updated_at,
-              }} />
-              <DisputeForm rideId={ride.id} role="rider" />
-            </div>
+            <>
+              <RideCompleteSummary
+                fare={ride.fare}
+                distanceKm={ride.distance_km}
+                durationMinutes={ride.duration_minutes}
+                pickupAddress={ride.pickup_address}
+                dropoffAddress={ride.dropoff_address}
+                driverName={driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined}
+                onRate={() => setShowRating(true)}
+                onBookAgain={() => nav('/ride', { state: { rebook: { pickup: { name: ride.pickup_address, lat: ride.pickup_lat, lng: ride.pickup_lon }, dropoff: { name: ride.dropoff_address, lat: ride.dropoff_lat, lng: ride.dropoff_lon } } } })}
+                onSaveLocation={() => {
+                  if (user) {
+                    supabase.from('favorite_locations').insert({
+                      user_id: user.id, name: ride.dropoff_address, address: ride.dropoff_address,
+                      latitude: ride.dropoff_lat, longitude: ride.dropoff_lon
+                    }).then(() => toast.success('Location saved!'));
+                  }
+                }}
+                hasRated={hasRated}
+              />
+              <div className="flex items-center gap-2 mt-3">
+                <TripReceiptButton data={{
+                  rideId: ride.id,
+                  pickupAddress: ride.pickup_address,
+                  dropoffAddress: ride.dropoff_address,
+                  fare: ride.fare,
+                  distanceKm: ride.distance_km,
+                  durationMinutes: ride.duration_minutes,
+                  driverName: driverProfile?.vehicle_make ? `${driverProfile.vehicle_make} Driver` : undefined,
+                  vehicleInfo: driverProfile ? `${driverProfile.vehicle_make || ''} ${driverProfile.vehicle_model || ''}`.trim() : undefined,
+                  plateNumber: driverProfile?.plate_number || undefined,
+                  paymentMethod: ride.payment_method,
+                  completedAt: ride.updated_at,
+                }} />
+                <DisputeForm rideId={ride.id} role="rider" />
+              </div>
+            </>
           )}
 
           {/* ─── ACTIVE RIDE: DRIVER CARD + ROUTE ─── */}
