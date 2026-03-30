@@ -171,6 +171,7 @@ export default function App() {
           <Route path="/admin/settings" element={<SuspenseWrap><AdminGuard><AdminSettings /></AdminGuard></SuspenseWrap>} />
           <Route path="/admin/town-pricing" element={<SuspenseWrap><AdminGuard><AdminTownPricing /></AdminGuard></SuspenseWrap>} />
           <Route path="/admin/import-places" element={<SuspenseWrap><AdminGuard><ImportOsmPlaces /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/disputes" element={<SuspenseWrap><AdminGuard><AdminDisputes /></AdminGuard></SuspenseWrap>} />
 
           <Route path="*" element={<SuspenseWrap><NotFound /></SuspenseWrap>} />
         </Routes>
