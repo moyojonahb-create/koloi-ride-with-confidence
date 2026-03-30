@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { getCached, setCache } from '@/lib/queryCache';
 
 export interface Landmark {
   id: string;
@@ -64,6 +65,14 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
   // Fetch all landmarks once
   useEffect(() => {
     const fetchLandmarks = async () => {
+      // Check cache first (10 min TTL)
+      const cached = getCached<Landmark[]>('landmarks');
+      if (cached) {
+        setLandmarks(cached);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       
@@ -78,7 +87,9 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
         setError('Failed to load landmarks');
         setLandmarks([]);
       } else {
-        setLandmarks(data || []);
+        const result = data || [];
+        setLandmarks(result);
+        setCache('landmarks', result, 10 * 60 * 1000); // 10 min cache
       }
       setLoading(false);
     };

@@ -1,7 +1,8 @@
-// ✅ Request Ride utility - RLS safe implementation with offline support
+// ✅ Request Ride utility - RLS safe implementation with offline support & rate limiting
 import { supabase } from '@/lib/supabaseClient';
 import { queueOfflineRide } from '@/lib/offlineQueue';
 import { detectSuspiciousPatterns, reportFraudFlag } from '@/lib/fraudDetection';
+import { isRateLimited } from '@/lib/rateLimit';
 
 type RequestRideInput = {
   pickup_address: string;
@@ -34,6 +35,11 @@ export async function requestRide(input: RequestRideInput) {
   if (authErr) return { ok: false as const, error: `Auth error: ${authErr.message}` };
   const user = authData?.user;
   if (!user) return { ok: false as const, error: "You must be logged in to request a ride." };
+
+  // Rate limit: max 5 ride requests per minute per user
+  if (isRateLimited(`ride-request-${user.id}`, 5, 60000)) {
+    return { ok: false as const, error: "Too many ride requests. Please wait a moment and try again." };
+  }
 
   const pickup_address = (input.pickup_address || "").trim();
   const dropoff_address = (input.dropoff_address || "").trim();

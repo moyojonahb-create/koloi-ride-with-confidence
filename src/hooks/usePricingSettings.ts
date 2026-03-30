@@ -51,7 +51,8 @@ export const usePricingSettings = () => {
 
       return data as PricingSettings;
     },
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    staleTime: 1000 * 60 * 15, // Cache for 15 minutes — pricing rarely changes
+    gcTime: 1000 * 60 * 30,
   });
 };
 
