@@ -565,6 +565,20 @@ export default function RideDetail() {
 
           {/* Settlement for completed trips */}
           {isCompleted && <SettlementInfo tripId={ride.id} onSettled={() => setTimeout(() => nav('/app'), 2000)} />}
+          {isCompleted && (
+            <div className="flex items-center gap-2 mt-2">
+              <TripReceiptButton data={{
+                rideId: ride.id,
+                pickupAddress: ride.pickup_address,
+                dropoffAddress: ride.dropoff_address,
+                fare: ride.fare,
+                distanceKm: ride.distance_km,
+                durationMinutes: ride.duration_minutes,
+                paymentMethod: ride.payment_method,
+              }} />
+              <DisputeForm rideId={ride.id} role="driver" />
+            </div>
+          )}
 
           {/* View Offers button */}
           {!accepted && (
