@@ -596,3 +596,48 @@
   min-height: 260px;
   background: hsl(var(--pickme-gray-200));
 }
+
+/* ─── Native Mobile Enhancements ─── */
+
+/* Keyboard awareness */
+:root {
+  --keyboard-height: 0px;
+}
+
+body.keyboard-open .fixed.bottom-0 {
+  transform: translateY(calc(-1 * var(--keyboard-height)));
+  transition: transform 0.25s ease;
+}
+
+/* Smoother scrolling for native feel */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Remove tap highlight on mobile */
+button, a, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Native-style active states */
+button:active, a:active, [role="button"]:active {
+  opacity: 0.7;
+  transition: opacity 0.05s ease;
+}
+
+/* Pull-to-refresh prevention in Capacitor (let native handle it) */
+body.capacitor-native {
+  overscroll-behavior-y: none;
+}
+
+/* Rubber-band scroll for content areas */
+.native-scroll {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Smooth input focus scrolling */
+input:focus, textarea:focus, select:focus {
+  scroll-margin-bottom: calc(var(--keyboard-height) + 20px);
+}
