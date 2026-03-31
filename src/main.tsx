@@ -9,7 +9,11 @@ import { AuthProvider } from "./hooks/useAuth";
 import { I18nProvider } from "./lib/i18n";
 import { FemaleThemeProvider } from "./hooks/useFemaleTheme";
 import ErrorBoundary from "./components/ErrorBoundary";
+import { initNativePlatform } from "./lib/nativeBridge";
 import "./index.css";
+
+// Initialize native Capacitor plugins (no-ops on web)
+initNativePlatform();
 
 window.addEventListener('unhandledrejection', (event) => {
   console.error('[PickMe] Unhandled promise rejection:', event.reason);
