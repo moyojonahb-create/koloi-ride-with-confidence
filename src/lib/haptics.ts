@@ -1,24 +1,68 @@
 /**
- * Lightweight haptic feedback utility.
- * Uses the Vibration API where available; no-ops silently otherwise.
+ * Native-first haptic feedback using Capacitor Haptics plugin.
+ * Falls back to Vibration API on web.
  */
+import { Capacitor } from '@capacitor/core';
 
-type HapticStyle = 'light' | 'medium' | 'heavy' | 'success' | 'error';
+type HapticStyle = 'light' | 'medium' | 'heavy' | 'success' | 'error' | 'selection';
 
-const patterns: Record<HapticStyle, number | number[]> = {
+const webPatterns: Record<HapticStyle, number | number[]> = {
   light: 10,
   medium: 25,
   heavy: 50,
   success: [10, 30, 10],
   error: [50, 30, 50],
+  selection: 5,
 };
 
-export function haptic(style: HapticStyle = 'light') {
+let HapticsPlugin: any = null;
+
+// Lazy-load native plugin only on native platforms
+async function getHaptics() {
+  if (HapticsPlugin) return HapticsPlugin;
+  if (Capacitor.isNativePlatform()) {
+    const { Haptics } = await import('@capacitor/haptics');
+    HapticsPlugin = Haptics;
+    return HapticsPlugin;
+  }
+  return null;
+}
+
+export async function haptic(style: HapticStyle = 'light') {
   try {
-    if ('vibrate' in navigator) {
-      navigator.vibrate(patterns[style]);
+    const native = await getHaptics();
+    if (native) {
+      switch (style) {
+        case 'light':
+          await native.impact({ style: 'LIGHT' });
+          break;
+        case 'medium':
+          await native.impact({ style: 'MEDIUM' });
+          break;
+        case 'heavy':
+          await native.impact({ style: 'HEAVY' });
+          break;
+        case 'success':
+          await native.notification({ type: 'SUCCESS' });
+          break;
+        case 'error':
+          await native.notification({ type: 'ERROR' });
+          break;
+        case 'selection':
+          await native.selectionStart();
+          await native.selectionChanged();
+          await native.selectionEnd();
+          break;
+      }
+    } else if ('vibrate' in navigator) {
+      navigator.vibrate(webPatterns[style]);
     }
   } catch {
-    // silently ignore — not all browsers support vibrate
+    // silently ignore
   }
+}
+
+/** Fire-and-forget version for event handlers */
+export function hapticSync(style: HapticStyle = 'light') {
+  haptic(style);
 }
