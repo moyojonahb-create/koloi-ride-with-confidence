@@ -1,125 +1,153 @@
 import { MapPin, Navigation2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const PhoneMockup = () => {
   return (
-    <div className="relative mx-auto w-[280px] sm:w-[320px]">
+    <div className="relative mx-auto w-[260px] sm:w-[300px]">
+      {/* Glow */}
+      <div className="absolute -inset-4 bg-gradient-to-b from-accent/20 to-primary-foreground/5 blur-2xl rounded-[4rem] -z-10" />
+
       {/* Phone Frame */}
-      <div className="relative bg-foreground rounded-[3rem] p-3 shadow-[0_20px_60px_-15px_hsl(var(--primary)/0.35)]">
-        {/* Screen bezel */}
-        <div className="relative bg-background rounded-[2.5rem] overflow-hidden">
-          {/* Dynamic Island */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-6 bg-foreground rounded-full z-20" />
-          
+      <div className="relative bg-foreground rounded-[2.8rem] p-[10px] shadow-[0_30px_80px_-20px_hsl(0_0%_0%/0.5)]">
+        {/* Screen */}
+        <div className="relative bg-background rounded-[2.3rem] overflow-hidden">
+          {/* Notch */}
+          <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-[90px] h-[26px] bg-foreground rounded-full z-20" />
+
           {/* Status bar */}
-          <div className="bg-background px-6 py-3 flex items-center justify-between pt-4">
-            <span className="text-xs font-semibold text-muted-foreground">9:41</span>
-            <div className="flex items-center gap-1.5">
-              <div className="flex gap-0.5">
-                <div className="w-1 h-2 bg-muted-foreground rounded-sm" />
-                <div className="w-1 h-2.5 bg-muted-foreground rounded-sm" />
-                <div className="w-1 h-3 bg-muted-foreground rounded-sm" />
-                <div className="w-1 h-3.5 bg-border rounded-sm" />
+          <div className="bg-background px-7 py-3 flex items-center justify-between pt-5">
+            <span className="text-[11px] font-bold text-foreground">9:41</span>
+            <div className="flex items-center gap-1">
+              <div className="flex gap-[2px]">
+                {[1.5, 2, 2.5, 3].map((h, i) => (
+                  <div key={i} className="w-[3px] rounded-sm bg-foreground" style={{ height: `${h * 4}px` }} />
+                ))}
               </div>
-              <div className="w-6 h-3 bg-muted-foreground rounded-sm ml-1" />
+              <div className="w-6 h-[10px] border border-foreground rounded-[3px] ml-1 relative">
+                <div className="absolute inset-[1.5px] bg-foreground rounded-[1px]" style={{ width: '60%' }} />
+              </div>
             </div>
           </div>
 
           {/* Map Area */}
-          <div className="relative h-[300px] sm:h-[360px] bg-gradient-to-br from-secondary via-background to-secondary">
-            {/* Map grid */}
-            <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+          <div className="relative h-[280px] sm:h-[320px] bg-gradient-to-br from-muted/50 via-background to-secondary/50">
+            {/* Stylized map grid */}
+            <svg className="absolute inset-0 w-full h-full opacity-[0.07]" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-muted-foreground" />
+                <pattern id="mapgrid" width="32" height="32" patternUnits="userSpaceOnUse">
+                  <path d="M 32 0 L 0 0 0 32" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-foreground" />
                 </pattern>
               </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
+              <rect width="100%" height="100%" fill="url(#mapgrid)" />
             </svg>
-            
+
+            {/* Faux roads */}
+            <div className="absolute top-[40%] left-0 right-0 h-[2px] bg-border/40 rotate-[-8deg]" />
+            <div className="absolute top-[55%] left-0 right-0 h-[2px] bg-border/30 rotate-[5deg]" />
+            <div className="absolute top-0 bottom-0 left-[35%] w-[2px] bg-border/30 rotate-[12deg]" />
+
             {/* Route line */}
             <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="hsl(var(--primary))" />
-                  <stop offset="100%" stopColor="hsl(var(--primary-light))" />
+                <linearGradient id="routeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="hsl(var(--accent))" />
+                  <stop offset="100%" stopColor="hsl(var(--primary))" />
                 </linearGradient>
               </defs>
-              <path
-                d="M 80 260 Q 120 180, 160 160 T 220 90"
+              <motion.path
+                d="M 70 240 Q 100 190, 140 165 T 200 100 T 230 70"
                 fill="none"
-                stroke="url(#routeGradient)"
-                strokeWidth="5"
-                strokeLinecap="round" />
+                stroke="url(#routeGrad)"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeDasharray="6 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1.5, delay: 0.5 }}
+              />
             </svg>
 
             {/* Pickup Pin */}
-            <div className="absolute left-[60px] bottom-[70px] animate-fade-in">
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.8, type: 'spring', stiffness: 200 }}
+              className="absolute left-[50px] bottom-[55px]"
+            >
               <div className="relative">
-                <div className="w-11 h-11 bg-accent rounded-full flex items-center justify-center shadow-md ring-4 ring-accent/20">
-                  <MapPin className="w-5 h-5 text-accent-foreground" />
+                <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center shadow-lg ring-[3px] ring-accent/25">
+                  <MapPin className="w-4 h-4 text-accent-foreground" />
                 </div>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-accent rotate-45 -z-10" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-accent rotate-45 -z-10" />
               </div>
-              <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-foreground whitespace-nowrap bg-card px-2 py-1 rounded-full shadow-sm">
+              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-bold text-foreground whitespace-nowrap bg-card px-2 py-0.5 rounded-full shadow-sm border border-border/50">
                 Pickup
               </span>
-            </div>
+            </motion.div>
 
             {/* Destination Pin */}
-            <div className="absolute right-[40px] top-[50px] animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 1, type: 'spring', stiffness: 200 }}
+              className="absolute right-[30px] top-[35px]"
+            >
               <div className="relative">
-                <div className="w-11 h-11 bg-primary rounded-full flex items-center justify-center shadow-md ring-4 ring-primary/20">
-                  <Navigation2 className="w-5 h-5 text-primary-foreground" />
+                <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-lg ring-[3px] ring-primary/25">
+                  <Navigation2 className="w-4 h-4 text-primary-foreground" />
                 </div>
-                <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rotate-45 -z-10" />
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 bg-primary rotate-45 -z-10" />
               </div>
-              <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-foreground whitespace-nowrap bg-card px-2 py-1 rounded-full shadow-sm">
+              <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-bold text-foreground whitespace-nowrap bg-card px-2 py-0.5 rounded-full shadow-sm border border-border/50">
                 Drop-off
               </span>
-            </div>
+            </motion.div>
 
-            {/* Car indicator */}
-            <div className="absolute left-[130px] top-[150px]">
+            {/* Moving car */}
+            <motion.div
+              initial={{ x: -20, y: 20 }}
+              animate={{ x: 0, y: 0 }}
+              transition={{ delay: 1.2, duration: 1, type: 'spring' }}
+              className="absolute left-[120px] top-[140px]"
+            >
               <div className="relative">
-                <div className="absolute inset-0 bg-primary/30 rounded-full animate-ping" />
-                <div className="w-9 h-9 bg-card rounded-full shadow-md flex items-center justify-center rotate-45">
-                  <svg className="w-5 h-5 text-foreground" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z" />
-                  </svg>
+                <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+                <div className="w-8 h-8 bg-card rounded-full shadow-md flex items-center justify-center border border-border/50">
+                  <span className="text-sm">🚗</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          {/* Bottom Ride Card */}
-          <div className="bg-card p-5 rounded-t-3xl -mt-6 relative z-10 shadow-lg">
-            <div className="w-12 h-1.5 bg-border rounded-full mx-auto mb-4" />
-            
-            <div className="space-y-2.5 mb-5">
-              <div className="flex items-center gap-3 p-3 bg-secondary rounded-2xl">
-                <div className="w-3 h-3 rounded-full bg-accent shadow-sm" />
-                <span className="text-sm text-foreground font-medium">Harare City</span>
+          {/* Bottom Card */}
+          <div className="bg-card p-4 rounded-t-2xl -mt-4 relative z-10 shadow-[0_-4px_20px_hsl(0_0%_0%/0.06)]">
+            <div className="w-10 h-1 bg-border rounded-full mx-auto mb-3" />
+
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center gap-2.5 p-2.5 bg-secondary/70 rounded-xl">
+                <div className="w-2.5 h-2.5 rounded-full bg-accent shadow-sm ring-2 ring-accent/20" />
+                <span className="text-xs text-foreground font-medium">CBD, Gwanda</span>
               </div>
-              <div className="flex items-center gap-3 p-3 bg-secondary rounded-2xl">
-                <div className="w-3 h-3 rounded-full bg-primary shadow-sm" />
-                <span className="text-sm text-foreground font-medium">Bulawayo City</span>
+              <div className="flex items-center gap-2.5 p-2.5 bg-secondary/70 rounded-xl">
+                <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-sm ring-2 ring-primary/20" />
+                <span className="text-xs text-foreground font-medium">Jahunda, Gwanda</span>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xl font-bold text-foreground">$5</p>
-                <p className="text-xs text-muted-foreground">2.1 km • 6 min</p>
+                <p className="text-lg font-bold text-foreground">$2.00</p>
+                <p className="text-[10px] text-muted-foreground">1.8 km • 4 min</p>
               </div>
-              <button className="px-6 py-3 bg-primary text-primary-foreground font-bold rounded-full text-sm shadow-sm hover:brightness-110 transition-all">
-                Request Ride
-              </button>
+              <div className="px-5 py-2.5 bg-primary text-primary-foreground font-bold rounded-full text-xs shadow-sm">
+                Request
+              </div>
             </div>
           </div>
         </div>
 
         {/* Home indicator */}
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-muted-foreground/40 rounded-full" />
+        <div className="absolute bottom-[6px] left-1/2 -translate-x-1/2 w-28 h-1 bg-muted-foreground/30 rounded-full" />
       </div>
     </div>
   );
