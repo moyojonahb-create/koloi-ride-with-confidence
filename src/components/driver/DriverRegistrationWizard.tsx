@@ -168,7 +168,6 @@ export default function DriverRegistrationWizard({ onSuccess, onClose }: DriverR
         vehicle_type: vehicle.vehicleType,
         vehicle_make: vehicle.vehicleMake,
         vehicle_model: vehicle.vehicleModel,
-        vehicle_color: vehicle.vehicleColor,
         vehicle_year: vehicle.vehicleYear,
         plate_number: vehicle.plateNumber,
         gender: personal.gender,
