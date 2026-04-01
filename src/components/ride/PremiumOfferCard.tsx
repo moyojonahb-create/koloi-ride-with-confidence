@@ -13,6 +13,7 @@ export interface PremiumOffer {
   ratingAvg: number;
   totalTrips: number;
   carModel: string;
+  carColor?: string | null;
   plateNumber: string;
   etaMinutes: number;
   fare: number;
