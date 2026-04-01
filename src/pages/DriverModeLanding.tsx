@@ -101,7 +101,7 @@ export default function DriverModeLanding() {
         {/* Bottom actions */}
         <div className="mt-8 space-y-3">
           <Button
-            onClick={handleDriverAction}
+            onClick={() => navigate('/driver/register')}
             className="w-full h-14 rounded-full text-lg font-semibold bg-primary text-primary-foreground hover:opacity-95 shadow-[0_8px_24px_hsl(var(--primary)/0.35)]"
           >
             Register
