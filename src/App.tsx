@@ -132,7 +132,7 @@ export default function App() {
 
           <Route path="/driver" element={<SuspenseWrap><DriverModeLanding /></SuspenseWrap>} />
           <Route path="/driver-mode" element={<Navigate to="/driver" replace />} />
-          <Route path="/driver/register" element={<SuspenseWrap><DriverRegistrationPage /></SuspenseWrap>} />
+          <Route path="/driver/register" element={<SuspenseWrap><AuthGuard><DriverRegistrationPage /></AuthGuard></SuspenseWrap>} />
           <Route path="/driver/application" element={<SuspenseWrap><DriverApplication /></SuspenseWrap>} />
           <Route path="/driver/dashboard" element={<SuspenseWrap><AuthGuard><DriverDashboard /></AuthGuard></SuspenseWrap>} />
           <Route path="/driver/deposit" element={<SuspenseWrap><AuthGuard><DriverDepositPage /></AuthGuard></SuspenseWrap>} />
