@@ -47,6 +47,13 @@ export type Database = {
             foreignKeyName: "admin_earnings_ride_id_fkey"
             columns: ["ride_id"]
             isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_earnings_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
             referencedRelation: "rides"
             referencedColumns: ["id"]
           },
@@ -88,6 +95,13 @@ export type Database = {
             foreignKeyName: "call_sessions_ride_id_fkey"
             columns: ["ride_id"]
             isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_sessions_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
             referencedRelation: "rides"
             referencedColumns: ["id"]
           },
@@ -122,6 +136,13 @@ export type Database = {
           waived?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "cancellation_fees_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "cancellation_fees_ride_id_fkey"
             columns: ["ride_id"]
@@ -217,6 +238,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "disputes_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "disputes_ride_id_fkey"
             columns: ["ride_id"]
@@ -352,6 +380,13 @@ export type Database = {
             foreignKeyName: "driver_queue_ride_id_fkey"
             columns: ["ride_id"]
             isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_queue_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
             referencedRelation: "rides"
             referencedColumns: ["id"]
           },
@@ -391,6 +426,13 @@ export type Database = {
             columns: ["driver_id"]
             isOneToOne: false
             referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_ratings_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "pending_rides_safe"
             referencedColumns: ["id"]
           },
           {
@@ -587,6 +629,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "emergency_alerts_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "emergency_alerts_ride_id_fkey"
             columns: ["ride_id"]
@@ -797,6 +846,13 @@ export type Database = {
             foreignKeyName: "messages_ride_id_fkey"
             columns: ["ride_id"]
             isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
             referencedRelation: "rides"
             referencedColumns: ["id"]
           },
@@ -870,6 +926,13 @@ export type Database = {
           status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "offers_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "offers_ride_id_fkey"
             columns: ["ride_id"]
@@ -956,6 +1019,13 @@ export type Database = {
           trip_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "platform_ledger_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: true
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "platform_ledger_trip_id_fkey"
             columns: ["trip_id"]
@@ -1140,6 +1210,13 @@ export type Database = {
             foreignKeyName: "promo_usage_ride_id_fkey"
             columns: ["ride_id"]
             isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promo_usage_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
             referencedRelation: "rides"
             referencedColumns: ["id"]
           },
@@ -1285,6 +1362,13 @@ export type Database = {
             foreignKeyName: "ride_preferences_ride_id_fkey"
             columns: ["ride_id"]
             isOneToOne: true
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ride_preferences_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: true
             referencedRelation: "rides"
             referencedColumns: ["id"]
           },
@@ -1358,6 +1442,13 @@ export type Database = {
           stop_order?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "ride_stops_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ride_stops_ride_id_fkey"
             columns: ["ride_id"]
@@ -1594,6 +1685,13 @@ export type Database = {
             foreignKeyName: "tips_ride_id_fkey"
             columns: ["ride_id"]
             isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tips_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
             referencedRelation: "rides"
             referencedColumns: ["id"]
           },
@@ -1685,6 +1783,13 @@ export type Database = {
           ride_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "trip_events_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "trip_events_ride_id_fkey"
             columns: ["ride_id"]
@@ -1781,6 +1886,13 @@ export type Database = {
             foreignKeyName: "wallet_transactions_ride_id_fkey"
             columns: ["ride_id"]
             isOneToOne: false
+            referencedRelation: "pending_rides_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_ride_id_fkey"
+            columns: ["ride_id"]
+            isOneToOne: false
             referencedRelation: "rides"
             referencedColumns: ["id"]
           },
@@ -1822,7 +1934,86 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      pending_rides_safe: {
+        Row: {
+          created_at: string | null
+          distance_km: number | null
+          driver_id: string | null
+          dropoff_address: string | null
+          dropoff_lat: number | null
+          dropoff_lon: number | null
+          duration_minutes: number | null
+          fare: number | null
+          gender_preference: string | null
+          id: string | null
+          passenger_count: number | null
+          payment_method: string | null
+          pickup_address: string | null
+          pickup_lat: number | null
+          pickup_lon: number | null
+          route_polyline: string | null
+          scheduled_at: string | null
+          status: string | null
+          town_id: string | null
+          user_id: string | null
+          vehicle_type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          distance_km?: number | null
+          driver_id?: string | null
+          dropoff_address?: string | null
+          dropoff_lat?: number | null
+          dropoff_lon?: number | null
+          duration_minutes?: number | null
+          fare?: number | null
+          gender_preference?: string | null
+          id?: string | null
+          passenger_count?: number | null
+          payment_method?: string | null
+          pickup_address?: string | null
+          pickup_lat?: number | null
+          pickup_lon?: number | null
+          route_polyline?: string | null
+          scheduled_at?: string | null
+          status?: string | null
+          town_id?: string | null
+          user_id?: string | null
+          vehicle_type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          distance_km?: number | null
+          driver_id?: string | null
+          dropoff_address?: string | null
+          dropoff_lat?: number | null
+          dropoff_lon?: number | null
+          duration_minutes?: number | null
+          fare?: number | null
+          gender_preference?: string | null
+          id?: string | null
+          passenger_count?: number | null
+          payment_method?: string | null
+          pickup_address?: string | null
+          pickup_lat?: number | null
+          pickup_lon?: number | null
+          route_polyline?: string | null
+          scheduled_at?: string | null
+          status?: string | null
+          town_id?: string | null
+          user_id?: string | null
+          vehicle_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rides_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       admin_approve_deposit: {
