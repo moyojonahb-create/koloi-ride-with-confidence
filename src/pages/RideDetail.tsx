@@ -206,6 +206,7 @@ export default function RideDetail() {
             ratingAvg: Number(d?.rating_avg ?? 0),
             totalTrips: Number(d?.total_trips ?? 0),
             carModel: d ? `${d.vehicle_make || ''} ${d.vehicle_model || ''}`.trim() || 'Vehicle' : 'Vehicle',
+            carColor: (d as any)?.vehicle_color ?? null,
             plateNumber: d?.plate_number || '—',
             etaMinutes: off.eta_minutes ?? 5,
             fare: off.price,

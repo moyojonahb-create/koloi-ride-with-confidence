@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, Clock, Car, Shield } from 'lucide-react';
+import { Star, Clock, Car, Shield, User } from 'lucide-react';
 import { PrimaryButton } from '@/components/ui/primary-button';
 import { SecondaryButton } from '@/components/ui/secondary-button';
 
@@ -13,6 +13,7 @@ export interface PremiumOffer {
   ratingAvg: number;
   totalTrips: number;
   carModel: string;
+  carColor?: string | null;
   plateNumber: string;
   etaMinutes: number;
   fare: number;
@@ -106,17 +107,34 @@ export default function PremiumOfferCard({ offer, riderFare, onAccept, onDecline
                 <Shield className="w-3.5 h-3.5 text-primary shrink-0" />
               )}
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 flex-wrap">
               <span className="flex items-center gap-0.5">
                 <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                 {offer.ratingAvg > 0 ? offer.ratingAvg.toFixed(1) : 'New'}
               </span>
               <span className="text-border">•</span>
               <span>{offer.totalTrips} rides</span>
-              <span className="text-border">•</span>
+              {offer.gender && (
+                <>
+                  <span className="text-border">•</span>
+                  <span className="flex items-center gap-0.5 capitalize">
+                    <User className="h-3 w-3" /> {offer.gender}
+                  </span>
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
               <span className="flex items-center gap-0.5">
                 <Car className="h-3 w-3" /> {offer.carModel}
               </span>
+              {offer.carColor && (
+                <>
+                  <span className="text-border">•</span>
+                  <span className="capitalize">{offer.carColor}</span>
+                </>
+              )}
+              <span className="text-border">•</span>
+              <span className="font-mono text-[11px] font-semibold text-foreground">{offer.plateNumber}</span>
             </div>
           </div>
         </div>

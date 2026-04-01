@@ -472,6 +472,7 @@ export type Database = {
           trial_ends_at: string | null
           updated_at: string
           user_id: string
+          vehicle_color: string | null
           vehicle_make: string | null
           vehicle_model: string | null
           vehicle_type: string
@@ -495,6 +496,7 @@ export type Database = {
           trial_ends_at?: string | null
           updated_at?: string
           user_id: string
+          vehicle_color?: string | null
           vehicle_make?: string | null
           vehicle_model?: string | null
           vehicle_type?: string
@@ -518,6 +520,7 @@ export type Database = {
           trial_ends_at?: string | null
           updated_at?: string
           user_id?: string
+          vehicle_color?: string | null
           vehicle_make?: string | null
           vehicle_model?: string | null
           vehicle_type?: string
