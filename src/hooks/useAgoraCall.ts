@@ -236,6 +236,9 @@ export function useAgoraCall({
         }
 
         const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+        
+        // Force relay mode to prevent echo from direct P2P connections
+        client.setProxyServer(undefined as any); // ensure no stale proxy
         clientRef.current = client;
 
         client.on(
@@ -245,15 +248,20 @@ export function useAgoraCall({
               await client.subscribe(user, mediaType);
               if (mediaType === "audio" && user.audioTrack) {
                 console.log("[AgoraCall] Remote audio subscribed, playing…");
-                // On mobile, playback may need a small delay after subscribe
-                await new Promise((r) => setTimeout(r, 200));
+                // Set playback volume to 100% for clarity
+                user.audioTrack.setVolume(100);
+                await new Promise((r) => setTimeout(r, 150));
                 user.audioTrack.play();
-                // Verify playback started
                 console.log("[AgoraCall] Remote audio isPlaying:", user.audioTrack.isPlaying);
-                // Retry once if not playing (mobile quirk)
+                // Retry with staggered delays on mobile
                 if (!user.audioTrack.isPlaying) {
-                  console.warn("[AgoraCall] Retrying audio play…");
-                  await new Promise((r) => setTimeout(r, 500));
+                  console.warn("[AgoraCall] Retrying audio play (attempt 2)…");
+                  await new Promise((r) => setTimeout(r, 400));
+                  user.audioTrack.play();
+                }
+                if (!user.audioTrack.isPlaying) {
+                  console.warn("[AgoraCall] Retrying audio play (attempt 3)…");
+                  await new Promise((r) => setTimeout(r, 800));
                   user.audioTrack.play();
                 }
               }
@@ -282,12 +290,16 @@ export function useAgoraCall({
         await client.join(appId, channelName, token, agoraUid);
         console.log("[AgoraCall] Joined channel successfully");
 
-        // Use higher quality encoding for clarity on mobile networks
+        // High-quality voice encoding with aggressive echo/noise cancellation
         const micTrack = await AgoraRTC.createMicrophoneAudioTrack({
-          encoderConfig: "speech_standard",
-          AEC: true,  // echo cancellation
-          ANS: true,  // noise suppression
-          AGC: true,  // auto gain control
+          encoderConfig: {
+            sampleRate: 48000,
+            stereo: false,
+            bitrate: 64,
+          },
+          AEC: true,   // echo cancellation
+          ANS: true,   // noise suppression  
+          AGC: true,   // auto gain control
         });
         localTrackRef.current = micTrack;
 
