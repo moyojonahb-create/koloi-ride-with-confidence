@@ -1255,6 +1255,27 @@ export type Database = {
         }
         Relationships: []
       }
+      request_throttle: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ride_demand_zones: {
         Row: {
           demand_score: number
@@ -1903,6 +1924,13 @@ export type Database = {
             referencedRelation: "wallets"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "wallets_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       wallets: {
@@ -2014,6 +2042,30 @@ export type Database = {
           },
         ]
       }
+      wallets_safe: {
+        Row: {
+          balance: number | null
+          created_at: string | null
+          id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string | null
+          id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string | null
+          id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_approve_deposit: {
@@ -2026,7 +2078,17 @@ export type Database = {
       }
       admin_set_fx_rate: { Args: { p_zar_per_usd: number }; Returns: Json }
       can_driver_operate: { Args: { p_driver_id: string }; Returns: boolean }
+      check_rate_limit: {
+        Args: {
+          p_action: string
+          p_max_requests?: number
+          p_user_id: string
+          p_window_seconds?: number
+        }
+        Returns: boolean
+      }
       cleanup_old_messages: { Args: never; Returns: number }
+      cleanup_throttle: { Args: never; Returns: undefined }
       complete_trip_and_charge_flat_r4: {
         Args: { p_trip_id: string }
         Returns: Json
