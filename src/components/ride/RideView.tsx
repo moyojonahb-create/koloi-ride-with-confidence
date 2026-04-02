@@ -605,9 +605,10 @@ export default function RideView() {
         <button onClick={() => setMenuOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full bg-muted active:scale-95 transition-all">
           <Menu className="w-5 h-5 text-primary" />
         </button>
+        <PickMeLogo size="sm" />
         <div className="flex items-center gap-2">
           <NotificationBell />
-          <button onClick={() => user ? navigate(location.pathname.startsWith('/mapp') ? '/mapp/profile' : '/profile') : setAuthModalOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full bg-card shadow-sm active:scale-95 transition-all">
+          <button onClick={() => user ? navigate(location.pathname.startsWith('/mapp') ? '/mapp/profile' : '/profile') : setAuthModalOpen(true)} className="w-10 h-10 flex items-center justify-center rounded-full bg-muted active:scale-95 transition-all">
             <User className="w-5 h-5 text-primary" />
           </button>
         </div>

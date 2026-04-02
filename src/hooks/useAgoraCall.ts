@@ -285,12 +285,16 @@ export function useAgoraCall({
         await client.join(appId, channelName, token, agoraUid);
         console.log("[AgoraCall] Joined channel successfully");
 
-        // Use higher quality encoding for clarity on mobile networks
+        // High-quality voice encoding with aggressive echo/noise cancellation
         const micTrack = await AgoraRTC.createMicrophoneAudioTrack({
-          encoderConfig: "speech_standard",
-          AEC: true,  // echo cancellation
-          ANS: true,  // noise suppression
-          AGC: true,  // auto gain control
+          encoderConfig: {
+            sampleRate: 48000,
+            stereo: false,
+            bitrate: 64,
+          },
+          AEC: true,   // echo cancellation
+          ANS: true,   // noise suppression  
+          AGC: true,   // auto gain control
         });
         localTrackRef.current = micTrack;
 
