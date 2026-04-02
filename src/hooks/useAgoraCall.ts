@@ -236,6 +236,9 @@ export function useAgoraCall({
         }
 
         const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+        
+        // Force relay mode to prevent echo from direct P2P connections
+        client.setProxyServer(undefined as any); // ensure no stale proxy
         clientRef.current = client;
 
         client.on(
