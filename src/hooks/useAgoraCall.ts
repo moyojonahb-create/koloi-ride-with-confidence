@@ -248,15 +248,20 @@ export function useAgoraCall({
               await client.subscribe(user, mediaType);
               if (mediaType === "audio" && user.audioTrack) {
                 console.log("[AgoraCall] Remote audio subscribed, playing…");
-                // On mobile, playback may need a small delay after subscribe
-                await new Promise((r) => setTimeout(r, 200));
+                // Set playback volume to 100% for clarity
+                user.audioTrack.setVolume(100);
+                await new Promise((r) => setTimeout(r, 150));
                 user.audioTrack.play();
-                // Verify playback started
                 console.log("[AgoraCall] Remote audio isPlaying:", user.audioTrack.isPlaying);
-                // Retry once if not playing (mobile quirk)
+                // Retry with staggered delays on mobile
                 if (!user.audioTrack.isPlaying) {
-                  console.warn("[AgoraCall] Retrying audio play…");
-                  await new Promise((r) => setTimeout(r, 500));
+                  console.warn("[AgoraCall] Retrying audio play (attempt 2)…");
+                  await new Promise((r) => setTimeout(r, 400));
+                  user.audioTrack.play();
+                }
+                if (!user.audioTrack.isPlaying) {
+                  console.warn("[AgoraCall] Retrying audio play (attempt 3)…");
+                  await new Promise((r) => setTimeout(r, 800));
                   user.audioTrack.play();
                 }
               }
