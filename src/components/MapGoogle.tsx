@@ -27,6 +27,8 @@ interface MapGoogleProps {
   defaultZoom?: number;
   /** ETA in minutes for the premium driver overlay */
   etaMinutes?: number;
+  /** Intermediate ride stops to show as numbered markers */
+  stops?: Array<{ id: string; address: string; lat: number; lng: number }>;
 }
 
 const ZW_CENTER: Coords = { lat: -19.015, lng: 29.155 };
