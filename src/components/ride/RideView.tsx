@@ -890,7 +890,9 @@ export default function RideView() {
           {pickupLocation && dropoffLocation && fareEstimate ? (() => {
             const extraPassengers = Math.max(passengerCount - 3, 0);
             const extraPassengerFee = extraPassengers * 0.5;
-            const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee;
+            const validStops = rideStops.filter(s => s.address && s.lat && s.lng);
+            const stopFee = validStops.length * 0.5;
+            const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee + stopFee;
             const sym = fareEstimate.currencySymbol;
             const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
             return (
