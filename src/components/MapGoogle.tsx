@@ -211,6 +211,8 @@ function InnerMapGoogle({
     if (pickup) pts.push(pickup);
     if (dropoff) pts.push(dropoff);
     if (driverLocation) pts.push(driverLocation);
+    // Include stop waypoints
+    if (stops?.length) stops.forEach((s) => { if (s.lat && s.lng) pts.push({ lat: s.lat, lng: s.lng }); });
     // Include every point along the route polyline so curved routes aren't cut off
     if (routePath.length > 1) routePath.forEach((p) => pts.push(p));
     if (secondaryPath.length > 1) secondaryPath.forEach((p) => pts.push(p));
