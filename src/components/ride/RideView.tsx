@@ -421,7 +421,7 @@ export default function RideView() {
     return (
       <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
         <div className="absolute inset-0">
-          <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" />
+          <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" stops={rideStops.filter(s => s.lat && s.lng)} />
         </div>
 
         {/* Top gradient */}
@@ -553,7 +553,7 @@ export default function RideView() {
     <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
       {/* ── MAP ── */}
       <div className="absolute inset-0">
-        <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" drivers={nearbyDrivers} />
+        <MapGoogle pickup={pickupLocation} dropoff={dropoffLocation} routeGeometry={routeData?.geometry} onMapClick={handleMapClick} defaultCenter={selectedTown.center} defaultZoom={14} className="w-full h-full" height="100%" drivers={nearbyDrivers} stops={rideStops.filter(s => s.lat && s.lng)} />
 
         {/* Floating map buttons */}
         <div className="absolute right-3 z-20" style={{ bottom: sheetExpanded ? 'calc(70vh + 16px)' : 'calc(48vh + 16px)', transition: 'bottom 0.3s cubic-bezier(0.32,0.72,0,1)' }}>
@@ -829,9 +829,11 @@ export default function RideView() {
             const activeTown = selectedTown.name;
             const extraPassengers = Math.max(passengerCount - 3, 0);
             const extraPassengerFee = extraPassengers * 0.5;
+            const validStops = rideStops.filter(s => s.address && s.lat && s.lng);
+            const stopFee = validStops.length * 0.5;
             const baseFare = townPricing.base_fare;
             const distanceFare = fareEstimate.fareR - baseFare;
-            const totalFare = baseFare + distanceFare + extraPassengerFee;
+            const totalFare = baseFare + distanceFare + extraPassengerFee + stopFee;
             const sym = fareEstimate.currencySymbol;
             const code = fareEstimate.currencyCode;
             const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
@@ -888,7 +890,9 @@ export default function RideView() {
           {pickupLocation && dropoffLocation && fareEstimate ? (() => {
             const extraPassengers = Math.max(passengerCount - 3, 0);
             const extraPassengerFee = extraPassengers * 0.5;
-            const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee;
+            const validStops = rideStops.filter(s => s.address && s.lat && s.lng);
+            const stopFee = validStops.length * 0.5;
+            const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee + stopFee;
             const sym = fareEstimate.currencySymbol;
             const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
             return (

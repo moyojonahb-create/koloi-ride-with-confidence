@@ -27,6 +27,8 @@ interface MapGoogleProps {
   defaultZoom?: number;
   /** ETA in minutes for the premium driver overlay */
   etaMinutes?: number;
+  /** Intermediate ride stops to show as numbered markers */
+  stops?: Array<{ id: string; address: string; lat: number; lng: number }>;
 }
 
 const ZW_CENTER: Coords = { lat: -19.015, lng: 29.155 };
@@ -167,7 +169,7 @@ function MapFailureCard({ error, className, height }: { error: Error; className?
 // ── Inner map component (only renders when API is loaded) ──
 function InnerMapGoogle({
   pickup, dropoff, driverLocation, routeGeometry, secondaryRouteGeometry, onMapClick,
-  className = '', height = '100%', drivers, defaultCenter, defaultZoom = 13, etaMinutes = 0,
+  className = '', height = '100%', drivers, defaultCenter, defaultZoom = 13, etaMinutes = 0, stops,
 }: MapGoogleProps) {
   const mapRef = useRef<google.maps.Map | null>(null);
   const [routePath, setRoutePath] = useState<Coords[]>([]);
@@ -209,6 +211,8 @@ function InnerMapGoogle({
     if (pickup) pts.push(pickup);
     if (dropoff) pts.push(dropoff);
     if (driverLocation) pts.push(driverLocation);
+    // Include stop waypoints
+    if (stops?.length) stops.forEach((s) => { if (s.lat && s.lng) pts.push({ lat: s.lat, lng: s.lng }); });
     // Include every point along the route polyline so curved routes aren't cut off
     if (routePath.length > 1) routePath.forEach((p) => pts.push(p));
     if (secondaryPath.length > 1) secondaryPath.forEach((p) => pts.push(p));
@@ -248,7 +252,19 @@ function InnerMapGoogle({
           <Marker position={dropoff} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#1B3FA0', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }} label={{ text: 'D', color: '#fff', fontWeight: 'bold', fontSize: '11px' }} zIndex={10} />
         )}
 
-        {/* Premium tracking overlay: replaces plain driver marker + gradient line */}
+        {/* Numbered stop waypoint markers */}
+        {stops?.map((stop, i) => (
+          stop.lat && stop.lng ? (
+            <Marker
+              key={stop.id}
+              position={{ lat: stop.lat, lng: stop.lng }}
+              icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#f59e0b', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }}
+              label={{ text: `${i + 1}`, color: '#000', fontWeight: 'bold', fontSize: '12px' }}
+              zIndex={9}
+            />
+          ) : null
+        ))}
+
         {driverLocation && pickup && mapRef.current && (
           <PremiumTrackingMap
             map={mapRef.current}
