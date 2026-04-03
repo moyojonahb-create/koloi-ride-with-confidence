@@ -477,38 +477,109 @@ export default function RideDetail() {
         )}
       </div>
 
-      {/* ── Bottom Panel — inDrive style ── */}
-      <div className="absolute bottom-0 left-0 right-0 z-50 bg-card shadow-[0_-8px_40px_rgba(0,0,0,0.12)]"
+      {/* ── Bottom Panel — Premium Redesign ── */}
+      <div className="absolute bottom-0 left-0 right-0 z-50 bg-card shadow-[0_-8px_40px_rgba(0,0,0,0.15)]"
         style={{ borderRadius: '28px 28px 0 0', paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
 
         {/* Handle */}
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="w-10 h-1 rounded-full bg-border" />
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1.5 rounded-full bg-border/60" />
         </div>
 
-        <div className="px-4 pb-3 space-y-2 max-h-[40vh] overflow-y-auto">
+        <div className="px-5 pb-4 space-y-3 max-h-[50vh] overflow-y-auto">
 
-          {/* Status + fare — single compact row */}
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${status.color} ${isSearching ? 'animate-pulse' : ''}`} />
-            <p className="text-xs font-semibold text-foreground flex-1 truncate">{status.label}</p>
-            {isSearching && (
-              <span className="text-xs text-muted-foreground rounded px-1 bg-destructive-foreground">{driversViewing} nearby</span>
-            )}
-            <span className="text-sm font-bold text-foreground">${Number(ride.fare ?? 0).toFixed(2)}</span>
+          {/* ── Status Banner ── */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className={`w-3.5 h-3.5 rounded-full ${status.color} ${isSearching ? 'animate-pulse' : ''}`} />
+                {isSearching && <div className={`absolute inset-0 rounded-full ${status.color} animate-ping opacity-40`} />}
+              </div>
+              <div>
+                <p className="text-base font-bold text-foreground">{status.label}</p>
+                {isSearching && (
+                  <p className="text-xs text-muted-foreground">We're matching you with the best driver</p>
+                )}
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-xl font-extrabold text-foreground">${Number(ride.fare ?? 0).toFixed(2)}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                {ride.payment_method === 'wallet' ? 'Wallet' : ride.payment_method === 'ecocash' ? 'EcoCash' : 'Cash'}
+              </p>
+            </div>
           </div>
 
-          {/* Route info — ultra compact */}
-          <div className="flex items-center gap-2 px-2 py-1.5 rounded-xl bg-muted/40">
-            <div className="flex flex-col items-center gap-0.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-              <div className="w-px h-3 bg-border" />
-              <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+          {/* ── Drivers Viewing — stylish live counter ── */}
+          {isSearching && driversViewing > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-primary/10 border border-primary/20"
+            >
+              <div className="relative flex items-center">
+                {/* Stacked avatar circles */}
+                {[...Array(Math.min(driversViewing, 3))].map((_, i) => (
+                  <div key={i} className="w-8 h-8 rounded-full bg-primary/20 border-2 border-card flex items-center justify-center -ml-2 first:ml-0" style={{ zIndex: 3 - i }}>
+                    <Car className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                ))}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-primary">
+                  {driversViewing} {driversViewing === 1 ? 'driver' : 'drivers'} viewing your request
+                </p>
+                <p className="text-[11px] text-muted-foreground">Expect offers shortly</p>
+              </div>
+              <div className="relative">
+                <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-green-500 animate-ping opacity-60" />
+              </div>
+            </motion.div>
+          )}
+
+          {isSearching && driversViewing === 0 && (
+            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-muted/50">
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                <Car className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground">Searching for nearby drivers…</p>
+                <div className="mt-1.5 h-1 rounded-full bg-muted overflow-hidden">
+                  <motion.div
+                    className="h-full bg-primary/40 rounded-full"
+                    animate={{ x: ['-100%', '100%'] }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+                    style={{ width: '40%' }}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-medium text-foreground truncate">{ride.pickup_address ?? "My location"}</p>
-              <p className="text-[11px] text-muted-foreground truncate">{ride.dropoff_address ?? "—"}</p>
+          )}
+
+          {/* ── Route Card ── */}
+          <div className="flex items-start gap-3 px-4 py-3 rounded-2xl bg-muted/40">
+            <div className="flex flex-col items-center gap-0.5 pt-1">
+              <div className="w-3 h-3 rounded-full border-2 border-primary bg-card" />
+              <div className="w-0.5 flex-1 bg-gradient-to-b from-primary/50 to-accent/50 min-h-[20px] rounded-full" />
+              <div className="w-3 h-3 rounded-full border-2 border-accent bg-card" />
             </div>
+            <div className="flex-1 min-w-0 space-y-2">
+              <div>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Pickup</p>
+                <p className="text-sm font-semibold text-foreground truncate">{ride.pickup_address ?? "My location"}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-accent-foreground uppercase tracking-widest">Dropoff</p>
+                <p className="text-sm font-semibold text-foreground truncate">{ride.dropoff_address ?? "—"}</p>
+              </div>
+            </div>
+            {ride.distance_km && (
+              <div className="text-right shrink-0">
+                <p className="text-lg font-extrabold text-foreground">{Number(ride.distance_km).toFixed(1)}</p>
+                <p className="text-[10px] text-muted-foreground font-semibold">KM</p>
+              </div>
+            )}
           </div>
 
           {/* Driver Arrived — big card */}
@@ -526,29 +597,61 @@ export default function RideDetail() {
                   <CheckCircle2 className="w-8 h-8" />
                 </motion.div>
                 <div className="flex-1">
-                  <p className="text-base font-bold">Your driver has arrived!</p>
+                  <p className="text-lg font-bold">Your driver has arrived!</p>
                   <p className="text-sm opacity-80">Meet {driverProfile.fullName} at the pickup point</p>
                 </div>
               </div>
               {driverProfile.plateNumber && (
-                <div className="mt-2 flex items-center gap-2 bg-primary-foreground/15 rounded-xl px-3 py-2">
-                  <Car className="w-4 h-4" />
-                  <span className="text-sm font-semibold">{driverProfile.vehicleMake} {driverProfile.vehicleModel} · {driverProfile.plateNumber}</span>
+                <div className="mt-3 flex items-center gap-2 bg-primary-foreground/15 rounded-xl px-3 py-2.5">
+                  <Car className="w-5 h-5" />
+                  <span className="text-sm font-bold">{driverProfile.vehicleMake} {driverProfile.vehicleModel} · {driverProfile.plateNumber}</span>
                 </div>
               )}
             </motion.div>
           )}
 
-          {/* Action buttons — compact row */}
+          {/* ── Driver Info Card (when accepted) ── */}
+          {driverProfile && !isDriverArrived && (
+            <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-muted/40">
+              {driverProfile.avatarUrl ? (
+                <img src={driverProfile.avatarUrl} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-primary/20" />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
+                  <span className="text-lg font-bold text-primary">{driverProfile.fullName.charAt(0)}</span>
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-base font-bold text-foreground truncate">{driverProfile.fullName}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+                  <span className="text-sm font-semibold text-foreground">{driverProfile.ratingAvg.toFixed(1)}</span>
+                  <span className="text-xs text-muted-foreground">· {driverProfile.totalTrips} trips</span>
+                </div>
+                {driverProfile.vehicleMake && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {driverProfile.vehicleMake} {driverProfile.vehicleModel} · {driverProfile.plateNumber}
+                  </p>
+                )}
+              </div>
+              {driverProfile.etaMinutes != null && (
+                <div className="text-center shrink-0">
+                  <p className="text-xl font-extrabold text-primary">{driverProfile.etaMinutes}</p>
+                  <p className="text-[10px] text-muted-foreground font-semibold">MIN</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Action buttons ── */}
           {driverProfile && (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <button onClick={startCall} disabled={callStatus !== "idle"}
-                className="flex-1 h-9 rounded-xl bg-primary text-primary-foreground font-semibold text-xs inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-all disabled:opacity-50">
-                <Phone className="w-3.5 h-3.5" /> Call
+                className="flex-1 h-11 rounded-2xl bg-primary text-primary-foreground font-bold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.97] transition-all disabled:opacity-50 shadow-[0_4px_12px_hsl(var(--primary)/0.25)]">
+                <Phone className="w-4 h-4" /> Call Driver
               </button>
               <button onClick={() => setChatOpen(v => !v)}
-                className="flex-1 h-9 rounded-xl bg-primary text-primary-foreground font-semibold text-xs inline-flex items-center justify-center gap-1.5 active:scale-[0.97] transition-all">
-                <MessageCircle className="w-3.5 h-3.5" /> Message
+                className="flex-1 h-11 rounded-2xl bg-muted text-foreground font-bold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.97] transition-all">
+                <MessageCircle className="w-4 h-4" /> Message
               </button>
               {rideId && ride.pickup_address && ride.dropoff_address && (
                 <ShareTripButton
@@ -558,17 +661,13 @@ export default function RideDetail() {
                   driverName={driverProfile.fullName}
                 />
               )}
-              <button onClick={() => setToast("Safety center coming soon")}
-                className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center active:scale-[0.97] transition-all">
-                <Shield className="w-4 h-4 text-muted-foreground" />
-              </button>
             </div>
           )}
 
           {/* Settlement for completed trips */}
           {isCompleted && <SettlementInfo tripId={ride.id} onSettled={() => setTimeout(() => nav('/app'), 2000)} />}
           {isCompleted && (
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-1">
               <TripReceiptButton data={{
                 rideId: ride.id,
                 pickupAddress: ride.pickup_address,
@@ -582,20 +681,27 @@ export default function RideDetail() {
             </div>
           )}
 
-          {/* View Offers button */}
+          {/* ── View Offers button — premium ── */}
           {!accepted && (
-            <button onClick={() => setShowOffersModal(true)}
-              className={`relative w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-base inline-flex items-center justify-center gap-0.5 active:scale-[0.98] transition-all shadow-[var(--shadow-md)] ${pendingOfferCount > 0 ? 'animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''}`}>
+            <motion.button
+              onClick={() => setShowOffersModal(true)}
+              whileTap={{ scale: 0.97 }}
+              className={`relative w-full h-14 rounded-2xl bg-primary text-primary-foreground font-bold text-lg inline-flex items-center justify-center gap-2 shadow-[0_6px_24px_hsl(var(--primary)/0.3)] transition-all ${pendingOfferCount > 0 ? 'animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]' : ''}`}>
+              <Car className="w-5 h-5" />
               View Offers
               {pendingOfferCount > 0 && (
-                <span key={pendingOfferCount} className="absolute -top-2 -right-2 min-w-5 h-5 px-1.5 rounded-full bg-destructive text-white text-xs font-bold flex items-center justify-center shadow-md animate-[bounce_0.5s_ease-in-out_3]">
+                <motion.span
+                  key={pendingOfferCount}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-2.5 -right-2.5 min-w-6 h-6 px-2 rounded-full bg-destructive text-white text-xs font-bold flex items-center justify-center shadow-lg border-2 border-card">
                   {pendingOfferCount}
-                </span>
+                </motion.span>
               )}
-            </button>
+            </motion.button>
           )}
 
-          {/* Cancel button */}
+          {/* ── Cancel Ride button — clearly visible ── */}
           {(isSearching || isActive) && (
             <button
               onClick={async () => {
@@ -604,42 +710,48 @@ export default function RideDetail() {
                 await supabase.from("rides").update({ status: "cancelled" }).eq("id", rideId);
                 nav("/ride");
               }}
-              className="w-full h-7 rounded-lg bg-destructive/10 text-destructive/70 font-medium text-[11px] inline-flex items-center justify-center active:scale-[0.98] transition-all">
+              className="w-full h-12 rounded-2xl border-2 border-destructive/30 bg-destructive/10 text-destructive font-bold text-sm inline-flex items-center justify-center gap-2 active:scale-[0.97] transition-all hover:bg-destructive/20">
+              <X className="w-4 h-4" />
               Cancel Ride
             </button>
           )}
 
           {/* Chat panel — inline expand */}
           {accepted && chatOpen && (
-            <div className="rounded-2xl border border-border bg-card p-3 space-y-3">
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="rounded-2xl border border-border bg-card p-4 space-y-3"
+            >
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-sm text-foreground">Messages</h3>
-                <button onClick={() => setChatOpen(false)} className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                  <X className="w-3.5 h-3.5 text-muted-foreground" />
+                <h3 className="font-bold text-base text-foreground">Messages</h3>
+                <button onClick={() => setChatOpen(false)} className="w-8 h-8 rounded-full bg-muted flex items-center justify-center active:scale-95 transition-all">
+                  <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
 
               {/* Quick replies */}
-              <div className="flex flex-wrap gap-1.5">
-                {["I'm here", "On my way", "Call me", "Okay"].map((q) => (
+              <div className="flex flex-wrap gap-2">
+                {["I'm here", "On my way", "Call me", "Okay 👍"].map((q) => (
                   <button key={q} onClick={() => sendQuickReply(q)}
-                    className="px-2.5 py-1.5 rounded-full text-xs font-medium bg-muted text-muted-foreground active:scale-95 transition-all">
+                    className="px-3 py-2 rounded-full text-xs font-semibold bg-muted text-foreground active:scale-95 transition-all hover:bg-muted/80">
                     {q}
                   </button>
                 ))}
               </div>
 
               {/* Messages list */}
-              <div className="h-40 overflow-y-auto space-y-2 bg-muted/30 rounded-xl p-2.5">
+              <div className="h-44 overflow-y-auto space-y-2 bg-muted/30 rounded-xl p-3">
                 {messages.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-6">No messages yet</p>
+                  <p className="text-sm text-muted-foreground text-center py-8">No messages yet</p>
                 ) : (
                   messages.map((m) => (
                     <div key={m.id} className={`flex ${m.sender_id === userId ? "justify-start" : "justify-end"}`}>
-                      <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${
+                      <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${
                         m.sender_id === userId
-                          ? "bg-blue-500 text-white rounded-bl-sm"
-                          : "bg-yellow-400 text-yellow-950 rounded-br-sm"
+                          ? "bg-primary text-primary-foreground rounded-bl-sm"
+                          : "bg-accent text-accent-foreground rounded-br-sm"
                       }`}>
                         <p className="text-sm">{m.text}</p>
                       </div>
@@ -653,13 +765,13 @@ export default function RideDetail() {
                 <input type="text" value={msgText} onChange={(e) => setMsgText(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                   placeholder="Type a message…"
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-muted border-0 outline-none focus:ring-2 focus:ring-primary/25 text-foreground text-sm" />
+                  className="flex-1 px-4 py-3 rounded-xl bg-muted border-0 outline-none focus:ring-2 focus:ring-primary/30 text-foreground text-sm" />
                 <button onClick={sendMessage} disabled={!msgText.trim()}
-                  className="w-11 h-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 active:scale-95 transition-all">
+                  className="w-12 h-12 rounded-xl bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 active:scale-95 transition-all shadow-md">
                   <Send className="w-4 h-4" />
                 </button>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
