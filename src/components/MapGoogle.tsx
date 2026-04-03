@@ -169,7 +169,7 @@ function MapFailureCard({ error, className, height }: { error: Error; className?
 // ── Inner map component (only renders when API is loaded) ──
 function InnerMapGoogle({
   pickup, dropoff, driverLocation, routeGeometry, secondaryRouteGeometry, onMapClick,
-  className = '', height = '100%', drivers, defaultCenter, defaultZoom = 13, etaMinutes = 0,
+  className = '', height = '100%', drivers, defaultCenter, defaultZoom = 13, etaMinutes = 0, stops,
 }: MapGoogleProps) {
   const mapRef = useRef<google.maps.Map | null>(null);
   const [routePath, setRoutePath] = useState<Coords[]>([]);
