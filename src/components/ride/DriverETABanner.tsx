@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
-import { Car, Navigation, Clock, CheckCircle2 } from "lucide-react";
+import { useEffect, useState, useRef, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Car, Navigation, Clock, CheckCircle2, Timer } from "lucide-react";
 
 interface DriverETABannerProps {
   driverLocation: { lat: number; lng: number };
@@ -29,11 +29,31 @@ export default function DriverETABanner({
 }: DriverETABannerProps) {
   const [, setTick] = useState(0);
   const prevEta = useRef<number>(0);
+  const [countdownSeconds, setCountdownSeconds] = useState<number>(0);
+  const lastEtaRef = useRef<number>(0);
 
-  // Re-render every 3 seconds for live countdown
+  // Re-render every second for live countdown
   useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 3000);
+    const interval = setInterval(() => setTick((t) => t + 1), 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Sync countdown when ETA changes
+  useEffect(() => {
+    const eta = isInProgress ? estimateMinutes(haversineKm(driverLocation.lat, driverLocation.lng, dropoffLat, dropoffLng))
+      : estimateMinutes(haversineKm(driverLocation.lat, driverLocation.lng, pickupLat, pickupLng));
+    if (Math.abs(eta - lastEtaRef.current) >= 1 || countdownSeconds <= 0) {
+      setCountdownSeconds(eta * 60);
+      lastEtaRef.current = eta;
+    }
+  }, [driverLocation.lat, driverLocation.lng]);
+
+  // Tick down every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdownSeconds(prev => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const isEnRoute = rideStatus === "accepted";
@@ -52,6 +72,13 @@ export default function DriverETABanner({
 
   // Is driver close? (under 2 min)
   const isClose = currentEta <= 2;
+
+  // Format countdown
+  const countdownDisplay = useMemo(() => {
+    const mins = Math.floor(countdownSeconds / 60);
+    const secs = countdownSeconds % 60;
+    return { mins, secs, formatted: `${mins}:${secs.toString().padStart(2, '0')}` };
+  }, [countdownSeconds]);
 
   const progressPercent = isInProgress
     ? Math.max(5, Math.min(95, (1 - distToDropoff / Math.max(distToDropoff + 1, 5)) * 100))
@@ -96,15 +123,18 @@ export default function DriverETABanner({
             </p>
           </div>
           <motion.div
-            key={etaToDropoff}
+            key={countdownDisplay.formatted}
             initial={etaChanged ? { scale: 1.4 } : false}
             animate={{ scale: 1 }}
             className="text-right"
           >
-            <p className={`text-2xl font-black font-display tabular-nums ${isClose ? "text-accent-foreground" : ""}`}>
-              {etaToDropoff}
-            </p>
-            <p className="text-[10px] font-semibold opacity-70 uppercase">min</p>
+            <div className="flex items-center gap-1 justify-end">
+              <Timer className="w-3 h-3 opacity-60" />
+              <p className={`text-2xl font-black font-display tabular-nums ${isClose ? "text-accent-foreground" : ""}`}>
+                {countdownDisplay.formatted}
+              </p>
+            </div>
+            <p className="text-[10px] font-semibold opacity-70 uppercase">min:sec</p>
           </motion.div>
         </div>
         <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
@@ -140,15 +170,18 @@ export default function DriverETABanner({
             <p className="text-xs opacity-80">{distToPickup.toFixed(1)} km away</p>
           </div>
           <motion.div
-            key={etaToPickup}
+            key={countdownDisplay.formatted}
             initial={etaChanged ? { scale: 1.4 } : false}
             animate={{ scale: 1 }}
             className="text-right"
           >
-            <p className={`text-2xl font-black font-display tabular-nums ${isClose ? "text-accent-foreground" : ""}`}>
-              {etaToPickup}
-            </p>
-            <p className="text-[10px] font-semibold opacity-70 uppercase">min</p>
+            <div className="flex items-center gap-1 justify-end">
+              <Timer className="w-3 h-3 opacity-60" />
+              <p className={`text-2xl font-black font-display tabular-nums ${isClose ? "text-accent-foreground" : ""}`}>
+                {countdownDisplay.formatted}
+              </p>
+            </div>
+            <p className="text-[10px] font-semibold opacity-70 uppercase">min:sec</p>
           </motion.div>
         </div>
         <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
