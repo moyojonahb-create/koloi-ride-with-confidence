@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { MapPin, Navigation, Clock, Route, DollarSign, Star, RotateCcw, BookmarkPlus, ChevronRight } from 'lucide-react';
+import { MapPin, Navigation, Clock, Route, DollarSign, Star, RotateCcw, BookmarkPlus, ChevronRight, MessageCircle, Share2 } from 'lucide-react';
 import { PrimaryButton } from '@/components/ui/primary-button';
 import { SecondaryButton } from '@/components/ui/secondary-button';
 
@@ -129,6 +129,28 @@ export default function RideCompleteSummary({
               <BookmarkPlus className="w-4 h-4" /> Save Place
             </SecondaryButton>
           )}
+        </div>
+
+        {/* Quick share row */}
+        <div className="flex gap-2">
+          <SecondaryButton
+            onClick={() => {
+              const msg = encodeURIComponent(`🚗 Just completed a Voyex ride!\nFrom: ${pickupAddress}\nTo: ${dropoffAddress}\nFare: $${fare.toFixed(2)}`);
+              window.open(`https://wa.me/?text=${msg}`, '_blank');
+            }}
+            className="flex-1 h-10 rounded-2xl gap-1.5 text-xs font-medium"
+          >
+            <MessageCircle className="w-3.5 h-3.5" /> Share on WhatsApp
+          </SecondaryButton>
+          <SecondaryButton
+            onClick={() => {
+              const msg = encodeURIComponent(`Voyex ride: $${fare.toFixed(2)} from ${pickupAddress} to ${dropoffAddress}`);
+              window.open(`sms:?body=${msg}`, '_self');
+            }}
+            className="h-10 rounded-2xl gap-1.5 text-xs font-medium px-4"
+          >
+            <Share2 className="w-3.5 h-3.5" /> SMS
+          </SecondaryButton>
         </div>
       </motion.div>
     </motion.div>
