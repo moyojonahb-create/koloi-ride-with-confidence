@@ -123,15 +123,18 @@ export default function DriverETABanner({
             </p>
           </div>
           <motion.div
-            key={etaToDropoff}
+            key={countdownDisplay.formatted}
             initial={etaChanged ? { scale: 1.4 } : false}
             animate={{ scale: 1 }}
             className="text-right"
           >
-            <p className={`text-2xl font-black font-display tabular-nums ${isClose ? "text-accent-foreground" : ""}`}>
-              {etaToDropoff}
-            </p>
-            <p className="text-[10px] font-semibold opacity-70 uppercase">min</p>
+            <div className="flex items-center gap-1 justify-end">
+              <Timer className="w-3 h-3 opacity-60" />
+              <p className={`text-2xl font-black font-display tabular-nums ${isClose ? "text-accent-foreground" : ""}`}>
+                {countdownDisplay.formatted}
+              </p>
+            </div>
+            <p className="text-[10px] font-semibold opacity-70 uppercase">min:sec</p>
           </motion.div>
         </div>
         <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
@@ -167,15 +170,18 @@ export default function DriverETABanner({
             <p className="text-xs opacity-80">{distToPickup.toFixed(1)} km away</p>
           </div>
           <motion.div
-            key={etaToPickup}
+            key={countdownDisplay.formatted}
             initial={etaChanged ? { scale: 1.4 } : false}
             animate={{ scale: 1 }}
             className="text-right"
           >
-            <p className={`text-2xl font-black font-display tabular-nums ${isClose ? "text-accent-foreground" : ""}`}>
-              {etaToPickup}
-            </p>
-            <p className="text-[10px] font-semibold opacity-70 uppercase">min</p>
+            <div className="flex items-center gap-1 justify-end">
+              <Timer className="w-3 h-3 opacity-60" />
+              <p className={`text-2xl font-black font-display tabular-nums ${isClose ? "text-accent-foreground" : ""}`}>
+                {countdownDisplay.formatted}
+              </p>
+            </div>
+            <p className="text-[10px] font-semibold opacity-70 uppercase">min:sec</p>
           </motion.div>
         </div>
         <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
