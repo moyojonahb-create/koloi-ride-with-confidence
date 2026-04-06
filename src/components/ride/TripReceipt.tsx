@@ -1,7 +1,8 @@
 import { format } from 'date-fns';
-import { Navigation, Clock, Car, CreditCard, CheckCircle2, Share2, Percent } from 'lucide-react';
+import { Navigation, Clock, Car, CreditCard, CheckCircle2, Share2, Percent, MessageCircle, Phone, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import SurgePricingBadge from './SurgePricingBadge';
 
 interface TripReceiptProps {
@@ -196,32 +197,143 @@ export default function TripReceipt({ ride, driverName, onRateDriver, hasRated, 
         </div>
       </motion.div>
 
+      {/* Fare Split */}
+      <FareSplitSection totalFare={totalFare} receiptId={receiptId} />
+
       {/* Actions */}
-      <motion.div variants={itemVariants} className="flex gap-3">
-        {onRateDriver && !hasRated && (
+      <motion.div variants={itemVariants} className="space-y-2">
+        <div className="flex gap-3">
+          {onRateDriver && !hasRated && (
+            <Button
+              onClick={onRateDriver}
+              className="flex-1 h-12 rounded-2xl font-bold"
+              variant="default"
+            >
+              Rate Driver ⭐
+            </Button>
+          )}
+        </div>
+
+        {/* Share via WhatsApp / SMS / Copy */}
+        <div className="grid grid-cols-3 gap-2">
           <Button
-            onClick={onRateDriver}
-            className="flex-1 h-12 rounded-2xl font-bold"
-            variant="default"
+            variant="outline"
+            className="h-11 rounded-2xl gap-1.5 text-xs font-semibold"
+            onClick={() => {
+              const msg = encodeURIComponent(`🧾 Voyex Receipt ${receiptId}\nFrom: ${ride.pickup_address}\nTo: ${ride.dropoff_address}\nTotal: $${Number(totalFare).toFixed(2)}\nDate: ${format(new Date(ride.created_at), 'MMM d, h:mm a')}`);
+              window.open(`https://wa.me/?text=${msg}`, '_blank');
+            }}
           >
-            Rate Driver ⭐
+            <MessageCircle className="w-4 h-4 text-green-600" />
+            WhatsApp
           </Button>
-        )}
+          <Button
+            variant="outline"
+            className="h-11 rounded-2xl gap-1.5 text-xs font-semibold"
+            onClick={() => {
+              const msg = encodeURIComponent(`Voyex Receipt ${receiptId}: $${Number(totalFare).toFixed(2)} from ${ride.pickup_address} to ${ride.dropoff_address}`);
+              window.open(`sms:?body=${msg}`, '_self');
+            }}
+          >
+            <Phone className="w-4 h-4 text-primary" />
+            SMS
+          </Button>
+          <Button
+            variant="outline"
+            className="h-11 rounded-2xl gap-1.5 text-xs font-semibold"
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: `Voyex Receipt ${receiptId}`,
+                  text: `Trip from ${ride.pickup_address} to ${ride.dropoff_address} — $${Number(totalFare).toFixed(2)}\nReceipt: ${receiptId}`,
+                });
+              }
+            }}
+          >
+            <Share2 className="w-4 h-4" />
+            Share
+          </Button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ── Fare Split Section ── */
+function FareSplitSection({ totalFare, receiptId }: { totalFare: number; receiptId: string }) {
+  const [splitCount, setSplitCount] = useState(1);
+  const [showSplit, setShowSplit] = useState(false);
+  const perPerson = totalFare / splitCount;
+
+  if (!showSplit) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+      >
         <Button
           variant="outline"
-          className="h-12 rounded-2xl px-4"
-          onClick={() => {
-            if (navigator.share) {
-              navigator.share({
-                title: `PickMe Receipt ${receiptId}`,
-                text: `Trip from ${ride.pickup_address} to ${ride.dropoff_address} — $${Number(totalFare).toFixed(2)}\nReceipt: ${receiptId}`,
-              });
-            }
-          }}
+          className="w-full h-11 rounded-2xl gap-2 text-sm font-semibold border-dashed"
+          onClick={() => setShowSplit(true)}
         >
-          <Share2 className="w-4 h-4" />
+          <Users className="w-4 h-4" />
+          Split Fare
         </Button>
       </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      className="bg-secondary/50 rounded-2xl p-4 space-y-3"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Users className="w-4 h-4 text-primary" />
+          <span className="text-sm font-bold text-foreground">Split Fare</span>
+        </div>
+        <button onClick={() => setShowSplit(false)} className="text-xs text-muted-foreground">Cancel</button>
+      </div>
+
+      <div className="flex items-center justify-center gap-4">
+        <button
+          onClick={() => setSplitCount(Math.max(1, splitCount - 1))}
+          className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-lg font-bold active:scale-90 transition-transform"
+        >
+          −
+        </button>
+        <div className="text-center">
+          <p className="text-3xl font-black text-primary tabular-nums">{splitCount}</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">people</p>
+        </div>
+        <button
+          onClick={() => setSplitCount(Math.min(6, splitCount + 1))}
+          className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-lg font-bold active:scale-90 transition-transform"
+        >
+          +
+        </button>
+      </div>
+
+      <div className="text-center pt-2 border-t border-border/30">
+        <p className="text-xs text-muted-foreground">Each person pays</p>
+        <p className="text-2xl font-black text-primary">${perPerson.toFixed(2)}</p>
+      </div>
+
+      {splitCount > 1 && (
+        <Button
+          variant="outline"
+          className="w-full h-10 rounded-xl gap-2 text-xs font-semibold"
+          onClick={() => {
+            const msg = encodeURIComponent(`💸 Fare Split Request!\nTrip: ${receiptId}\nTotal: $${totalFare.toFixed(2)}\nYour share: $${perPerson.toFixed(2)} (split ${splitCount} ways)\nPlease send your share via EcoCash or wallet.`);
+            window.open(`https://wa.me/?text=${msg}`, '_blank');
+          }}
+        >
+          <MessageCircle className="w-3.5 h-3.5 text-green-600" />
+          Send Split Request via WhatsApp
+        </Button>
+      )}
     </motion.div>
   );
 }
