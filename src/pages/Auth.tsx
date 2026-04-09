@@ -36,7 +36,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/app');
+      navigate('/ride', { replace: true });
     }
   }, [user, loading, navigate]);
 
@@ -51,7 +51,7 @@ const Auth = () => {
         setLoginError(error.message || 'Invalid credentials');
       } else {
         toast({ title: 'Welcome back!' });
-        navigate('/app');
+        navigate('/ride', { replace: true });
       }
     } finally {
       setIsSubmitting(false);
@@ -133,7 +133,7 @@ const Auth = () => {
       }
 
       toast({ title: 'Account created!', description: 'Welcome to PickMe.' });
-      navigate('/app');
+      navigate('/ride', { replace: true });
     } finally {
       setIsSubmitting(false);
     }
@@ -177,7 +177,7 @@ const Auth = () => {
           <button
             onClick={async () => {
               const result = await lovable.auth.signInWithOAuth("google", {
-                redirect_uri: window.location.origin + '/app',
+                redirect_uri: window.location.origin + '/ride',
               });
               if (result?.error) {
                 toast({ title: 'Google sign-in failed', variant: 'destructive' });

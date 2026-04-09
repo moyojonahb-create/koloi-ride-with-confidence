@@ -1,8 +1,11 @@
 import { ReactNode } from 'react';
 import { Loader2, ShieldX } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+
+const ADMIN_EMAIL = 'moyojonahb@gmail.com';
 
 interface AdminGuardProps {
   children: ReactNode;
@@ -10,8 +13,20 @@ interface AdminGuardProps {
 
 const AdminGuard = ({ children }: AdminGuardProps) => {
   const { isAdmin, isLoading, error } = useAdminAuth();
+  const { user, loading: authLoading } = useAuth();
 
-  if (!isLoading && (error || !isAdmin)) {
+  // Hard gate: only the designated admin email can ever access
+  const emailAllowed = user?.email?.toLowerCase() === ADMIN_EMAIL;
+
+  if (authLoading || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!emailAllowed || !isAdmin || error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <div className="text-center max-w-md">
@@ -20,10 +35,10 @@ const AdminGuard = ({ children }: AdminGuardProps) => {
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-2">Access Denied</h1>
           <p className="text-muted-foreground mb-6">
-            {error || 'You do not have permission to access the admin dashboard.'}
+            You do not have permission to access the admin dashboard.
           </p>
           <Button asChild>
-            <Link to="/">Return to Home</Link>
+            <Link to="/ride">Return to Home</Link>
           </Button>
         </div>
       </div>

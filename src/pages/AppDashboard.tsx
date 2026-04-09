@@ -8,11 +8,7 @@ const AppDashboard = () => {
 
   useEffect(() => {
     if (!loading) {
-      if (!user) {
-        navigate('/auth', { replace: true });
-      } else {
-        navigate('/ride', { replace: true });
-      }
+      navigate(user ? '/ride' : '/auth', { replace: true });
     }
   }, [user, loading, navigate]);
 

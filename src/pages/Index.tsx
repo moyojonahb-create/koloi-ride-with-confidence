@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/Header';
 import LandingHero from '@/components/LandingHero';
 import SuggestionsSection from '@/components/SuggestionsSection';
@@ -12,6 +14,15 @@ import RideHistorySheet from '@/components/RideHistorySheet';
 import InstallPromptBanner from '@/components/InstallPromptBanner';
 
 const Index = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // Auto-redirect logged-in users straight to rider screen
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/ride', { replace: true });
+    }
+  }, [user, loading, navigate]);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [favoritesOpen, setFavoritesOpen] = useState(false);
