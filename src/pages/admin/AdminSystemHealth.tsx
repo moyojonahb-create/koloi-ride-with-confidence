@@ -1,21 +1,24 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import AdminGuard from '@/components/admin/AdminGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   RefreshCw, AlertTriangle, CheckCircle2, Clock, Zap, Activity,
-  Database, Shield, Bug, TrendingDown, Server, Users, Gauge, Eye
+  Database, Shield, Bug, Server, Users, Gauge, Eye, Bot,
+  MapPin, Phone, Navigation, CreditCard, Smartphone, Volume2, Archive
 } from 'lucide-react';
 import { format, subHours, subDays } from 'date-fns';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, AreaChart, Area } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { toast } from 'sonner';
 
 interface HealthCheck {
   id: string;
-  category: 'error' | 'performance' | 'security' | 'database' | 'suggestion';
+  category: 'error' | 'performance' | 'security' | 'database' | 'suggestion' | 'ui' | 'map' | 'driver';
   severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
   title: string;
   description: string;
@@ -33,6 +36,20 @@ interface PerformanceMetric {
   threshold: { warn: number; critical: number };
 }
 
+interface ErrorLog {
+  id: string;
+  error_type: string;
+  severity: string;
+  title: string;
+  description: string;
+  suggestion: string | null;
+  affected_users: number;
+  context: string | null;
+  resolved: boolean;
+  period: string;
+  created_at: string;
+}
+
 const SEVERITY_COLORS: Record<string, string> = {
   critical: 'bg-red-500/10 text-red-600 border-red-500/20',
   high: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
@@ -47,6 +64,9 @@ const CATEGORY_ICONS: Record<string, typeof Bug> = {
   security: Shield,
   database: Database,
   suggestion: Zap,
+  ui: Smartphone,
+  map: MapPin,
+  driver: Navigation,
 };
 
 export default function AdminSystemHealth() {
@@ -55,8 +75,67 @@ export default function AdminSystemHealth() {
   const [lastScan, setLastScan] = useState<string | null>(null);
   const [checks, setChecks] = useState<HealthCheck[]>([]);
   const [metrics, setMetrics] = useState<PerformanceMetric[]>([]);
-  const [errorTimeline, setErrorTimeline] = useState<{ hour: string; errors: number; slowQueries: number }[]>([]);
+  const [errorTimeline, setErrorTimeline] = useState<{ hour: string; errors: number; completed: number }[]>([]);
   const [filter, setFilter] = useState<string>('all');
+  const [logTab, setLogTab] = useState<string>('today');
+  const [errorLogs, setErrorLogs] = useState<ErrorLog[]>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+
+  // Load persisted error logs
+  const loadErrorLogs = useCallback(async (period: string) => {
+    setLogsLoading(true);
+    try {
+      const { data } = await supabase
+        .from('system_error_logs')
+        .select('*')
+        .eq('period', period)
+        .order('created_at', { ascending: false })
+        .limit(100);
+      setErrorLogs((data as ErrorLog[]) || []);
+    } catch {
+      setErrorLogs([]);
+    } finally {
+      setLogsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadErrorLogs(logTab);
+  }, [logTab, loadErrorLogs]);
+
+  // Persist findings to DB
+  const persistFindings = useCallback(async (findings: HealthCheck[]) => {
+    const scanId = crypto.randomUUID();
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+
+    // Move old "today" entries to "week" if they're from previous days
+    await supabase
+      .from('system_error_logs')
+      .update({ period: 'week', updated_at: new Date().toISOString() } as Record<string, unknown>)
+      .eq('period', 'today')
+      .lt('created_at', todayStart.toISOString());
+
+    // Insert new findings
+    const rows = findings
+      .filter(f => f.severity !== 'info')
+      .map(f => ({
+        error_type: f.category,
+        severity: f.severity,
+        title: f.title,
+        description: f.description,
+        suggestion: f.suggestion,
+        affected_users: f.affectedUsers || 0,
+        context: f.context || null,
+        period: 'today',
+        scan_id: scanId,
+      }));
+
+    if (rows.length > 0) {
+      await supabase.from('system_error_logs').insert(rows);
+    }
+  }, []);
 
   const runSystemScan = useCallback(async () => {
     setScanning(true);
@@ -64,14 +143,15 @@ export default function AdminSystemHealth() {
     const now = new Date();
 
     try {
-      // 1. Check for orphaned rides (pending > 30 min)
+      // === CORE CHECKS ===
+
+      // 1. Stale pending rides
       const thirtyMinAgo = subHours(now, 0.5).toISOString();
-      const { data: staleRides, count: staleCount } = await supabase
+      const { count: staleCount } = await supabase
         .from('rides')
-        .select('id, created_at, status', { count: 'exact' })
+        .select('id', { count: 'exact', head: true })
         .eq('status', 'pending')
-        .lt('created_at', thirtyMinAgo)
-        .limit(5);
+        .lt('created_at', thirtyMinAgo);
 
       if (staleCount && staleCount > 0) {
         findings.push({
@@ -79,34 +159,35 @@ export default function AdminSystemHealth() {
           category: 'database',
           severity: staleCount > 10 ? 'high' : 'medium',
           title: `${staleCount} stale pending rides detected`,
-          description: `Rides stuck in "pending" status for over 30 minutes. This may indicate the expiry trigger is not firing correctly.`,
-          suggestion: 'Run expire_old_rides() function manually or check the ride expiry trigger. Consider increasing driver availability in affected areas.',
+          description: `Rides stuck in "pending" for 30+ min. Expiry trigger may not be firing.`,
+          suggestion: 'Run expire_old_rides() or check the ride expiry trigger.',
           timestamp: now.toISOString(),
           affectedUsers: staleCount,
+          context: 'Riders requesting rides → ride stays pending indefinitely',
         });
       }
 
-      // 2. Check driver wallet balances (low balance = can't operate)
-      const { data: lowBalanceDrivers, count: lowBalCount } = await supabase
+      // 2. Low wallet drivers
+      const { count: lowBalCount } = await supabase
         .from('driver_wallets')
-        .select('driver_id, balance_usd', { count: 'exact' })
-        .lt('balance_usd', 0.5)
-        .limit(5);
+        .select('driver_id', { count: 'exact', head: true })
+        .lt('balance_usd', 0.5);
 
       if (lowBalCount && lowBalCount > 0) {
         findings.push({
           id: 'low-balance-drivers',
-          category: 'suggestion',
+          category: 'driver',
           severity: lowBalCount > 5 ? 'high' : 'low',
           title: `${lowBalCount} drivers with insufficient balance`,
-          description: `Drivers with balance below $0.50 cannot accept rides after trial. This reduces driver supply.`,
-          suggestion: 'Consider sending push notifications to these drivers reminding them to deposit. Or review if the minimum balance threshold is appropriate.',
+          description: `Drivers below $0.50 can't accept rides after trial ends.`,
+          suggestion: 'Send deposit reminders or review minimum balance threshold.',
           timestamp: now.toISOString(),
           affectedUsers: lowBalCount,
+          context: 'Driver tries to go online → blocked by low balance',
         });
       }
 
-      // 3. Check for unresolved emergency alerts
+      // 3. Unresolved SOS
       const { count: unresolvedAlerts } = await supabase
         .from('emergency_alerts')
         .select('id', { count: 'exact', head: true })
@@ -117,15 +198,16 @@ export default function AdminSystemHealth() {
           id: 'unresolved-sos',
           category: 'security',
           severity: 'critical',
-          title: `${unresolvedAlerts} unresolved SOS alerts!`,
-          description: `Emergency alerts that have not been addressed. User safety is at risk.`,
-          suggestion: 'Immediately review all emergency alerts. Contact affected users and local authorities if needed.',
+          title: `🆘 ${unresolvedAlerts} unresolved SOS alerts!`,
+          description: `Emergency alerts not addressed. User safety at risk.`,
+          suggestion: 'IMMEDIATELY review all emergency alerts and contact affected users.',
           timestamp: now.toISOString(),
           affectedUsers: unresolvedAlerts,
+          context: 'User pressed SOS button during ride',
         });
       }
 
-      // 4. Check for open disputes > 24h
+      // 4. Old disputes
       const oneDayAgo = subDays(now, 1).toISOString();
       const { count: oldDisputes } = await supabase
         .from('disputes')
@@ -138,15 +220,16 @@ export default function AdminSystemHealth() {
           id: 'old-disputes',
           category: 'suggestion',
           severity: 'medium',
-          title: `${oldDisputes} disputes open for 24+ hours`,
-          description: `Users are waiting for resolution. Long response times hurt trust and retention.`,
-          suggestion: 'Prioritize resolving old disputes. Consider setting up auto-escalation for disputes older than 12 hours.',
+          title: `${oldDisputes} disputes open 24+ hours`,
+          description: `Users waiting for resolution. Slow response hurts trust.`,
+          suggestion: 'Prioritize dispute resolution. Set up auto-escalation for 12h+ disputes.',
           timestamp: now.toISOString(),
           affectedUsers: oldDisputes,
+          context: 'Rider/driver filed dispute → no admin response',
         });
       }
 
-      // 5. Check for fraud flags
+      // 5. Fraud flags
       const { count: unresolvedFraud } = await supabase
         .from('fraud_flags')
         .select('id', { count: 'exact', head: true })
@@ -158,13 +241,14 @@ export default function AdminSystemHealth() {
           category: 'security',
           severity: unresolvedFraud > 3 ? 'high' : 'medium',
           title: `${unresolvedFraud} unresolved fraud flags`,
-          description: `Potential fraudulent activity detected but not yet reviewed.`,
-          suggestion: 'Review fraud flags in the admin panel. Check for GPS spoofing patterns and suspicious ride patterns.',
+          description: `Potential fraudulent activity not yet reviewed.`,
+          suggestion: 'Review fraud flags for GPS spoofing and suspicious ride patterns.',
           timestamp: now.toISOString(),
+          context: 'System auto-detected suspicious activity',
         });
       }
 
-      // 6. Check pending driver approvals (bottleneck)
+      // 6. Pending driver approvals
       const { count: pendingDrivers } = await supabase
         .from('drivers')
         .select('id', { count: 'exact', head: true })
@@ -173,16 +257,17 @@ export default function AdminSystemHealth() {
       if (pendingDrivers && pendingDrivers > 3) {
         findings.push({
           id: 'pending-drivers',
-          category: 'suggestion',
+          category: 'driver',
           severity: pendingDrivers > 10 ? 'high' : 'low',
           title: `${pendingDrivers} drivers waiting for approval`,
-          description: `New driver applications are queued. Slow approvals reduce driver supply and platform growth.`,
-          suggestion: 'Review pending driver applications. Consider batch approval for drivers with complete documentation.',
+          description: `Slow approvals reduce driver supply and platform growth.`,
+          suggestion: 'Batch approve drivers with complete documentation.',
           timestamp: now.toISOString(),
+          context: 'New driver registered → waiting for admin approval',
         });
       }
 
-      // 7. Check ride cancellation rate (last 24h)
+      // 7. High cancellation rate
       const { count: totalRides24h } = await supabase
         .from('rides')
         .select('id', { count: 'exact', head: true })
@@ -202,15 +287,16 @@ export default function AdminSystemHealth() {
             category: 'performance',
             severity: cancelRate > 50 ? 'critical' : 'high',
             title: `${cancelRate.toFixed(0)}% cancellation rate (24h)`,
-            description: `${cancelledRides24h} of ${totalRides24h} rides were cancelled. This is abnormally high.`,
-            suggestion: 'Investigate reasons for cancellations. Check if pricing is competitive, driver ETAs are reasonable, and the matching algorithm is efficient.',
+            description: `${cancelledRides24h}/${totalRides24h} rides cancelled. Abnormally high.`,
+            suggestion: 'Investigate pricing, driver ETAs, and matching algorithm efficiency.',
             timestamp: now.toISOString(),
             affectedUsers: cancelledRides24h,
+            context: 'Riders/drivers cancelling rides at high rate',
           });
         }
       }
 
-      // 8. Check for rides without offers (no driver response)
+      // 8. Rides with zero offers
       const twoHoursAgo = subHours(now, 2).toISOString();
       const { data: noOfferRides } = await supabase
         .from('rides')
@@ -220,7 +306,6 @@ export default function AdminSystemHealth() {
         .limit(100);
 
       if (noOfferRides && noOfferRides.length > 0) {
-        // Check which had zero offers
         const rideIds = noOfferRides.map(r => r.id);
         const { data: offersForRides } = await supabase
           .from('offers')
@@ -228,23 +313,24 @@ export default function AdminSystemHealth() {
           .in('ride_id', rideIds);
 
         const ridesWithOffers = new Set(offersForRides?.map(o => o.ride_id) || []);
-        const ridesWithoutOffers = rideIds.filter(id => !ridesWithOffers.has(id));
+        const zeroOfferCount = rideIds.filter(id => !ridesWithOffers.has(id)).length;
 
-        if (ridesWithoutOffers.length > 3) {
+        if (zeroOfferCount > 3) {
           findings.push({
             id: 'no-driver-response',
             category: 'performance',
-            severity: ridesWithoutOffers.length > 10 ? 'high' : 'medium',
-            title: `${ridesWithoutOffers.length} rides with zero driver offers (2h)`,
-            description: `Riders requested rides but no drivers responded. This indicates supply-demand imbalance.`,
-            suggestion: 'Check if enough drivers are online. Consider expanding service area or adjusting pricing to attract more drivers.',
+            severity: zeroOfferCount > 10 ? 'high' : 'medium',
+            title: `${zeroOfferCount} rides with zero driver offers (2h)`,
+            description: `Riders requested rides but no drivers responded. Supply-demand imbalance.`,
+            suggestion: 'Check online driver count. Expand service area or adjust pricing.',
             timestamp: now.toISOString(),
-            affectedUsers: ridesWithoutOffers.length,
+            affectedUsers: zeroOfferCount,
+            context: 'Rider opens app → requests ride → no driver responds → ride expires',
           });
         }
       }
 
-      // 9. Database health - check for large tables without recent cleanup
+      // 9. Old messages cleanup
       const { count: oldMessages } = await supabase
         .from('messages')
         .select('id', { count: 'exact', head: true })
@@ -256,13 +342,13 @@ export default function AdminSystemHealth() {
           category: 'database',
           severity: 'low',
           title: `${oldMessages} old messages need cleanup`,
-          description: `Chat messages older than 7 days are accumulating. This slows down queries and increases storage costs.`,
-          suggestion: 'Run cleanup_old_messages() or set up a scheduled cron job to purge old messages automatically.',
+          description: `Chat messages 7+ days old slowing queries and increasing storage.`,
+          suggestion: 'Run cleanup_old_messages() or set up a cron job.',
           timestamp: now.toISOString(),
         });
       }
 
-      // 10. Check online drivers with stale locations (> 5 min)
+      // 10. Stale GPS for online drivers
       const fiveMinAgo = subHours(now, 5 / 60).toISOString();
       const { data: onlineDrivers } = await supabase
         .from('drivers')
@@ -285,31 +371,163 @@ export default function AdminSystemHealth() {
         if (staleDrivers.length > 0) {
           findings.push({
             id: 'stale-driver-locations',
-            category: 'performance',
+            category: 'map',
             severity: 'medium',
             title: `${staleDrivers.length} online drivers with stale GPS`,
-            description: `These drivers show as online but haven't sent location updates recently. They may have poor connectivity or app issues.`,
-            suggestion: 'Consider auto-setting these drivers offline after 5 minutes of no GPS updates to improve rider experience.',
+            description: `Drivers show online but no GPS updates for 5+ min. Poor connectivity or app crash.`,
+            suggestion: 'Auto-set offline after 5 min of no GPS. Check driver app stability.',
             timestamp: now.toISOString(),
             affectedUsers: staleDrivers.length,
+            context: 'Driver app → GPS stops sending → rider sees ghost driver on map',
           });
         }
       }
 
-      // If no issues found
+      // === NEW: UI / MAP / DRIVER-SPECIFIC CHECKS ===
+
+      // 11. Check for rides where map data might have failed (no route_polyline)
+      const { count: noRouteRides } = await supabase
+        .from('rides')
+        .select('id', { count: 'exact', head: true })
+        .is('route_polyline', null)
+        .gte('created_at', oneDayAgo)
+        .in('status', ['pending', 'accepted', 'in_progress', 'completed']);
+
+      if (noRouteRides && noRouteRides > 5) {
+        findings.push({
+          id: 'map-route-failures',
+          category: 'map',
+          severity: noRouteRides > 20 ? 'critical' : 'high',
+          title: `🗺️ ${noRouteRides} rides missing route data`,
+          description: `Maps failed to generate route polyline. Users may see blank maps or no route display.`,
+          suggestion: 'Check Google Maps API key quota and billing. Verify OSRM fallback is working. Review network connectivity.',
+          timestamp: now.toISOString(),
+          affectedUsers: noRouteRides,
+          context: 'Rider requests ride → map tries to load route → API fails → no route shown',
+        });
+      }
+
+      // 12. Check for call session failures
+      const { data: recentCalls } = await supabase
+        .from('call_sessions')
+        .select('id, status, started_at, ended_at')
+        .gte('created_at', oneDayAgo)
+        .limit(100);
+
+      if (recentCalls) {
+        const failedCalls = recentCalls.filter(c => c.status === 'failed' || (!c.started_at && c.ended_at));
+        if (failedCalls.length > 2) {
+          findings.push({
+            id: 'call-failures',
+            category: 'ui',
+            severity: failedCalls.length > 10 ? 'critical' : 'high',
+            title: `📞 ${failedCalls.length} failed calls today`,
+            description: `Voice calls between riders and drivers are failing. Communication breakdown.`,
+            suggestion: 'Check Agora token generation. Verify AGORA_APP_ID and AGORA_APP_CERT secrets. Test WebRTC connectivity.',
+            timestamp: now.toISOString(),
+            affectedUsers: failedCalls.length * 2,
+            context: 'Rider/driver taps call button → call fails to connect or drops immediately',
+          });
+        }
+      }
+
+      // 13. Check for rides that got stuck in "accepted" too long (driver not moving)
+      const { count: stuckAccepted } = await supabase
+        .from('rides')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'accepted')
+        .lt('updated_at', subHours(now, 1).toISOString());
+
+      if (stuckAccepted && stuckAccepted > 0) {
+        findings.push({
+          id: 'stuck-accepted-rides',
+          category: 'driver',
+          severity: stuckAccepted > 5 ? 'critical' : 'high',
+          title: `🚗 ${stuckAccepted} rides stuck in "accepted" 1+ hour`,
+          description: `Driver accepted but ride never progressed. Driver may have app issues or abandoned ride.`,
+          suggestion: 'Force-cancel these rides and notify riders. Check if driver app navigation is working.',
+          timestamp: now.toISOString(),
+          affectedUsers: stuckAccepted * 2,
+          context: 'Driver accepts ride → never starts driving → rider waiting indefinitely',
+        });
+      }
+
+      // 14. Check for deposit requests pending > 2 hours
+      const { count: pendingDeposits } = await supabase
+        .from('deposit_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending')
+        .lt('created_at', subHours(now, 2).toISOString());
+
+      if (pendingDeposits && pendingDeposits > 0) {
+        findings.push({
+          id: 'pending-deposits',
+          category: 'ui',
+          severity: pendingDeposits > 5 ? 'high' : 'medium',
+          title: `💳 ${pendingDeposits} driver deposits pending 2+ hours`,
+          description: `Drivers deposited money but admin hasn't approved. Drivers can't operate.`,
+          suggestion: 'Approve pending deposits in the Admin Deposits page.',
+          timestamp: now.toISOString(),
+          affectedUsers: pendingDeposits,
+          context: 'Driver deposits via EcoCash → waits for approval → can\'t accept rides',
+        });
+      }
+
+      // 15. Check rider deposit requests pending
+      const { count: riderPendingDeposits } = await supabase
+        .from('rider_deposit_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending')
+        .lt('created_at', subHours(now, 2).toISOString());
+
+      if (riderPendingDeposits && riderPendingDeposits > 0) {
+        findings.push({
+          id: 'rider-pending-deposits',
+          category: 'ui',
+          severity: riderPendingDeposits > 5 ? 'high' : 'medium',
+          title: `💰 ${riderPendingDeposits} rider deposits pending 2+ hours`,
+          description: `Riders deposited but admin hasn't approved. Riders can't pay for rides.`,
+          suggestion: 'Approve pending rider deposits in Admin Rider Deposits page.',
+          timestamp: now.toISOString(),
+          affectedUsers: riderPendingDeposits,
+          context: 'Rider deposits wallet funds → waits for approval → can\'t book ride',
+        });
+      }
+
+      // 16. Check for pending documents (driver verification bottleneck)
+      const { count: pendingDocs } = await supabase
+        .from('driver_documents')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      if (pendingDocs && pendingDocs > 5) {
+        findings.push({
+          id: 'pending-documents',
+          category: 'driver',
+          severity: pendingDocs > 20 ? 'high' : 'medium',
+          title: `📄 ${pendingDocs} driver documents awaiting review`,
+          description: `Document verification backlog. Drivers can't get approved without document review.`,
+          suggestion: 'Use batch approval in Driver management. Review documents promptly to grow driver fleet.',
+          timestamp: now.toISOString(),
+          affectedUsers: pendingDocs,
+          context: 'Driver uploads documents → waits for review → can\'t start driving',
+        });
+      }
+
+      // All clear
       if (findings.length === 0) {
         findings.push({
           id: 'all-clear',
           category: 'suggestion',
           severity: 'info',
-          title: '✅ All systems healthy',
+          title: '✅ All systems healthy — Ramz One found no issues',
           description: 'No critical issues detected during this scan.',
-          suggestion: 'Continue monitoring. The next scan will check for new issues.',
+          suggestion: 'Continue monitoring. Next scan will check for new issues.',
           timestamp: now.toISOString(),
         });
       }
 
-      // Build performance metrics
+      // Build metrics
       const perfMetrics: PerformanceMetric[] = [
         {
           label: 'Online Drivers',
@@ -319,7 +537,7 @@ export default function AdminSystemHealth() {
           threshold: { warn: 3, critical: 1 },
         },
         {
-          label: 'Cancellation Rate',
+          label: 'Cancel Rate',
           value: totalRides24h && cancelledRides24h ? Math.round((cancelledRides24h / totalRides24h) * 100) : 0,
           unit: '%',
           status: totalRides24h && cancelledRides24h
@@ -336,70 +554,70 @@ export default function AdminSystemHealth() {
         },
         {
           label: 'Open Disputes',
-          value: (oldDisputes || 0),
+          value: oldDisputes || 0,
           unit: 'disputes',
           status: (oldDisputes || 0) > 5 ? 'critical' : (oldDisputes || 0) > 0 ? 'warn' : 'good',
           threshold: { warn: 1, critical: 5 },
         },
       ];
 
-      // Build error timeline (hourly ride activity)
-      const timeline: { hour: string; errors: number; slowQueries: number }[] = [];
+      // Build 24h timeline
+      const timeline: { hour: string; errors: number; completed: number }[] = [];
       for (let i = 23; i >= 0; i--) {
         const hourStart = subHours(now, i + 1);
         const hourEnd = subHours(now, i);
-        const { count: cancelledInHour } = await supabase
-          .from('rides')
-          .select('id', { count: 'exact', head: true })
-          .in('status', ['cancelled', 'expired'])
-          .gte('created_at', hourStart.toISOString())
-          .lt('created_at', hourEnd.toISOString());
-
-        const { count: completedInHour } = await supabase
-          .from('rides')
-          .select('id', { count: 'exact', head: true })
-          .eq('status', 'completed')
-          .gte('created_at', hourStart.toISOString())
-          .lt('created_at', hourEnd.toISOString());
-
-        timeline.push({
-          hour: format(hourEnd, 'HH:mm'),
-          errors: cancelledInHour || 0,
-          slowQueries: completedInHour || 0,
-        });
+        const [{ count: cancelledH }, { count: completedH }] = await Promise.all([
+          supabase.from('rides').select('id', { count: 'exact', head: true })
+            .in('status', ['cancelled', 'expired']).gte('created_at', hourStart.toISOString()).lt('created_at', hourEnd.toISOString()),
+          supabase.from('rides').select('id', { count: 'exact', head: true })
+            .eq('status', 'completed').gte('created_at', hourStart.toISOString()).lt('created_at', hourEnd.toISOString()),
+        ]);
+        timeline.push({ hour: format(hourEnd, 'HH:mm'), errors: cancelledH || 0, completed: completedH || 0 });
       }
 
-      setChecks(findings.sort((a, b) => {
+      // Sort by severity
+      findings.sort((a, b) => {
         const order = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
         return (order[a.severity] ?? 4) - (order[b.severity] ?? 4);
-      }));
+      });
+
+      setChecks(findings);
       setMetrics(perfMetrics);
       setErrorTimeline(timeline);
       setLastScan(now.toISOString());
 
+      // Persist to DB
+      await persistFindings(findings);
+      await loadErrorLogs(logTab);
+
+      // Alert for critical issues
+      const criticals = findings.filter(f => f.severity === 'critical');
+      if (criticals.length > 0) {
+        toast.error(`🤖 Ramz One: ${criticals.length} CRITICAL issue${criticals.length > 1 ? 's' : ''} found!`, {
+          description: criticals[0].title,
+          duration: 15000,
+        });
+        if (navigator.vibrate) navigator.vibrate([300, 100, 300, 100, 300]);
+      }
+
     } catch (err) {
-      console.error('System scan failed:', err);
+      console.error('Ramz One scan failed:', err);
       setChecks([{
-        id: 'scan-error',
-        category: 'error',
-        severity: 'critical',
-        title: 'System scan failed',
-        description: `The health check could not complete: ${(err as Error).message}`,
-        suggestion: 'Check database connectivity and RLS policies. Ensure admin role is properly configured.',
+        id: 'scan-error', category: 'error', severity: 'critical',
+        title: 'Ramz One scan failed',
+        description: `Health check could not complete: ${(err as Error).message}`,
+        suggestion: 'Check database connectivity and admin role configuration.',
         timestamp: now.toISOString(),
       }]);
     } finally {
       setScanning(false);
       setLoading(false);
     }
-  }, []);
+  }, [persistFindings, loadErrorLogs, logTab]);
 
-  useEffect(() => {
-    runSystemScan();
-  }, [runSystemScan]);
+  useEffect(() => { runSystemScan(); }, [runSystemScan]);
 
   const filteredChecks = filter === 'all' ? checks : checks.filter(c => c.category === filter);
-
   const criticalCount = checks.filter(c => c.severity === 'critical').length;
   const highCount = checks.filter(c => c.severity === 'high').length;
   const totalIssues = checks.filter(c => c.severity !== 'info').length;
@@ -407,33 +625,50 @@ export default function AdminSystemHealth() {
   const STATUS_COLORS = { good: 'text-emerald-600', warn: 'text-amber-600', critical: 'text-red-600' };
   const STATUS_BG = { good: 'bg-emerald-500/10', warn: 'bg-amber-500/10', critical: 'bg-red-500/10' };
 
+  const categories = ['all', 'error', 'map', 'ui', 'driver', 'performance', 'security', 'database', 'suggestion'];
+
+  const resolveLog = async (logId: string) => {
+    await supabase.from('system_error_logs').update({
+      resolved: true, resolved_at: new Date().toISOString(),
+    } as Record<string, unknown>).eq('id', logId);
+    toast.success('Issue marked as resolved');
+    loadErrorLogs(logTab);
+  };
+
   return (
     <AdminGuard>
       <AdminLayout>
         <div className="space-y-6">
-          {/* Header */}
+          {/* Ramz One Header */}
           <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
-                <Activity className="w-6 h-6 text-primary" />
-                System Health Agent
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Automated monitoring • {lastScan ? `Last scan: ${format(new Date(lastScan), 'HH:mm:ss')}` : 'No scan yet'}
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
+                <Bot className="w-7 h-7 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
+                  Ramz One
+                  <Badge variant="outline" className="text-[10px] font-mono bg-primary/10 text-primary border-primary/20">
+                    AGENT
+                  </Badge>
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  System Watchdog • {lastScan ? `Last scan: ${format(new Date(lastScan), 'HH:mm:ss')}` : 'Initializing…'}
+                </p>
+              </div>
             </div>
-            <Button onClick={runSystemScan} disabled={scanning} className="font-bold">
-              <RefreshCw className={`w-4 h-4 mr-2 ${scanning ? 'animate-spin' : ''}`} />
-              {scanning ? 'Scanning…' : 'Run Scan'}
+            <Button onClick={runSystemScan} disabled={scanning} className="font-bold gap-2">
+              <RefreshCw className={`w-4 h-4 ${scanning ? 'animate-spin' : ''}`} />
+              {scanning ? 'Scanning…' : 'Run Full Scan'}
             </Button>
           </div>
 
-          {/* Overall Status Banner */}
+          {/* Status Banner */}
           <Card className={criticalCount > 0 ? 'border-red-500/30 bg-red-500/5' : highCount > 0 ? 'border-amber-500/30 bg-amber-500/5' : 'border-emerald-500/30 bg-emerald-500/5'}>
             <CardContent className="pt-4">
               <div className="flex items-center gap-4">
                 {criticalCount > 0 ? (
-                  <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center animate-pulse">
                     <AlertTriangle className="w-6 h-6 text-red-600" />
                   </div>
                 ) : highCount > 0 ? (
@@ -448,20 +683,20 @@ export default function AdminSystemHealth() {
                 <div>
                   <p className="text-lg font-bold text-foreground">
                     {criticalCount > 0
-                      ? `${criticalCount} Critical Issue${criticalCount > 1 ? 's' : ''} Found`
+                      ? `🚨 ${criticalCount} Critical Issue${criticalCount > 1 ? 's' : ''} — Immediate Action Required`
                       : highCount > 0
-                      ? `${highCount} Issue${highCount > 1 ? 's' : ''} Need Attention`
-                      : 'All Systems Healthy'}
+                      ? `⚠️ ${highCount} Issue${highCount > 1 ? 's' : ''} Need Attention`
+                      : '✅ All Systems Healthy'}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {totalIssues} total finding{totalIssues !== 1 ? 's' : ''} across {checks.length} checks
+                    Ramz One scanned {checks.length} areas • {totalIssues} finding{totalIssues !== 1 ? 's' : ''}
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Performance Metrics */}
+          {/* Metrics */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {metrics.map(m => (
               <Card key={m.label}>
@@ -471,7 +706,9 @@ export default function AdminSystemHealth() {
                       <Gauge className={`h-5 w-5 ${STATUS_COLORS[m.status]}`} />
                     </div>
                     <div>
-                      <p className={`text-2xl font-black ${STATUS_COLORS[m.status]}`}>{m.value}<span className="text-sm font-medium text-muted-foreground ml-1">{m.unit}</span></p>
+                      <p className={`text-2xl font-black ${STATUS_COLORS[m.status]}`}>
+                        {m.value}<span className="text-sm font-medium text-muted-foreground ml-1">{m.unit}</span>
+                      </p>
                       <p className="text-xs text-muted-foreground">{m.label}</p>
                     </div>
                   </div>
@@ -480,24 +717,24 @@ export default function AdminSystemHealth() {
             ))}
           </div>
 
-          {/* 24h Activity Timeline */}
+          {/* 24h Timeline */}
           {errorTimeline.length > 0 && (
             <Card>
               <CardContent className="pt-4">
                 <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
                   <Clock className="h-4 w-4 text-primary" />
-                  24h Activity (Cancelled/Expired vs Completed)
+                  24h Ride Activity (Failed vs Completed)
                 </h2>
                 <ChartContainer config={{
                   errors: { label: 'Cancelled/Expired', color: 'hsl(0 84% 60%)' },
-                  slowQueries: { label: 'Completed', color: 'hsl(142 76% 36%)' },
+                  completed: { label: 'Completed', color: 'hsl(142 76% 36%)' },
                 }} className="h-48 w-full">
                   <AreaChart data={errorTimeline} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
                     <XAxis dataKey="hour" tick={{ fontSize: 10 }} interval={3} />
                     <YAxis tick={{ fontSize: 11 }} />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Area type="monotone" dataKey="slowQueries" fill="hsl(142 76% 36% / 0.2)" stroke="hsl(142 76% 36%)" name="Completed" />
+                    <Area type="monotone" dataKey="completed" fill="hsl(142 76% 36% / 0.2)" stroke="hsl(142 76% 36%)" name="Completed" />
                     <Area type="monotone" dataKey="errors" fill="hsl(0 84% 60% / 0.2)" stroke="hsl(0 84% 60%)" name="Cancelled/Expired" />
                   </AreaChart>
                 </ChartContainer>
@@ -505,92 +742,161 @@ export default function AdminSystemHealth() {
             </Card>
           )}
 
-          {/* Filter tabs */}
-          <div className="flex gap-2 flex-wrap">
-            {['all', 'error', 'performance', 'security', 'database', 'suggestion'].map(cat => (
-              <Button
-                key={cat}
-                size="sm"
-                variant={filter === cat ? 'default' : 'outline'}
-                onClick={() => setFilter(cat)}
-                className="capitalize font-semibold"
-              >
-                {cat === 'all' ? `All (${checks.length})` : `${cat} (${checks.filter(c => c.category === cat).length})`}
-              </Button>
-            ))}
-          </div>
+          {/* Live Scan Findings */}
+          <div>
+            <h2 className="font-bold text-lg flex items-center gap-2 mb-3">
+              <Eye className="h-5 w-5 text-primary" />
+              Live Scan Findings
+            </h2>
 
-          {/* Findings List */}
-          <div className="space-y-3">
-            {loading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <Card key={i}>
-                  <CardContent className="pt-4">
-                    <div className="animate-pulse space-y-2">
-                      <div className="h-4 bg-muted rounded w-2/3" />
-                      <div className="h-3 bg-muted rounded w-full" />
-                      <div className="h-3 bg-muted rounded w-4/5" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : filteredChecks.length === 0 ? (
-              <Card>
-                <CardContent className="pt-6 pb-6 text-center">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
-                  <p className="font-bold text-foreground">No issues in this category</p>
-                  <p className="text-sm text-muted-foreground">Everything looks good!</p>
-                </CardContent>
-              </Card>
-            ) : (
-              filteredChecks.map(check => {
-                const Icon = CATEGORY_ICONS[check.category] || Bug;
-                return (
-                  <Card key={check.id} className={check.severity === 'critical' ? 'border-red-500/30' : check.severity === 'high' ? 'border-amber-500/30' : ''}>
+            <div className="flex gap-2 flex-wrap mb-4">
+              {categories.map(cat => (
+                <Button
+                  key={cat}
+                  size="sm"
+                  variant={filter === cat ? 'default' : 'outline'}
+                  onClick={() => setFilter(cat)}
+                  className="capitalize font-semibold text-xs"
+                >
+                  {cat === 'all' ? `All (${checks.length})` : `${cat} (${checks.filter(c => c.category === cat).length})`}
+                </Button>
+              ))}
+            </div>
+
+            <div className="space-y-3">
+              {loading ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <Card key={i}>
                     <CardContent className="pt-4">
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-xl shrink-0 ${
-                          check.severity === 'critical' ? 'bg-red-500/10' :
-                          check.severity === 'high' ? 'bg-orange-500/10' :
-                          check.severity === 'medium' ? 'bg-amber-500/10' :
-                          'bg-muted'
-                        }`}>
-                          <Icon className={`h-5 w-5 ${
-                            check.severity === 'critical' ? 'text-red-600' :
-                            check.severity === 'high' ? 'text-orange-600' :
-                            check.severity === 'medium' ? 'text-amber-600' :
-                            'text-muted-foreground'
-                          }`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <p className="font-bold text-sm text-foreground">{check.title}</p>
-                            <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLORS[check.severity]}`}>
-                              {check.severity}
-                            </Badge>
-                            {check.affectedUsers && (
-                              <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                                <Users className="w-3 h-3" /> {check.affectedUsers} affected
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground mb-2">{check.description}</p>
-                          <div className="bg-primary/5 border border-primary/10 rounded-lg p-2.5">
-                            <p className="text-[11px] font-semibold text-primary flex items-center gap-1 mb-0.5">
-                              <Zap className="w-3 h-3" /> Suggestion
-                            </p>
-                            <p className="text-xs text-foreground/80">{check.suggestion}</p>
-                          </div>
-                          <p className="text-[10px] text-muted-foreground mt-1.5">
-                            Detected at {format(new Date(check.timestamp), 'HH:mm:ss · MMM d')}
-                          </p>
-                        </div>
+                      <div className="animate-pulse space-y-2">
+                        <div className="h-4 bg-muted rounded w-2/3" />
+                        <div className="h-3 bg-muted rounded w-full" />
+                        <div className="h-3 bg-muted rounded w-4/5" />
                       </div>
                     </CardContent>
                   </Card>
-                );
-              })
-            )}
+                ))
+              ) : filteredChecks.length === 0 ? (
+                <Card>
+                  <CardContent className="pt-6 pb-6 text-center">
+                    <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
+                    <p className="font-bold text-foreground">No issues in this category</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                filteredChecks.map(check => {
+                  const Icon = CATEGORY_ICONS[check.category] || Bug;
+                  return (
+                    <Card key={check.id} className={check.severity === 'critical' ? 'border-red-500/30' : check.severity === 'high' ? 'border-amber-500/30' : ''}>
+                      <CardContent className="pt-4">
+                        <div className="flex items-start gap-3">
+                          <div className={`p-2 rounded-xl shrink-0 ${
+                            check.severity === 'critical' ? 'bg-red-500/10' :
+                            check.severity === 'high' ? 'bg-orange-500/10' :
+                            check.severity === 'medium' ? 'bg-amber-500/10' : 'bg-muted'
+                          }`}>
+                            <Icon className={`h-5 w-5 ${
+                              check.severity === 'critical' ? 'text-red-600' :
+                              check.severity === 'high' ? 'text-orange-600' :
+                              check.severity === 'medium' ? 'text-amber-600' : 'text-muted-foreground'
+                            }`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <p className="font-bold text-sm text-foreground">{check.title}</p>
+                              <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLORS[check.severity]}`}>
+                                {check.severity}
+                              </Badge>
+                              {check.affectedUsers && (
+                                <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                                  <Users className="w-3 h-3" /> {check.affectedUsers} affected
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-1">{check.description}</p>
+                            {check.context && (
+                              <p className="text-[11px] text-muted-foreground/70 italic mb-2">
+                                📍 User flow: {check.context}
+                              </p>
+                            )}
+                            <div className="bg-primary/5 border border-primary/10 rounded-lg p-2.5">
+                              <p className="text-[11px] font-semibold text-primary flex items-center gap-1 mb-0.5">
+                                <Zap className="w-3 h-3" /> Ramz One Suggestion
+                              </p>
+                              <p className="text-xs text-foreground/80">{check.suggestion}</p>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground mt-1.5">
+                              Detected at {format(new Date(check.timestamp), 'HH:mm:ss · MMM d')}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Error Logs — Today / Week */}
+          <div>
+            <h2 className="font-bold text-lg flex items-center gap-2 mb-3">
+              <Archive className="h-5 w-5 text-primary" />
+              Error Log History
+            </h2>
+
+            <Tabs value={logTab} onValueChange={setLogTab}>
+              <TabsList className="mb-4">
+                <TabsTrigger value="today" className="font-bold">Today's Errors</TabsTrigger>
+                <TabsTrigger value="week" className="font-bold">This Week (Review)</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value={logTab}>
+                {logsLoading ? (
+                  <Card><CardContent className="pt-4"><div className="animate-pulse h-20 bg-muted rounded" /></CardContent></Card>
+                ) : errorLogs.length === 0 ? (
+                  <Card>
+                    <CardContent className="pt-6 pb-6 text-center">
+                      <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                      <p className="font-bold text-sm text-foreground">No {logTab === 'today' ? 'errors today' : 'weekly errors to review'}</p>
+                      <p className="text-xs text-muted-foreground">Ramz One is watching 👁️</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="space-y-2">
+                    {errorLogs.map(log => (
+                      <Card key={log.id} className={log.resolved ? 'opacity-60' : log.severity === 'critical' ? 'border-red-500/30' : ''}>
+                        <CardContent className="pt-3 pb-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className={`font-bold text-xs ${log.resolved ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                                  {log.title}
+                                </p>
+                                <Badge variant="outline" className={`text-[9px] ${SEVERITY_COLORS[log.severity] || ''}`}>
+                                  {log.severity}
+                                </Badge>
+                                <Badge variant="outline" className="text-[9px]">{log.error_type}</Badge>
+                                {log.resolved && <Badge className="text-[9px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20">resolved</Badge>}
+                              </div>
+                              {log.context && <p className="text-[10px] text-muted-foreground mt-0.5">📍 {log.context}</p>}
+                              <p className="text-[10px] text-muted-foreground">
+                                {format(new Date(log.created_at), 'HH:mm · MMM d')} • {log.affected_users} user{log.affected_users !== 1 ? 's' : ''}
+                              </p>
+                            </div>
+                            {!log.resolved && (
+                              <Button size="sm" variant="outline" className="text-xs shrink-0" onClick={() => resolveLog(log.id)}>
+                                <CheckCircle2 className="w-3 h-3 mr-1" /> Resolve
+                              </Button>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </AdminLayout>
