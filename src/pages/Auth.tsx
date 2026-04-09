@@ -36,7 +36,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/app');
+      navigate('/ride', { replace: true });
     }
   }, [user, loading, navigate]);
 
@@ -133,7 +133,7 @@ const Auth = () => {
       }
 
       toast({ title: 'Account created!', description: 'Welcome to PickMe.' });
-      navigate('/app');
+      navigate('/ride', { replace: true });
     } finally {
       setIsSubmitting(false);
     }
