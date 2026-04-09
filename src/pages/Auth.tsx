@@ -51,7 +51,7 @@ const Auth = () => {
         setLoginError(error.message || 'Invalid credentials');
       } else {
         toast({ title: 'Welcome back!' });
-        navigate('/app');
+        navigate('/ride', { replace: true });
       }
     } finally {
       setIsSubmitting(false);
