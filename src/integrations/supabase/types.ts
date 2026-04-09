@@ -1646,6 +1646,60 @@ export type Database = {
         }
         Relationships: []
       }
+      system_error_logs: {
+        Row: {
+          affected_users: number | null
+          context: string | null
+          created_at: string
+          description: string
+          error_type: string
+          id: string
+          period: string
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          scan_id: string | null
+          severity: string
+          suggestion: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_users?: number | null
+          context?: string | null
+          created_at?: string
+          description: string
+          error_type?: string
+          id?: string
+          period?: string
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          scan_id?: string | null
+          severity?: string
+          suggestion?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_users?: number | null
+          context?: string | null
+          created_at?: string
+          description?: string
+          error_type?: string
+          id?: string
+          period?: string
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          scan_id?: string | null
+          severity?: string
+          suggestion?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       system_events: {
         Row: {
           actor_id: string | null
