@@ -121,7 +121,7 @@ export default function RiderProfile() {
                 <h1 className="text-sm font-bold text-primary-foreground truncate leading-tight">{userName}</h1>
                 {userEmail && <p className="text-[10px] text-primary-foreground/60 truncate mt-0.5">{userEmail}</p>}
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  {isAdmin && (
+                  {isAdmin && user?.email?.toLowerCase() === 'moyojonahb@gmail.com' && (
                     <Badge className="h-4 text-[9px] bg-primary-foreground/15 text-primary-foreground border-0 px-1.5 cursor-pointer" onClick={() => navigate(`${prefix}/admin`)}>
                       <ShieldCheck className="w-2.5 h-2.5 mr-0.5" /> Admin
                     </Badge>
