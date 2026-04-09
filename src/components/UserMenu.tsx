@@ -26,6 +26,9 @@ const UserMenu = ({ onFavoritesClick, onHistoryClick, variant = 'default' }: Use
   const { isApproved: isApprovedDriver } = useDriverStatus();
   const [open, setOpen] = useState(false);
 
+  // Only show admin link if email matches the designated admin
+  const showAdmin = isAdmin && user?.email?.toLowerCase() === 'moyojonahb@gmail.com';
+
   const handleSignOut = async () => {
     await signOut();
     setOpen(false);
@@ -66,7 +69,7 @@ const UserMenu = ({ onFavoritesClick, onHistoryClick, variant = 'default' }: Use
         <DropdownMenuSeparator />
         
         {/* Admin Dashboard Link - only visible to admins */}
-        {isAdmin && (
+        {showAdmin && (
           <>
             <DropdownMenuItem asChild>
               <Link to="/admin" className="flex items-center text-primary font-medium">
