@@ -1056,10 +1056,11 @@ export default function DriverDashboard() {
                     await supabase.from("rides").update({ status: "in_progress" }).eq("id", activeTrip.id);
                     setActiveTrip({ ...activeTrip, status: "in_progress" });
                     toast.info("Rider picked up — navigating to dropoff");
+                    setFullNavMode(true);
                   }}
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Picked Up Rider
+                  Start Ride
                 </Button>
               )}
               <Button
