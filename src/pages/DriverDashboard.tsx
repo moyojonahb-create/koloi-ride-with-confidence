@@ -949,36 +949,24 @@ export default function DriverDashboard() {
           </>
         )}
 
-        {/* Navigation View */}
-        {activeTrip && (
-          <DriverNavigationView
-            driverLocation={driverCoords}
-            pickupLocation={{ lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon }}
-            dropoffLocation={{ lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon }}
-            tripPhase={['accepted', 'enroute_pickup'].includes(activeTrip.status) ? 'to_pickup' : 'to_dropoff'}
-          />
+        {/* Map only shown when no active trip */}
+        {!activeTrip && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="rounded-2xl overflow-hidden border border-border/30 shadow-sm"
+          >
+            <div className="h-[45vh] min-h-[300px]">
+              <MapGoogle
+                driverLocation={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
+                drivers={nearbyDrivers}
+                defaultCenter={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
+                defaultZoom={15}
+                className="w-full h-full"
+              />
+            </div>
+          </motion.div>
         )}
-
-        {/* Navigation Map */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="rounded-2xl overflow-hidden border border-border/30 shadow-sm"
-        >
-          <div className="h-[45vh] min-h-[300px]">
-            <MapGoogle
-              driverLocation={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
-              pickup={activeTrip ? { lat: activeTrip.pickup_lat, lng: activeTrip.pickup_lon } : undefined}
-              dropoff={activeTrip ? { lat: activeTrip.dropoff_lat, lng: activeTrip.dropoff_lon } : undefined}
-              routeGeometry={pickupToDropoffRoute.route?.geometry ?? undefined}
-              secondaryRouteGeometry={driverToPickupRoute.route?.geometry ?? undefined}
-              drivers={nearbyDrivers}
-              defaultCenter={driverCoords ? { lat: driverCoords.lat, lng: driverCoords.lng } : undefined}
-              defaultZoom={15}
-              className="w-full h-full"
-            />
-          </div>
-        </motion.div>
 
         {/* Active Trip — fare + complete */}
         {activeTrip && (
@@ -1047,6 +1035,13 @@ export default function DriverDashboard() {
                     await supabase.from("rides").update({ status: "arrived" }).eq("id", activeTrip.id);
                     setActiveTrip({ ...activeTrip, status: "arrived" });
                     toast.info("Status: Arrived — waiting for rider");
+                    // Notify rider that driver has arrived
+                    supabase.from("notifications").insert({
+                      user_id: activeTrip.user_id,
+                      title: "🚗 Your driver has arrived!",
+                      body: `Your driver is at the pickup point. Please meet them now.`,
+                      notification_type: "driver_arrived",
+                    }).then(() => {});
                   }}
                 >
                   <MapPin className="h-4 w-4 mr-2" />
@@ -1061,10 +1056,11 @@ export default function DriverDashboard() {
                     await supabase.from("rides").update({ status: "in_progress" }).eq("id", activeTrip.id);
                     setActiveTrip({ ...activeTrip, status: "in_progress" });
                     toast.info("Rider picked up — navigating to dropoff");
+                    setFullNavMode(true);
                   }}
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Picked Up Rider
+                  Start Ride
                 </Button>
               )}
               <Button

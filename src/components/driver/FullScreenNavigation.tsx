@@ -420,6 +420,16 @@ export default function FullScreenNavigation({
     if (voiceEnabled && voiceMsg) speak(voiceMsg, true);
     // Reset route fetch for phase change
     lastFetchPhase.current = "";
+
+    // Notify rider on arrival
+    if (newStatus === "arrived") {
+      supabase.from("notifications").insert({
+        user_id: activeTrip.user_id,
+        title: "🚗 Your driver has arrived!",
+        body: "Your driver is at the pickup point. Please meet them now.",
+        notification_type: "driver_arrived",
+      }).then(() => {});
+    }
   };
 
   const handleComplete = async () => {
