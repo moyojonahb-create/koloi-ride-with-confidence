@@ -191,9 +191,9 @@ function useSpeed(coords: Coordinates | null): number {
 
 function ManeuverIcon({ maneuver, size = "lg" }: { maneuver: string; size?: "lg" | "sm" }) {
   const cls = size === "lg" ? "w-10 h-10" : "w-5 h-5";
-  if (maneuver.includes("left") && maneuver.includes("u-turn")) return <UTurnLeft className={cls} />;
+  if (maneuver.includes("left") && maneuver.includes("u-turn")) return <Undo2 className={cls} />;
   if (maneuver.includes("left")) return <CornerUpLeft className={cls} />;
-  if (maneuver.includes("right") && maneuver.includes("u-turn")) return <UTurnLeft className={`${cls} scale-x-[-1]`} />;
+  if (maneuver.includes("right") && maneuver.includes("u-turn")) return <Undo2 className={`${cls} scale-x-[-1]`} />;
   if (maneuver.includes("right")) return <CornerUpRight className={cls} />;
   if (maneuver.includes("roundabout")) return <RotateCw className={cls} />;
   if (maneuver === "" || maneuver.includes("straight") || maneuver.includes("head") || maneuver.includes("continue"))
