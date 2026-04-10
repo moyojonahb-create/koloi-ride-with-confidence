@@ -22,7 +22,7 @@ import {
   Loader2,
   ChevronDown,
   RotateCw,
-  UTurnLeft,
+  Undo2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabaseClient";
