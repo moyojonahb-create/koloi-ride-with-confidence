@@ -27,7 +27,7 @@ export default defineConfig(({ mode }) => ({
       process.env.VITE_SUPABASE_PUBLISHABLE_KEY || FALLBACK_SUPABASE_KEY
     ),
     'import.meta.env.VITE_GOOGLE_MAPS_API_KEY': JSON.stringify(
-      process.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyD2Psg8nBZJsremwudQ1d7Jk39asQ_v-Cg'
+      process.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyCsdyc5GgX50oEuAn5QUtLhYEw1jLYNiFU'
     ),
   },
   resolve: {
