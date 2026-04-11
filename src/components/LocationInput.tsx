@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MapPin, Navigation, Clock, Loader2, Crosshair, ChevronDown } from 'lucide-react';
 import { useLandmarks, formatDistance, getCategoryIcon, type Landmark as LandmarkType } from '@/hooks/useLandmarks';
+import { searchZW } from '@/lib/geo_osm';
 import { LandmarkChips } from './LandmarkChips';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +30,9 @@ const LocationInput = ({
 }: LocationInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showChips, setShowChips] = useState(true);
+  const [nominatimResults, setNominatimResults] = useState<Array<{ name: string; lat: number; lng: number; displayName: string }>>([]);
+  const [nominatimLoading, setNominatimLoading] = useState(false);
+  const nominatimDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -41,6 +45,51 @@ const LocationInput = ({
 
   // Get nearby landmarks for chips when input is empty
   const nearbyLandmarks = userLocation ? getNearbyLandmarks(10).slice(0, 6) : allLandmarks.slice(0, 6);
+
+  // Nominatim fallback search (online) when the local curated landmarks don't match.
+  // Uses `searchZW()` which is proxied in dev to avoid CORS issues.
+  useEffect(() => {
+    if (!isFocused) return;
+
+    if (nominatimDebounceRef.current) {
+      clearTimeout(nominatimDebounceRef.current);
+    }
+
+    const q = value.trim();
+    if (q.length < 3) {
+      setNominatimResults([]);
+      setNominatimLoading(false);
+      return;
+    }
+
+    setNominatimLoading(true);
+    nominatimDebounceRef.current = setTimeout(() => {
+      searchZW(q, 8)
+        .then((results) => {
+          setNominatimResults(
+            (results || []).map((r) => ({
+              name: r.name || r.display_name.split(',')[0],
+              lat: Number(r.lat),
+              lng: Number(r.lon),
+              displayName: r.display_name,
+            }))
+          );
+        })
+        .catch((err) => {
+          console.warn('[LocationInput] Nominatim search failed:', err);
+          setNominatimResults([]);
+        })
+        .finally(() => {
+          setNominatimLoading(false);
+        });
+    }, 250);
+
+    return () => {
+      if (nominatimDebounceRef.current) {
+        clearTimeout(nominatimDebounceRef.current);
+      }
+    };
+  }, [value, isFocused]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -64,11 +113,20 @@ const LocationInput = ({
     });
     setIsFocused(false);
     onChange('');
+    setNominatimResults([]);
+  }, [onLocationSelect, onChange]);
+
+  const handleNominatimSelect = useCallback((result: { name: string; lat: number; lng: number }) => {
+    onLocationSelect({ name: result.name, lat: result.lat, lng: result.lng });
+    setIsFocused(false);
+    onChange('');
+    setNominatimResults([]);
   }, [onLocationSelect, onChange]);
 
   const handleUseMyLocationClick = useCallback(() => {
     onUseMyLocation?.();
     setIsFocused(false);
+    setNominatimResults([]);
   }, [onUseMyLocation]);
 
   // Get "Near X" suggestion when no exact match
@@ -177,8 +235,8 @@ const LocationInput = ({
               </p>
             </div>
 
-            {/* Loading state */}
-            {loading ? (
+             {/* Loading state */}
+             {loading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
               </div>
@@ -204,6 +262,43 @@ const LocationInput = ({
                 )}
               </div>
             )}
+
+             {/* Online fallback: Nominatim (OSM) */}
+             {value.trim().length >= 3 && (
+               <>
+                 <div className="px-4 py-2 bg-secondary/30 border-t border-border">
+                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                     🌍 Search online
+                   </p>
+                 </div>
+
+                 {nominatimLoading ? (
+                   <div className="flex items-center justify-center py-6">
+                     <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                   </div>
+                 ) : nominatimResults.length > 0 ? (
+                   nominatimResults.map((r, idx) => (
+                     <button
+                       key={`${r.lat}-${r.lng}-${idx}`}
+                       onClick={() => handleNominatimSelect(r)}
+                       className="w-full px-4 py-3 text-left transition-colors flex items-center gap-3 hover:bg-secondary"
+                     >
+                       <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 bg-secondary">
+                         <MapPin className="w-4 h-4 text-muted-foreground" />
+                       </div>
+                       <div className="min-w-0 flex-1">
+                         <p className="font-medium text-foreground text-sm truncate">{r.name}</p>
+                         <p className="text-xs text-muted-foreground truncate mt-0.5">{r.displayName}</p>
+                       </div>
+                     </button>
+                   ))
+                 ) : (
+                   <div className="px-4 py-4 text-center text-muted-foreground text-sm">
+                     No online results for "{value}".
+                   </div>
+                 )}
+               </>
+             )}
 
             {/* Fallback: Nearest landmark for destination */}
             {markerType === 'dropoff' && value.trim() && displayLandmarks.length === 0 && userLocation && nearest && (

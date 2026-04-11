@@ -10,10 +10,14 @@ import { I18nProvider } from "./lib/i18n";
 import { FemaleThemeProvider } from "./hooks/useFemaleTheme";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { initNativePlatform } from "./lib/nativeBridge";
+import { initDatadog } from './rum';
 import "./index.css";
 
 // Initialize native Capacitor plugins (no-ops on web)
 initNativePlatform();
+
+// Initialize telemetry as early as possible (before rendering)
+initDatadog();
 
 window.addEventListener('unhandledrejection', (event) => {
   console.error('[PickMe] Unhandled promise rejection:', event.reason);

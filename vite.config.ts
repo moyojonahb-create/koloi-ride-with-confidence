@@ -12,6 +12,16 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    // Proxy to avoid CORS issues in the browser when calling Nominatim directly.
+    // Frontend can call `/api/nominatim/search?...`.
+    proxy: {
+      '/api/nominatim': {
+        target: 'https://nominatim.openstreetmap.org',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (p) => p.replace(/^\/api\/nominatim/, ''),
+      },
+    },
     hmr: {
       overlay: false,
     },

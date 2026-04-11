@@ -21,7 +21,14 @@ export interface NominatimResult {
  * No bounding box — nationwide results, country-restricted to ZW.
  */
 export async function searchZW(q: string, limit = 10): Promise<NominatimResult[]> {
-  const url = new URL('https://nominatim.openstreetmap.org/search');
+  // In browsers, Nominatim often blocks direct cross-origin requests.
+  // In dev we use Vite proxy: `/api/nominatim/search`.
+  // In production you should use a server-side proxy (e.g., Supabase Edge Function).
+  const base = (typeof window !== 'undefined')
+    ? '/api/nominatim/search'
+    : 'https://nominatim.openstreetmap.org/search';
+
+  const url = new URL(base, typeof window !== 'undefined' ? window.location.origin : undefined);
   url.searchParams.set('format', 'jsonv2');
   url.searchParams.set('q', q);
   url.searchParams.set('addressdetails', '1');
@@ -30,7 +37,11 @@ export async function searchZW(q: string, limit = 10): Promise<NominatimResult[]
   url.searchParams.set('dedupe', '1');
 
   const res = await fetch(url.toString(), {
-    headers: { Accept: 'application/json' },
+    headers: {
+      Accept: 'application/json',
+      // Nominatim usage policy recommends a valid User-Agent; browsers disallow setting it.
+      // The dev proxy will set origin correctly.
+    },
   });
   if (!res.ok) throw new Error('Place search failed');
   return res.json();
@@ -41,7 +52,11 @@ export async function searchZW(q: string, limit = 10): Promise<NominatimResult[]
  * Returns the closest address/place for the given lat/lon.
  */
 export async function reverseZW(lat: number, lon: number): Promise<NominatimResult> {
-  const url = new URL('https://nominatim.openstreetmap.org/reverse');
+  const base = (typeof window !== 'undefined')
+    ? '/api/nominatim/reverse'
+    : 'https://nominatim.openstreetmap.org/reverse';
+
+  const url = new URL(base, typeof window !== 'undefined' ? window.location.origin : undefined);
   url.searchParams.set('format', 'jsonv2');
   url.searchParams.set('lat', String(lat));
   url.searchParams.set('lon', String(lon));
