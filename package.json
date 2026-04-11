@@ -3,14 +3,17 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20 <24"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "node -e \"const major=+process.versions.node.split('.')[0]; if (major>=24) { console.error('Tests are not supported on Node '+process.versions.node+'. Please use Node 20 or 22.'); process.exit(1); }\" && vitest run",
+    "test:watch": "node -e \"const major=+process.versions.node.split('.')[0]; if (major>=24) { console.error('Tests are not supported on Node '+process.versions.node+'. Please use Node 20 or 22.'); process.exit(1); }\" && vitest"
   },
   "dependencies": {
     "@capacitor-community/contacts": "^7.1.0",
@@ -22,6 +25,8 @@
     "@capacitor/keyboard": "^8.0.2",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
+    "@datadog/browser-rum": "^6.32.0",
+    "@datadog/browser-rum-react": "^6.32.0",
     "@googlemaps/js-api-loader": "^2.0.2",
     "@hookform/resolvers": "^3.10.0",
     "@lovable.dev/cloud-auth-js": "^1.0.0",
@@ -53,6 +58,7 @@
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@react-google-maps/api": "^2.20.8",
+    "@sentry/react": "^10.48.0",
     "@supabase/supabase-js": "^2.91.1",
     "@tanstack/react-query": "^5.83.0",
     "@types/leaflet": "^1.9.21",

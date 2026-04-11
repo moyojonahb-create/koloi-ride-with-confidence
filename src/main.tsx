@@ -1,6 +1,7 @@
 // Environment polyfill MUST be imported first to patch missing env vars
 import './lib/envPolyfill';
 
+import * as Sentry from "@sentry/react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
@@ -13,6 +14,21 @@ import { initNativePlatform } from "./lib/nativeBridge";
 import { initDatadog } from './rum';
 import "./index.css";
 
+// Initialize Sentry before anything else
+Sentry.init({
+  dsn: "https://fae54652b1b4535904d5ca4d198008f7@o4511199932645376.ingest.de.sentry.io/4511200277692496",
+  environment: import.meta.env.MODE,
+  enabled: import.meta.env.PROD,
+  sendDefaultPii: true,
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),
+  ],
+  tracesSampleRate: 0.2,
+  replaysOnErrorSampleRate: 1.0,
+  replaysSessionSampleRate: 0.05,
+});
+
 // Initialize native Capacitor plugins (no-ops on web)
 initNativePlatform();
 
@@ -20,10 +36,12 @@ initNativePlatform();
 initDatadog();
 
 window.addEventListener('unhandledrejection', (event) => {
+  Sentry.captureException(event.reason);
   console.error('[PickMe] Unhandled promise rejection:', event.reason);
 });
 
 window.addEventListener('error', (event) => {
+  Sentry.captureException(event.error || event.message);
   console.error('[PickMe] Global runtime error:', event.error || event.message);
 });
 
@@ -68,17 +86,19 @@ if ('serviceWorker' in navigator) {
 }
 
 createRoot(document.getElementById("root")!).render(
-  <QueryClientProvider client={queryClient}>
-    <ErrorBoundary>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-        <I18nProvider>
-          <FemaleThemeProvider>
-            <AuthProvider>
-              <App />
-            </AuthProvider>
-          </FemaleThemeProvider>
-        </I18nProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
-  </QueryClientProvider>
+  <Sentry.ErrorBoundary fallback={<p className="p-8 text-center text-destructive">Something went wrong. Please refresh.</p>}>
+    <QueryClientProvider client={queryClient}>
+      <ErrorBoundary>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          <I18nProvider>
+            <FemaleThemeProvider>
+              <AuthProvider>
+                <App />
+              </AuthProvider>
+            </FemaleThemeProvider>
+          </I18nProvider>
+        </ThemeProvider>
+      </ErrorBoundary>
+    </QueryClientProvider>
+  </Sentry.ErrorBoundary>
 );
