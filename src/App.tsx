@@ -8,6 +8,7 @@ import AdminEmergencyAlerts from "./components/admin/AdminEmergencyAlerts";
 
 // ─── Only the landing page is eagerly loaded ───
 import Index from "./pages/Index";
+import SentryTestPanel from "./components/SentryTestPanel";
 
 // ─── Everything else is lazy — prefetched in idle time ───
 const Auth = lazy(() => import("./pages/Auth"));
@@ -100,6 +101,7 @@ export default function App() {
   return (
     <Router>
       <AdminEmergencyAlerts />
+      {import.meta.env.DEV && <SentryTestPanel />}
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Index />} />
