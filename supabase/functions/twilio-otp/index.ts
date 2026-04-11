@@ -1,31 +1,13 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-// In-memory OTP store
-const otpStore = new Map<string, { code: string; expires: number; attempts: number }>();
-
-// Rate limiting: max 3 OTPs per phone per 10 minutes
-const rateLimitStore = new Map<string, { count: number; windowStart: number }>();
 
 function generateOTP(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-function isRateLimited(phone: string): boolean {
-  const now = Date.now();
-  const window = 10 * 60 * 1000;
-  const entry = rateLimitStore.get(phone);
-  if (!entry || now - entry.windowStart > window) {
-    rateLimitStore.set(phone, { count: 1, windowStart: now });
-    return false;
-  }
-  if (entry.count >= 3) return true;
-  entry.count++;
-  return false;
 }
 
 serve(async (req) => {
@@ -39,12 +21,15 @@ serve(async (req) => {
     const TWILIO_PHONE_NUMBER = Deno.env.get('TWILIO_PHONE_NUMBER');
 
     if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
-      console.error('Missing Twilio credentials');
       throw new Error('Twilio credentials not configured');
     }
 
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+
     const { action, phone, code } = await req.json();
-    console.log(`Twilio OTP action: ${action}, phone: ${phone}`);
 
     if (!phone || typeof phone !== 'string' || phone.length < 10 || phone.length > 20) {
       return new Response(
@@ -54,7 +39,15 @@ serve(async (req) => {
     }
 
     if (action === 'send') {
-      if (isRateLimited(phone)) {
+      // Rate limit: max 3 OTPs per phone per 10 minutes
+      const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      const { count } = await supabase
+        .from('phone_verifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('phone', phone)
+        .gte('created_at', tenMinutesAgo);
+
+      if ((count ?? 0) >= 3) {
         return new Response(
           JSON.stringify({ success: false, message: 'Too many OTP requests. Please wait 10 minutes.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -62,9 +55,18 @@ serve(async (req) => {
       }
 
       const otp = generateOTP();
-      const expires = Date.now() + 10 * 60 * 1000;
-      otpStore.set(phone, { code: otp, expires, attempts: 0 });
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
 
+      // Store OTP in DB — survives cold starts
+      await supabase.from('phone_verifications').insert({
+        phone,
+        code: otp,
+        expires_at: expiresAt,
+        attempts: 0,
+        verified: false,
+      });
+
+      // Send via Twilio
       const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
       const credentials = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
 
@@ -77,12 +79,11 @@ serve(async (req) => {
         body: new URLSearchParams({
           To: phone,
           From: TWILIO_PHONE_NUMBER,
-          Body: `Your Voyex verification code is: ${otp}. Valid for 10 minutes.`,
+          Body: `Your PickMe verification code is: ${otp}. Valid for 10 minutes. Do not share this code.`,
         }),
       });
 
       const result = await response.json();
-      
       if (!response.ok) {
         console.error('[twilio-otp] SMS send error:', result?.message);
         throw new Error('Failed to send SMS');
@@ -95,43 +96,50 @@ serve(async (req) => {
       );
 
     } else if (action === 'verify') {
-      const stored = otpStore.get(phone);
-      
-      if (!stored) {
+      // Get latest unexpired, unverified OTP for this phone
+      const { data: record, error } = await supabase
+        .from('phone_verifications')
+        .select('*')
+        .eq('phone', phone)
+        .eq('verified', false)
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error || !record) {
         return new Response(
           JSON.stringify({ success: false, message: 'No OTP found. Please request a new code.' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      if (Date.now() > stored.expires) {
-        otpStore.delete(phone);
-        return new Response(
-          JSON.stringify({ success: false, message: 'OTP expired. Please request a new code.' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      if (stored.attempts >= 5) {
-        otpStore.delete(phone);
+      if ((record.attempts ?? 0) >= 5) {
+        await supabase.from('phone_verifications').update({ verified: false }).eq('id', record.id);
         return new Response(
           JSON.stringify({ success: false, message: 'Too many attempts. Please request a new code.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      stored.attempts++;
+      // Increment attempts
+      await supabase.from('phone_verifications')
+        .update({ attempts: (record.attempts ?? 0) + 1 })
+        .eq('id', record.id);
 
-      if (stored.code !== code) {
+      if (record.code !== code) {
         return new Response(
           JSON.stringify({ success: false, message: 'Invalid OTP code.' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      otpStore.delete(phone);
+      // Mark as verified
+      await supabase.from('phone_verifications')
+        .update({ verified: true })
+        .eq('id', record.id);
+
       console.log('OTP verified successfully for:', phone);
-      
       return new Response(
         JSON.stringify({ success: true, verified: true }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

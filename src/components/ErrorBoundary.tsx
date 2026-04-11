@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import * as Sentry from '@sentry/react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -24,6 +25,7 @@ class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
   }
 
   private handleRetry = () => {
@@ -32,10 +34,7 @@ class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
+      if (this.props.fallback) return this.props.fallback;
       return (
         <div className="min-h-[200px] flex items-center justify-center p-8">
           <div className="text-center space-y-4 max-w-md">
@@ -44,9 +43,7 @@ class ErrorBoundary extends Component<Props, State> {
             </div>
             <div>
               <h3 className="font-semibold text-foreground mb-1">Something went wrong</h3>
-              <p className="text-sm text-muted-foreground">
-                We encountered an unexpected error. Please try again.
-              </p>
+              <p className="text-sm text-muted-foreground">We encountered an unexpected error. Please try again.</p>
             </div>
             <Button onClick={this.handleRetry} variant="outline" size="sm">
               <RefreshCw className="w-4 h-4 mr-2" />
@@ -56,7 +53,6 @@ class ErrorBoundary extends Component<Props, State> {
         </div>
       );
     }
-
     return this.props.children;
   }
 }
