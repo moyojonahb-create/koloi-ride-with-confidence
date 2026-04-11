@@ -1,11 +1,5 @@
 project_id = "jidfganntquilvsytslp"
 
-[functions.here-geocode]
-verify_jwt = false
-
-[functions.here-route]
-verify_jwt = false
-
 [functions.admin-api]
 verify_jwt = false
 
