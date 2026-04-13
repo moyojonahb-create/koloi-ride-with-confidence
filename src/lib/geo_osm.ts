@@ -18,31 +18,36 @@ export interface NominatimResult {
 
 /**
  * Forward geocode search across Zimbabwe via Nominatim.
- * No bounding box — nationwide results, country-restricted to ZW.
+ * In dev: uses Vite proxy `/api/nominatim/search`.
+ * In production: routes through Supabase Edge Function to avoid CORS.
  */
 export async function searchZW(q: string, limit = 10): Promise<NominatimResult[]> {
-  // In browsers, Nominatim often blocks direct cross-origin requests.
-  // In dev we use Vite proxy: `/api/nominatim/search`.
-  // In production you should use a server-side proxy (e.g., Supabase Edge Function).
-  const base = (typeof window !== 'undefined')
-    ? '/api/nominatim/search'
-    : 'https://nominatim.openstreetmap.org/search';
+  let fetchUrl: string;
+  const headers: Record<string, string> = { Accept: 'application/json' };
 
-  const url = new URL(base, typeof window !== 'undefined' ? window.location.origin : undefined);
-  url.searchParams.set('format', 'jsonv2');
-  url.searchParams.set('q', q);
-  url.searchParams.set('addressdetails', '1');
-  url.searchParams.set('limit', String(limit));
-  url.searchParams.set('countrycodes', 'zw');
-  url.searchParams.set('dedupe', '1');
+  if (import.meta.env.DEV) {
+    // Dev: Vite proxy rewrites /api/nominatim → https://nominatim.openstreetmap.org
+    const url = new URL('/api/nominatim/search', window.location.origin);
+    url.searchParams.set('format', 'jsonv2');
+    url.searchParams.set('q', q);
+    url.searchParams.set('addressdetails', '1');
+    url.searchParams.set('limit', String(limit));
+    url.searchParams.set('countrycodes', 'zw');
+    url.searchParams.set('dedupe', '1');
+    fetchUrl = url.toString();
+  } else {
+    // Production: Supabase Edge Function proxy (avoids CORS + sets proper User-Agent)
+    const base = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/nominatim-search`;
+    const url = new URL(base);
+    url.searchParams.set('q', q);
+    url.searchParams.set('limit', String(limit));
+    url.searchParams.set('countrycodes', 'zw');
+    fetchUrl = url.toString();
+    headers['apikey'] = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    headers['Authorization'] = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
+  }
 
-  const res = await fetch(url.toString(), {
-    headers: {
-      Accept: 'application/json',
-      // Nominatim usage policy recommends a valid User-Agent; browsers disallow setting it.
-      // The dev proxy will set origin correctly.
-    },
-  });
+  const res = await fetch(fetchUrl, { headers });
   if (!res.ok) throw new Error('Place search failed');
   return res.json();
 }
@@ -52,20 +57,29 @@ export async function searchZW(q: string, limit = 10): Promise<NominatimResult[]
  * Returns the closest address/place for the given lat/lon.
  */
 export async function reverseZW(lat: number, lon: number): Promise<NominatimResult> {
-  const base = (typeof window !== 'undefined')
-    ? '/api/nominatim/reverse'
-    : 'https://nominatim.openstreetmap.org/reverse';
+  let fetchUrl: string;
+  const headers: Record<string, string> = { Accept: 'application/json' };
 
-  const url = new URL(base, typeof window !== 'undefined' ? window.location.origin : undefined);
-  url.searchParams.set('format', 'jsonv2');
-  url.searchParams.set('lat', String(lat));
-  url.searchParams.set('lon', String(lon));
-  url.searchParams.set('addressdetails', '1');
-  url.searchParams.set('zoom', '18');
+  if (import.meta.env.DEV) {
+    const url = new URL('/api/nominatim/reverse', window.location.origin);
+    url.searchParams.set('format', 'jsonv2');
+    url.searchParams.set('lat', String(lat));
+    url.searchParams.set('lon', String(lon));
+    url.searchParams.set('addressdetails', '1');
+    url.searchParams.set('zoom', '18');
+    fetchUrl = url.toString();
+  } else {
+    const base = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/nominatim-search`;
+    const url = new URL(base);
+    url.searchParams.set('reverse', '1');
+    url.searchParams.set('lat', String(lat));
+    url.searchParams.set('lon', String(lon));
+    fetchUrl = url.toString();
+    headers['apikey'] = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    headers['Authorization'] = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
+  }
 
-  const res = await fetch(url.toString(), {
-    headers: { Accept: 'application/json' },
-  });
+  const res = await fetch(fetchUrl, { headers });
   if (!res.ok) throw new Error('Reverse geocode failed');
   return res.json();
 }
