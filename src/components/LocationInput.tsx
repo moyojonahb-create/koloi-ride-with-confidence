@@ -240,6 +240,12 @@ const LocationInput = ({
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
               </div>
+            ) : !value.trim() ? (
+              <div className="px-4 py-6 text-center text-muted-foreground">
+                <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Start typing to search for places</p>
+                <p className="text-xs mt-1 opacity-70">Or select from nearby landmarks below</p>
+              </div>
             ) : displayLandmarks.length > 0 ? (
               displayLandmarks.map((landmark) => (
                 <LandmarkButton
@@ -248,6 +254,12 @@ const LocationInput = ({
                   onClick={() => handleLandmarkSelect(landmark)}
                 />
               ))
+            ) : value.trim().length < 3 ? (
+              <div className="px-4 py-6 text-center text-muted-foreground">
+                <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">Keep typing to search online...</p>
+                <p className="text-xs mt-1 opacity-70">Enter at least 3 characters</p>
+              </div>
             ) : (
               <div className="px-4 py-6 text-center text-muted-foreground">
                 <MapPin className="w-8 h-8 mx-auto mb-2 opacity-50" />

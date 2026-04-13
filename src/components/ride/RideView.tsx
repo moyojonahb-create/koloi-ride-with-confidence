@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { haptic } from '@/lib/haptics';
@@ -93,6 +93,7 @@ export default function RideView() {
   const [proximityRadius, setProximityRadius] = useState<number | null>(null);
   const [nominatimResults, setNominatimResults] = useState<Array<{name: string;lat: number;lng: number;displayName: string;}>>([]);
   const [nominatimLoading, setNominatimLoading] = useState(false);
+  const nominatimDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [reverseGeoLoading, setReverseGeoLoading] = useState(false);
   const [selectedTier, setSelectedTier] = useState<VehicleTier>('standard');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
@@ -222,15 +223,18 @@ export default function RideView() {
     haptic('light');
   };
 
-  const handleNominatimSearch = useCallback(async (query: string) => {
-    if (query.trim().length < 3) {setNominatimResults([]);return;}
+  const handleNominatimSearch = useCallback((query: string) => {
+    if (nominatimDebounceRef.current) clearTimeout(nominatimDebounceRef.current);
+    if (query.trim().length < 2) {setNominatimResults([]);setNominatimLoading(false);return;}
     setNominatimLoading(true);
-    try {
-      const results = await searchZW(query.trim());
-      setNominatimResults(results.map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name })));
-      for (const r of results) cachePlaceFromNominatim(r).catch(() => {});
-    } catch {setNominatimResults([]);} finally {setNominatimLoading(false);}
-  }, []);
+    nominatimDebounceRef.current = setTimeout(async () => {
+      try {
+        const results = await searchZW(query.trim(), 10, selectedTown.nominatimViewbox, false);
+        setNominatimResults(results.map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name })));
+        for (const r of results) cachePlaceFromNominatim(r).catch(() => {});
+      } catch {setNominatimResults([]);} finally {setNominatimLoading(false);}
+    }, 300);
+  }, [selectedTown]);
 
   const handleMapClick = useCallback(async (coords: {lat: number;lng: number;}) => {
     if (!activeField) return;
@@ -398,9 +402,8 @@ export default function RideView() {
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    if (value.trim().length >= 2) {searchGoogle(value);}
-    if (value.trim().length >= 3) {handleNominatimSearch(value);} else {setNominatimResults([]);}
-    if (value.trim().length < 2) {clearGoogleSuggestions();}
+    if (value.trim().length >= 2) {searchGoogle(value);} else {clearGoogleSuggestions();}
+    handleNominatimSearch(value);
   };
 
   const handleGooglePlaceSelect = async (suggestion: {placeId: string;name: string;}) => {

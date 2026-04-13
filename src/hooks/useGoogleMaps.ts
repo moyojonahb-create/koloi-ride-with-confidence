@@ -80,7 +80,8 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
   return loadPromise;
 }
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 
 export interface GoogleMapsState {
   isLoaded: boolean;
@@ -95,39 +96,71 @@ export function useGoogleMaps(retryKey = 0): GoogleMapsState {
     apiKey: GOOGLE_MAPS_API_KEY || null,
   });
 
-  useEffect(() => {
-    // Debug logging
-    console.info('[PickMe Maps] Debug:', {
-      apiKeyPresent: !!GOOGLE_MAPS_API_KEY,
-      apiKeyLength: GOOGLE_MAPS_API_KEY?.length || 0,
-      alreadyLoaded: loaded,
-    });
-
-    if (!GOOGLE_MAPS_API_KEY) {
-      const err = new Error('VITE_GOOGLE_MAPS_API_KEY is not configured');
-      setState({ isLoaded: false, loadError: err, apiKey: null });
-      console.error('[PickMe Maps] Missing API key. Set VITE_GOOGLE_MAPS_API_KEY in your environment.');
-      return;
-    }
-
-    if (loaded) {
-      setState({ isLoaded: true, loadError: null, apiKey: GOOGLE_MAPS_API_KEY });
-      return;
-    }
-
-    loadGoogleMapsScript(GOOGLE_MAPS_API_KEY)
-      .then(() => {
-        console.info('[PickMe Maps] Status:', {
-          mapsLoaded: !!window.google?.maps,
-          placesLoaded: !!window.google?.maps?.places,
-        });
-        setState({ isLoaded: true, loadError: null, apiKey: GOOGLE_MAPS_API_KEY });
-      })
-      .catch((err) => {
-        console.error('[PickMe Maps] Load error:', err.message);
-        setState({ isLoaded: false, loadError: err as Error, apiKey: GOOGLE_MAPS_API_KEY });
+  const tryLoadWithKey = useCallback(async (key: string) => {
+    try {
+      await loadGoogleMapsScript(key);
+      console.info('[PickMe Maps] Status:', {
+        mapsLoaded: !!window.google?.maps,
+        placesLoaded: !!window.google?.maps?.places,
       });
-  }, [retryKey]);
+      setState({ isLoaded: true, loadError: null, apiKey: key });
+      return true;
+    } catch (err) {
+      console.error('[PickMe Maps] Load error with key:', err instanceof Error ? err.message : String(err));
+      return false;
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    async function initialize() {
+      // Debug logging
+      console.info('[PickMe Maps] Debug:', {
+        apiKeyPresent: !!GOOGLE_MAPS_API_KEY,
+        apiKeyLength: GOOGLE_MAPS_API_KEY?.length || 0,
+        alreadyLoaded: loaded,
+      });
+
+      if (loaded) {
+        setState({ isLoaded: true, loadError: null, apiKey: GOOGLE_MAPS_API_KEY });
+        return;
+      }
+
+      // 1. Try with build-time key first
+      if (GOOGLE_MAPS_API_KEY) {
+        const success = await tryLoadWithKey(GOOGLE_MAPS_API_KEY);
+        if (success || !active) return;
+      }
+
+      // 2. If build-time key failed or is missing, try fetching from Edge Function (only if logged in)
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          console.info('[PickMe Maps] Attempting to fetch key from Edge Function...');
+          const { data, error } = await supabase.functions.invoke('google-maps-key');
+          
+          if (!error && data?.apiKey && active) {
+            console.info('[PickMe Maps] Received API key from Edge Function');
+            const success = await tryLoadWithKey(data.apiKey);
+            if (success) return;
+          }
+        }
+      } catch (e) {
+        console.warn('[PickMe Maps] Failed to fetch key from Edge Function:', e);
+      }
+
+      // 3. If everything failed, set error state
+      if (active) {
+        const err = new Error(GOOGLE_MAPS_API_KEY ? 'Google Maps failed to load. Check API key configuration and restrictions.' : 'Google Maps API key is not configured');
+        setState({ isLoaded: false, loadError: err, apiKey: GOOGLE_MAPS_API_KEY || null });
+      }
+    }
+
+    initialize();
+
+    return () => { active = false; };
+  }, [retryKey, tryLoadWithKey]);
 
   return state;
 }

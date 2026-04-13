@@ -42,6 +42,8 @@ serve(async (req: Request) => {
     const q = url.searchParams.get('q');
     const limit = url.searchParams.get('limit') || '10';
     const countrycodes = url.searchParams.get('countrycodes') || 'zw';
+    const viewbox = url.searchParams.get('viewbox');
+    const bounded = url.searchParams.get('bounded');
 
     if (!q) {
       return new Response(JSON.stringify({ error: 'Missing query parameter q' }), {
@@ -57,6 +59,8 @@ serve(async (req: Request) => {
     nominatimUrl.searchParams.set('limit', limit);
     nominatimUrl.searchParams.set('countrycodes', countrycodes);
     nominatimUrl.searchParams.set('dedupe', '1');
+    if (viewbox) nominatimUrl.searchParams.set('viewbox', viewbox);
+    if (bounded) nominatimUrl.searchParams.set('bounded', bounded);
 
     const res = await fetch(nominatimUrl.toString(), {
       headers: {

@@ -21,7 +21,12 @@ export interface NominatimResult {
  * In dev: uses Vite proxy `/api/nominatim/search`.
  * In production: routes through Supabase Edge Function to avoid CORS.
  */
-export async function searchZW(q: string, limit = 10): Promise<NominatimResult[]> {
+export async function searchZW(
+  q: string, 
+  limit = 10, 
+  viewbox?: { left: number; top: number; right: number; bottom: number },
+  bounded = false
+): Promise<NominatimResult[]> {
   let fetchUrl: string;
   const headers: Record<string, string> = { Accept: 'application/json' };
 
@@ -34,6 +39,10 @@ export async function searchZW(q: string, limit = 10): Promise<NominatimResult[]
     url.searchParams.set('limit', String(limit));
     url.searchParams.set('countrycodes', 'zw');
     url.searchParams.set('dedupe', '1');
+    if (viewbox) {
+      url.searchParams.set('viewbox', `${viewbox.left},${viewbox.top},${viewbox.right},${viewbox.bottom}`);
+      if (bounded) url.searchParams.set('bounded', '1');
+    }
     fetchUrl = url.toString();
   } else {
     // Production: Supabase Edge Function proxy (avoids CORS + sets proper User-Agent)
@@ -42,6 +51,10 @@ export async function searchZW(q: string, limit = 10): Promise<NominatimResult[]
     url.searchParams.set('q', q);
     url.searchParams.set('limit', String(limit));
     url.searchParams.set('countrycodes', 'zw');
+    if (viewbox) {
+      url.searchParams.set('viewbox', `${viewbox.left},${viewbox.top},${viewbox.right},${viewbox.bottom}`);
+      if (bounded) url.searchParams.set('bounded', '1');
+    }
     fetchUrl = url.toString();
     headers['apikey'] = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
     headers['Authorization'] = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;

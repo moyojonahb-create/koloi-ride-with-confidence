@@ -40,13 +40,13 @@ export const TOWNS: TownConfig[] = [
     id: 'gwanda',
     name: 'Gwanda',
     center: { lat: -20.9355, lng: 29.0147 },
-    radiusKm: 15,
-    maxDistanceKm: 20,
+    radiusKm: 25,
+    maxDistanceKm: 35,
     bounds: {
-      north: -20.85,
-      south: -20.98,
-      east: 29.08,
-      west: 28.95,
+      north: -20.75,
+      south: -21.10,
+      east: 29.20,
+      west: 28.80,
     },
     nominatimViewbox: {
       left: 28.8107,
@@ -251,7 +251,170 @@ export const TOWNS: TownConfig[] = [
     ],
     importBounds: { minLat: -18.55, maxLat: -18.20, minLng: 26.30, maxLng: 26.70 },
   },
+  {
+    id: 'chinhoyi',
+    name: 'Chinhoyi',
+    center: { lat: -17.3500, lng: 30.2000 },
+    radiusKm: 15,
+    maxDistanceKm: 20,
+    bounds: { north: -17.25, south: -17.45, east: 30.35, west: 30.05 },
+    nominatimViewbox: { left: 30.00, top: -17.20, right: 30.40, bottom: -17.50 },
+    quickPicks: [
+      { id: 'rank', name: 'Chinhoyi Rank', lat: -17.3500, lng: 30.2000, icon: 'rank' },
+      { id: 'hospital', name: 'Chinhoyi Hospital', lat: -17.3450, lng: 30.1950, icon: 'hospital' },
+    ],
+    importBounds: { minLat: -17.50, maxLat: -17.20, minLng: 30.00, maxLng: 30.40 },
+  },
+  {
+    id: 'marondera',
+    name: 'Marondera',
+    center: { lat: -18.1833, lng: 31.5500 },
+    radiusKm: 12,
+    maxDistanceKm: 18,
+    bounds: { north: -18.10, south: -18.26, east: 31.65, west: 31.45 },
+    nominatimViewbox: { left: 31.40, top: -18.05, right: 31.70, bottom: -18.31 },
+    quickPicks: [
+      { id: 'rank', name: 'Marondera Rank', lat: -18.1830, lng: 31.5500, icon: 'rank' },
+      { id: 'cbd', name: 'Marondera CBD', lat: -18.1833, lng: 31.5500, icon: 'cbd' },
+    ],
+    importBounds: { minLat: -18.35, maxLat: -18.00, minLng: 31.35, maxLng: 31.75 },
+  },
+  {
+    id: 'bindura',
+    name: 'Bindura',
+    center: { lat: -17.3000, lng: 31.3333 },
+    radiusKm: 12,
+    maxDistanceKm: 18,
+    bounds: { north: -17.22, south: -17.38, east: 31.42, west: 31.24 },
+    nominatimViewbox: { left: 31.20, top: -17.15, right: 31.46, bottom: -17.43 },
+    quickPicks: [
+      { id: 'rank', name: 'Bindura Rank', lat: -17.3000, lng: 31.3333, icon: 'rank' },
+      { id: 'college', name: 'Bindura University', lat: -17.3100, lng: 31.3200, icon: 'school' },
+    ],
+    importBounds: { minLat: -17.45, maxLat: -17.15, minLng: 31.15, maxLng: 31.55 },
+  },
+  {
+    id: 'kariba',
+    name: 'Kariba',
+    center: { lat: -16.5167, lng: 28.8000 },
+    radiusKm: 15,
+    maxDistanceKm: 25,
+    bounds: { north: -16.40, south: -16.60, east: 28.95, west: 28.65 },
+    nominatimViewbox: { left: 28.60, top: -16.35, right: 29.00, bottom: -16.65 },
+    quickPicks: [
+      { id: 'dam', name: 'Kariba Dam', lat: -16.5224, lng: 28.7617, icon: 'landmark' },
+      { id: 'rank', name: 'Nyamhunga Rank', lat: -16.5200, lng: 28.8200, icon: 'rank' },
+    ],
+    importBounds: { minLat: -16.70, maxLat: -16.30, minLng: 28.50, maxLng: 29.10 },
+  },
+  {
+    id: 'chiredzi',
+    name: 'Chiredzi',
+    center: { lat: -21.0500, lng: 31.6667 },
+    radiusKm: 12,
+    maxDistanceKm: 18,
+    bounds: { north: -20.97, south: -21.13, east: 31.75, west: 31.58 },
+    nominatimViewbox: { left: 31.50, top: -20.90, right: 31.85, bottom: -21.20 },
+    quickPicks: [
+      { id: 'rank', name: 'Chiredzi Rank', lat: -21.0500, lng: 31.6667, icon: 'rank' },
+    ],
+    importBounds: { minLat: -21.25, maxLat: -20.85, minLng: 31.45, maxLng: 31.85 },
+  },
+  {
+    id: 'rusape',
+    name: 'Rusape',
+    center: { lat: -18.5333, lng: 32.1167 },
+    radiusKm: 10,
+    maxDistanceKm: 15,
+    bounds: { north: -18.46, south: -18.60, east: 32.20, west: 32.03 },
+    nominatimViewbox: { left: 31.95, top: -18.40, right: 32.30, bottom: -18.70 },
+    quickPicks: [
+      { id: 'rank', name: 'Rusape Rank', lat: -18.5333, lng: 32.1167, icon: 'rank' },
+    ],
+    importBounds: { minLat: -18.75, maxLat: -18.35, minLng: 31.85, maxLng: 32.35 },
+  },
+  {
+    id: 'chipinge',
+    name: 'Chipinge',
+    center: { lat: -20.2000, lng: 32.6167 },
+    radiusKm: 10,
+    maxDistanceKm: 15,
+    bounds: { north: -20.13, south: -20.27, east: 32.70, west: 32.53 },
+    nominatimViewbox: { left: 32.45, top: -20.05, right: 32.80, bottom: -20.35 },
+    quickPicks: [
+      { id: 'rank', name: 'Chipinge Rank', lat: -20.2000, lng: 32.6167, icon: 'rank' },
+    ],
+    importBounds: { minLat: -20.40, maxLat: -20.00, minLng: 32.40, maxLng: 32.85 },
+  },
+  {
+    id: 'karoi',
+    name: 'Karoi',
+    center: { lat: -16.8167, lng: 29.6833 },
+    radiusKm: 10,
+    maxDistanceKm: 15,
+    bounds: { north: -16.74, south: -16.89, east: 29.77, west: 29.60 },
+    nominatimViewbox: { left: 29.50, top: -16.65, right: 29.85, bottom: -16.95 },
+    quickPicks: [
+      { id: 'rank', name: 'Karoi Rank', lat: -16.8167, lng: 29.6833, icon: 'rank' },
+    ],
+    importBounds: { minLat: -17.00, maxLat: -16.65, minLng: 29.45, maxLng: 29.90 },
+  },
+  {
+    id: 'shurugwi',
+    name: 'Shurugwi',
+    center: { lat: -19.6667, lng: 30.0000 },
+    radiusKm: 10,
+    maxDistanceKm: 15,
+    bounds: { north: -19.59, south: -19.74, east: 30.08, west: 29.92 },
+    nominatimViewbox: { left: 29.85, top: -19.50, right: 30.15, bottom: -19.85 },
+    quickPicks: [
+      { id: 'rank', name: 'Shurugwi Rank', lat: -19.6667, lng: 30.0000, icon: 'rank' },
+    ],
+    importBounds: { minLat: -19.85, maxLat: -19.45, minLng: 29.75, maxLng: 30.25 },
+  },
+  {
+    id: 'norton',
+    name: 'Norton',
+    center: { lat: -17.8833, lng: 30.7000 },
+    radiusKm: 12,
+    maxDistanceKm: 18,
+    bounds: { north: -17.80, south: -17.96, east: 30.80, west: 30.60 },
+    nominatimViewbox: { left: 30.50, top: -17.75, right: 30.90, bottom: -18.05 },
+    quickPicks: [
+      { id: 'rank', name: 'Norton Rank', lat: -17.8830, lng: 30.7000, icon: 'rank' },
+    ],
+    importBounds: { minLat: -18.10, maxLat: -17.65, minLng: 30.45, maxLng: 30.95 },
+  },
+  {
+    id: 'chegutu',
+    name: 'Chegutu',
+    center: { lat: -18.1333, lng: 30.1333 },
+    radiusKm: 10,
+    maxDistanceKm: 15,
+    bounds: { north: -18.05, south: -18.21, east: 30.23, west: 30.04 },
+    nominatimViewbox: { left: 29.95, top: -17.95, right: 30.30, bottom: -18.30 },
+    quickPicks: [
+      { id: 'rank', name: 'Chegutu Rank', lat: -18.1330, lng: 30.1330, icon: 'rank' },
+    ],
+    importBounds: { minLat: -18.35, maxLat: -17.90, minLng: 29.90, maxLng: 30.35 },
+  },
 ];
+
+// Fallback for areas not covered by a specific town
+export const ZIMBABWE_NATIONAL: TownConfig = {
+  id: 'zimbabwe_national',
+  name: 'Zimbabwe (Nationwide)',
+  center: { lat: -19.0154, lng: 29.1549 }, // Geographical center
+  radiusKm: 600, // Cover the whole country
+  maxDistanceKm: 1000,
+  bounds: { north: -15.6, south: -22.4, east: 33.1, west: 25.2 },
+  nominatimViewbox: { left: 25.0, top: -15.0, right: 34.0, bottom: -23.0 },
+  quickPicks: [
+    { id: 'harare', name: 'Harare', lat: -17.8292, lng: 31.0522, icon: 'cbd' },
+    { id: 'bulawayo', name: 'Bulawayo', lat: -20.1500, lng: 28.5800, icon: 'cbd' },
+  ],
+  importBounds: { minLat: -22.5, maxLat: -15.5, minLng: 25.0, maxLng: 33.5 },
+};
 
 // Default town fallback
 export const DEFAULT_TOWN = TOWNS[0]; // Gwanda
@@ -270,10 +433,10 @@ const haversineDistance = (lat1: number, lng1: number, lat2: number, lng2: numbe
 
 /**
  * Detect which town the user is in based on GPS coordinates.
- * Returns the closest town within maxDistanceKm, or default (Gwanda).
+ * Returns the closest town within maxDistanceKm, or National config if none found.
  */
 export const detectTown = (lat: number, lng: number): TownConfig => {
-  let closest: TownConfig = DEFAULT_TOWN;
+  let closest: TownConfig | null = null;
   let closestDist = Infinity;
 
   for (const town of TOWNS) {
@@ -284,7 +447,7 @@ export const detectTown = (lat: number, lng: number): TownConfig => {
     }
   }
 
-  return closest;
+  return closest || ZIMBABWE_NATIONAL;
 };
 
 /**
