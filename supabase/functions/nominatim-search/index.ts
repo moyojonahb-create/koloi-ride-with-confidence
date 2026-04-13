@@ -30,7 +30,7 @@ serve(async (req: Request) => {
       nominatimUrl.searchParams.set('addressdetails', '1');
       nominatimUrl.searchParams.set('zoom', '18');
       const res = await fetch(nominatimUrl.toString(), {
-        headers: { 'User-Agent': 'KoloiRideApp/1.0 (contact@koloi.app)', 'Accept': 'application/json' },
+        headers: { 'User-Agent': 'KoloiApp/1.0', 'Accept': 'application/json' },
       });
       if (!res.ok) throw new Error(`Nominatim returned ${res.status}`);
       const data = await res.json();
@@ -64,7 +64,7 @@ serve(async (req: Request) => {
 
     const res = await fetch(nominatimUrl.toString(), {
       headers: {
-        'User-Agent': 'KoloiRideApp/1.0 (contact@koloi.app)',
+        'User-Agent': 'KoloiApp/1.0',
         'Accept': 'application/json',
       },
     });

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { getCached, setCache } from '@/lib/queryCache';
+import { getDistance } from '@/lib/towns';
 
 export interface Landmark {
   id: string;
@@ -13,26 +14,13 @@ export interface Landmark {
   distance?: number; // Calculated client-side when user location is available
 }
 
-// Calculate distance between two points using Haversine formula
-const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-  const R = 6371; // Earth's radius in kilometers
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
-
 // Format distance for display - always show as approximate since this is straight-line distance
 // NOT to be used for pricing - only for UI display in search results
 export const formatDistance = (distanceKm: number): string => {
   if (distanceKm < 1) {
-    return `~${Math.round(distanceKm * 1000)}m`;
+    return `${Math.round(distanceKm * 1000)}m`;
   }
-  return `~${distanceKm.toFixed(1)}km`;
+  return `${distanceKm.toFixed(1)}km`;
 };
 
 // Category icons mapping
@@ -137,7 +125,7 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
     // If there's a search query, we're more lenient with the radius to allow finding nearby landmarks
     if (townCenter && townRadiusKm) {
       results = results.filter(landmark => {
-        const dist = calculateDistance(townCenter.lat, townCenter.lng, landmark.latitude, landmark.longitude);
+        const dist = getDistance(townCenter.lat, townCenter.lng, landmark.latitude, landmark.longitude);
         // Biased radius: slightly larger than town radius to allow searching nearby landmarks
         const effectiveRadius = searchQuery.trim() ? townRadiusKm * 1.5 : townRadiusKm;
         return dist <= effectiveRadius;
@@ -148,7 +136,7 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
     if (userLocation) {
       results = results.map(landmark => ({
         ...landmark,
-        distance: calculateDistance(
+        distance: getDistance(
           userLocation.lat,
           userLocation.lng,
           landmark.latitude,
@@ -200,7 +188,7 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
     return landmarks
       .map(landmark => ({
         ...landmark,
-        distance: calculateDistance(
+        distance: getDistance(
           userLocation.lat,
           userLocation.lng,
           landmark.latitude,
@@ -219,7 +207,7 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
     let minDistance = Infinity;
 
     for (const landmark of landmarks) {
-      const distance = calculateDistance(lat, lng, landmark.latitude, landmark.longitude);
+      const distance = getDistance(lat, lng, landmark.latitude, landmark.longitude);
       if (distance < minDistance) {
         minDistance = distance;
         nearest = { ...landmark, distance };

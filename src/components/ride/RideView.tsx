@@ -163,11 +163,43 @@ export default function RideView() {
 
   // ── handlers ──
   const handleUseMyLocation = useCallback(() => {
-    if (!navigator.geolocation) {setGpsState({ status: 'unavailable', coords: null, error: 'Geolocation not supported' });return;}
+    if (!navigator.geolocation) {
+      setGpsState({ status: 'unavailable', coords: null, error: 'Geolocation not supported' });
+      // Fallback to Harare if no geolocation
+      const defaultCity = DEFAULT_TOWN;
+      setSelectedTown(defaultCity);
+      return;
+    }
     setGpsState((prev) => ({ ...prev, status: 'loading', error: null }));
     navigator.geolocation.getCurrentPosition(
-      (pos) => {const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };setGpsState({ status: 'success', coords: c, error: null });setPickupLocation({ name: 'My location', lat: c.lat, lng: c.lng });setActiveField(null);setSelectedTown(detectTown(c.lat, c.lng));},
-      (err) => {setGpsState({ status: 'denied', coords: null, error: err.code === err.PERMISSION_DENIED ? 'Location access denied' : 'Unable to get location' });},
+      async (pos) => {
+        const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setGpsState({ status: 'success', coords: c, error: null });
+        setPickupLocation({ name: 'My location', lat: c.lat, lng: c.lng });
+        setActiveField(null);
+        
+        // Use detected town
+        const detected = detectTown(c.lat, c.lng);
+        setSelectedTown(detected);
+        
+        // Reverse geocode to get city name for better results
+        try {
+          const result = await reverseZW(c.lat, c.lng);
+          const name = result?.name || result?.display_name?.split(',')[0] || 'My location';
+          setPickupLocation({ name, lat: c.lat, lng: c.lng });
+        } catch (e) {
+          console.error('Reverse geocode error:', e);
+        }
+      },
+      (err) => {
+        setGpsState({ 
+          status: 'denied', 
+          coords: null, 
+          error: err.code === err.PERMISSION_DENIED ? 'Location access denied' : 'Unable to get location' 
+        });
+        // Fallback to Harare on error
+        setSelectedTown(DEFAULT_TOWN);
+      },
       { enableHighAccuracy: true, timeout: 10000 }
     );
   }, []);

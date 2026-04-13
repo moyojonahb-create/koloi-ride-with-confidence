@@ -417,18 +417,19 @@ export const ZIMBABWE_NATIONAL: TownConfig = {
 };
 
 // Default town fallback
-export const DEFAULT_TOWN = TOWNS[0]; // Gwanda
+export const DEFAULT_TOWN = TOWNS.find(t => t.id === 'harare') || TOWNS[0];
 
 // Haversine distance in km
-const haversineDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+export const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
   const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+    Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 };
 
 /**
@@ -440,7 +441,7 @@ export const detectTown = (lat: number, lng: number): TownConfig => {
   let closestDist = Infinity;
 
   for (const town of TOWNS) {
-    const dist = haversineDistance(lat, lng, town.center.lat, town.center.lng);
+    const dist = getDistance(lat, lng, town.center.lat, town.center.lng);
     if (dist <= town.maxDistanceKm && dist < closestDist) {
       closest = town;
       closestDist = dist;
