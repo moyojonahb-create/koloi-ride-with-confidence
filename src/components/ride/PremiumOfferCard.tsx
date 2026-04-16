@@ -94,8 +94,8 @@ export default function PremiumOfferCard({ offer, riderFare, onAccept, onDecline
 
         {/* Driver info */}
         <div className="flex items-center gap-3 mb-4">
-          <Avatar className="h-12 w-12 border-2 border-primary/20 shadow-sm">
-            {offer.avatarUrl && <AvatarImage src={offer.avatarUrl} alt={offer.driverName} />}
+          <Avatar className="h-14 w-14 border-2 border-primary/20 shadow-sm">
+            {offer.avatarUrl && <AvatarImage src={offer.avatarUrl} alt={offer.driverName} className="object-cover" loading="eager" decoding="async" />}
             <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
               {offer.driverName?.charAt(0)?.toUpperCase() || '?'}
             </AvatarFallback>
@@ -130,7 +130,10 @@ export default function PremiumOfferCard({ offer, riderFare, onAccept, onDecline
               {offer.carColor && (
                 <>
                   <span className="text-border">•</span>
-                  <span className="capitalize">{offer.carColor}</span>
+                  <span className="flex items-center gap-1 capitalize">
+                    <span className="w-2.5 h-2.5 rounded-full border border-border/40 inline-block shrink-0" style={{ backgroundColor: offer.carColor.toLowerCase() }} />
+                    {offer.carColor}
+                  </span>
                 </>
               )}
               <span className="text-border">•</span>
