@@ -60,7 +60,15 @@ const RiderRequestScreen = lazy(() => import("./pages/negotiate/RiderRequestScre
 const LiveTrackingPage = lazy(() => import("./pages/LiveTrackingPage"));
 
 function SuspenseWrap({ children }: { children: React.ReactNode }) {
-  return <Suspense fallback={null}>{children}</Suspense>;
+  return (
+    <Suspense fallback={
+      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      {children}
+    </Suspense>
+  );
 }
 
 // Prefetch critical user-facing pages during idle time

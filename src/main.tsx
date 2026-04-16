@@ -25,9 +25,28 @@ Sentry.init({
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),
   ],
-  tracesSampleRate: 0.2,
+  tracesSampleRate: 0.3,
   replaysOnErrorSampleRate: 1.0,
-  replaysSessionSampleRate: 0.05,
+  replaysSessionSampleRate: 0.1,
+  // Ignore noisy non-actionable errors
+  ignoreErrors: [
+    'ResizeObserver loop',
+    'Non-Error promise rejection',
+    'Loading chunk',
+    'Failed to fetch',
+    'NetworkError',
+    'AbortError',
+  ],
+  beforeSend(event) {
+    // Enrich with device context
+    event.tags = {
+      ...event.tags,
+      screen_width: `${window.screen?.width ?? 0}`,
+      connection: (navigator as any).connection?.effectiveType ?? 'unknown',
+      online: String(navigator.onLine),
+    };
+    return event;
+  },
 });
 
 // Initialize native Capacitor plugins (no-ops on web)
