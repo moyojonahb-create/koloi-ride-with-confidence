@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
-import { useWallet } from '@/hooks/useWallet';
+// Rider wallet removed — riders pay drivers directly
 import { useProfileStats } from '@/hooks/useProfileStats';
 import { supabase } from '@/lib/supabaseClient';
 import { resolveAvatarUrl } from '@/lib/avatarUrl';
@@ -28,7 +28,7 @@ export default function RiderProfile() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useUserRole();
   const { isApproved: isApprovedDriver } = useDriverStatus();
-  const { balance } = useWallet();
+  // Rider wallet removed
   const { stats } = useProfileStats();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
@@ -159,10 +159,10 @@ export default function RiderProfile() {
             color="primary"
           />
           <QuickAction
-            icon={<Wallet className="w-5 h-5" />}
-            label={`$${balance.toFixed(0)}`}
-            sublabel="Balance"
-            onClick={() => navigate(`${prefix}/wallet`)}
+            icon={<History className="w-5 h-5" />}
+            label="History"
+            sublabel={stats.lastRideDate ? format(new Date(stats.lastRideDate), 'MMM d') : 'No rides'}
+            onClick={() => navigate(`${prefix}/history`)}
           />
           <QuickAction
             icon={<History className="w-5 h-5" />}
