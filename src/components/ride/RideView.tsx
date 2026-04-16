@@ -1104,7 +1104,7 @@ export default function RideView() {
             <>
                 {/* Single unified section: Streets & Places */}
                 <div className="px-4 py-2 bg-accent/8 border-t border-border/15">
-                  <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">📍 Showing locations within {selectedTown.name}</p>
+                  <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">Showing locations within {selectedTown.name}</p>
                 </div>
 
                 {(landmarksLoading || cachedPlacesLoading || googleLoading || nominatimLoading) && landmarks.length === 0 && unifiedPlaceResults.length === 0 &&
