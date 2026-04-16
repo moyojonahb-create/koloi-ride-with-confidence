@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { requestRide } from '@/lib/requestRide';
 import { searchZW, reverseZW } from '@/lib/geo_osm';
 import { cachePlaceFromNominatim } from '@/lib/placeCache';
+import { searchCachedPlacesPrefix } from '@/lib/placeCache';
 import { useToast } from '@/hooks/use-toast';
 import { useGooglePlacesAutocomplete } from '@/hooks/useGooglePlacesAutocomplete';
 import { useTownPricing, calculateRecommendedFare, formatFare } from '@/hooks/useTownPricing';
@@ -92,7 +93,9 @@ export default function RideView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [proximityRadius, setProximityRadius] = useState<number | null>(null);
   const [nominatimResults, setNominatimResults] = useState<Array<{name: string;lat: number;lng: number;displayName: string;}>>([]);
+  const [cachedPlaceResults, setCachedPlaceResults] = useState<Array<{name: string;lat: number;lng: number;displayName: string;}>>([]);
   const [nominatimLoading, setNominatimLoading] = useState(false);
+  const [cachedPlacesLoading, setCachedPlacesLoading] = useState(false);
   const nominatimDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [reverseGeoLoading, setReverseGeoLoading] = useState(false);
   const [selectedTier, setSelectedTier] = useState<VehicleTier>('standard');
@@ -257,17 +260,39 @@ export default function RideView() {
 
   const handleNominatimSearch = useCallback((query: string) => {
     if (nominatimDebounceRef.current) clearTimeout(nominatimDebounceRef.current);
-    if (query.trim().length < 2) {setNominatimResults([]);setNominatimLoading(false);return;}
+    if (query.trim().length < 3) {setNominatimResults([]);setNominatimLoading(false);return;}
     setNominatimLoading(true);
     nominatimDebounceRef.current = setTimeout(async () => {
       try {
-        // Search with town viewbox bias but NOT bounded, so results outside town still appear
-        const results = await searchZW(query.trim(), 15, selectedTown.nominatimViewbox, false);
+        // Search Zimbabwe-wide with a town bias so prefixes like "mak" can still surface Makokoba and other matching places fast.
+        const results = await searchZW(query.trim(), 20, selectedTown.nominatimViewbox, false);
         setNominatimResults(results.map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name })));
         for (const r of results) cachePlaceFromNominatim(r).catch(() => {});
       } catch {setNominatimResults([]);} finally {setNominatimLoading(false);}
     }, 150);
   }, [selectedTown]);
+
+  const handleCachedPlacesSearch = useCallback((query: string) => {
+    const trimmed = query.trim();
+    if (trimmed.length < 3) {
+      setCachedPlaceResults([]);
+      setCachedPlacesLoading(false);
+      return;
+    }
+
+    setCachedPlacesLoading(true);
+    searchCachedPlacesPrefix(trimmed, 12)
+      .then((results) => {
+        setCachedPlaceResults(results.map((row) => ({
+          name: row.name || row.display_name.split(',')[0],
+          lat: Number(row.lat),
+          lng: Number(row.lon),
+          displayName: row.display_name,
+        })));
+      })
+      .catch(() => setCachedPlaceResults([]))
+      .finally(() => setCachedPlacesLoading(false));
+  }, []);
 
   const handleMapClick = useCallback(async (coords: {lat: number;lng: number;}) => {
     if (!activeField) return;
@@ -435,7 +460,8 @@ export default function RideView() {
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    if (value.trim().length >= 2) {searchGoogle(value);} else {clearGoogleSuggestions();}
+    if (value.trim().length >= 3) {searchGoogle(value);} else {clearGoogleSuggestions();}
+    handleCachedPlacesSearch(value);
     handleNominatimSearch(value);
   };
 
@@ -448,7 +474,18 @@ export default function RideView() {
   };
 
   const canRequestRide = pickupLocation && dropoffLocation && fareEstimate && !isRequesting;
-  const showNominatimFallback = searchQuery.trim().length >= 3 && landmarks.length === 0 && nominatimResults.length > 0;
+  const unifiedPlaceResults = [...cachedPlaceResults, ...googleSuggestions.map((item) => ({
+    name: item.name,
+    lat: item.lat ?? 0,
+    lng: item.lng ?? 0,
+    displayName: item.description,
+    placeId: item.placeId,
+    source: 'google' as const,
+  })), ...nominatimResults.map((item) => ({ ...item, source: 'nominatim' as const }))]
+    .filter((item, index, arr) => {
+      const key = `${item.name}-${item.displayName}`.toLowerCase();
+      return arr.findIndex((candidate) => `${candidate.name}-${candidate.displayName}`.toLowerCase() === key) === index;
+    });
 
   // ═══════════════════════════════════════════
   // DRIVER MATCHED VIEW
@@ -1036,14 +1073,14 @@ export default function RideView() {
               </>
             }
 
-            {searchQuery.trim().length >= 2 &&
+            {searchQuery.trim().length >= 3 &&
             <>
                 {/* Single unified section: Streets & Places */}
                 <div className="px-4 py-2 bg-accent/8 border-t border-border/15">
                   <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">🌍 Streets & Places</p>
                 </div>
 
-                {(landmarksLoading || googleLoading || nominatimLoading) && landmarks.length === 0 && googleSuggestions.length === 0 && nominatimResults.length === 0 &&
+                {(landmarksLoading || cachedPlacesLoading || googleLoading || nominatimLoading) && landmarks.length === 0 && unifiedPlaceResults.length === 0 &&
               <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground"><Loader2 className="w-5 h-5 animate-spin" /><span className="text-sm">Searching places…</span></div>
               }
 
@@ -1060,7 +1097,18 @@ export default function RideView() {
                     </button>
               )}
 
-                {/* Google Places results */}
+                {cachedPlaceResults.map((result, index) =>
+              <button key={`cache-${index}`} onClick={() => handleNominatimSelect(result)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
+                      <div className="w-11 h-11 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
+                        <Navigation className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground truncate">{result.name}</p>
+                        <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
+                      </div>
+                    </button>
+              )}
+
                 {googleSuggestions.map((suggestion) =>
               <button key={suggestion.placeId} onClick={() => handleGooglePlaceSelect(suggestion)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-accent/5 transition-colors border-b border-border/15 text-left">
                       <div className="w-11 h-11 rounded-2xl bg-accent/12 flex items-center justify-center shrink-0">
@@ -1073,7 +1121,6 @@ export default function RideView() {
                     </button>
               )}
 
-                {/* Nominatim fallback results */}
                 {nominatimResults.map((result, index) =>
               <button key={`nom-${index}`} onClick={() => handleNominatimSelect(result)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
                       <div className="w-11 h-11 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
@@ -1087,7 +1134,7 @@ export default function RideView() {
               )}
 
                 {/* Empty state */}
-                {!landmarksLoading && !googleLoading && !nominatimLoading && landmarks.length === 0 && googleSuggestions.length === 0 && nominatimResults.length === 0 && searchQuery.trim().length >= 2 &&
+                {!landmarksLoading && !cachedPlacesLoading && !googleLoading && !nominatimLoading && landmarks.length === 0 && cachedPlaceResults.length === 0 && googleSuggestions.length === 0 && nominatimResults.length === 0 && searchQuery.trim().length >= 3 &&
               <div className="text-center py-12 text-muted-foreground">
                       <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
                       <p className="text-sm">No results for "{searchQuery}"</p>

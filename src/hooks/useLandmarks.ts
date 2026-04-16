@@ -121,13 +121,12 @@ export const useLandmarks = ({ userLocation, searchQuery = '', limit = 10, radiu
   const filteredLandmarks = useMemo(() => {
     let results = [...landmarks];
 
-    // Filter by town — only show landmarks in the selected town
-    // If there's a search query, we're more lenient with the radius to allow finding nearby landmarks
+    // Filter by town for browse mode only.
+    // During search, do not hide valid Zimbabwe matches just because they fall outside the current town radius.
     if (townCenter && townRadiusKm) {
       results = results.filter(landmark => {
         const dist = getDistance(townCenter.lat, townCenter.lng, landmark.latitude, landmark.longitude);
-        // Biased radius: slightly larger than town radius to allow searching nearby landmarks
-        const effectiveRadius = searchQuery.trim() ? townRadiusKm * 1.5 : townRadiusKm;
+        const effectiveRadius = searchQuery.trim() ? Infinity : townRadiusKm;
         return dist <= effectiveRadius;
       });
     }
