@@ -12,6 +12,7 @@ export type RiderPreferences = {
   wav_required: boolean;
   hearing_impaired: boolean;
   gender_preference: string;
+  gender: string | null;
 };
 
 const defaults: RiderPreferences = {
@@ -20,6 +21,7 @@ const defaults: RiderPreferences = {
   wav_required: false,
   hearing_impaired: false,
   gender_preference: 'any',
+  gender: null,
 };
 
 export function useRiderPreferences() {
@@ -31,7 +33,7 @@ export function useRiderPreferences() {
     if (!user) return;
     const { data } = await supabase
       .from('profiles')
-      .select('quiet_ride, cool_temperature, wav_required, hearing_impaired, gender_preference')
+      .select('quiet_ride, cool_temperature, wav_required, hearing_impaired, gender_preference, gender')
       .eq('user_id', user.id)
       .maybeSingle();
     if (data) setPrefs(data as RiderPreferences);
