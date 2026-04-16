@@ -125,11 +125,10 @@ export default function DriverOfferModal({
               <div className="space-y-1.5">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Rider Requirements</p>
                 <RidePreferenceTags
-                  quietRide={preferences!.quiet_ride}
-                  coolTemperature={preferences!.cool_temperature}
-                  wavRequired={preferences!.wav_required}
-                  hearingImpaired={preferences!.hearing_impaired}
-                  genderPreference={preferences!.gender_preference}
+                  quietRide={sanitizedPrefs!.quiet_ride}
+                  coolTemperature={sanitizedPrefs!.cool_temperature}
+                  wavRequired={sanitizedPrefs!.wav_required}
+                  hearingImpaired={sanitizedPrefs!.hearing_impaired}
                   size="md"
                 />
               </div>
