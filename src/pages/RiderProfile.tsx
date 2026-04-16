@@ -165,10 +165,10 @@ export default function RiderProfile() {
             onClick={() => navigate(`${prefix}/history`)}
           />
           <QuickAction
-            icon={<History className="w-5 h-5" />}
-            label="History"
-            sublabel={stats.lastRideDate ? format(new Date(stats.lastRideDate), 'MMM d') : 'No rides'}
-            onClick={() => navigate(`${prefix}/history`)}
+            icon={<Shield className="w-5 h-5" />}
+            label="Safety"
+            sublabel="SOS & tips"
+            onClick={() => navigate(`${prefix}/safety`)}
           />
           <QuickAction
             icon={<Car className="w-5 h-5" />}
