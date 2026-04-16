@@ -56,3 +56,44 @@ export async function searchCachedPlaces(query: string, limit = 10) {
     .limit(limit);
   return data ?? [];
 }
+
+/**
+ * Prefix-first cached search for fast rider suggestions.
+ * Prioritizes names/display names that start with the typed text,
+ * then falls back to contains matches across cached Zimbabwe places.
+ */
+export async function searchCachedPlacesPrefix(query: string, limit = 12) {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  const prefix = `${trimmed}%`;
+  const contains = `%${trimmed}%`;
+
+  const [{ data: namePrefix }, { data: displayPrefix }, { data: containsMatches }] = await Promise.all([
+    supabase
+      .from('places_cache')
+      .select('*')
+      .ilike('name', prefix)
+      .limit(limit),
+    supabase
+      .from('places_cache')
+      .select('*')
+      .ilike('display_name', prefix)
+      .limit(limit),
+    supabase
+      .from('places_cache')
+      .select('*')
+      .or(`name.ilike.${contains},display_name.ilike.${contains}`)
+      .limit(limit),
+  ]);
+
+  const merged = [...(namePrefix ?? []), ...(displayPrefix ?? []), ...(containsMatches ?? [])];
+  const seen = new Set<string>();
+
+  return merged.filter((row) => {
+    const key = row.id ?? `${row.osm_type ?? 'x'}-${row.osm_id ?? row.display_name}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, limit);
+}
