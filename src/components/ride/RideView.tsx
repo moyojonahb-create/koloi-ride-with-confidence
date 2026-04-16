@@ -1147,7 +1147,10 @@ export default function RideView() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-foreground truncate">{result.name}</p>
-                        <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {(result as any).category && <span className="text-[10px] font-semibold text-primary bg-primary/8 px-1.5 py-0.5 rounded-full whitespace-nowrap">{(result as any).category}</span>}
+                          <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
+                        </div>
                       </div>
                     </button>
               )}
