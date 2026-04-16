@@ -24,7 +24,7 @@ export interface TownConfig {
     name: string;
     lat: number;
     lng: number;
-    icon: 'rank' | 'cbd' | 'hospital' | 'shopping' | 'police' | 'fuel' | 'school';
+    icon: 'rank' | 'cbd' | 'hospital' | 'shopping' | 'police' | 'fuel' | 'school' | 'landmark';
   }[];
   // Coordinate validation bounds for OSM import (wider than service area)
   importBounds: {
@@ -460,7 +460,7 @@ export const isWithinAnyServiceArea = (lat: number, lng: number): boolean => {
     if (lat < bounds.south || lat > bounds.north || lng < bounds.west || lng > bounds.east) {
       return false;
     }
-    return haversineDistance(center.lat, center.lng, lat, lng) <= maxDistanceKm;
+    return getDistance(center.lat, center.lng, lat, lng) <= maxDistanceKm;
   });
 };
 
@@ -472,7 +472,7 @@ export const isWithinTownServiceArea = (town: TownConfig, lat: number, lng: numb
   if (lat < bounds.south || lat > bounds.north || lng < bounds.west || lng > bounds.east) {
     return false;
   }
-  return haversineDistance(center.lat, center.lng, lat, lng) <= maxDistanceKm;
+  return getDistance(center.lat, center.lng, lat, lng) <= maxDistanceKm;
 };
 
 /**

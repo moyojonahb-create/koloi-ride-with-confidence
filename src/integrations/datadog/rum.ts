@@ -55,7 +55,7 @@ export function initDatadogRum(): void {
       trackResources: true,
       trackUserInteractions: true,
       trackLongTasks: true,
-      trackFrustrations: true,
+      // trackFrustrations removed - not in this SDK version
       defaultPrivacyLevel: 'mask-user-input',
       plugins: [reactPlugin({ router: false })],
     });

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import * as Sentry from '@sentry/react';
 
 // Buggy component to test React error boundary capture
-function BrokenComponent() {
+function BrokenComponent(): JSX.Element {
   throw new Error('Sentry test: React render crash');
 }
 
