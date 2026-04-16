@@ -100,6 +100,29 @@ export default function DriverPersonalForm({ onNext, onBack }: { onNext: (data: 
             </FormItem>
           )} />
 
+          <FormField control={form.control} name="gender" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gender *</FormLabel>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => field.onChange('male')}
+                  className={`flex-1 py-3 rounded-xl border text-sm font-semibold transition-all ${field.value === 'male' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground hover:border-muted-foreground/50'}`}
+                >
+                  Male
+                </button>
+                <button
+                  type="button"
+                  onClick={() => field.onChange('female')}
+                  className={`flex-1 py-3 rounded-xl border text-sm font-semibold transition-all ${field.value === 'female' ? 'border-pink-400 bg-pink-50 text-pink-600 dark:bg-pink-950/20' : 'border-border text-muted-foreground hover:border-muted-foreground/50'}`}
+                >
+                  Female
+                </button>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )} />
+
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" className="flex-1 h-14 rounded-xl" onClick={() => onBack ? onBack() : navigate('/driver/register')}>
               Back
