@@ -129,7 +129,7 @@ export default function RideDetail() {
     (async () => {
       const { data: d } = await supabase
         .from("drivers")
-        .select("user_id, vehicle_make, vehicle_model, plate_number, rating_avg, total_trips, avatar_url")
+        .select("user_id, vehicle_make, vehicle_model, vehicle_color, plate_number, rating_avg, total_trips, avatar_url")
         .eq("id", ride.driver_id)
         .maybeSingle();
       if (!d) return;
@@ -150,7 +150,7 @@ export default function RideDetail() {
         vehicleMake: d.vehicle_make || null,
         vehicleModel: d.vehicle_model || null,
         plateNumber: d.plate_number || null,
-        carColor: "Not listed",
+        carColor: d.vehicle_color || "Not listed",
         etaMinutes: acceptedOffer?.eta_minutes ?? null,
       });
     })();
@@ -614,9 +614,9 @@ export default function RideDetail() {
           {driverProfile && !isDriverArrived && (
             <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-muted/40">
               {driverProfile.avatarUrl ? (
-                <img src={driverProfile.avatarUrl} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-primary/20" />
+                <img src={driverProfile.avatarUrl} alt="Driver" className="w-14 h-14 rounded-full object-cover border-2 border-primary/20" loading="eager" decoding="async" />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
                   <span className="text-lg font-bold text-primary">{driverProfile.fullName.charAt(0)}</span>
                 </div>
               )}
@@ -631,6 +631,12 @@ export default function RideDetail() {
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {driverProfile.vehicleMake} {driverProfile.vehicleModel} · {driverProfile.plateNumber}
                   </p>
+                )}
+                {driverProfile.carColor && driverProfile.carColor !== "Not listed" && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <div className="w-3 h-3 rounded-full border border-border/50" style={{ backgroundColor: driverProfile.carColor.toLowerCase() }} />
+                    <span className="text-xs text-muted-foreground capitalize">{driverProfile.carColor}</span>
+                  </div>
                 )}
               </div>
               {driverProfile.etaMinutes != null && (
