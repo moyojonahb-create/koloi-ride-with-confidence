@@ -52,6 +52,13 @@ export default function RiderPreferencesSettings() {
 
   useEffect(() => { if (loaded) setLocal(prefs); }, [prefs, loaded]);
 
+  // Auto-reset gender_preference if non-female rider has it set
+  useEffect(() => {
+    if (loaded && local.gender !== 'female' && local.gender_preference !== 'any') {
+      update('gender_preference', 'any');
+    }
+  }, [loaded, local.gender]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const update = async (field: keyof RiderPreferences, value: boolean | string) => {
     if (!user) return;
     const next = { ...local, [field]: value };
