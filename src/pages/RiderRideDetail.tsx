@@ -879,9 +879,15 @@ export default function RiderRideDetail() {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex items-center gap-3"
               >
-                <Avatar className="h-14 w-14 shrink-0 ring-2 ring-primary/20">
+                <Avatar className="h-16 w-16 shrink-0 ring-2 ring-primary/20">
                   {(driverProfile as Record<string, unknown>).avatar_url ? (
-                    <AvatarImage src={(driverProfile as Record<string, unknown>).avatar_url as string} alt="Driver" />
+                    <AvatarImage
+                      src={(driverProfile as Record<string, unknown>).avatar_url as string}
+                      alt="Driver"
+                      className="object-cover"
+                      loading="eager"
+                      decoding="async"
+                    />
                   ) : null}
                   <AvatarFallback className={`text-lg font-bold ${(driverProfile as Record<string, unknown>).gender === 'female' ? 'bg-pink-100 text-pink-700' : 'bg-primary/10 text-primary'}`}>
                     {(driverProfile as Record<string, unknown>).gender === 'female' ? '♀' : '♂'}
@@ -903,6 +909,12 @@ export default function RiderRideDetail() {
                       </span>
                     )}
                   </div>
+                  {(driverProfile as Record<string, unknown>).vehicle_color && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <div className="w-3 h-3 rounded-full border border-border/50" style={{ backgroundColor: String((driverProfile as Record<string, unknown>).vehicle_color).toLowerCase() }} />
+                      <span className="text-xs text-muted-foreground capitalize">{String((driverProfile as Record<string, unknown>).vehicle_color)}</span>
+                    </div>
+                  )}
                 </div>
                 {etaMinutes && !isArrived && (
                   <div className="text-center shrink-0 bg-primary/10 rounded-2xl px-4 py-2">
