@@ -140,7 +140,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
         // Get the newly created user and update their phone
         const { data: userData } = await supabase.auth.getUser();
         if (userData?.user) {
-          await updateProfilePhone(userData.user.id, fullPhone);
+          await updateProfileAfterSignup(userData.user.id, fullPhone, gender);
         }
         
         toast.success('Account created successfully!');
