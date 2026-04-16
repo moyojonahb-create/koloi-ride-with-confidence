@@ -43,10 +43,11 @@ export default function DriverOfferModal({
   ride, preferences, offerPrice, eta, note, submitting,
   onClose, onInc, onDec, onEtaChange, onNoteChange, onSubmit, fmtUSD,
 }: OfferModalProps) {
-  const hasPrefs = preferences && (
-    preferences.quiet_ride || preferences.cool_temperature ||
-    preferences.wav_required || preferences.hearing_impaired ||
-    (preferences.gender_preference && preferences.gender_preference !== 'any')
+  // Strip gender_preference from driver view — drivers should never see it
+  const sanitizedPrefs = preferences ? { ...preferences, gender_preference: undefined } : preferences;
+  const hasPrefs = sanitizedPrefs && (
+    sanitizedPrefs.quiet_ride || sanitizedPrefs.cool_temperature ||
+    sanitizedPrefs.wav_required || sanitizedPrefs.hearing_impaired
   );
 
   return (

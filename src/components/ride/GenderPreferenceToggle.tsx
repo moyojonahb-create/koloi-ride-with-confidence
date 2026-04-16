@@ -44,7 +44,7 @@ export default function GenderPreferenceToggle({ value, onChange }: GenderPrefer
           {isFemaleOnly ? 'Women-Only Ride' : 'Any Driver'}
         </p>
         <p className="text-[10px] text-muted-foreground leading-tight">
-          {isFemaleOnly ? 'Only matched with female drivers' : 'Tap to request a female driver only'}
+          {isFemaleOnly ? 'Only matched with female drivers' : 'Match preference'}
         </p>
       </div>
       <div className={cn(
