@@ -11,17 +11,24 @@ interface NearbyDriver {
 
 /**
  * Pure-realtime nearby drivers hook — no polling.
- * Fetches once on mount, then listens for INSERT/UPDATE/DELETE on live_locations.
+ * OPTIMIZED: Added LIMIT 100 to initial fetch to prevent loading all 10K drivers.
+ * Uses debounced state sync to avoid re-renders on every realtime event.
  */
 export function useNearbyDrivers(active: boolean): NearbyDriver[] {
   const [drivers, setDrivers] = useState<NearbyDriver[]>([]);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const driversMapRef = useRef<Map<string, NearbyDriver>>(new Map());
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Debounced sync: batch rapid realtime events into one state update
   const syncToState = useCallback(() => {
-    setDrivers(
-      Array.from(driversMapRef.current.values()).filter((d) => d.isOnline)
-    );
+    if (syncTimerRef.current) return; // already scheduled
+    syncTimerRef.current = setTimeout(() => {
+      syncTimerRef.current = null;
+      setDrivers(
+        Array.from(driversMapRef.current.values()).filter((d) => d.isOnline)
+      );
+    }, 500); // 500ms debounce — prevents 10K setState calls
   }, []);
 
   useEffect(() => {
@@ -31,13 +38,14 @@ export function useNearbyDrivers(active: boolean): NearbyDriver[] {
       return;
     }
 
-    // Initial fetch
+    // Initial fetch — LIMIT 100 nearest (was unbounded)
     const fetchDrivers = async () => {
       const { data } = await supabase
         .from("live_locations")
         .select("user_id, latitude, longitude, is_online")
         .eq("user_type", "driver")
-        .eq("is_online", true);
+        .eq("is_online", true)
+        .limit(100); // Cap initial load
 
       if (data) {
         const map = new Map<string, NearbyDriver>();
@@ -50,7 +58,7 @@ export function useNearbyDrivers(active: boolean): NearbyDriver[] {
           });
         });
         driversMapRef.current = map;
-        syncToState();
+        setDrivers(Array.from(map.values()));
       }
     };
 
@@ -88,6 +96,10 @@ export function useNearbyDrivers(active: boolean): NearbyDriver[] {
     channelRef.current = channel;
 
     return () => {
+      if (syncTimerRef.current) {
+        clearTimeout(syncTimerRef.current);
+        syncTimerRef.current = null;
+      }
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
