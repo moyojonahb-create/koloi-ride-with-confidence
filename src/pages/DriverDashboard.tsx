@@ -401,7 +401,7 @@ export default function DriverDashboard() {
       if (p.is_online) {
         // Expire old rides server-side first
         await expireOldRides();
-        const list = await fetchOpenRides();
+        const list = await fetchOpenRides(profile?.gender);
         const activeList = filterActiveRides(list);
 
         setRides(activeList as Ride[]);

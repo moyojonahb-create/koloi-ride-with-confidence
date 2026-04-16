@@ -33,6 +33,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [gender, setGender] = useState<'male' | 'female' | ''>('');
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+263');
   const [otp, setOtp] = useState('');
@@ -97,15 +98,17 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
     return true;
   };
 
-  // Update profile with phone after signup
-  const updateProfilePhone = async (userId: string, phoneNumber: string) => {
+  // Update profile with phone and gender after signup
+  const updateProfileAfterSignup = async (userId: string, phoneNumber: string, userGender: string) => {
     try {
+      const updateData: Record<string, string> = { phone: phoneNumber };
+      if (userGender) updateData.gender = userGender;
       await supabase
         .from('profiles')
-        .update({ phone: phoneNumber })
+        .update(updateData as never)
         .eq('user_id', userId);
     } catch (e) {
-      console.warn('Could not update phone:', e);
+      console.warn('Could not update profile:', e);
     }
   };
 
@@ -116,8 +119,13 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
     const isValidPassword = validatePassword();
     const isValidName = mode === 'signup' ? validateName() : true;
     const isValidPhone = mode === 'signup' ? validatePhone() : true;
+    const isValidGender = mode === 'signup' ? (() => {
+      if (!gender) { setErrors(prev => ({ ...prev, gender: 'Please select your gender' })); return false; }
+      setErrors(prev => ({ ...prev, gender: '' }));
+      return true;
+    })() : true;
     
-    if (!isValidEmail || !isValidPassword || !isValidName || !isValidPhone) return;
+    if (!isValidEmail || !isValidPassword || !isValidName || !isValidPhone || !isValidGender) return;
     
     setLoading(true);
     
@@ -137,7 +145,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
         // Get the newly created user and update their phone
         const { data: userData } = await supabase.auth.getUser();
         if (userData?.user) {
-          await updateProfilePhone(userData.user.id, fullPhone);
+          await updateProfileAfterSignup(userData.user.id, fullPhone, gender);
         }
         
         toast.success('Account created successfully!');
@@ -371,6 +379,29 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
                 </div>
                 {errors.phone && (
                   <p className="text-destructive text-sm mt-1">{errors.phone}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="gender">Gender *</Label>
+                <div className="flex gap-2 mt-1.5">
+                  <button
+                    type="button"
+                    onClick={() => { setGender('male'); setErrors(prev => ({ ...prev, gender: '' })); }}
+                    className={`flex-1 py-3 rounded-2xl border text-sm font-semibold transition-all ${gender === 'male' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground hover:border-muted-foreground/50'}`}
+                  >
+                    Male
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setGender('female'); setErrors(prev => ({ ...prev, gender: '' })); }}
+                    className={`flex-1 py-3 rounded-2xl border text-sm font-semibold transition-all ${gender === 'female' ? 'border-pink-400 bg-pink-50 text-pink-600 dark:bg-pink-950/20' : 'border-border text-muted-foreground hover:border-muted-foreground/50'}`}
+                  >
+                    Female
+                  </button>
+                </div>
+                {errors.gender && (
+                  <p className="text-destructive text-sm mt-1">{errors.gender}</p>
                 )}
               </div>
             </>

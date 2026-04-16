@@ -122,7 +122,7 @@ export default function RideView() {
   const [activeStopId, setActiveStopId] = useState<string | null>(null);
   const { pricing: townPricing } = useTownPricing(selectedTown?.id ?? null);
   const { prefs: riderPrefs, loaded: prefsLoaded } = useRiderPreferences();
-  const genderPreference = riderPrefs.gender_preference as GenderPreference;
+  const genderPreference = riderPrefs.gender === 'female' ? (riderPrefs.gender_preference as GenderPreference) : 'any';
   const quietRide = riderPrefs.quiet_ride;
   const coolTemp = riderPrefs.cool_temperature;
   const wavRequired = riderPrefs.wav_required;

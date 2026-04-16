@@ -12,6 +12,7 @@ export type RiderPreferences = {
   wav_required: boolean;
   hearing_impaired: boolean;
   gender_preference: string;
+  gender: string | null;
 };
 
 const defaults: RiderPreferences = {
@@ -20,6 +21,7 @@ const defaults: RiderPreferences = {
   wav_required: false,
   hearing_impaired: false,
   gender_preference: 'any',
+  gender: null,
 };
 
 export function useRiderPreferences() {
@@ -31,7 +33,7 @@ export function useRiderPreferences() {
     if (!user) return;
     const { data } = await supabase
       .from('profiles')
-      .select('quiet_ride, cool_temperature, wav_required, hearing_impaired, gender_preference')
+      .select('quiet_ride, cool_temperature, wav_required, hearing_impaired, gender_preference, gender')
       .eq('user_id', user.id)
       .maybeSingle();
     if (data) setPrefs(data as RiderPreferences);
@@ -49,6 +51,13 @@ export default function RiderPreferencesSettings() {
   const [local, setLocal] = useState<RiderPreferences>(defaults);
 
   useEffect(() => { if (loaded) setLocal(prefs); }, [prefs, loaded]);
+
+  // Auto-reset gender_preference if non-female rider has it set
+  useEffect(() => {
+    if (loaded && local.gender !== 'female' && local.gender_preference !== 'any') {
+      update('gender_preference', 'any');
+    }
+  }, [loaded, local.gender]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const update = async (field: keyof RiderPreferences, value: boolean | string) => {
     if (!user) return;
@@ -80,6 +89,7 @@ export default function RiderPreferencesSettings() {
   ];
 
   const isWomenOnly = local.gender_preference === 'female';
+  const isFemaleRider = local.gender === 'female';
 
   return (
     <div className="space-y-1.5">
@@ -96,18 +106,20 @@ export default function RiderPreferencesSettings() {
           />
         </div>
       ))}
-      {/* Gender preference */}
-      <div className="w-full flex items-center gap-3 px-4 py-3 glass-card rounded-2xl">
-        <ShieldCheck className="w-4 h-4 text-pink-500" />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground">Women Only Drivers</p>
-          <p className="text-[10px] text-muted-foreground">Only matched with female drivers</p>
+      {/* Gender preference — only visible to female riders */}
+      {isFemaleRider && (
+        <div className="w-full flex items-center gap-3 px-4 py-3 glass-card rounded-2xl">
+          <ShieldCheck className="w-4 h-4 text-pink-500" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground">Women Only Drivers</p>
+            <p className="text-[10px] text-muted-foreground">Only matched with female drivers for added safety</p>
+          </div>
+          <Switch
+            checked={isWomenOnly}
+            onCheckedChange={(v) => update('gender_preference', v ? 'female' : 'any')}
+          />
         </div>
-        <Switch
-          checked={isWomenOnly}
-          onCheckedChange={(v) => update('gender_preference', v ? 'female' : 'any')}
-        />
-      </div>
+      )}
     </div>
   );
 }

@@ -741,6 +741,30 @@ export type Database = {
         }
         Relationships: []
       }
+      gender_change_log: {
+        Row: {
+          created_at: string
+          id: string
+          new_gender: string
+          old_gender: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          new_gender: string
+          old_gender?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          new_gender?: string
+          old_gender?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       koloi_landmarks: {
         Row: {
           category: string
@@ -1119,6 +1143,7 @@ export type Database = {
           cool_temperature: boolean
           created_at: string
           full_name: string | null
+          gender: string | null
           gender_preference: string
           hearing_impaired: boolean
           id: string
@@ -1134,6 +1159,7 @@ export type Database = {
           cool_temperature?: boolean
           created_at?: string
           full_name?: string | null
+          gender?: string | null
           gender_preference?: string
           hearing_impaired?: boolean
           id?: string
@@ -1149,6 +1175,7 @@ export type Database = {
           cool_temperature?: boolean
           created_at?: string
           full_name?: string | null
+          gender?: string | null
           gender_preference?: string
           hearing_impaired?: boolean
           id?: string
@@ -2161,6 +2188,7 @@ export type Database = {
         Returns: Json
       }
       admin_set_fx_rate: { Args: { p_zar_per_usd: number }; Returns: Json }
+      can_change_gender: { Args: { p_user_id: string }; Returns: boolean }
       can_driver_operate: { Args: { p_driver_id: string }; Returns: boolean }
       check_rate_limit: {
         Args: {

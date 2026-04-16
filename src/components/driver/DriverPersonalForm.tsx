@@ -13,6 +13,7 @@ const schema = z.object({
   email: z.string().email('Invalid email'),
   city: z.string().min(2, 'City is required'),
   nationalId: z.string().min(5, 'National ID is required'),
+  gender: z.enum(['male', 'female'], { required_error: 'Please select your gender' }),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -28,6 +29,7 @@ export default function DriverPersonalForm({ onNext, onBack }: { onNext: (data: 
       email: '',
       city: '',
       nationalId: '',
+      gender: undefined,
     },
   });
 
@@ -94,6 +96,29 @@ export default function DriverPersonalForm({ onNext, onBack }: { onNext: (data: 
               <FormControl>
                 <Input {...field} className="h-14 rounded-xl" placeholder="12-3456-78-901XX" />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )} />
+
+          <FormField control={form.control} name="gender" render={({ field }) => (
+            <FormItem>
+              <FormLabel>Gender *</FormLabel>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => field.onChange('male')}
+                  className={`flex-1 py-3 rounded-xl border text-sm font-semibold transition-all ${field.value === 'male' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground hover:border-muted-foreground/50'}`}
+                >
+                  Male
+                </button>
+                <button
+                  type="button"
+                  onClick={() => field.onChange('female')}
+                  className={`flex-1 py-3 rounded-xl border text-sm font-semibold transition-all ${field.value === 'female' ? 'border-pink-400 bg-pink-50 text-pink-600 dark:bg-pink-950/20' : 'border-border text-muted-foreground hover:border-muted-foreground/50'}`}
+                >
+                  Female
+                </button>
+              </div>
               <FormMessage />
             </FormItem>
           )} />

@@ -99,7 +99,8 @@ export async function fetchDriversByIds(driverIds: string[]): Promise<Record<str
 }
 
 // Fetch open rides for drivers to bid on (only last 5 minutes)
-export async function fetchOpenRides() {
+// Filters out female-only rides if driver is male
+export async function fetchOpenRides(driverGender?: string | null) {
   const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
   const { data, error } = await supabase
     .from("rides")
@@ -109,7 +110,17 @@ export async function fetchOpenRides() {
     .order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
-  return data ?? [];
+  const rides = data ?? [];
+
+  // Server-side filtering: hide female-only rides from male drivers
+  if (driverGender && driverGender !== 'female') {
+    return rides.filter((r: Record<string, unknown>) => {
+      const gp = r.gender_preference as string | null;
+      return !gp || gp === 'any';
+    });
+  }
+
+  return rides;
 }
 
 // Get current driver profile
