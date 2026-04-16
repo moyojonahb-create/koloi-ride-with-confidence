@@ -33,6 +33,7 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [gender, setGender] = useState<'male' | 'female' | ''>('');
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+263');
   const [otp, setOtp] = useState('');
