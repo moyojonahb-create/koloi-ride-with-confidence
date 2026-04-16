@@ -48,6 +48,39 @@ export default function RideInputs({
     radiusKm: proximityRadius,
   });
 
+  // Google Places autocomplete for broader street/place search
+  const { suggestions: placeSuggestions, loading: placesLoading, search: searchPlaces, getPlaceDetails, clear: clearPlaces } = useGooglePlacesAutocomplete();
+
+  // Trigger Google Places search when query changes
+  useEffect(() => {
+    if (searchQuery.trim().length >= 2) {
+      searchPlaces(searchQuery);
+    } else {
+      clearPlaces();
+    }
+  }, [searchQuery, searchPlaces, clearPlaces]);
+
+  const handlePlaceSuggestionSelect = async (suggestion: PlaceSuggestion) => {
+    const details = await getPlaceDetails(suggestion.placeId);
+    if (!details) return;
+    
+    const location: SelectedLocation = {
+      name: suggestion.name || details.name,
+      lat: details.lat,
+      lng: details.lng,
+    };
+
+    if (activeField === 'pickup') {
+      onPickupSelect(location);
+      setActiveField('dropoff');
+    } else {
+      onDropoffSelect(location);
+      setActiveField(null);
+    }
+    setSearchQuery('');
+    clearPlaces();
+  };
+
   const handleLandmarkSelect = (landmark: Landmark) => {
     const location: SelectedLocation = {
       name: landmark.name,
