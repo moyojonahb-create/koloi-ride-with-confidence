@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.google-maps-key]
 verify_jwt = false
+
+[functions.nominatim-search]
+verify_jwt = false
