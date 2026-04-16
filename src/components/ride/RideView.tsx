@@ -599,10 +599,11 @@ export default function RideView() {
                 <span className="text-sm font-bold text-foreground">{matchedDriver.rating}</span>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {[
               { icon: Phone, label: 'Call', bg: 'var(--gradient-primary)', textClass: 'text-primary-foreground' },
               { icon: MessageCircle, label: 'Message', bg: undefined, textClass: 'text-primary' },
+              { icon: Navigation, label: 'Navigate', bg: undefined, textClass: 'text-emerald-500' },
               { icon: X, label: 'Cancel', bg: undefined, textClass: 'text-destructive' }].
               map((action, i) =>
               <motion.button
@@ -610,7 +611,12 @@ export default function RideView() {
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.7 + i * 0.1, type: 'spring', stiffness: 400, damping: 25 }}
-                onClick={action.label === 'Cancel' ? handleCancelRide : undefined}
+                onClick={action.label === 'Cancel' ? handleCancelRide : action.label === 'Navigate' ? () => {
+                  if (dropoffLocation) {
+                    const url = `https://www.google.com/maps/dir/?api=1&destination=${dropoffLocation.lat},${dropoffLocation.lng}&travelmode=driving`;
+                    window.open(url, '_blank');
+                  }
+                } : undefined}
                 className={cn(
                   'flex flex-col items-center gap-1.5 py-3 rounded-2xl active:scale-95 transition-all',
                   action.bg ? '' : action.label === 'Cancel' ? 'bg-destructive/8' : 'glass-card'
