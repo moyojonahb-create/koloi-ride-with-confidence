@@ -11,58 +11,46 @@ serve(async (req: Request) => {
   }
 
   try {
-    const GOOGLE_MAPS_API_KEY = Deno.env.get('GOOGLE_MAPS_API_KEY');
-    if (!GOOGLE_MAPS_API_KEY) {
-      return new Response(JSON.stringify({ error: 'Google Maps API key not configured' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
     const url = new URL(req.url);
     const placeId = url.searchParams.get('placeId');
 
-    // ── Place Details by ID (legacy) ──
+    // ── Place Details by OSM ID ──
     if (placeId) {
-      const detailsUrl = new URL('https://maps.googleapis.com/maps/api/place/details/json');
-      detailsUrl.searchParams.set('place_id', placeId);
-      detailsUrl.searchParams.set('fields', 'geometry,name,formatted_address');
-      detailsUrl.searchParams.set('key', GOOGLE_MAPS_API_KEY);
+      // placeId format: "N12345" or "W12345" or "R12345"
+      const osmType = placeId.charAt(0);
+      const osmId = placeId.substring(1);
+      const typeMap: Record<string, string> = { N: 'node', W: 'way', R: 'relation' };
 
-      const detailsRes = await fetch(detailsUrl.toString());
-      if (!detailsRes.ok) {
-        const errorText = await detailsRes.text();
-        console.error('[google-places-search] details error:', detailsRes.status, errorText);
-        return new Response(JSON.stringify({ error: 'Place details failed' }), {
-          status: detailsRes.status,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
+      const lookupUrl = new URL('https://nominatim.openstreetmap.org/lookup');
+      lookupUrl.searchParams.set('osm_ids', `${osmType}${osmId}`);
+      lookupUrl.searchParams.set('format', 'json');
+      lookupUrl.searchParams.set('addressdetails', '1');
 
-      const details = await detailsRes.json();
-      if (details.status !== 'OK' || !details.result) {
-        console.error('[google-places-search] details status:', details.status);
+      const res = await fetch(lookupUrl.toString(), {
+        headers: { 'User-Agent': 'PickMeApp/1.0' },
+      });
+      const results = await res.json();
+      
+      if (!results || results.length === 0) {
         return new Response(JSON.stringify(null), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      const result = {
-        lat: details.result.geometry.location.lat,
-        lng: details.result.geometry.location.lng,
-        name: details.result.name || details.result.formatted_address || '',
-      };
-
-      return new Response(JSON.stringify(result), {
+      const place = results[0];
+      return new Response(JSON.stringify({
+        lat: Number(place.lat),
+        lng: Number(place.lon),
+        name: place.display_name?.split(',')[0] || place.name || '',
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // ── Autocomplete search (legacy) ──
+    // ── Autocomplete search via Nominatim ──
     const q = url.searchParams.get('q')?.trim();
     const lat = url.searchParams.get('lat');
     const lng = url.searchParams.get('lng');
-    const radiusKm = Number(url.searchParams.get('radiusKm') || '0');
 
     if (!q || q.length < 3) {
       return new Response(JSON.stringify([]), {
@@ -70,41 +58,49 @@ serve(async (req: Request) => {
       });
     }
 
-    const autocompleteUrl = new URL('https://maps.googleapis.com/maps/api/place/autocomplete/json');
-    autocompleteUrl.searchParams.set('input', q);
-    autocompleteUrl.searchParams.set('key', GOOGLE_MAPS_API_KEY);
-    autocompleteUrl.searchParams.set('components', 'country:zw');
-    autocompleteUrl.searchParams.set('language', 'en');
+    // Search with Zimbabwe country code bias
+    const searchUrl = new URL('https://nominatim.openstreetmap.org/search');
+    searchUrl.searchParams.set('q', `${q}, Zimbabwe`);
+    searchUrl.searchParams.set('format', 'json');
+    searchUrl.searchParams.set('addressdetails', '1');
+    searchUrl.searchParams.set('limit', '15');
+    searchUrl.searchParams.set('countrycodes', 'zw');
+    searchUrl.searchParams.set('dedupe', '1');
 
     if (lat && lng) {
-      autocompleteUrl.searchParams.set('location', `${lat},${lng}`);
-      autocompleteUrl.searchParams.set('radius', String(Math.max(radiusKm * 1000, 5000)));
+      // Bias results around user location with a viewbox
+      const delta = 0.5; // ~50km
+      searchUrl.searchParams.set('viewbox', `${Number(lng)-delta},${Number(lat)-delta},${Number(lng)+delta},${Number(lat)+delta}`);
+      searchUrl.searchParams.set('bounded', '0'); // Allow results outside viewbox too
     }
 
-    const autocompleteRes = await fetch(autocompleteUrl.toString());
-    if (!autocompleteRes.ok) {
-      const errorText = await autocompleteRes.text();
-      console.error('[google-places-search] autocomplete error:', autocompleteRes.status, errorText);
-      return new Response(JSON.stringify({ error: 'Place autocomplete failed' }), {
-        status: autocompleteRes.status,
+    const searchRes = await fetch(searchUrl.toString(), {
+      headers: { 'User-Agent': 'PickMeApp/1.0' },
+    });
+
+    if (!searchRes.ok) {
+      const errorText = await searchRes.text();
+      console.error('[google-places-search] nominatim error:', searchRes.status, errorText);
+      return new Response(JSON.stringify({ error: 'Place search failed' }), {
+        status: searchRes.status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const data = await autocompleteRes.json();
-    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-      console.error('[google-places-search] autocomplete status:', data.status, data.error_message);
-      return new Response(JSON.stringify({ error: data.error_message || 'Autocomplete failed' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const suggestions = (data.predictions || []).map((p: any) => ({
-      placeId: p.place_id,
-      name: p.structured_formatting?.main_text || p.description?.split(',')[0] || '',
-      description: p.structured_formatting?.secondary_text || p.description || '',
-    }));
+    const results = await searchRes.json();
+    const suggestions = results.map((r: any) => {
+      const mainName = r.name || r.display_name?.split(',')[0] || '';
+      const parts = r.display_name?.split(',') || [];
+      const secondary = parts.slice(1, 3).map((s: string) => s.trim()).join(', ');
+      
+      return {
+        placeId: `${(r.osm_type || 'node').charAt(0).toUpperCase()}${r.osm_id}`,
+        name: mainName,
+        description: secondary || 'Zimbabwe',
+        lat: Number(r.lat),
+        lng: Number(r.lon),
+      };
+    });
 
     return new Response(JSON.stringify(suggestions), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
