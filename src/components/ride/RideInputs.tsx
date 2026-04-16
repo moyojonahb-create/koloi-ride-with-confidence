@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect } from 'react';
-import { MapPin, Navigation, Crosshair, Loader2, Search, X } from 'lucide-react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { MapPin, Navigation, Crosshair, Loader2, Search, X, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useLandmarks, type Landmark, formatDistance } from '@/hooks/useLandmarks';
+import { useGooglePlacesAutocomplete, type PlaceSuggestion } from '@/hooks/useGooglePlacesAutocomplete';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 
