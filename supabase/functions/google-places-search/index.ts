@@ -5,136 +5,182 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-/** Map OSM class+type to a human-readable category label */
-function getCategory(cls: string | undefined, type: string | undefined, addressParts: Record<string, string> | undefined): string {
+const GOOGLE_API_KEY = Deno.env.get('GOOGLE_MAPS_API_KEY') || '';
+
+// ── Category helpers (for Nominatim fallback) ──
+
+function getCategory(cls: string | undefined, type: string | undefined): string {
   if (!cls && !type) return '';
   const c = cls || '';
   const t = type || '';
-
-  // Amenity-based
-  if (c === 'amenity' || t === 'hospital' || t === 'clinic') {
-    const amenityMap: Record<string, string> = {
-      hospital: '🏥 Hospital', clinic: '🏥 Clinic', pharmacy: '💊 Pharmacy',
-      school: '🏫 School', university: '🎓 University', college: '🎓 College',
-      bank: '🏦 Bank', atm: '🏦 ATM', fuel: '⛽ Fuel Station',
-      police: '🚔 Police Station', post_office: '📮 Post Office',
-      restaurant: '🍽️ Restaurant', fast_food: '🍔 Fast Food', cafe: '☕ Café',
-      bar: '🍺 Bar', pub: '🍺 Pub', nightclub: '🎶 Nightclub',
-      place_of_worship: '⛪ Place of Worship', church: '⛪ Church', mosque: '🕌 Mosque',
-      courthouse: '🏛️ Government', townhall: '🏛️ Town Hall',
-      community_centre: '🏘️ Community Centre', library: '📚 Library',
-      bus_station: '🚌 Bus Station', taxi: '🚕 Taxi Rank',
-      marketplace: '🏪 Market', cinema: '🎬 Cinema',
-      stadium: '🏟️ Stadium', sports_centre: '🏟️ Sports Centre',
-    };
-    return amenityMap[t] || '📍 Amenity';
-  }
-
-  if (c === 'shop') {
-    const shopMap: Record<string, string> = {
-      supermarket: '🛒 Supermarket', mall: '🛍️ Shopping Mall',
-      convenience: '🏪 Shop', department_store: '🛍️ Department Store',
-      hardware: '🔧 Hardware', car_repair: '🔧 Auto Services',
-    };
-    return shopMap[t] || '🏪 Shop';
-  }
-
-  if (c === 'tourism') {
-    const tourismMap: Record<string, string> = {
-      hotel: '🏨 Hotel', guest_house: '🏨 Guest House', motel: '🏨 Motel',
-      hostel: '🏨 Hostel', camp_site: '⛺ Camp Site',
-      museum: '🏛️ Museum', attraction: '🎯 Attraction',
-    };
-    return tourismMap[t] || '🎯 Tourism';
-  }
-
-  if (c === 'office') return '🏢 Office';
-  if (c === 'leisure') {
-    if (t === 'park') return '🌳 Park';
-    if (t === 'stadium') return '🏟️ Stadium';
-    if (t === 'sports_centre') return '🏟️ Sports Centre';
-    if (t === 'fitness_centre') return '💪 Fitness';
-    return '🎯 Leisure';
-  }
-  if (c === 'building') {
-    if (t === 'commercial') return '🏢 Commercial';
-    if (t === 'industrial') return '🏭 Industrial';
-    if (t === 'residential') return '🏠 Residential';
-    if (t === 'government') return '🏛️ Government';
-    if (t === 'school') return '🏫 School';
-    if (t === 'hospital') return '🏥 Hospital';
-    if (t === 'church') return '⛪ Church';
-    return '🏢 Building';
-  }
-  if (c === 'highway') {
-    if (t === 'bus_stop') return '🚌 Bus Stop';
-    if (t === 'residential') return '🛤️ Road';
-    if (t === 'primary' || t === 'secondary' || t === 'tertiary') return '🛤️ Road';
-    return '🛤️ Road';
-  }
-  if (c === 'place') {
-    if (t === 'suburb') return '🏘️ Suburb';
-    if (t === 'neighbourhood') return '🏘️ Neighbourhood';
-    if (t === 'village') return '🏘️ Village';
-    if (t === 'town') return '🏙️ Town';
-    if (t === 'city') return '🏙️ City';
-    return '📍 Area';
-  }
-  if (c === 'landuse') {
-    if (t === 'commercial') return '🏢 Commercial Area';
-    if (t === 'industrial') return '🏭 Industrial Area';
-    if (t === 'residential') return '🏘️ Residential Area';
-    return '📍 Area';
-  }
-  if (c === 'boundary') return '📍 Area';
-  if (c === 'natural') return '🌿 Natural';
-  if (c === 'waterway') return '💧 Waterway';
-
-  return '';
+  const map: Record<string, string> = {
+    hospital: '🏥 Hospital', clinic: '🏥 Clinic', pharmacy: '💊 Pharmacy',
+    school: '🏫 School', university: '🎓 University', college: '🎓 College',
+    bank: '🏦 Bank', fuel: '⛽ Fuel Station', police: '🚔 Police',
+    restaurant: '🍽️ Restaurant', fast_food: '🍔 Fast Food', cafe: '☕ Café',
+    bus_station: '🚌 Bus Station', taxi: '🚕 Taxi Rank',
+    stadium: '🏟️ Stadium', sports_centre: '🏟️ Sports Centre',
+    marketplace: '🏪 Market', supermarket: '🛒 Supermarket',
+    mall: '🛍️ Mall', hotel: '🏨 Hotel', church: '⛪ Church',
+    mosque: '🕌 Mosque', townhall: '🏛️ Town Hall', courthouse: '🏛️ Government',
+    cinema: '🎬 Cinema', library: '📚 Library', park: '🌳 Park',
+    suburb: '🏘️ Suburb', village: '🏘️ Village', town: '🏙️ Town',
+    city: '🏙️ City', neighbourhood: '🏘️ Neighbourhood',
+    bus_stop: '🚌 Bus Stop',
+  };
+  return map[t] || (c === 'shop' ? '🏪 Shop' : c === 'amenity' ? '📍 Amenity' : c === 'highway' ? '🛤️ Road' : c === 'place' ? '📍 Area' : '');
 }
 
-/** Build the best full display name — never truncate */
-function buildFullName(r: any): string {
-  // Prefer the explicit name field
-  const name = r.name || '';
-  const displayParts = (r.display_name || '').split(',').map((s: string) => s.trim());
-
-  // If name exists and is meaningful, use it
-  if (name && name.length >= 2) {
-    return name;
-  }
-
-  // Fallback: first display_name part
-  return displayParts[0] || 'Unknown';
-}
-
-/** Build a secondary description from display_name parts */
-function buildDescription(r: any): string {
-  const parts = (r.display_name || '').split(',').map((s: string) => s.trim());
-  // Skip the first part (that's the name), take next 2-3 for context
-  const secondary = parts.slice(1, 4).join(', ');
-  return secondary || 'Zimbabwe';
-}
-
-/** Priority score for sorting: stadiums/hospitals/schools first, generic areas last */
 function getCategoryPriority(cls: string, type: string): number {
-  // Tier 1: Major landmarks
-  if (type === 'stadium' || type === 'sports_centre') return 1;
-  if (type === 'hospital' || type === 'clinic') return 2;
-  if (type === 'school' || type === 'university' || type === 'college') return 3;
-  if (type === 'townhall' || type === 'courthouse' || cls === 'office') return 4;
-  // Tier 2: Important places
-  if (type === 'bus_station' || type === 'marketplace' || type === 'fuel') return 5;
+  if (['stadium', 'sports_centre'].includes(type)) return 1;
+  if (['hospital', 'clinic'].includes(type)) return 2;
+  if (['school', 'university', 'college'].includes(type)) return 3;
+  if (['townhall', 'courthouse'].includes(type)) return 4;
+  if (['bus_station', 'marketplace', 'fuel'].includes(type)) return 5;
   if (cls === 'amenity') return 6;
   if (cls === 'shop') return 7;
   if (cls === 'tourism') return 8;
-  // Tier 3: Roads and intersections
   if (cls === 'highway') return 9;
-  // Tier 4: Areas
   if (cls === 'place') return 10;
-  if (cls === 'landuse' || cls === 'boundary') return 11;
-  // Tier 5: Generic
   return 12;
+}
+
+// ── Google Places type to category emoji ──
+function googleTypeToCategory(types: string[]): string {
+  const map: Record<string, string> = {
+    hospital: '🏥 Hospital', school: '🏫 School', university: '🎓 University',
+    bank: '🏦 Bank', gas_station: '⛽ Fuel Station', police: '🚔 Police',
+    restaurant: '🍽️ Restaurant', cafe: '☕ Café', bar: '🍺 Bar',
+    bus_station: '🚌 Bus Station', stadium: '🏟️ Stadium',
+    shopping_mall: '🛍️ Mall', supermarket: '🛒 Supermarket',
+    lodging: '🏨 Hotel', church: '⛪ Church', mosque: '🕌 Mosque',
+    park: '🌳 Park', library: '📚 Library', museum: '🏛️ Museum',
+    pharmacy: '💊 Pharmacy', post_office: '📮 Post Office',
+    airport: '✈️ Airport', train_station: '🚆 Train Station',
+    movie_theater: '🎬 Cinema', gym: '💪 Gym',
+    car_repair: '🔧 Auto Services', store: '🏪 Shop',
+    locality: '🏙️ City', sublocality: '🏘️ Suburb',
+    neighborhood: '🏘️ Neighbourhood', route: '🛤️ Road',
+  };
+  for (const t of types) {
+    if (map[t]) return map[t];
+  }
+  if (types.includes('point_of_interest')) return '📍 Place';
+  if (types.includes('establishment')) return '🏢 Business';
+  return '';
+}
+
+// ── Search via Google Places Autocomplete ──
+async function searchGoogle(query: string, lat?: string, lng?: string, radiusKm?: number, viewbox?: string) {
+  if (!GOOGLE_API_KEY) return null;
+
+  const url = new URL('https://maps.googleapis.com/maps/api/place/autocomplete/json');
+  url.searchParams.set('input', query);
+  url.searchParams.set('key', GOOGLE_API_KEY);
+  url.searchParams.set('components', 'country:zw');
+
+  // Location bias
+  if (lat && lng) {
+    url.searchParams.set('location', `${lat},${lng}`);
+    url.searchParams.set('radius', String((radiusKm || 15) * 1000));
+    url.searchParams.set('strictbounds', 'true');
+  }
+
+  try {
+    const res = await fetch(url.toString());
+    if (!res.ok) {
+      console.error('[google-places] autocomplete HTTP error:', res.status);
+      return null;
+    }
+    const data = await res.json();
+    if (data.status !== 'OK' || !data.predictions?.length) {
+      console.log('[google-places] autocomplete status:', data.status, 'count:', data.predictions?.length || 0);
+      return null;
+    }
+
+    return data.predictions.map((p: any) => ({
+      placeId: p.place_id,
+      name: p.structured_formatting?.main_text || p.description.split(',')[0],
+      description: p.structured_formatting?.secondary_text || p.description,
+      category: googleTypeToCategory(p.types || []),
+      source: 'google',
+    }));
+  } catch (err) {
+    console.error('[google-places] autocomplete error:', err);
+    return null;
+  }
+}
+
+// ── Get Google Place Details ──
+async function getGooglePlaceDetails(placeId: string) {
+  if (!GOOGLE_API_KEY) return null;
+  const url = new URL('https://maps.googleapis.com/maps/api/place/details/json');
+  url.searchParams.set('place_id', placeId);
+  url.searchParams.set('key', GOOGLE_API_KEY);
+  url.searchParams.set('fields', 'geometry,name,formatted_address,types');
+
+  try {
+    const res = await fetch(url.toString());
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.status !== 'OK' || !data.result?.geometry?.location) return null;
+    return {
+      lat: data.result.geometry.location.lat,
+      lng: data.result.geometry.location.lng,
+      name: data.result.name || data.result.formatted_address?.split(',')[0] || '',
+    };
+  } catch {
+    return null;
+  }
+}
+
+// ── Nominatim fallback search ──
+async function searchNominatim(query: string, lat?: string, lng?: string, radiusKm?: number, viewbox?: string, bounded?: boolean) {
+  const searchUrl = new URL('https://nominatim.openstreetmap.org/search');
+  searchUrl.searchParams.set('q', `${query}, Zimbabwe`);
+  searchUrl.searchParams.set('format', 'json');
+  searchUrl.searchParams.set('addressdetails', '1');
+  searchUrl.searchParams.set('limit', '15');
+  searchUrl.searchParams.set('countrycodes', 'zw');
+  searchUrl.searchParams.set('dedupe', '1');
+  searchUrl.searchParams.set('extratags', '1');
+
+  if (viewbox) {
+    searchUrl.searchParams.set('viewbox', viewbox);
+    searchUrl.searchParams.set('bounded', bounded ? '1' : '0');
+  } else if (lat && lng) {
+    const delta = radiusKm && radiusKm > 0 ? radiusKm / 111 : 0.3;
+    const latNum = Number(lat);
+    const lngNum = Number(lng);
+    searchUrl.searchParams.set('viewbox', `${lngNum - delta},${latNum - delta},${lngNum + delta},${latNum + delta}`);
+    searchUrl.searchParams.set('bounded', bounded ? '1' : '0');
+  }
+
+  const res = await fetch(searchUrl.toString(), {
+    headers: { 'User-Agent': 'PickMeApp/1.0' },
+  });
+  if (!res.ok) throw new Error(`Nominatim error: ${res.status}`);
+  return res.json();
+}
+
+// ── Nominatim lookup by OSM ID ──
+async function nominatimLookup(osmType: string, osmId: string) {
+  const url = new URL('https://nominatim.openstreetmap.org/lookup');
+  url.searchParams.set('osm_ids', `${osmType}${osmId}`);
+  url.searchParams.set('format', 'json');
+  url.searchParams.set('addressdetails', '1');
+
+  const res = await fetch(url.toString(), {
+    headers: { 'User-Agent': 'PickMeApp/1.0' },
+  });
+  if (!res.ok) return null;
+  const results = await res.json();
+  if (!results?.length) return null;
+  return {
+    lat: Number(results[0].lat),
+    lng: Number(results[0].lon),
+    name: results[0].name || results[0].display_name?.split(',')[0] || 'Unknown',
+  };
 }
 
 serve(async (req: Request) => {
@@ -144,45 +190,41 @@ serve(async (req: Request) => {
 
   try {
     const url = new URL(req.url);
-    const placeId = url.searchParams.get('placeId');
 
-    // ── Place Details by OSM ID ──
+    // ═══ PLACE DETAILS ═══
+    const placeId = url.searchParams.get('placeId');
     if (placeId) {
+      // Google place ID (starts with "Ch" typically)
+      if (placeId.startsWith('Ch') || placeId.startsWith('Ei')) {
+        const details = await getGooglePlaceDetails(placeId);
+        if (details) {
+          return new Response(JSON.stringify(details), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+
+      // OSM ID fallback (starts with N/W/R)
       const osmType = placeId.charAt(0);
       const osmId = placeId.substring(1);
-
-      const lookupUrl = new URL('https://nominatim.openstreetmap.org/lookup');
-      lookupUrl.searchParams.set('osm_ids', `${osmType}${osmId}`);
-      lookupUrl.searchParams.set('format', 'json');
-      lookupUrl.searchParams.set('addressdetails', '1');
-
-      const res = await fetch(lookupUrl.toString(), {
-        headers: { 'User-Agent': 'PickMeApp/1.0' },
-      });
-      const results = await res.json();
-      
-      if (!results || results.length === 0) {
-        return new Response(JSON.stringify(null), {
+      if (['N', 'W', 'R'].includes(osmType)) {
+        const result = await nominatimLookup(osmType, osmId);
+        return new Response(JSON.stringify(result), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      const place = results[0];
-      return new Response(JSON.stringify({
-        lat: Number(place.lat),
-        lng: Number(place.lon),
-        name: buildFullName(place),
-      }), {
+      return new Response(JSON.stringify(null), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // ── Autocomplete search via Nominatim ──
+    // ═══ AUTOCOMPLETE SEARCH ═══
     const q = url.searchParams.get('q')?.trim();
     const lat = url.searchParams.get('lat');
     const lng = url.searchParams.get('lng');
-    const radiusKm = Number(url.searchParams.get('radiusKm') || '0');
-    const viewboxParam = url.searchParams.get('viewbox');
+    const radiusKm = Number(url.searchParams.get('radiusKm') || '15');
+    const viewbox = url.searchParams.get('viewbox');
     const bounded = url.searchParams.get('bounded') === '1';
 
     if (!q || q.length < 2) {
@@ -191,59 +233,36 @@ serve(async (req: Request) => {
       });
     }
 
-    // Search with Zimbabwe country code
-    const searchUrl = new URL('https://nominatim.openstreetmap.org/search');
-    searchUrl.searchParams.set('q', `${q}, Zimbabwe`);
-    searchUrl.searchParams.set('format', 'json');
-    searchUrl.searchParams.set('addressdetails', '1');
-    searchUrl.searchParams.set('limit', '20');
-    searchUrl.searchParams.set('countrycodes', 'zw');
-    searchUrl.searchParams.set('dedupe', '1');
-    // Request extra fields for category detection
-    searchUrl.searchParams.set('extratags', '1');
+    // 1️⃣ Try Google Places first
+    const googleResults = await searchGoogle(q, lat || undefined, lng || undefined, radiusKm, viewbox || undefined);
 
-    if (viewboxParam) {
-      searchUrl.searchParams.set('viewbox', viewboxParam);
-      searchUrl.searchParams.set('bounded', bounded ? '1' : '0');
-    } else if (lat && lng) {
-      const delta = radiusKm > 0 ? radiusKm / 111 : 0.3;
-      const latNum = Number(lat);
-      const lngNum = Number(lng);
-      searchUrl.searchParams.set('viewbox', `${lngNum - delta},${latNum - delta},${lngNum + delta},${latNum + delta}`);
-      searchUrl.searchParams.set('bounded', bounded ? '1' : '0');
-    }
-
-    const searchRes = await fetch(searchUrl.toString(), {
-      headers: { 'User-Agent': 'PickMeApp/1.0' },
-    });
-
-    if (!searchRes.ok) {
-      const errorText = await searchRes.text();
-      console.error('[google-places-search] nominatim error:', searchRes.status, errorText);
-      return new Response(JSON.stringify({ error: 'Place search failed' }), {
-        status: searchRes.status,
+    if (googleResults && googleResults.length > 0) {
+      return new Response(JSON.stringify(googleResults.slice(0, 7)), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const results = await searchRes.json();
+    // 2️⃣ Fallback to Nominatim
+    console.log('[google-places-search] Google returned no results, falling back to Nominatim');
+    const nomResults = await searchNominatim(q, lat || undefined, lng || undefined, radiusKm, viewbox || undefined, bounded);
 
-    // Deduplicate by full name (case-insensitive)
     const seenNames = new Set<string>();
-
-    const suggestions = results
+    const suggestions = nomResults
       .map((r: any) => {
-        const fullName = buildFullName(r);
-        const category = getCategory(r.class, r.type, r.address);
+        const name = r.name && r.name.length >= 2 ? r.name : (r.display_name || '').split(',')[0]?.trim() || 'Unknown';
+        const category = getCategory(r.class, r.type);
         const priority = getCategoryPriority(r.class || '', r.type || '');
+        const descParts = (r.display_name || '').split(',').map((s: string) => s.trim());
+        const description = descParts.slice(1, 4).join(', ') || 'Zimbabwe';
 
         return {
           placeId: `${(r.osm_type || 'node').charAt(0).toUpperCase()}${r.osm_id}`,
-          name: fullName,
-          description: buildDescription(r),
-          category, // e.g. "🏟️ Stadium"
+          name,
+          description,
+          category,
           lat: Number(r.lat),
           lng: Number(r.lon),
+          source: 'osm',
           _priority: priority,
         };
       })
@@ -254,14 +273,15 @@ serve(async (req: Request) => {
         return true;
       })
       .sort((a: any, b: any) => a._priority - b._priority)
-      .map(({ _priority, ...rest }: any) => rest); // strip internal field
+      .map(({ _priority, ...rest }: any) => rest)
+      .slice(0, 7);
 
     return new Response(JSON.stringify(suggestions), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('[google-places-search]', error);
-    return new Response(JSON.stringify({ error: 'Place search failed' }), {
+    return new Response(JSON.stringify({ error: 'Place autocomplete failed' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
