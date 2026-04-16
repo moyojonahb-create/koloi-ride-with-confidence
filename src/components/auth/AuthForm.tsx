@@ -119,8 +119,13 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
     const isValidPassword = validatePassword();
     const isValidName = mode === 'signup' ? validateName() : true;
     const isValidPhone = mode === 'signup' ? validatePhone() : true;
+    const isValidGender = mode === 'signup' ? (() => {
+      if (!gender) { setErrors(prev => ({ ...prev, gender: 'Please select your gender' })); return false; }
+      setErrors(prev => ({ ...prev, gender: '' }));
+      return true;
+    })() : true;
     
-    if (!isValidEmail || !isValidPassword || !isValidName || !isValidPhone) return;
+    if (!isValidEmail || !isValidPassword || !isValidName || !isValidPhone || !isValidGender) return;
     
     setLoading(true);
     
