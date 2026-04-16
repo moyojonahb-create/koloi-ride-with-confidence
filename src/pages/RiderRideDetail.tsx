@@ -975,12 +975,7 @@ export default function RiderRideDetail() {
                       driverEcoCash={ecocashNum}
                       walletPin={walletPin}
                       onVerifyPin={async (pin) => pin === walletPin}
-                      onSetPin={async (newPin) => {
-                        if (!user) return false;
-                        const { error } = await supabase.from('wallets').update({ wallet_pin: newPin }).eq('user_id', user.id);
-                        if (!error) { setWalletPin(newPin); return true; }
-                        return false;
-                      }}
+                      onSetPin={async () => false}
                       onPaymentComplete={() => toast.success('Payment sent to driver!')}
                     />
                   </>
