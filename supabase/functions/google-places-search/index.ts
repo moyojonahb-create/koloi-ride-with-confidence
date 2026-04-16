@@ -14,21 +14,21 @@ function getCategory(cls: string | undefined, type: string | undefined): string 
   const c = cls || '';
   const t = type || '';
   const map: Record<string, string> = {
-    hospital: '🏥 Hospital', clinic: '🏥 Clinic', pharmacy: '💊 Pharmacy',
-    school: '🏫 School', university: '🎓 University', college: '🎓 College',
-    bank: '🏦 Bank', fuel: '⛽ Fuel Station', police: '🚔 Police',
-    restaurant: '🍽️ Restaurant', fast_food: '🍔 Fast Food', cafe: '☕ Café',
-    bus_station: '🚌 Bus Station', taxi: '🚕 Taxi Rank',
-    stadium: '🏟️ Stadium', sports_centre: '🏟️ Sports Centre',
-    marketplace: '🏪 Market', supermarket: '🛒 Supermarket',
-    mall: '🛍️ Mall', hotel: '🏨 Hotel', church: '⛪ Church',
-    mosque: '🕌 Mosque', townhall: '🏛️ Town Hall', courthouse: '🏛️ Government',
-    cinema: '🎬 Cinema', library: '📚 Library', park: '🌳 Park',
-    suburb: '🏘️ Suburb', village: '🏘️ Village', town: '🏙️ Town',
-    city: '🏙️ City', neighbourhood: '🏘️ Neighbourhood',
-    bus_stop: '🚌 Bus Stop',
+    hospital: 'Hospital', clinic: 'Clinic', pharmacy: 'Pharmacy',
+    school: 'School', university: 'University', college: 'College',
+    bank: 'Bank', fuel: 'Fuel Station', police: 'Police',
+    restaurant: 'Restaurant', fast_food: 'Fast Food', cafe: 'Café',
+    bus_station: 'Bus Station', taxi: 'Taxi Rank',
+    stadium: 'Stadium', sports_centre: 'Sports Centre',
+    marketplace: 'Market', supermarket: 'Supermarket',
+    mall: 'Mall', hotel: 'Hotel', church: 'Church',
+    mosque: 'Mosque', townhall: 'Town Hall', courthouse: 'Government',
+    cinema: 'Cinema', library: 'Library', park: 'Park',
+    suburb: 'Suburb', village: 'Village', town: 'Town',
+    city: 'City', neighbourhood: 'Neighbourhood',
+    bus_stop: 'Bus Stop',
   };
-  return map[t] || (c === 'shop' ? '🏪 Shop' : c === 'amenity' ? '📍 Amenity' : c === 'highway' ? '🛤️ Road' : c === 'place' ? '📍 Area' : '');
+  return map[t] || (c === 'shop' ? 'Shop' : c === 'amenity' ? 'Amenity' : c === 'highway' ? 'Road' : c === 'place' ? 'Area' : '');
 }
 
 function getCategoryPriority(cls: string, type: string): number {
@@ -45,22 +45,22 @@ function getCategoryPriority(cls: string, type: string): number {
   return 12;
 }
 
-// ── Google Places type to category emoji ──
+// ── Google Places type to category label ──
 function googleTypeToCategory(types: string[]): string {
   const map: Record<string, string> = {
-    hospital: '🏥 Hospital', school: '🏫 School', university: '🎓 University',
-    bank: '🏦 Bank', gas_station: '⛽ Fuel Station', police: '🚔 Police',
-    restaurant: '🍽️ Restaurant', cafe: '☕ Café', bar: '🍺 Bar',
-    bus_station: '🚌 Bus Station', stadium: '🏟️ Stadium',
-    shopping_mall: '🛍️ Mall', supermarket: '🛒 Supermarket',
-    lodging: '🏨 Hotel', church: '⛪ Church', mosque: '🕌 Mosque',
-    park: '🌳 Park', library: '📚 Library', museum: '🏛️ Museum',
-    pharmacy: '💊 Pharmacy', post_office: '📮 Post Office',
-    airport: '✈️ Airport', train_station: '🚆 Train Station',
-    movie_theater: '🎬 Cinema', gym: '💪 Gym',
-    car_repair: '🔧 Auto Services', store: '🏪 Shop',
-    locality: '🏙️ City', sublocality: '🏘️ Suburb',
-    neighborhood: '🏘️ Neighbourhood', route: '🛤️ Road',
+    hospital: 'Hospital', school: 'School', university: 'University',
+    bank: 'Bank', gas_station: 'Fuel Station', police: 'Police',
+    restaurant: 'Restaurant', cafe: 'Café', bar: 'Bar',
+    bus_station: 'Bus Station', stadium: 'Stadium',
+    shopping_mall: 'Mall', supermarket: 'Supermarket',
+    lodging: 'Hotel', church: 'Church', mosque: 'Mosque',
+    park: 'Park', library: 'Library', museum: 'Museum',
+    pharmacy: 'Pharmacy', post_office: 'Post Office',
+    airport: 'Airport', train_station: 'Train Station',
+    movie_theater: 'Cinema', gym: 'Gym',
+    car_repair: 'Auto Services', store: 'Shop',
+    locality: 'City', sublocality: 'Suburb',
+    neighborhood: 'Neighbourhood', route: 'Road',
   };
   for (const t of types) {
     if (map[t]) return map[t];
