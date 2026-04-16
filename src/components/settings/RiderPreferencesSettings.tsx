@@ -113,10 +113,6 @@ export default function RiderPreferencesSettings() {
           />
         </div>
       )}
-      {!isFemaleRider && local.gender_preference !== 'any' && (
-        // Reset gender_preference if non-female rider somehow has it set
-        <>{(() => { update('gender_preference', 'any'); return null; })()}</>
-      )}
     </div>
   );
 }
