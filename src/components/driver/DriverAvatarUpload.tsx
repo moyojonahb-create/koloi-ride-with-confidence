@@ -27,13 +27,13 @@ export default function DriverAvatarUpload({ currentAvatarUrl, gender, onUploade
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
-    // Validate file
+    // Accept any image format — allow low-quality phone cameras
     if (!file.type.startsWith("image/")) {
       toast.error("Please select an image file");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5MB");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image must be under 10MB");
       return;
     }
 
@@ -105,12 +105,13 @@ export default function DriverAvatarUpload({ currentAvatarUrl, gender, onUploade
         >
           {uploading ? "Uploading…" : previewUrl ? "Change Photo" : "Add Photo"}
         </Button>
-        <p className="text-xs text-muted-foreground mt-1">Max 5MB, JPG/PNG</p>
+        <p className="text-xs text-muted-foreground mt-1">Max 10MB · Any image format</p>
       </div>
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
+        capture="user"
         className="hidden"
         onChange={handleUpload}
       />

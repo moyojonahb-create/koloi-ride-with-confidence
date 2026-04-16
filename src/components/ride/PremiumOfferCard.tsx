@@ -94,8 +94,8 @@ export default function PremiumOfferCard({ offer, riderFare, onAccept, onDecline
 
         {/* Driver info */}
         <div className="flex items-center gap-3 mb-4">
-          <Avatar className="h-12 w-12 border-2 border-primary/20 shadow-sm">
-            {offer.avatarUrl && <AvatarImage src={offer.avatarUrl} alt={offer.driverName} />}
+          <Avatar className="h-14 w-14 border-2 border-primary/20 shadow-sm">
+            {offer.avatarUrl && <AvatarImage src={offer.avatarUrl} alt={offer.driverName} className="object-cover" loading="eager" decoding="async" />}
             <AvatarFallback className="bg-primary/10 text-primary font-bold text-sm">
               {offer.driverName?.charAt(0)?.toUpperCase() || '?'}
             </AvatarFallback>
