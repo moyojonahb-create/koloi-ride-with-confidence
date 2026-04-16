@@ -4,6 +4,7 @@ export interface PlaceSuggestion {
   placeId: string;
   name: string;
   description: string;
+  category?: string; // e.g. "🏟️ Stadium"
   lat?: number;
   lng?: number;
 }
@@ -12,6 +13,7 @@ interface BackendPlaceSuggestion {
   placeId: string;
   name: string;
   description: string;
+  category?: string;
   lat?: number;
   lng?: number;
 }

@@ -268,7 +268,7 @@ export default function RideView() {
       try {
         // Strict town-bounded search: only show results within the selected town
         const results = await searchZW(query.trim(), 20, selectedTown.nominatimViewbox, true);
-        const mapped = results.map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name }));
+        const mapped = results.map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name, category: '' }));
         
         // If bounded search returned nothing, try unbounded as fallback (but still with viewbox bias)
         if (mapped.length === 0) {
@@ -276,7 +276,7 @@ export default function RideView() {
           // Filter results to only include those within the town's max distance
           const { getDistance } = await import('@/lib/towns');
           const filtered = fallback
-            .map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name }))
+            .map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name, category: '' }))
             .filter((r) => getDistance(selectedTown.center.lat, selectedTown.center.lng, r.lat, r.lng) <= selectedTown.maxDistanceKm);
           setNominatimResults(filtered);
           for (const r of fallback) cachePlaceFromNominatim(r).catch(() => {});
@@ -1108,7 +1108,10 @@ export default function RideView() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-foreground truncate">{landmark.name}</p>
-                        <p className="text-sm text-muted-foreground capitalize">{landmark.category}{landmark.distance ? ` · ${landmark.distance < 1 ? `${Math.round(landmark.distance * 1000)}m` : `${landmark.distance.toFixed(1)}km`}` : ''}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[10px] font-semibold text-primary bg-primary/8 px-1.5 py-0.5 rounded-full whitespace-nowrap">{landmark.category}</span>
+                          {landmark.distance !== undefined && <span className="text-xs text-muted-foreground">{landmark.distance < 1 ? `${Math.round(landmark.distance * 1000)}m` : `${landmark.distance.toFixed(1)}km`}</span>}
+                        </div>
                       </div>
                     </button>
               )}
@@ -1132,7 +1135,10 @@ export default function RideView() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-foreground truncate">{suggestion.name}</p>
-                        <p className="text-sm text-muted-foreground truncate">{suggestion.description}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {suggestion.category && <span className="text-[10px] font-semibold text-primary bg-primary/8 px-1.5 py-0.5 rounded-full whitespace-nowrap">{suggestion.category}</span>}
+                          <p className="text-sm text-muted-foreground truncate">{suggestion.description}</p>
+                        </div>
                       </div>
                     </button>
               )}
@@ -1144,7 +1150,10 @@ export default function RideView() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-foreground truncate">{result.name}</p>
-                        <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {(result as any).category && <span className="text-[10px] font-semibold text-primary bg-primary/8 px-1.5 py-0.5 rounded-full whitespace-nowrap">{(result as any).category}</span>}
+                          <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
+                        </div>
                       </div>
                     </button>
               )}
