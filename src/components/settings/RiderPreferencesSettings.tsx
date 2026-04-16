@@ -82,6 +82,7 @@ export default function RiderPreferencesSettings() {
   ];
 
   const isWomenOnly = local.gender_preference === 'female';
+  const isFemaleRider = local.gender === 'female';
 
   return (
     <div className="space-y-1.5">
@@ -98,18 +99,24 @@ export default function RiderPreferencesSettings() {
           />
         </div>
       ))}
-      {/* Gender preference */}
-      <div className="w-full flex items-center gap-3 px-4 py-3 glass-card rounded-2xl">
-        <ShieldCheck className="w-4 h-4 text-pink-500" />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground">Women Only Drivers</p>
-          <p className="text-[10px] text-muted-foreground">Only matched with female drivers</p>
+      {/* Gender preference — only visible to female riders */}
+      {isFemaleRider && (
+        <div className="w-full flex items-center gap-3 px-4 py-3 glass-card rounded-2xl">
+          <ShieldCheck className="w-4 h-4 text-pink-500" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground">Women Only Drivers</p>
+            <p className="text-[10px] text-muted-foreground">Only matched with female drivers for added safety</p>
+          </div>
+          <Switch
+            checked={isWomenOnly}
+            onCheckedChange={(v) => update('gender_preference', v ? 'female' : 'any')}
+          />
         </div>
-        <Switch
-          checked={isWomenOnly}
-          onCheckedChange={(v) => update('gender_preference', v ? 'female' : 'any')}
-        />
-      </div>
+      )}
+      {!isFemaleRider && local.gender_preference !== 'any' && (
+        // Reset gender_preference if non-female rider somehow has it set
+        <>{(() => { update('gender_preference', 'any'); return null; })()}</>
+      )}
     </div>
   );
 }
