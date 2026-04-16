@@ -32,10 +32,11 @@ interface RideRequestCardProps {
 }
 
 export default function RideRequestCard({ ride, preferences, secsLeft, index, onClick, fmtUSD }: RideRequestCardProps) {
-  const hasPrefs = preferences && (
-    preferences.quiet_ride || preferences.cool_temperature ||
-    preferences.wav_required || preferences.hearing_impaired ||
-    (preferences.gender_preference && preferences.gender_preference !== 'any')
+  // Strip gender_preference from driver view — drivers should never see it
+  const sanitizedPrefs = preferences ? { ...preferences, gender_preference: undefined } : preferences;
+  const hasPrefs = sanitizedPrefs && (
+    sanitizedPrefs.quiet_ride || sanitizedPrefs.cool_temperature ||
+    sanitizedPrefs.wav_required || sanitizedPrefs.hearing_impaired
   );
 
   const urgentExpiry = secsLeft > 0 && secsLeft <= 15;
@@ -95,11 +96,10 @@ export default function RideRequestCard({ ride, preferences, secsLeft, index, on
       {/* Preferences */}
       {hasPrefs && (
         <RidePreferenceTags
-          quietRide={preferences!.quiet_ride}
-          coolTemperature={preferences!.cool_temperature}
-          wavRequired={preferences!.wav_required}
-          hearingImpaired={preferences!.hearing_impaired}
-          genderPreference={preferences!.gender_preference}
+          quietRide={sanitizedPrefs!.quiet_ride}
+          coolTemperature={sanitizedPrefs!.cool_temperature}
+          wavRequired={sanitizedPrefs!.wav_required}
+          hearingImpaired={sanitizedPrefs!.hearing_impaired}
         />
       )}
 
