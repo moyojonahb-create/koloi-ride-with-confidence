@@ -161,7 +161,7 @@ const AdminDriverDetail = () => {
     setActionLoading(true);
 
     try {
-      const updateData: Record<string, unknown> = {
+      const updateData: { status: string; reviewed_at: string; rejection_reason?: string } = {
         status: action,
         reviewed_at: new Date().toISOString(),
       };
