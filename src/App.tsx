@@ -21,7 +21,7 @@ const AppDashboard = lazy(() => import("./pages/AppDashboard"));
 const RideHistory = lazy(() => import("./pages/RideHistory"));
 const RiderProfile = lazy(() => import("./pages/RiderProfile"));
 const EditProfile = lazy(() => import("./pages/EditProfile"));
-const RiderWalletPage = lazy(() => import("./pages/RiderWalletPage"));
+// Rider wallet removed — riders pay drivers directly
 const SafetyPage = lazy(() => import("./pages/SafetyPage"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -81,7 +81,7 @@ function prefetchPages() {
   const secondary = [
     () => import("./pages/RideHistory"),
     () => import("./pages/RiderProfile"),
-    () => import("./pages/RiderWalletPage"),
+    () => import("./pages/DriverModeLanding"),
     () => import("./pages/DriverModeLanding"),
   ];
 
@@ -122,7 +122,7 @@ export default function App() {
           <Route path="/mapp/ride" element={<Navigate to="/ride" replace />} />
           <Route path="/mapp/history" element={<Navigate to="/history" replace />} />
           <Route path="/mapp/ride-history" element={<Navigate to="/history" replace />} />
-          <Route path="/mapp/wallet" element={<Navigate to="/wallet" replace />} />
+          <Route path="/mapp/wallet" element={<Navigate to="/profile" replace />} />
           <Route path="/mapp/profile" element={<Navigate to="/profile" replace />} />
           <Route path="/mapp/edit-profile" element={<Navigate to="/edit-profile" replace />} />
           <Route path="/mapp/driver" element={<Navigate to="/driver" replace />} />
@@ -137,7 +137,7 @@ export default function App() {
           <Route path="/ride-history" element={<Navigate to="/history" replace />} />
           <Route path="/profile" element={<SuspenseWrap><AuthGuard><RiderProfile /></AuthGuard></SuspenseWrap>} />
           <Route path="/edit-profile" element={<SuspenseWrap><AuthGuard><EditProfile /></AuthGuard></SuspenseWrap>} />
-          <Route path="/wallet" element={<SuspenseWrap><AuthGuard><RiderWalletPage /></AuthGuard></SuspenseWrap>} />
+          <Route path="/wallet" element={<Navigate to="/profile" replace />} />
 
           <Route path="/driver" element={<SuspenseWrap><DriverModeLanding /></SuspenseWrap>} />
           <Route path="/driver-mode" element={<Navigate to="/driver" replace />} />

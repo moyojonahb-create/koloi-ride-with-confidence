@@ -31,7 +31,7 @@ export default function TermsOfService() {
         </ul>
 
         <h2>5. Fares &amp; Payments</h2>
-        <p>Fares are displayed in USD and may be subject to negotiation between rider and driver. A 15% platform commission is deducted from each completed trip. Payment methods include cash, EcoCash, and in-app wallet.</p>
+        <p>Fares are displayed in USD and may be subject to negotiation between rider and driver. A 15% platform commission is deducted from each completed trip. Payment methods include cash and EcoCash (paid directly to the driver).</p>
 
         <h2>6. Cancellation Policy</h2>
         <p>Riders may cancel a ride request at any time before driver arrival. Repeated no-show cancellations may incur a cancellation fee or temporary account restriction.</p>

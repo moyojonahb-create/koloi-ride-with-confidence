@@ -63,7 +63,7 @@ import ContactPickerSheet from './ContactPickerSheet';
 interface SelectedLocation {name: string;lat: number;lng: number;}
 interface GPSState {status: 'idle' | 'loading' | 'success' | 'denied' | 'unavailable';coords: {lat: number;lng: number;} | null;error: string | null;}
 type VehicleTier = 'standard';
-type PaymentMethod = 'cash' | 'wallet' | 'ecocash';
+type PaymentMethod = 'cash' | 'ecocash';
 
 const SERVICE_TABS: {id: ServiceType;label: string;icon: string;}[] = [
 { id: 'ride', label: 'Ride', icon: '🚗' },
