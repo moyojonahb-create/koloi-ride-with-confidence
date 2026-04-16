@@ -148,7 +148,12 @@ export function useGooglePlacesAutocomplete() {
   }, [ensureService, searchViaBackend]);
 
   const getPlaceDetails = useCallback(
-    (placeId: string): Promise<{ lat: number; lng: number; name: string } | null> => {
+    (placeId: string, suggestion?: PlaceSuggestion): Promise<{ lat: number; lng: number; name: string } | null> => {
+      // If suggestion already has coordinates (from Nominatim backend), use them directly
+      if (suggestion?.lat && suggestion?.lng) {
+        return Promise.resolve({ lat: suggestion.lat, lng: suggestion.lng, name: suggestion.name });
+      }
+
       return new Promise((resolve) => {
         if (!ensureService() || !geocoderRef.current) {
           getPlaceDetailsViaBackend(placeId)

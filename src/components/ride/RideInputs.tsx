@@ -61,7 +61,26 @@ export default function RideInputs({
   }, [searchQuery, searchPlaces, clearPlaces]);
 
   const handlePlaceSuggestionSelect = async (suggestion: PlaceSuggestion) => {
-    const details = await getPlaceDetails(suggestion.placeId);
+    // Use coordinates from suggestion directly if available
+    if (suggestion.lat && suggestion.lng) {
+      const location: SelectedLocation = {
+        name: suggestion.name,
+        lat: suggestion.lat,
+        lng: suggestion.lng,
+      };
+      if (activeField === 'pickup') {
+        onPickupSelect(location);
+        setActiveField('dropoff');
+      } else {
+        onDropoffSelect(location);
+        setActiveField(null);
+      }
+      setSearchQuery('');
+      clearPlaces();
+      return;
+    }
+
+    const details = await getPlaceDetails(suggestion.placeId, suggestion);
     if (!details) return;
     
     const location: SelectedLocation = {
