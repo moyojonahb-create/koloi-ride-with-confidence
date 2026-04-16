@@ -5,17 +5,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface GoogleAutocompletePrediction {
-  placePrediction?: {
-    placeId?: string;
-    text?: { text?: string };
-    structuredFormat?: {
-      mainText?: { text?: string };
-      secondaryText?: { text?: string };
-    };
-  };
-}
-
 serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -30,26 +19,17 @@ serve(async (req: Request) => {
       });
     }
 
-    // Referer header required because the API key has HTTP referrer restrictions
-    const refererUrl = Deno.env.get('SUPABASE_URL') || 'https://pickme.co.zw';
-
     const url = new URL(req.url);
     const placeId = url.searchParams.get('placeId');
 
-    // ── Place Details by ID ──
+    // ── Place Details by ID (legacy) ──
     if (placeId) {
-      const detailsUrl = new URL(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`);
-      detailsUrl.searchParams.set('languageCode', 'en');
+      const detailsUrl = new URL('https://maps.googleapis.com/maps/api/place/details/json');
+      detailsUrl.searchParams.set('place_id', placeId);
+      detailsUrl.searchParams.set('fields', 'geometry,name,formatted_address');
+      detailsUrl.searchParams.set('key', GOOGLE_MAPS_API_KEY);
 
-      const detailsRes = await fetch(detailsUrl.toString(), {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
-          'X-Goog-FieldMask': 'id,displayName,location',
-          'Referer': refererUrl,
-        },
-      });
-
+      const detailsRes = await fetch(detailsUrl.toString());
       if (!detailsRes.ok) {
         const errorText = await detailsRes.text();
         console.error('[google-places-search] details error:', detailsRes.status, errorText);
@@ -60,20 +40,25 @@ serve(async (req: Request) => {
       }
 
       const details = await detailsRes.json();
-      const result = details?.location
-        ? {
-            lat: details.location.latitude,
-            lng: details.location.longitude,
-            name: details.displayName?.text || '',
-          }
-        : null;
+      if (details.status !== 'OK' || !details.result) {
+        console.error('[google-places-search] details status:', details.status);
+        return new Response(JSON.stringify(null), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const result = {
+        lat: details.result.geometry.location.lat,
+        lng: details.result.geometry.location.lng,
+        name: details.result.name || details.result.formatted_address || '',
+      };
 
       return new Response(JSON.stringify(result), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // ── Autocomplete search ──
+    // ── Autocomplete search (legacy) ──
     const q = url.searchParams.get('q')?.trim();
     const lat = url.searchParams.get('lat');
     const lng = url.searchParams.get('lng');
@@ -85,35 +70,18 @@ serve(async (req: Request) => {
       });
     }
 
-    const requestBody: Record<string, unknown> = {
-      input: q,
-      languageCode: 'en',
-      includedRegionCodes: ['ZW'],
-    };
+    const autocompleteUrl = new URL('https://maps.googleapis.com/maps/api/place/autocomplete/json');
+    autocompleteUrl.searchParams.set('input', q);
+    autocompleteUrl.searchParams.set('key', GOOGLE_MAPS_API_KEY);
+    autocompleteUrl.searchParams.set('components', 'country:zw');
+    autocompleteUrl.searchParams.set('language', 'en');
 
     if (lat && lng) {
-      requestBody.locationBias = {
-        circle: {
-          center: {
-            latitude: Number(lat),
-            longitude: Number(lng),
-          },
-          radius: Math.max(radiusKm * 1000, 5000),
-        },
-      };
+      autocompleteUrl.searchParams.set('location', `${lat},${lng}`);
+      autocompleteUrl.searchParams.set('radius', String(Math.max(radiusKm * 1000, 5000)));
     }
 
-    const autocompleteRes = await fetch('https://places.googleapis.com/v1/places:autocomplete', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
-        'X-Goog-FieldMask': 'suggestions.placePrediction.placeId,suggestions.placePrediction.text,suggestions.placePrediction.structuredFormat',
-        'Referer': refererUrl,
-      },
-      body: JSON.stringify(requestBody),
-    });
-
+    const autocompleteRes = await fetch(autocompleteUrl.toString());
     if (!autocompleteRes.ok) {
       const errorText = await autocompleteRes.text();
       console.error('[google-places-search] autocomplete error:', autocompleteRes.status, errorText);
@@ -124,21 +92,19 @@ serve(async (req: Request) => {
     }
 
     const data = await autocompleteRes.json();
-    const suggestions = (data?.suggestions ?? [])
-      .map((entry: GoogleAutocompletePrediction) => {
-        const prediction = entry.placePrediction;
-        if (!prediction?.placeId) return null;
+    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
+      console.error('[google-places-search] autocomplete status:', data.status, data.error_message);
+      return new Response(JSON.stringify({ error: data.error_message || 'Autocomplete failed' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-        return {
-          placeId: prediction.placeId,
-          name: prediction.structuredFormat?.mainText?.text || prediction.text?.text || '',
-          description:
-            prediction.structuredFormat?.secondaryText?.text ||
-            prediction.text?.text ||
-            '',
-        };
-      })
-      .filter(Boolean);
+    const suggestions = (data.predictions || []).map((p: any) => ({
+      placeId: p.place_id,
+      name: p.structured_formatting?.main_text || p.description?.split(',')[0] || '',
+      description: p.structured_formatting?.secondary_text || p.description || '',
+    }));
 
     return new Response(JSON.stringify(suggestions), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
