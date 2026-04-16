@@ -65,8 +65,8 @@ function googleTypeToCategory(types: string[]): string {
   for (const t of types) {
     if (map[t]) return map[t];
   }
-  if (types.includes('point_of_interest')) return '📍 Place';
-  if (types.includes('establishment')) return '🏢 Business';
+  if (types.includes('point_of_interest')) return 'Place';
+  if (types.includes('establishment')) return 'Business';
   return '';
 }
 
