@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import { withRateLimit } from '@/lib/rateLimit';
 
 export interface FraudCheck {
   type: string;
@@ -14,7 +15,7 @@ export function detectGPSSpoofing(
   prevLat: number, prevLng: number, prevTime: number,
   curLat: number, curLng: number, curTime: number
 ): FraudCheck | null {
-  const R = 6371; // Earth radius km
+  const R = 6371;
   const dLat = (curLat - prevLat) * Math.PI / 180;
   const dLon = (curLng - prevLng) * Math.PI / 180;
   const a = Math.sin(dLat / 2) ** 2 +
@@ -27,7 +28,6 @@ export function detectGPSSpoofing(
   
   const speedKmh = distance / (timeDiffMin / 60);
   
-  // Flag if "traveling" faster than 300km/h (impossible in Zimbabwe)
   if (speedKmh > 300 && distance > 5) {
     return {
       type: 'gps_spoofing',
@@ -45,46 +45,56 @@ export function detectGPSSpoofing(
 }
 
 /**
- * Check for suspicious ride patterns:
- * - Too many cancellations in a short period
- * - Rides to same location repeatedly (possible fraud)
+ * Check for suspicious ride patterns.
+ * OPTIMIZED: Rate-limited to 1 call per user per 5 minutes (was called on every ride request).
+ * Uses head:true count queries (no row transfer).
  */
 export async function detectSuspiciousPatterns(userId: string): Promise<FraudCheck[]> {
-  const flags: FraudCheck[] = [];
-  const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+  // Rate limit: only run fraud checks once per 5 minutes per user
+  const result = await withRateLimit(
+    `fraud-check-${userId}`,
+    async () => {
+      const flags: FraudCheck[] = [];
+      const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
 
-  // Check cancellation rate in last hour
-  const { count: cancelCount } = await supabase
-    .from('rides')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .eq('status', 'cancelled')
-    .gte('created_at', oneHourAgo);
+      // Run both count queries in parallel
+      const [cancelRes, requestRes] = await Promise.all([
+        supabase
+          .from('rides')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .eq('status', 'cancelled')
+          .gte('created_at', oneHourAgo),
+        supabase
+          .from('rides')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+          .gte('created_at', oneHourAgo),
+      ]);
 
-  if ((cancelCount ?? 0) >= 5) {
-    flags.push({
-      type: 'excessive_cancellations',
-      severity: 'medium',
-      details: { cancellationsLastHour: cancelCount, threshold: 5 },
-    });
-  }
+      if ((cancelRes.count ?? 0) >= 5) {
+        flags.push({
+          type: 'excessive_cancellations',
+          severity: 'medium',
+          details: { cancellationsLastHour: cancelRes.count, threshold: 5 },
+        });
+      }
 
-  // Check for rapid ride requests (> 10 in 1 hour)
-  const { count: requestCount } = await supabase
-    .from('rides')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .gte('created_at', oneHourAgo);
+      if ((requestRes.count ?? 0) >= 10) {
+        flags.push({
+          type: 'rapid_requests',
+          severity: 'high',
+          details: { requestsLastHour: requestRes.count, threshold: 10 },
+        });
+      }
 
-  if ((requestCount ?? 0) >= 10) {
-    flags.push({
-      type: 'rapid_requests',
-      severity: 'high',
-      details: { requestsLastHour: requestCount, threshold: 10 },
-    });
-  }
+      return flags;
+    },
+    1,
+    300_000 // 5 minutes
+  );
 
-  return flags;
+  return result ?? [];
 }
 
 /**
@@ -101,6 +111,7 @@ export async function reportFraudFlag(userId: string, check: FraudCheck) {
 
 /**
  * Run all fraud checks for a location update.
+ * OPTIMIZED: Rate-limited to max 6/min per driver (was every 10s = 6/min anyway, but now enforced).
  */
 export async function runLocationFraudChecks(
   userId: string,

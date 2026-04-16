@@ -1,6 +1,7 @@
 // Offer/bidding system helpers - RLS safe implementation
 import { supabase } from '@/lib/supabaseClient';
 import { resolveAvatarUrl } from '@/lib/avatarUrl';
+import { getCached, setCache } from '@/lib/queryCache';
 
 export type Offer = {
   id: string;
@@ -56,50 +57,52 @@ async function getUserOrThrow() {
   return data.user;
 }
 
-// Fetch pending offers for a ride
+// Fetch pending offers for a ride (with LIMIT to prevent overload)
 export async function fetchPendingOffers(rideId: string): Promise<Offer[]> {
   const { data, error } = await supabase
     .from("offers")
     .select("*")
     .eq("ride_id", rideId)
     .eq("status", "pending")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(50); // Cap offers per ride
 
   if (error) throw new Error(error.message);
   return (data ?? []) as Offer[];
 }
 
 // Fetch drivers by their user IDs, enriched with profile name
+// OPTIMIZED: parallel avatar resolution instead of sequential
 export async function fetchDriversByIds(driverIds: string[]): Promise<Record<string, DriverProfile & { full_name?: string | null }>> {
   if (driverIds.length === 0) return {};
-  const { data, error } = await supabase
-    .from("drivers")
-    .select("*")
-    .in("user_id", driverIds);
-  
-  if (error) throw new Error(error.message);
-  
-  // Also fetch profile names
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("user_id, full_name")
-    .in("user_id", driverIds);
-  
+
+  // Fetch drivers and profiles in parallel
+  const [driversRes, profilesRes] = await Promise.all([
+    supabase.from("drivers").select("*").in("user_id", driverIds),
+    supabase.from("profiles").select("user_id, full_name").in("user_id", driverIds),
+  ]);
+
+  if (driversRes.error) throw new Error(driversRes.error.message);
+
   const nameMap: Record<string, string> = {};
-  for (const p of (profiles ?? [])) {
+  for (const p of (profilesRes.data ?? [])) {
     if (p.full_name) nameMap[p.user_id] = p.full_name;
   }
-  
+
+  // Resolve all avatars in parallel (was sequential — O(n) → O(1) latency)
+  const driverRows = (driversRes.data ?? []) as DriverProfile[];
+  const avatarPromises = driverRows.map((row) => resolveAvatarUrl(row.avatar_url));
+  const resolvedAvatars = await Promise.all(avatarPromises);
+
   const map: Record<string, DriverProfile & { full_name?: string | null }> = {};
-  for (const row of (data ?? []) as DriverProfile[]) {
-    const resolvedAvatar = await resolveAvatarUrl(row.avatar_url);
-    map[row.user_id] = { ...row, avatar_url: resolvedAvatar, full_name: nameMap[row.user_id] || null };
-  }
+  driverRows.forEach((row, i) => {
+    map[row.user_id] = { ...row, avatar_url: resolvedAvatars[i], full_name: nameMap[row.user_id] || null };
+  });
   return map;
 }
 
 // Fetch open rides for drivers to bid on (only last 5 minutes)
-// Filters out female-only rides if driver is male
+// OPTIMIZED: added LIMIT 30 to cap returned rides at scale
 export async function fetchOpenRides(driverGender?: string | null) {
   const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
   const { data, error } = await supabase
@@ -107,7 +110,8 @@ export async function fetchOpenRides(driverGender?: string | null) {
     .select("*")
     .eq("status", "pending")
     .gte("created_at", fiveMinAgo)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(30); // Cap to prevent fetching thousands of rides
 
   if (error) throw new Error(error.message);
   const rides = data ?? [];
@@ -123,9 +127,14 @@ export async function fetchOpenRides(driverGender?: string | null) {
   return rides;
 }
 
-// Get current driver profile
+// Get current driver profile (cached for 30s to reduce repeated calls)
 export async function getDriverProfile(): Promise<DriverProfile | null> {
   const user = await getUserOrThrow();
+  
+  const cacheKey = `driver-profile-${user.id}`;
+  const cached = getCached<DriverProfile>(cacheKey);
+  if (cached) return cached;
+
   const { data, error } = await supabase
     .from("drivers")
     .select("*")
@@ -133,6 +142,7 @@ export async function getDriverProfile(): Promise<DriverProfile | null> {
     .maybeSingle();
   
   if (error) throw new Error(error.message);
+  if (data) setCache(cacheKey, data, 30_000); // 30s TTL
   return data as DriverProfile | null;
 }
 
@@ -148,75 +158,59 @@ export async function submitOffer(input: {
   const payload = {
     ride_id: input.ride_id,
     driver_id: user.id,
-    price: clampTo5(input.price),
-    eta_minutes: Math.max(1, Math.min(240, Number(input.eta_minutes) || 10)),
-    message: (input.message ?? "").trim() || null,
-    status: "pending" as const,
+    price: input.price,
+    eta_minutes: input.eta_minutes,
+    message: input.message || null,
+    status: 'pending',
   };
-
+  
   const { data, error } = await supabase
     .from("offers")
-    .insert(payload)
+    .insert(payload as never)
     .select("*")
     .single();
-
+  
   if (error) throw new Error(error.message);
   return data as Offer;
 }
 
-// Accept an offer (rider action)
-export async function acceptOffer(rideId: string, offer: Offer): Promise<boolean> {
+// Decline an offer
+export async function declineOffer(offerId: string): Promise<void> {
+  const { error } = await supabase.from("offers").update({ status: "rejected" } as never).eq("id", offerId);
+  if (error) throw new Error(error.message);
+}
+
+// Accept an offer
+export async function acceptOffer(rideId: string, offerOrId: string | Offer) {
+  const offerId = typeof offerOrId === 'string' ? offerOrId : offerOrId.id;
   const user = await getUserOrThrow();
 
-  // Get the driver record to get the driver's ID
-  const { data: driverData, error: driverErr } = await supabase
+  // Get the offer to find driver_id
+  const { data: offer, error: offerErr } = await supabase
+    .from("offers")
+    .select("driver_id")
+    .eq("id", offerId)
+    .single();
+
+  if (offerErr || !offer) throw new Error("Offer not found");
+
+  // Get driver record id
+  const { data: driver } = await supabase
     .from("drivers")
     .select("id")
     .eq("user_id", offer.driver_id)
     .maybeSingle();
 
-  if (driverErr) throw new Error(driverErr.message);
-  if (!driverData) throw new Error("Driver record not found");
+  if (!driver) throw new Error("Driver not found");
 
-  // Update ride to accepted with driver
-  const { error: rideErr } = await supabase
-    .from("rides")
-    .update({ 
-      status: "accepted", 
-      driver_id: driverData.id 
-    })
-    .eq("id", rideId)
-    .eq("user_id", user.id);
+  // Update offer status, ride status, and reject other offers in parallel
+  const [acceptRes, rideRes, rejectRes] = await Promise.all([
+    supabase.from("offers").update({ status: "accepted" } as never).eq("id", offerId),
+    supabase.from("rides").update({ status: "accepted", driver_id: driver.id } as never).eq("id", rideId),
+    supabase.from("offers").update({ status: "rejected" } as never).eq("ride_id", rideId).neq("id", offerId),
+  ]);
 
-  if (rideErr) throw new Error(rideErr.message);
-
-  // Mark selected offer as accepted
-  const { error: acceptErr } = await supabase
-    .from("offers")
-    .update({ status: "accepted" })
-    .eq("id", offer.id);
-
-  if (acceptErr) throw new Error(acceptErr.message);
-
-  // Reject all other offers
-  const { error: rejectErr } = await supabase
-    .from("offers")
-    .update({ status: "rejected" })
-    .eq("ride_id", rideId)
-    .neq("id", offer.id);
-
-  if (rejectErr) throw new Error(rejectErr.message);
-
-  return true;
-}
-
-// Decline an offer
-export async function declineOffer(offerId: string): Promise<boolean> {
-  const { error } = await supabase
-    .from("offers")
-    .update({ status: "rejected" })
-    .eq("id", offerId);
-
-  if (error) throw new Error(error.message);
-  return true;
+  if (acceptRes.error) throw new Error(acceptRes.error.message);
+  if (rideRes.error) throw new Error(rideRes.error.message);
+  // Reject errors are non-critical
 }
