@@ -98,15 +98,17 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
     return true;
   };
 
-  // Update profile with phone after signup
-  const updateProfilePhone = async (userId: string, phoneNumber: string) => {
+  // Update profile with phone and gender after signup
+  const updateProfileAfterSignup = async (userId: string, phoneNumber: string, userGender: string) => {
     try {
+      const updateData: Record<string, string> = { phone: phoneNumber };
+      if (userGender) updateData.gender = userGender;
       await supabase
         .from('profiles')
-        .update({ phone: phoneNumber })
+        .update(updateData as never)
         .eq('user_id', userId);
     } catch (e) {
-      console.warn('Could not update phone:', e);
+      console.warn('Could not update profile:', e);
     }
   };
 
