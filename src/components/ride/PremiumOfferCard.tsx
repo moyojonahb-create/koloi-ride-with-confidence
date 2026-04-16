@@ -130,7 +130,10 @@ export default function PremiumOfferCard({ offer, riderFare, onAccept, onDecline
               {offer.carColor && (
                 <>
                   <span className="text-border">•</span>
-                  <span className="capitalize">{offer.carColor}</span>
+                  <span className="flex items-center gap-1 capitalize">
+                    <span className="w-2.5 h-2.5 rounded-full border border-border/40 inline-block shrink-0" style={{ backgroundColor: offer.carColor.toLowerCase() }} />
+                    {offer.carColor}
+                  </span>
                 </>
               )}
               <span className="text-border">•</span>
