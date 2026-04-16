@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.nominatim-search]
 verify_jwt = false
+
+[functions.google-places-search]
+verify_jwt = false

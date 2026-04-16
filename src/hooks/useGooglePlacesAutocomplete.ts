@@ -8,6 +8,14 @@ export interface PlaceSuggestion {
   lng?: number;
 }
 
+interface BackendPlaceSuggestion {
+  placeId: string;
+  name: string;
+  description: string;
+  lat?: number;
+  lng?: number;
+}
+
 /**
  * Hook that provides Google Places Autocomplete suggestions.
  * Biases results to the provided town location for ride-hailing relevance.
@@ -20,6 +28,46 @@ export function useGooglePlacesAutocomplete() {
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const townRef = useRef<{ lat: number; lng: number; radiusKm: number } | null>(null);
+
+  const searchViaBackend = useCallback(async (query: string) => {
+    const base = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-places-search`;
+    const url = new URL(base);
+    url.searchParams.set('q', query.trim());
+
+    if (townRef.current) {
+      url.searchParams.set('lat', String(townRef.current.lat));
+      url.searchParams.set('lng', String(townRef.current.lng));
+      url.searchParams.set('radiusKm', String(townRef.current.radiusKm));
+    }
+
+    const res = await fetch(url.toString(), {
+      headers: {
+        Accept: 'application/json',
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+    });
+
+    if (!res.ok) throw new Error('Backend place search failed');
+    return res.json() as Promise<BackendPlaceSuggestion[]>;
+  }, []);
+
+  const getPlaceDetailsViaBackend = useCallback(async (placeId: string) => {
+    const base = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-places-search`;
+    const url = new URL(base);
+    url.searchParams.set('placeId', placeId);
+
+    const res = await fetch(url.toString(), {
+      headers: {
+        Accept: 'application/json',
+        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+    });
+
+    if (!res.ok) throw new Error('Backend place details failed');
+    return res.json() as Promise<{ lat: number; lng: number; name: string } | null>;
+  }, []);
 
   const ensureService = useCallback(() => {
     if (!window.google?.maps?.places) return false;
@@ -43,7 +91,7 @@ export function useGooglePlacesAutocomplete() {
   const search = useCallback((query: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    if (!query || query.trim().length < 2) {
+    if (!query || query.trim().length < 3) {
       setSuggestions([]);
       setLoading(false);
       return;
@@ -54,7 +102,10 @@ export function useGooglePlacesAutocomplete() {
     // Ultra-fast: 150ms debounce
     debounceRef.current = setTimeout(() => {
       if (!ensureService()) {
-        setLoading(false);
+        searchViaBackend(query)
+          .then((results) => setSuggestions(results))
+          .catch(() => setSuggestions([]))
+          .finally(() => setLoading(false));
         return;
       }
 
@@ -62,7 +113,6 @@ export function useGooglePlacesAutocomplete() {
         input: query.trim(),
         componentRestrictions: { country: 'zw' },
         sessionToken: sessionTokenRef.current!,
-        types: ['geocode', 'establishment'],
       };
 
       // Bias to current town if available
@@ -86,18 +136,24 @@ export function useGooglePlacesAutocomplete() {
           }));
           setSuggestions(mapped);
         } else {
-          setSuggestions([]);
+          searchViaBackend(query)
+            .then((results) => setSuggestions(results))
+            .catch(() => setSuggestions([]))
+            .finally(() => setLoading(false));
+          return;
         }
         setLoading(false);
       });
     }, 150);
-  }, [ensureService]);
+  }, [ensureService, searchViaBackend]);
 
   const getPlaceDetails = useCallback(
     (placeId: string): Promise<{ lat: number; lng: number; name: string } | null> => {
       return new Promise((resolve) => {
         if (!ensureService() || !geocoderRef.current) {
-          resolve(null);
+          getPlaceDetailsViaBackend(placeId)
+            .then(resolve)
+            .catch(() => resolve(null));
           return;
         }
 
@@ -111,12 +167,14 @@ export function useGooglePlacesAutocomplete() {
               name: results[0].formatted_address?.split(',')[0] || '',
             });
           } else {
-            resolve(null);
+            getPlaceDetailsViaBackend(placeId)
+              .then(resolve)
+              .catch(() => resolve(null));
           }
         });
       });
     },
-    [ensureService]
+    [ensureService, getPlaceDetailsViaBackend]
   );
 
   const clear = useCallback(() => {
