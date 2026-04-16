@@ -132,9 +132,11 @@ export default function RideView() {
   const nearbyDrivers = useNearbyDrivers(rideStatus === 'idle' || rideStatus === 'searching');
   const { suggestions: googleSuggestions, loading: googleLoading, search: searchGoogle, getPlaceDetails, clear: clearGoogleSuggestions, setTownBias } = useGooglePlacesAutocomplete();
 
-  // Bias Google Places to selected town
+  // Restrict Google Places to selected town (strict geofence)
   useEffect(() => {
-    setTownBias(selectedTown.center, selectedTown.radiusKm);
+    const vb = selectedTown.nominatimViewbox;
+    const viewbox = `${vb.left},${vb.top},${vb.right},${vb.bottom}`;
+    setTownBias(selectedTown.center, selectedTown.radiusKm, viewbox);
   }, [selectedTown, setTownBias]);
 
   // ── effects ──
@@ -264,10 +266,24 @@ export default function RideView() {
     setNominatimLoading(true);
     nominatimDebounceRef.current = setTimeout(async () => {
       try {
-        // Search Zimbabwe-wide with a town bias so prefixes like "mak" can still surface Makokoba and other matching places fast.
-        const results = await searchZW(query.trim(), 20, selectedTown.nominatimViewbox, false);
-        setNominatimResults(results.map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name })));
-        for (const r of results) cachePlaceFromNominatim(r).catch(() => {});
+        // Strict town-bounded search: only show results within the selected town
+        const results = await searchZW(query.trim(), 20, selectedTown.nominatimViewbox, true);
+        const mapped = results.map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name }));
+        
+        // If bounded search returned nothing, try unbounded as fallback (but still with viewbox bias)
+        if (mapped.length === 0) {
+          const fallback = await searchZW(query.trim(), 10, selectedTown.nominatimViewbox, false);
+          // Filter results to only include those within the town's max distance
+          const { getDistance } = await import('@/lib/towns');
+          const filtered = fallback
+            .map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name }))
+            .filter((r) => getDistance(selectedTown.center.lat, selectedTown.center.lng, r.lat, r.lng) <= selectedTown.maxDistanceKm);
+          setNominatimResults(filtered);
+          for (const r of fallback) cachePlaceFromNominatim(r).catch(() => {});
+        } else {
+          setNominatimResults(mapped);
+          for (const r of results) cachePlaceFromNominatim(r).catch(() => {});
+        }
       } catch {setNominatimResults([]);} finally {setNominatimLoading(false);}
     }, 150);
   }, [selectedTown]);
@@ -1077,7 +1093,7 @@ export default function RideView() {
             <>
                 {/* Single unified section: Streets & Places */}
                 <div className="px-4 py-2 bg-accent/8 border-t border-border/15">
-                  <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">🌍 Streets & Places</p>
+                  <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">📍 Showing locations within {selectedTown.name}</p>
                 </div>
 
                 {(landmarksLoading || cachedPlacesLoading || googleLoading || nominatimLoading) && landmarks.length === 0 && unifiedPlaceResults.length === 0 &&
@@ -1137,7 +1153,8 @@ export default function RideView() {
                 {!landmarksLoading && !cachedPlacesLoading && !googleLoading && !nominatimLoading && landmarks.length === 0 && cachedPlaceResults.length === 0 && googleSuggestions.length === 0 && nominatimResults.length === 0 && searchQuery.trim().length >= 3 &&
               <div className="text-center py-12 text-muted-foreground">
                       <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                      <p className="text-sm">No results for "{searchQuery}"</p>
+                      <p className="text-sm">No results for "{searchQuery}" in {selectedTown.name}</p>
+                      <p className="text-xs mt-1">Try switching to a different town above</p>
                     </div>
               }
               </>

@@ -27,7 +27,7 @@ export function useGooglePlacesAutocomplete() {
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const townRef = useRef<{ lat: number; lng: number; radiusKm: number } | null>(null);
+  const townRef = useRef<{ lat: number; lng: number; radiusKm: number; viewbox?: string } | null>(null);
 
   const searchViaBackend = useCallback(async (query: string) => {
     const base = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/google-places-search`;
@@ -38,6 +38,11 @@ export function useGooglePlacesAutocomplete() {
       url.searchParams.set('lat', String(townRef.current.lat));
       url.searchParams.set('lng', String(townRef.current.lng));
       url.searchParams.set('radiusKm', String(townRef.current.radiusKm));
+      // Pass viewbox for strict town bounding
+      if (townRef.current.viewbox) {
+        url.searchParams.set('viewbox', townRef.current.viewbox);
+        url.searchParams.set('bounded', '1');
+      }
     }
 
     const res = await fetch(url.toString(), {
@@ -83,9 +88,9 @@ export function useGooglePlacesAutocomplete() {
     return true;
   }, []);
 
-  /** Set the town context so results are biased to that area */
-  const setTownBias = useCallback((center: { lat: number; lng: number }, radiusKm: number) => {
-    townRef.current = { ...center, radiusKm };
+  /** Set the town context so results are restricted to that area */
+  const setTownBias = useCallback((center: { lat: number; lng: number }, radiusKm: number, viewbox?: string) => {
+    townRef.current = { ...center, radiusKm, viewbox };
   }, []);
 
   const search = useCallback((query: string) => {
@@ -115,13 +120,17 @@ export function useGooglePlacesAutocomplete() {
         sessionToken: sessionTokenRef.current!,
       };
 
-      // Bias to current town if available
+      // Restrict to current town (strict geofence)
       if (townRef.current) {
         const { lat, lng, radiusKm } = townRef.current;
-        request.locationBias = {
-          center: { lat, lng },
-          radius: radiusKm * 1000, // convert to meters
-        } as google.maps.CircleLiteral;
+        // Use locationRestriction for strict filtering (only results within bounds)
+        const delta = radiusKm / 111; // rough degrees
+        (request as any).locationRestriction = {
+          south: lat - delta,
+          west: lng - delta,
+          north: lat + delta,
+          east: lng + delta,
+        };
       }
 
       serviceRef.current!.getPlacePredictions(request, (predictions, status) => {

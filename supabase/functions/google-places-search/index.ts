@@ -16,10 +16,8 @@ serve(async (req: Request) => {
 
     // ── Place Details by OSM ID ──
     if (placeId) {
-      // placeId format: "N12345" or "W12345" or "R12345"
       const osmType = placeId.charAt(0);
       const osmId = placeId.substring(1);
-      const typeMap: Record<string, string> = { N: 'node', W: 'way', R: 'relation' };
 
       const lookupUrl = new URL('https://nominatim.openstreetmap.org/lookup');
       lookupUrl.searchParams.set('osm_ids', `${osmType}${osmId}`);
@@ -51,14 +49,18 @@ serve(async (req: Request) => {
     const q = url.searchParams.get('q')?.trim();
     const lat = url.searchParams.get('lat');
     const lng = url.searchParams.get('lng');
+    const radiusKm = Number(url.searchParams.get('radiusKm') || '0');
+    // Accept explicit viewbox for strict town bounding
+    const viewboxParam = url.searchParams.get('viewbox'); // "left,top,right,bottom"
+    const bounded = url.searchParams.get('bounded') === '1';
 
-    if (!q || q.length < 3) {
+    if (!q || q.length < 2) {
       return new Response(JSON.stringify([]), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Search with Zimbabwe country code bias
+    // Search with Zimbabwe country code
     const searchUrl = new URL('https://nominatim.openstreetmap.org/search');
     searchUrl.searchParams.set('q', `${q}, Zimbabwe`);
     searchUrl.searchParams.set('format', 'json');
@@ -67,11 +69,18 @@ serve(async (req: Request) => {
     searchUrl.searchParams.set('countrycodes', 'zw');
     searchUrl.searchParams.set('dedupe', '1');
 
-    if (lat && lng) {
-      // Bias results around user location with a viewbox
-      const delta = 0.5; // ~50km
-      searchUrl.searchParams.set('viewbox', `${Number(lng)-delta},${Number(lat)-delta},${Number(lng)+delta},${Number(lat)+delta}`);
-      searchUrl.searchParams.set('bounded', '0'); // Allow results outside viewbox too
+    // Use explicit viewbox if provided, otherwise derive from lat/lng
+    if (viewboxParam) {
+      searchUrl.searchParams.set('viewbox', viewboxParam);
+      searchUrl.searchParams.set('bounded', bounded ? '1' : '0');
+    } else if (lat && lng) {
+      // Derive viewbox from radiusKm or default ~30km
+      const delta = radiusKm > 0 ? radiusKm / 111 : 0.3;
+      const latNum = Number(lat);
+      const lngNum = Number(lng);
+      searchUrl.searchParams.set('viewbox', `${lngNum - delta},${latNum - delta},${lngNum + delta},${latNum + delta}`);
+      // bounded=1 restricts to viewbox strictly
+      searchUrl.searchParams.set('bounded', bounded ? '1' : '0');
     }
 
     const searchRes = await fetch(searchUrl.toString(), {
