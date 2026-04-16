@@ -381,6 +381,29 @@ const AuthForm = ({ mode, onSwitchMode, onSuccess }: AuthFormProps) => {
                   <p className="text-destructive text-sm mt-1">{errors.phone}</p>
                 )}
               </div>
+
+              <div>
+                <Label htmlFor="gender">Gender *</Label>
+                <div className="flex gap-2 mt-1.5">
+                  <button
+                    type="button"
+                    onClick={() => { setGender('male'); setErrors(prev => ({ ...prev, gender: '' })); }}
+                    className={`flex-1 py-3 rounded-2xl border text-sm font-semibold transition-all ${gender === 'male' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-muted-foreground hover:border-muted-foreground/50'}`}
+                  >
+                    Male
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setGender('female'); setErrors(prev => ({ ...prev, gender: '' })); }}
+                    className={`flex-1 py-3 rounded-2xl border text-sm font-semibold transition-all ${gender === 'female' ? 'border-pink-400 bg-pink-50 text-pink-600 dark:bg-pink-950/20' : 'border-border text-muted-foreground hover:border-muted-foreground/50'}`}
+                  >
+                    Female
+                  </button>
+                </div>
+                {errors.gender && (
+                  <p className="text-destructive text-sm mt-1">{errors.gender}</p>
+                )}
+              </div>
             </>
           )}
 
