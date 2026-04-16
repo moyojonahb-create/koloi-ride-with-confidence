@@ -30,7 +30,7 @@ export default function DriverSettingsPanel({ driverId, initialArea = 'both', in
     if (!user) return;
     const { error } = await supabase
       .from('drivers')
-      .update({ [field]: value })
+      .update({ [field]: value } as any)
       .eq('id', driverId);
 
     if (error) {

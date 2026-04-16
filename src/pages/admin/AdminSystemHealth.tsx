@@ -113,7 +113,7 @@ export default function AdminSystemHealth() {
     // Move old "today" entries to "week" if they're from previous days
     await supabase
       .from('system_error_logs')
-      .update({ period: 'week', updated_at: new Date().toISOString() } as Record<string, unknown>)
+      .update({ period: 'week', updated_at: new Date().toISOString() } as any)
       .eq('period', 'today')
       .lt('created_at', todayStart.toISOString());
 
@@ -630,7 +630,7 @@ export default function AdminSystemHealth() {
   const resolveLog = async (logId: string) => {
     await supabase.from('system_error_logs').update({
       resolved: true, resolved_at: new Date().toISOString(),
-    } as Record<string, unknown>).eq('id', logId);
+    } as any).eq('id', logId);
     toast.success('Issue marked as resolved');
     loadErrorLogs(logTab);
   };
