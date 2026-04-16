@@ -1108,7 +1108,10 @@ export default function RideView() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-foreground truncate">{landmark.name}</p>
-                        <p className="text-sm text-muted-foreground capitalize">{landmark.category}{landmark.distance ? ` · ${landmark.distance < 1 ? `${Math.round(landmark.distance * 1000)}m` : `${landmark.distance.toFixed(1)}km`}` : ''}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[10px] font-semibold text-primary bg-primary/8 px-1.5 py-0.5 rounded-full whitespace-nowrap">{landmark.category}</span>
+                          {landmark.distance !== undefined && <span className="text-xs text-muted-foreground">{landmark.distance < 1 ? `${Math.round(landmark.distance * 1000)}m` : `${landmark.distance.toFixed(1)}km`}</span>}
+                        </div>
                       </div>
                     </button>
               )}
