@@ -40,7 +40,7 @@ import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import ShareTripButton from "@/components/ride/ShareTripButton";
 import EcoCashPaymentModal from "@/components/wallet/EcoCashPaymentModal";
-import { useWallet } from "@/hooks/useWallet";
+// Rider wallet removed — riders pay drivers directly
 import RideBottomSheet, { type SheetState } from "@/components/ride/RideBottomSheet";
 
 type Ride = {
@@ -88,14 +88,8 @@ export default function RiderRideDetail() {
   const [sheetState, setSheetState] = useState<SheetState>('half');
   const [showAcceptedOverlay, setShowAcceptedOverlay] = useState(false);
 
-  const { balance: walletBalance } = useWallet();
-  const [walletPin, setWalletPin] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!user) return;
-    supabase.from('wallets').select('wallet_pin').eq('user_id', user.id).maybeSingle()
-      .then(({ data }) => { setWalletPin((data as Record<string, unknown>)?.wallet_pin as string | null); });
-  }, [user]);
+  // Rider wallet removed — direct payment to driver
+  const walletPin: string | null = null;
 
   const {
     callStatus, isMuted, isSpeaker, callDuration, incomingCall,
