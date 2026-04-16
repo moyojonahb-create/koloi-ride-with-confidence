@@ -174,8 +174,15 @@ export async function submitOffer(input: {
   return data as Offer;
 }
 
+// Decline an offer
+export async function declineOffer(offerId: string): Promise<void> {
+  const { error } = await supabase.from("offers").update({ status: "rejected" } as never).eq("id", offerId);
+  if (error) throw new Error(error.message);
+}
+
 // Accept an offer
-export async function acceptOffer(offerId: string, rideId: string) {
+export async function acceptOffer(rideId: string, offerOrId: string | Offer) {
+  const offerId = typeof offerOrId === 'string' ? offerOrId : offerOrId.id;
   const user = await getUserOrThrow();
 
   // Get the offer to find driver_id
