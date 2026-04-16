@@ -481,12 +481,22 @@ export default function RideView() {
     handleNominatimSearch(value);
   };
 
-  const handleGooglePlaceSelect = async (suggestion: {placeId: string;name: string;}) => {
-    const details = await getPlaceDetails(suggestion.placeId);
+  const handleGooglePlaceSelect = async (suggestion: {placeId: string;name: string;lat?: number;lng?: number;source?: string;}) => {
+    // If coordinates already available (OSM source), use directly
+    if (suggestion.lat && suggestion.lng) {
+      const loc: SelectedLocation = { name: suggestion.name, lat: suggestion.lat, lng: suggestion.lng };
+      if (activeField === 'pickup') setPickupLocation(loc);else setDropoffLocation(loc);
+      setActiveField(null);setSearchQuery('');setNominatimResults([]);clearGoogleSuggestions();
+      haptic('light');
+      return;
+    }
+    // Google source — fetch details from server
+    const details = await getPlaceDetails(suggestion.placeId, suggestion as any);
     if (!details) return;
     const loc: SelectedLocation = { name: suggestion.name, lat: details.lat, lng: details.lng };
     if (activeField === 'pickup') setPickupLocation(loc);else setDropoffLocation(loc);
     setActiveField(null);setSearchQuery('');setNominatimResults([]);clearGoogleSuggestions();
+    haptic('light');
   };
 
   const canRequestRide = pickupLocation && dropoffLocation && fareEstimate && !isRequesting;
