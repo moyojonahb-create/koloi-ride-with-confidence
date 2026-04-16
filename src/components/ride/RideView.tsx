@@ -261,11 +261,12 @@ export default function RideView() {
     setNominatimLoading(true);
     nominatimDebounceRef.current = setTimeout(async () => {
       try {
-        const results = await searchZW(query.trim(), 10, selectedTown.nominatimViewbox, false);
+        // Search with town viewbox bias but NOT bounded, so results outside town still appear
+        const results = await searchZW(query.trim(), 15, selectedTown.nominatimViewbox, false);
         setNominatimResults(results.map((r) => ({ name: r.name || r.display_name.split(',')[0], lat: Number(r.lat), lng: Number(r.lon), displayName: r.display_name })));
         for (const r of results) cachePlaceFromNominatim(r).catch(() => {});
       } catch {setNominatimResults([]);} finally {setNominatimLoading(false);}
-    }, 300);
+    }, 150);
   }, [selectedTown]);
 
   const handleMapClick = useCallback(async (coords: {lat: number;lng: number;}) => {
