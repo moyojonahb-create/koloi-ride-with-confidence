@@ -478,6 +478,7 @@ export default function RideView() {
     setSearchQuery(value);
     if (value.trim().length >= 3) {searchGoogle(value);} else {clearGoogleSuggestions();}
     handleCachedPlacesSearch(value);
+    // Only run Nominatim as silent fallback — don't show if Google has results
     handleNominatimSearch(value);
   };
 
@@ -1103,7 +1104,7 @@ export default function RideView() {
             <>
                 {/* Single unified section: Streets & Places */}
                 <div className="px-4 py-2 bg-accent/8 border-t border-border/15">
-                  <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">📍 Showing locations within {selectedTown.name}</p>
+                  <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">Showing locations within {selectedTown.name}</p>
                 </div>
 
                 {(landmarksLoading || cachedPlacesLoading || googleLoading || nominatimLoading) && landmarks.length === 0 && unifiedPlaceResults.length === 0 &&
@@ -1119,17 +1120,18 @@ export default function RideView() {
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-foreground truncate">{landmark.name}</p>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-[10px] font-semibold text-primary bg-primary/8 px-1.5 py-0.5 rounded-full whitespace-nowrap">{landmark.category}</span>
-                          {landmark.distance !== undefined && <span className="text-xs text-muted-foreground">{landmark.distance < 1 ? `${Math.round(landmark.distance * 1000)}m` : `${landmark.distance.toFixed(1)}km`}</span>}
+                          <span className="text-xs text-muted-foreground capitalize">{landmark.category}</span>
+                          {landmark.distance !== undefined && <span className="text-xs text-muted-foreground">· {landmark.distance < 1 ? `${Math.round(landmark.distance * 1000)}m` : `${landmark.distance.toFixed(1)}km`}</span>}
                         </div>
                       </div>
                     </button>
               )}
 
-                {cachedPlaceResults.map((result, index) =>
+                {/* Cached places — only when Google has no results */}
+                {googleSuggestions.length === 0 && cachedPlaceResults.map((result, index) =>
               <button key={`cache-${index}`} onClick={() => handleNominatimSelect(result)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
-                      <div className="w-11 h-11 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
-                        <Navigation className="w-5 h-5 text-primary" />
+                      <div className="w-11 h-11 rounded-2xl glass-card flex items-center justify-center shrink-0">
+                        <MapPin className="w-5 h-5 text-primary" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-foreground truncate">{result.name}</p>
@@ -1138,32 +1140,28 @@ export default function RideView() {
                     </button>
               )}
 
+                {/* Google/unified results — shown as primary */}
                 {googleSuggestions.map((suggestion) =>
               <button key={suggestion.placeId} onClick={() => handleGooglePlaceSelect(suggestion)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-accent/5 transition-colors border-b border-border/15 text-left">
-                      <div className="w-11 h-11 rounded-2xl bg-accent/12 flex items-center justify-center shrink-0">
-                        <Search className="w-5 h-5 text-primary" />
+                      <div className="w-11 h-11 rounded-2xl glass-card flex items-center justify-center shrink-0">
+                        <MapPin className="w-5 h-5 text-primary" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-foreground truncate">{suggestion.name}</p>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          {suggestion.category && <span className="text-[10px] font-semibold text-primary bg-primary/8 px-1.5 py-0.5 rounded-full whitespace-nowrap">{suggestion.category}</span>}
-                          <p className="text-sm text-muted-foreground truncate">{suggestion.description}</p>
-                        </div>
+                        <p className="text-sm text-muted-foreground truncate">{suggestion.description}</p>
                       </div>
                     </button>
               )}
 
-                {nominatimResults.map((result, index) =>
+                {/* Only show Nominatim results when Google returned nothing */}
+                {googleSuggestions.length === 0 && nominatimResults.map((result, index) =>
               <button key={`nom-${index}`} onClick={() => handleNominatimSelect(result)} className="w-full flex items-center gap-4 px-4 py-3.5 hover:bg-primary/5 transition-colors border-b border-border/15 text-left">
-                      <div className="w-11 h-11 rounded-2xl bg-primary/8 flex items-center justify-center shrink-0">
-                        <Navigation className="w-5 h-5 text-primary" />
+                      <div className="w-11 h-11 rounded-2xl glass-card flex items-center justify-center shrink-0">
+                        <MapPin className="w-5 h-5 text-primary" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-foreground truncate">{result.name}</p>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          {(result as any).category && <span className="text-[10px] font-semibold text-primary bg-primary/8 px-1.5 py-0.5 rounded-full whitespace-nowrap">{(result as any).category}</span>}
-                          <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
-                        </div>
+                        <p className="text-sm text-muted-foreground truncate">{result.displayName}</p>
                       </div>
                     </button>
               )}
