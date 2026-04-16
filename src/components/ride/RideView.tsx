@@ -1093,7 +1093,7 @@ export default function RideView() {
             <>
                 {/* Single unified section: Streets & Places */}
                 <div className="px-4 py-2 bg-accent/8 border-t border-border/15">
-                  <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">🌍 Streets & Places</p>
+                  <p className="text-[11px] font-semibold text-foreground uppercase tracking-widest">📍 Showing locations within {selectedTown.name}</p>
                 </div>
 
                 {(landmarksLoading || cachedPlacesLoading || googleLoading || nominatimLoading) && landmarks.length === 0 && unifiedPlaceResults.length === 0 &&
@@ -1153,7 +1153,8 @@ export default function RideView() {
                 {!landmarksLoading && !cachedPlacesLoading && !googleLoading && !nominatimLoading && landmarks.length === 0 && cachedPlaceResults.length === 0 && googleSuggestions.length === 0 && nominatimResults.length === 0 && searchQuery.trim().length >= 3 &&
               <div className="text-center py-12 text-muted-foreground">
                       <MapPin className="w-10 h-10 mx-auto mb-3 opacity-30" />
-                      <p className="text-sm">No results for "{searchQuery}"</p>
+                      <p className="text-sm">No results for "{searchQuery}" in {selectedTown.name}</p>
+                      <p className="text-xs mt-1">Try switching to a different town above</p>
                     </div>
               }
               </>
