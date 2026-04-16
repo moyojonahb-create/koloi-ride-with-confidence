@@ -30,9 +30,13 @@ serve(async (req: Request) => {
       });
     }
 
+    // Referer header required because the API key has HTTP referrer restrictions
+    const refererUrl = Deno.env.get('SUPABASE_URL') || 'https://pickme.co.zw';
+
     const url = new URL(req.url);
     const placeId = url.searchParams.get('placeId');
 
+    // ── Place Details by ID ──
     if (placeId) {
       const detailsUrl = new URL(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`);
       detailsUrl.searchParams.set('languageCode', 'en');
@@ -42,6 +46,7 @@ serve(async (req: Request) => {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
           'X-Goog-FieldMask': 'id,displayName,location',
+          'Referer': refererUrl,
         },
       });
 
@@ -68,6 +73,7 @@ serve(async (req: Request) => {
       });
     }
 
+    // ── Autocomplete search ──
     const q = url.searchParams.get('q')?.trim();
     const lat = url.searchParams.get('lat');
     const lng = url.searchParams.get('lng');
@@ -103,6 +109,7 @@ serve(async (req: Request) => {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
         'X-Goog-FieldMask': 'suggestions.placePrediction.placeId,suggestions.placePrediction.text,suggestions.placePrediction.structuredFormat',
+        'Referer': refererUrl,
       },
       body: JSON.stringify(requestBody),
     });
