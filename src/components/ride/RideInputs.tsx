@@ -1,9 +1,10 @@
-import { useState, useCallback, useEffect } from 'react';
-import { MapPin, Navigation, Crosshair, Loader2, Search, X } from 'lucide-react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { MapPin, Navigation, Crosshair, Loader2, Search, X, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useLandmarks, type Landmark, formatDistance } from '@/hooks/useLandmarks';
+import { useGooglePlacesAutocomplete, type PlaceSuggestion } from '@/hooks/useGooglePlacesAutocomplete';
 import QuickPickChips from './QuickPickChips';
 import ProximityFilter from './ProximityFilter';
 
@@ -46,6 +47,39 @@ export default function RideInputs({
     userLocation,
     radiusKm: proximityRadius,
   });
+
+  // Google Places autocomplete for broader street/place search
+  const { suggestions: placeSuggestions, loading: placesLoading, search: searchPlaces, getPlaceDetails, clear: clearPlaces } = useGooglePlacesAutocomplete();
+
+  // Trigger Google Places search when query changes
+  useEffect(() => {
+    if (searchQuery.trim().length >= 2) {
+      searchPlaces(searchQuery);
+    } else {
+      clearPlaces();
+    }
+  }, [searchQuery, searchPlaces, clearPlaces]);
+
+  const handlePlaceSuggestionSelect = async (suggestion: PlaceSuggestion) => {
+    const details = await getPlaceDetails(suggestion.placeId);
+    if (!details) return;
+    
+    const location: SelectedLocation = {
+      name: suggestion.name || details.name,
+      lat: details.lat,
+      lng: details.lng,
+    };
+
+    if (activeField === 'pickup') {
+      onPickupSelect(location);
+      setActiveField('dropoff');
+    } else {
+      onDropoffSelect(location);
+      setActiveField(null);
+    }
+    setSearchQuery('');
+    clearPlaces();
+  };
 
   const handleLandmarkSelect = (landmark: Landmark) => {
     const location: SelectedLocation = {
@@ -227,44 +261,78 @@ export default function RideInputs({
         </div>
       )}
 
-      {/* Search Results - Show when active (with or without query for nearby places) */}
+      {/* Search Results */}
       {activeField && (searchQuery.trim() || proximityRadius !== null) && (
-        <div className="space-y-1.5 max-h-[240px] overflow-y-auto">
-          {landmarksLoading ? (
+        <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
+          {/* Loading state */}
+          {landmarksLoading && placesLoading ? (
             <div className="flex items-center justify-center py-6">
               <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
             </div>
-          ) : landmarks.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground text-sm">
-              {searchQuery.trim() 
-                ? `No results for "${searchQuery}"` 
-                : proximityRadius 
-                  ? `No places within ${proximityRadius}km`
-                  : 'No places found'}
-            </div>
           ) : (
-            landmarks.map((landmark) => (
-              <button
-                key={landmark.id}
-                onClick={() => handleLandmarkSelect(landmark)}
-                className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-pickme-gray-100 hover:bg-pickme-gray-200 transition-colors text-left"
-              >
-                <div className="w-10 h-10 bg-background rounded-xl flex items-center justify-center shadow-sm">
-                  <MapPin className="w-5 h-5 text-muted-foreground" />
+            <>
+              {/* Landmark results */}
+              {landmarks.length > 0 && (
+                <>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">📍 Landmarks</p>
+                  {landmarks.map((landmark) => (
+                    <button
+                      key={landmark.id}
+                      onClick={() => handleLandmarkSelect(landmark)}
+                      className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-pickme-gray-100 hover:bg-pickme-gray-200 transition-colors text-left"
+                    >
+                      <div className="w-10 h-10 bg-background rounded-xl flex items-center justify-center shadow-sm">
+                        <MapPin className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm truncate">{landmark.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-muted-foreground capitalize">{landmark.category}</p>
+                          {landmark.distance !== undefined && userLocation && (
+                            <span className="text-xs text-accent font-medium">
+                              {formatDistance(landmark.distance)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </>
+              )}
+
+              {/* Google Places results */}
+              {searchQuery.trim().length >= 2 && placeSuggestions.length > 0 && (
+                <>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1 mt-2">🌍 Streets & Places</p>
+                  {placeSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion.placeId}
+                      onClick={() => handlePlaceSuggestionSelect(suggestion)}
+                      className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-pickme-gray-100 hover:bg-pickme-gray-200 transition-colors text-left"
+                    >
+                      <div className="w-10 h-10 bg-background rounded-xl flex items-center justify-center shadow-sm">
+                        <Globe className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm truncate">{suggestion.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{suggestion.description}</p>
+                      </div>
+                    </button>
+                  ))}
+                </>
+              )}
+
+              {/* No results */}
+              {landmarks.length === 0 && placeSuggestions.length === 0 && !placesLoading && (
+                <div className="text-center py-6 text-muted-foreground text-sm">
+                  {searchQuery.trim()
+                    ? `No results for "${searchQuery}"`
+                    : proximityRadius
+                      ? `No places within ${proximityRadius}km`
+                      : 'No places found'}
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-sm truncate">{landmark.name}</p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs text-muted-foreground capitalize">{landmark.category}</p>
-                    {landmark.distance !== undefined && userLocation && (
-                      <span className="text-xs text-accent font-medium">
-                        {formatDistance(landmark.distance)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </button>
-            ))
+              )}
+            </>
           )}
         </div>
       )}
