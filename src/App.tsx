@@ -107,7 +107,7 @@ export default function App() {
   return (
     <Router>
       <AdminEmergencyAlerts />
-      {import.meta.env.DEV && <SentryTestPanel />}
+      
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Index />} />
