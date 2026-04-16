@@ -13,6 +13,7 @@ const schema = z.object({
   email: z.string().email('Invalid email'),
   city: z.string().min(2, 'City is required'),
   nationalId: z.string().min(5, 'National ID is required'),
+  gender: z.enum(['male', 'female'], { required_error: 'Please select your gender' }),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -28,6 +29,7 @@ export default function DriverPersonalForm({ onNext, onBack }: { onNext: (data: 
       email: '',
       city: '',
       nationalId: '',
+      gender: undefined,
     },
   });
 
