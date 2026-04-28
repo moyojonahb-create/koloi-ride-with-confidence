@@ -4,7 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, GraduationCap, Search, Camera, RotateCcw,
   ShieldCheck, Loader2, Upload, AlertTriangle, CheckCircle2, Clock,
+  Sun, Frame, Sparkles, Eye, Smile, Glasses,
 } from 'lucide-react';
+
+const PhotoTips = ({ tips }: { tips: { Icon: typeof Sun; label: string }[] }) => (
+  <ul className="rounded-2xl border border-blue-100 bg-blue-50/60 p-3 mb-4 space-y-2">
+    {tips.map(({ Icon, label }, i) => (
+      <li key={i} className="flex items-start gap-2.5 text-[12.5px] text-blue-900/90">
+        <Icon className="w-4 h-4 mt-0.5 text-blue-600 shrink-0" />
+        <span>{label}</span>
+      </li>
+    ))}
+  </ul>
+);
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
