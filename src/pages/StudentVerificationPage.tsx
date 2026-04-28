@@ -73,8 +73,12 @@ export default function StudentVerificationPage() {
   const [nid, setNid] = useState('');
   const [idPhoto, setIdPhoto] = useState<Blob | null>(null);
   const [idPhotoPreview, setIdPhotoPreview] = useState<string | null>(null);
+  const [idQuality, setIdQuality] = useState<PhotoQuality | null>(null);
+  const [idIssues, setIdIssues] = useState<QualityIssue[]>([]);
   const [selfie, setSelfie] = useState<Blob | null>(null);
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
+  const [selfieQuality, setSelfieQuality] = useState<PhotoQuality | null>(null);
+  const [selfieIssues, setSelfieIssues] = useState<QualityIssue[]>([]);
   const [result, setResult] = useState<{ status: string; score: number; reason?: string } | null>(null);
 
   // If already verified or pending, show result screen by default
