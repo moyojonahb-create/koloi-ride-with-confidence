@@ -123,9 +123,19 @@ export default function StudentVerificationPage() {
       const blob = await compressImage(file, 1280, 0.85);
       setIdPhoto(blob);
       setIdPhotoPreview(URL.createObjectURL(blob));
+      const q = await measureQuality(blob);
+      setIdQuality(q);
+      setIdIssues(evaluateQuality(q, 'id'));
     } catch (e) {
       toast.error('Could not process image');
     }
+  };
+
+  const retakeAll = () => {
+    setIdPhoto(null); setIdPhotoPreview(null); setIdQuality(null); setIdIssues([]);
+    setSelfie(null); setSelfiePreview(null); setSelfieQuality(null); setSelfieIssues([]);
+    setResult(null);
+    setStep('idphoto');
   };
 
   const submit = async () => {
