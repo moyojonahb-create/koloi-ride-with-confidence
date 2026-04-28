@@ -409,6 +409,13 @@ function SelfieCapture({
       <h2 className="text-2xl font-bold mb-1">Take a selfie</h2>
       <p className="text-sm text-muted-foreground mb-4">Look directly at the camera. We'll match it with your ID photo.</p>
 
+      <PhotoTips tips={[
+        { Icon: Sun, label: 'Face a window or bright light — avoid backlight from behind you.' },
+        { Icon: Smile, label: 'Centre your face inside the circle, neutral expression.' },
+        { Icon: Glasses, label: 'Remove sunglasses, hats, or masks that hide your face.' },
+        { Icon: Sparkles, label: 'Hold steady — keep the photo sharp, no motion blur.' },
+      ]} />
+
       <div className="aspect-square rounded-3xl bg-black overflow-hidden mb-4 relative">
         {currentPreview && !active ? (
           <img src={currentPreview} alt="Selfie" className="w-full h-full object-cover" />
