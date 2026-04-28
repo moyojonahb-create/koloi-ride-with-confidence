@@ -14,6 +14,14 @@ const corsHeaders = {
 const APPROVAL_THRESHOLD = 90;
 const ATTEMPT_LOCK = 5;
 
+interface PhotoQualityIn {
+  brightness?: number;
+  glare?: boolean;
+  blur?: number;
+  width?: number;
+  height?: number;
+}
+
 interface Body {
   institution_id: string;
   registration_number: string;
@@ -21,6 +29,8 @@ interface Body {
   id_photo_path: string;     // storage path inside student-verification bucket
   selfie_photo_path: string;
   device_id: string;
+  id_photo_quality?: PhotoQualityIn;
+  selfie_photo_quality?: PhotoQualityIn;
 }
 
 Deno.serve(async (req) => {
@@ -101,6 +111,8 @@ Deno.serve(async (req) => {
         verification_status: 'locked',
         student_mode_active: false,
         fraud_score: Math.min(100, (existing?.fraud_score ?? 0) + 25),
+        id_photo_quality: body.id_photo_quality ?? null,
+        selfie_photo_quality: body.selfie_photo_quality ?? null,
       }, { onConflict: 'user_id' });
       return json({
         error: 'Verification requires manual review.',
@@ -214,6 +226,8 @@ Deno.serve(async (req) => {
       student_mode_active: approved,
       approved_at: approved ? new Date().toISOString() : null,
       rejection_reason: approved ? null : (args.notes ?? null),
+      id_photo_quality: body.id_photo_quality ?? null,
+      selfie_photo_quality: body.selfie_photo_quality ?? null,
     };
 
     const { error: upErr } = await admin

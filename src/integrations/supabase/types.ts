@@ -1765,11 +1765,13 @@ export type Database = {
           fraud_score: number
           id: string
           id_photo_path: string | null
+          id_photo_quality: Json | null
           institution_id: string
           national_id_number: string
           registration_number: string
           rejection_reason: string | null
           selfie_photo_path: string | null
+          selfie_photo_quality: Json | null
           student_mode_active: boolean
           updated_at: string
           user_id: string
@@ -1785,11 +1787,13 @@ export type Database = {
           fraud_score?: number
           id?: string
           id_photo_path?: string | null
+          id_photo_quality?: Json | null
           institution_id: string
           national_id_number: string
           registration_number: string
           rejection_reason?: string | null
           selfie_photo_path?: string | null
+          selfie_photo_quality?: Json | null
           student_mode_active?: boolean
           updated_at?: string
           user_id: string
@@ -1805,11 +1809,13 @@ export type Database = {
           fraud_score?: number
           id?: string
           id_photo_path?: string | null
+          id_photo_quality?: Json | null
           institution_id?: string
           national_id_number?: string
           registration_number?: string
           rejection_reason?: string | null
           selfie_photo_path?: string | null
+          selfie_photo_quality?: Json | null
           student_mode_active?: boolean
           updated_at?: string
           user_id?: string

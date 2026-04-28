@@ -6,6 +6,14 @@ import { Loader2, CheckCircle2, XCircle, RotateCcw, ShieldAlert, GraduationCap }
 import { toast } from 'sonner';
 import AdminLayout from '@/components/admin/AdminLayout';
 
+interface Quality {
+  brightness?: number;
+  glare?: boolean;
+  blur?: number;
+  width?: number;
+  height?: number;
+}
+
 interface Row {
   id: string;
   user_id: string;
@@ -19,8 +27,26 @@ interface Row {
   rejection_reason: string | null;
   id_photo_path: string | null;
   selfie_photo_path: string | null;
+  id_photo_quality: Quality | null;
+  selfie_photo_quality: Quality | null;
   created_at: string;
   institutions: { name: string; city: string } | null;
+}
+
+function QualityChips({ q, label }: { q: Quality | null; label: string }) {
+  if (!q) return <p className="text-[10px] text-muted-foreground">{label}: no quality data</p>;
+  const tone = (ok: boolean) => ok ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
+  const brightOk = (q.brightness ?? 50) >= 30 && (q.brightness ?? 50) <= 85;
+  const blurOk = (q.blur ?? 0) <= 60;
+  const glareOk = !q.glare;
+  return (
+    <div className="flex flex-wrap items-center gap-1">
+      <span className="text-[10px] font-semibold text-muted-foreground mr-0.5">{label}:</span>
+      <Badge className={`text-[10px] ${tone(brightOk)}`}>☀ {q.brightness ?? '?'}%</Badge>
+      <Badge className={`text-[10px] ${tone(glareOk)}`}>{q.glare ? 'Glare' : 'No glare'}</Badge>
+      <Badge className={`text-[10px] ${tone(blurOk)}`}>Blur {q.blur ?? '?'}</Badge>
+    </div>
+  );
 }
 
 export default function AdminStudents() {
@@ -122,6 +148,11 @@ export default function AdminStudents() {
                 {row.rejection_reason && (
                   <p className="text-xs text-rose-600 mb-2">Notes: {row.rejection_reason}</p>
                 )}
+
+                <div className="space-y-1 mb-3">
+                  <QualityChips q={row.id_photo_quality} label="ID photo" />
+                  <QualityChips q={row.selfie_photo_quality} label="Selfie" />
+                </div>
 
                 {!signed[row.id] && (
                   <Button size="sm" variant="outline" onClick={() => sign(row)} className="mb-2 text-xs">View photos</Button>

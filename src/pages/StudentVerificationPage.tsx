@@ -7,16 +7,6 @@ import {
   Sun, Frame, Sparkles, Eye, Smile, Glasses,
 } from 'lucide-react';
 
-const PhotoTips = ({ tips }: { tips: { Icon: typeof Sun; label: string }[] }) => (
-  <ul className="rounded-2xl border border-blue-100 bg-blue-50/60 p-3 mb-4 space-y-2">
-    {tips.map(({ Icon, label }, i) => (
-      <li key={i} className="flex items-start gap-2.5 text-[12.5px] text-blue-900/90">
-        <Icon className="w-4 h-4 mt-0.5 text-blue-600 shrink-0" />
-        <span>{label}</span>
-      </li>
-    ))}
-  </ul>
-);
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +15,47 @@ import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
 import { useInstitutions, useStudentProfile, type Institution } from '@/hooks/useStudentProfile';
 import { compressImage, getDeviceId } from '@/lib/imageCompression';
+import { measureQuality, evaluateQuality, type PhotoQuality, type QualityIssue } from '@/lib/photoQuality';
 import { cn } from '@/lib/utils';
+
+type TipIcon = typeof Sun;
+
+/** Accessible, high-contrast tip list. Each tip is a labelled list item readable by screen readers. */
+const PhotoTips = ({ tips, label }: { tips: { Icon: TipIcon; label: string }[]; label: string }) => (
+  <ul
+    role="list"
+    aria-label={label}
+    className="rounded-2xl border-2 border-blue-700/30 bg-white dark:bg-blue-950/40 p-3 mb-4 space-y-2 shadow-sm"
+  >
+    {tips.map(({ Icon, label: t }, i) => (
+      <li key={i} className="flex items-start gap-2.5 text-[13px] sm:text-[12.5px] text-blue-950 dark:text-blue-50 font-medium leading-snug">
+        <Icon aria-hidden="true" className="w-4 h-4 mt-0.5 text-blue-700 dark:text-blue-300 shrink-0" />
+        <span>{t}</span>
+      </li>
+    ))}
+  </ul>
+);
+
+/** Inline issue panel shown after a quality check fails. */
+const QualityIssueList = ({ issues }: { issues: QualityIssue[] }) => (
+  <div
+    role="alert"
+    aria-live="polite"
+    className="rounded-2xl border-2 border-amber-500/60 bg-amber-50 dark:bg-amber-950/40 p-3 mb-4"
+  >
+    <p className="text-xs font-bold text-amber-900 dark:text-amber-100 mb-1.5 flex items-center gap-1.5">
+      <AlertTriangle aria-hidden="true" className="w-4 h-4" />
+      Photo could be better
+    </p>
+    <ul role="list" className="space-y-1">
+      {issues.map(i => (
+        <li key={i.code} className="text-[12.5px] text-amber-950 dark:text-amber-50 leading-snug">
+          <span className="font-semibold">{i.label}:</span> {i.tip}
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 
 type Step = 'institution' | 'reg' | 'nid' | 'idphoto' | 'selfie' | 'submitting' | 'result';
 
@@ -43,8 +73,12 @@ export default function StudentVerificationPage() {
   const [nid, setNid] = useState('');
   const [idPhoto, setIdPhoto] = useState<Blob | null>(null);
   const [idPhotoPreview, setIdPhotoPreview] = useState<string | null>(null);
+  const [idQuality, setIdQuality] = useState<PhotoQuality | null>(null);
+  const [idIssues, setIdIssues] = useState<QualityIssue[]>([]);
   const [selfie, setSelfie] = useState<Blob | null>(null);
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
+  const [selfieQuality, setSelfieQuality] = useState<PhotoQuality | null>(null);
+  const [selfieIssues, setSelfieIssues] = useState<QualityIssue[]>([]);
   const [result, setResult] = useState<{ status: string; score: number; reason?: string } | null>(null);
 
   // If already verified or pending, show result screen by default
@@ -89,9 +123,19 @@ export default function StudentVerificationPage() {
       const blob = await compressImage(file, 1280, 0.85);
       setIdPhoto(blob);
       setIdPhotoPreview(URL.createObjectURL(blob));
+      const q = await measureQuality(blob);
+      setIdQuality(q);
+      setIdIssues(evaluateQuality(q, 'id'));
     } catch (e) {
       toast.error('Could not process image');
     }
+  };
+
+  const retakeAll = () => {
+    setIdPhoto(null); setIdPhotoPreview(null); setIdQuality(null); setIdIssues([]);
+    setSelfie(null); setSelfiePreview(null); setSelfieQuality(null); setSelfieIssues([]);
+    setResult(null);
+    setStep('idphoto');
   };
 
   const submit = async () => {
@@ -122,6 +166,8 @@ export default function StudentVerificationPage() {
           id_photo_path: idPath,
           selfie_photo_path: selfiePath,
           device_id: getDeviceId(),
+          id_photo_quality: idQuality,
+          selfie_photo_quality: selfieQuality,
         }),
       });
       const data = await resp.json();
@@ -283,23 +329,39 @@ export default function StudentVerificationPage() {
               <h2 className="text-2xl font-bold mb-1">Photo of your ID</h2>
               <p className="text-sm text-muted-foreground mb-4">Take a clear photo of your national ID. Make sure the face is visible.</p>
 
-              <PhotoTips tips={[
-                { Icon: Sun, label: 'Use bright, even lighting — avoid harsh shadows across the card.' },
-                { Icon: Frame, label: 'Fit the entire ID inside the frame, flat on a dark surface.' },
-                { Icon: Sparkles, label: 'No glare or reflections — tilt slightly if you see a shine.' },
-                { Icon: Eye, label: 'Keep the photo and text sharp and readable — no blur.' },
-              ]} />
+              <PhotoTips
+                label="Tips for capturing your ID"
+                tips={[
+                  { Icon: Sun, label: 'Use bright, even lighting — avoid harsh shadows across the card.' },
+                  { Icon: Frame, label: 'Fit the entire ID inside the dashed frame, flat on a dark surface.' },
+                  { Icon: Sparkles, label: 'No glare or reflections — tilt slightly if you see a shine.' },
+                  { Icon: Eye, label: 'Keep the photo and text sharp and readable — no blur.' },
+                ]}
+              />
 
-              <label htmlFor="id-upload" className="block aspect-[4/3] rounded-3xl border-2 border-dashed border-blue-300 bg-blue-50/50 cursor-pointer overflow-hidden mb-4">
+              {idIssues.length > 0 && <QualityIssueList issues={idIssues} />}
+
+              <label
+                htmlFor="id-upload"
+                aria-label="Upload a photo of your national ID"
+                className="relative block aspect-[4/3] rounded-3xl border-2 border-dashed border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 cursor-pointer overflow-hidden mb-4"
+              >
                 {idPhotoPreview ? (
-                  <img src={idPhotoPreview} alt="ID" className="w-full h-full object-cover" />
+                  <img src={idPhotoPreview} alt="Your captured ID document" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-blue-700">
-                    <Upload className="w-8 h-8" />
-                    <p className="text-sm font-semibold">Tap to upload</p>
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-blue-700 dark:text-blue-200">
+                    <Upload aria-hidden="true" className="w-8 h-8" />
+                    <p className="text-sm font-semibold">Tap to capture or upload</p>
                     <p className="text-[11px] text-muted-foreground">Auto-compressed before upload</p>
                   </div>
                 )}
+                {/* ID alignment frame overlay (always visible to teach the boundary) */}
+                <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <div className="w-[88%] h-[72%] rounded-2xl border-2 border-blue-600/80 shadow-[0_0_0_9999px_rgba(15,23,42,0.18)]" />
+                  <span className="absolute top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-wider text-white bg-blue-700/90 px-2 py-0.5 rounded-full">
+                    Align ID inside frame
+                  </span>
+                </div>
               </label>
               <input
                 id="id-upload"
@@ -310,17 +372,36 @@ export default function StudentVerificationPage() {
                 onChange={(e) => e.target.files?.[0] && handleIdUpload(e.target.files[0])}
               />
 
-              <Button onClick={goNext} disabled={!idPhoto} className="w-full h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
-                Continue <ArrowRight className="w-4 h-4" />
-              </Button>
+              <div className="flex gap-2">
+                {idPhoto && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => { setIdPhoto(null); setIdPhotoPreview(null); setIdQuality(null); setIdIssues([]); }}
+                    className="h-12 gap-2 px-4"
+                    aria-label="Retake ID photo"
+                  >
+                    <RotateCcw className="w-4 h-4" /> Retake
+                  </Button>
+                )}
+                <Button onClick={goNext} disabled={!idPhoto} className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+                  Continue <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
             </motion.div>
           )}
 
           {/* Step 5: selfie */}
           {step === 'selfie' && (
             <SelfieCapture
-              onDone={(blob, preview) => { setSelfie(blob); setSelfiePreview(preview); }}
+              onDone={(blob, preview, q) => {
+                setSelfie(blob);
+                setSelfiePreview(preview);
+                setSelfieQuality(q);
+                setSelfieIssues(evaluateQuality(q, 'selfie'));
+              }}
               currentPreview={selfiePreview}
+              issues={selfieIssues}
               onSubmit={goNext}
               hasSelfie={!!selfie}
             />
@@ -340,12 +421,7 @@ export default function StudentVerificationPage() {
               score={result.score}
               reason={result.reason}
               onClose={() => navigate('/profile')}
-              onRetry={() => {
-                setResult(null);
-                setStep('idphoto');
-                setIdPhoto(null); setIdPhotoPreview(null);
-                setSelfie(null); setSelfiePreview(null);
-              }}
+              onRetry={retakeAll}
             />
           )}
         </AnimatePresence>
@@ -355,10 +431,11 @@ export default function StudentVerificationPage() {
 }
 
 function SelfieCapture({
-  onDone, currentPreview, onSubmit, hasSelfie,
+  onDone, currentPreview, issues, onSubmit, hasSelfie,
 }: {
-  onDone: (blob: Blob, preview: string) => void;
+  onDone: (blob: Blob, preview: string, quality: PhotoQuality) => void;
   currentPreview: string | null;
+  issues: QualityIssue[];
   onSubmit: () => void;
   hasSelfie: boolean;
 }) {
@@ -400,7 +477,8 @@ function SelfieCapture({
       canvasRef.current!.toBlob(b => b ? res(b) : rej(), 'image/jpeg', 0.85)
     );
     const compressed = await compressImage(blob, 1024, 0.85);
-    onDone(compressed, URL.createObjectURL(compressed));
+    const q = await measureQuality(compressed);
+    onDone(compressed, URL.createObjectURL(compressed), q);
     stop();
   };
 
@@ -409,22 +487,35 @@ function SelfieCapture({
       <h2 className="text-2xl font-bold mb-1">Take a selfie</h2>
       <p className="text-sm text-muted-foreground mb-4">Look directly at the camera. We'll match it with your ID photo.</p>
 
-      <PhotoTips tips={[
-        { Icon: Sun, label: 'Face a window or bright light — avoid backlight from behind you.' },
-        { Icon: Smile, label: 'Centre your face inside the circle, neutral expression.' },
-        { Icon: Glasses, label: 'Remove sunglasses, hats, or masks that hide your face.' },
-        { Icon: Sparkles, label: 'Hold steady — keep the photo sharp, no motion blur.' },
-      ]} />
+      <PhotoTips
+        label="Tips for taking your selfie"
+        tips={[
+          { Icon: Sun, label: 'Face a window or bright light — avoid backlight from behind you.' },
+          { Icon: Smile, label: 'Centre your face inside the oval, neutral expression.' },
+          { Icon: Glasses, label: 'Remove sunglasses, hats, or masks that hide your face.' },
+          { Icon: Sparkles, label: 'Hold steady — keep the photo sharp, no motion blur.' },
+        ]}
+      />
 
-      <div className="aspect-square rounded-3xl bg-black overflow-hidden mb-4 relative">
+      {issues.length > 0 && <QualityIssueList issues={issues} />}
+
+      <div
+        role="img"
+        aria-label={active ? 'Live camera preview with face alignment oval' : 'Selfie preview'}
+        className="aspect-square rounded-3xl bg-black overflow-hidden mb-4 relative"
+      >
         {currentPreview && !active ? (
-          <img src={currentPreview} alt="Selfie" className="w-full h-full object-cover" />
+          <img src={currentPreview} alt="Your captured selfie" className="w-full h-full object-cover" />
         ) : (
           <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
         )}
+        {/* Always-on face alignment oval (only over live video) */}
         {active && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-56 h-56 rounded-full border-2 border-dashed border-white/70" />
+          <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-[62%] aspect-[3/4] rounded-[50%] border-[3px] border-blue-400 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
+            <span className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[11px] font-bold uppercase tracking-wider text-white bg-blue-700/90 px-3 py-1 rounded-full">
+              Centre your face
+            </span>
           </div>
         )}
       </div>
@@ -432,21 +523,21 @@ function SelfieCapture({
 
       <div className="flex gap-2">
         {!active && !hasSelfie && (
-          <Button onClick={start} className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button onClick={start} aria-label="Open camera to take selfie" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
             <Camera className="w-4 h-4" /> Open Camera
           </Button>
         )}
         {active && (
-          <Button onClick={capture} className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button onClick={capture} aria-label="Capture selfie now" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
             <Camera className="w-4 h-4" /> Take Photo
           </Button>
         )}
         {!active && hasSelfie && (
           <>
-            <Button onClick={start} variant="outline" className="flex-1 h-12 gap-2">
+            <Button onClick={start} variant="outline" aria-label="Retake selfie" className="flex-1 h-12 gap-2">
               <RotateCcw className="w-4 h-4" /> Retake
             </Button>
-            <Button onClick={onSubmit} className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+            <Button onClick={onSubmit} aria-label="Submit verification" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
               <ShieldCheck className="w-4 h-4" /> Submit
             </Button>
           </>
@@ -507,15 +598,30 @@ function ResultScreen({
       <h2 className="text-2xl font-bold mb-2">{config.title}</h2>
       <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">{config.desc}</p>
       {score > 0 && (
-        <Badge variant="secondary" className="mb-6">Match score: {score}/100</Badge>
+        <Badge variant="secondary" className="mb-4">Match score: {score}/100</Badge>
       )}
+
+      {(status === 'rejected' || (status === 'pending' && score > 0 && score < 90)) && (
+        <div className="max-w-sm mx-auto mb-5 text-left">
+          <PhotoTips
+            label="How to pass on the next try"
+            tips={[
+              { Icon: Sun, label: 'Move to a brighter spot — natural daylight works best.' },
+              { Icon: Frame, label: 'Hold the ID inside the frame and your face inside the oval.' },
+              { Icon: Sparkles, label: 'Wipe your camera lens and remove any glare on the ID.' },
+              { Icon: Eye, label: 'Look straight at the camera, no hats or sunglasses.' },
+            ]}
+          />
+        </div>
+      )}
+
       <div className="space-y-2 max-w-xs mx-auto">
         <Button onClick={onClose} className="w-full h-12 font-bold bg-blue-600 hover:bg-blue-700">
           Back to profile
         </Button>
         {(status === 'rejected' || status === 'pending') && (
-          <Button onClick={onRetry} variant="outline" className="w-full h-12">
-            Try again
+          <Button onClick={onRetry} variant="outline" className="w-full h-12 gap-2" aria-label="Retake photos and try again">
+            <RotateCcw className="w-4 h-4" /> Retake photos &amp; try again
           </Button>
         )}
       </div>
