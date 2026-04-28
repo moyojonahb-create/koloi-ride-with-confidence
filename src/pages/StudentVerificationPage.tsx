@@ -166,6 +166,8 @@ export default function StudentVerificationPage() {
           id_photo_path: idPath,
           selfie_photo_path: selfiePath,
           device_id: getDeviceId(),
+          id_photo_quality: idQuality,
+          selfie_photo_quality: selfieQuality,
         }),
       });
       const data = await resp.json();
