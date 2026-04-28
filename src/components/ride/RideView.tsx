@@ -1003,28 +1003,38 @@ export default function RideView() {
             const extraPassengerFee = extraPassengers * 0.5;
             const validStops = rideStops.filter(s => s.address && s.lat && s.lng);
             const stopFee = validStops.length * 0.5;
-            const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee + stopFee;
+            const subtotal = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee + stopFee;
+            const discount = studentDiscountAvailable ? Math.min(STUDENT_DISCOUNT, Math.max(subtotal - 0.5, 0)) : 0;
+            const totalFare = Math.max(subtotal - discount, 0.5);
             const sym = fareEstimate.currencySymbol;
             const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
             return (
-              <PrimaryButton
-                onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
-                disabled={isRequesting}
-                className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center active:scale-[0.97] transition-transform">
-                
-                {isRequesting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                    Finding your ride…
-                  </>
-                ) : (
-                  <>
-                    <Car className="w-4 h-4" />
-                    {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
-                  </>
+              <>
+                {studentDiscountAvailable && (
+                  <div className="mb-2 flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20">
+                    <span className="text-[12px] font-semibold text-primary">🎓 Student discount applied −{fmt(discount)}</span>
+                    <span className="text-[10px] text-muted-foreground">{studentRidesUsedToday}/{studentDailyCap} today</span>
+                  </div>
                 )}
-              </PrimaryButton>);
+                <PrimaryButton
+                  onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
+                  disabled={isRequesting}
+                  className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center active:scale-[0.97] transition-transform">
 
+                  {isRequesting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                      Finding your ride…
+                    </>
+                  ) : (
+                    <>
+                      <Car className="w-4 h-4" />
+                      {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
+                    </>
+                  )}
+                </PrimaryButton>
+              </>
+            );
           })() :
           <SecondaryButton
             disabled
