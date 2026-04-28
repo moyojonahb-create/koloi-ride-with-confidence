@@ -14,6 +14,14 @@ const corsHeaders = {
 const APPROVAL_THRESHOLD = 90;
 const ATTEMPT_LOCK = 5;
 
+interface PhotoQualityIn {
+  brightness?: number;
+  glare?: boolean;
+  blur?: number;
+  width?: number;
+  height?: number;
+}
+
 interface Body {
   institution_id: string;
   registration_number: string;
@@ -21,6 +29,8 @@ interface Body {
   id_photo_path: string;     // storage path inside student-verification bucket
   selfie_photo_path: string;
   device_id: string;
+  id_photo_quality?: PhotoQualityIn;
+  selfie_photo_quality?: PhotoQualityIn;
 }
 
 Deno.serve(async (req) => {
