@@ -366,6 +366,17 @@ export default function RideView() {
       });
       if (!result.ok) throw new Error(result.error);
 
+      // Record student discount usage (best-effort)
+      if (studentDiscountAvailable && result.ride?.id && user?.id) {
+        supabase.from('student_discount_usage').insert([{
+          user_id: user.id,
+          ride_id: result.ride.id,
+          discount_amount: STUDENT_DISCOUNT,
+        }] as never).then(({ error }) => {
+          if (error) console.error('Failed to record student discount:', error.message);
+        });
+      }
+
       // Save multi-stops if any
       if (rideStops.length > 0 && result.ride.id) {
         const stopsToInsert = rideStops.
