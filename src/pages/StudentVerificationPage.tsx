@@ -431,10 +431,11 @@ export default function StudentVerificationPage() {
 }
 
 function SelfieCapture({
-  onDone, currentPreview, onSubmit, hasSelfie,
+  onDone, currentPreview, issues, onSubmit, hasSelfie,
 }: {
-  onDone: (blob: Blob, preview: string) => void;
+  onDone: (blob: Blob, preview: string, quality: PhotoQuality) => void;
   currentPreview: string | null;
+  issues: QualityIssue[];
   onSubmit: () => void;
   hasSelfie: boolean;
 }) {
@@ -476,7 +477,8 @@ function SelfieCapture({
       canvasRef.current!.toBlob(b => b ? res(b) : rej(), 'image/jpeg', 0.85)
     );
     const compressed = await compressImage(blob, 1024, 0.85);
-    onDone(compressed, URL.createObjectURL(compressed));
+    const q = await measureQuality(compressed);
+    onDone(compressed, URL.createObjectURL(compressed), q);
     stop();
   };
 
@@ -485,22 +487,35 @@ function SelfieCapture({
       <h2 className="text-2xl font-bold mb-1">Take a selfie</h2>
       <p className="text-sm text-muted-foreground mb-4">Look directly at the camera. We'll match it with your ID photo.</p>
 
-      <PhotoTips tips={[
-        { Icon: Sun, label: 'Face a window or bright light — avoid backlight from behind you.' },
-        { Icon: Smile, label: 'Centre your face inside the circle, neutral expression.' },
-        { Icon: Glasses, label: 'Remove sunglasses, hats, or masks that hide your face.' },
-        { Icon: Sparkles, label: 'Hold steady — keep the photo sharp, no motion blur.' },
-      ]} />
+      <PhotoTips
+        label="Tips for taking your selfie"
+        tips={[
+          { Icon: Sun, label: 'Face a window or bright light — avoid backlight from behind you.' },
+          { Icon: Smile, label: 'Centre your face inside the oval, neutral expression.' },
+          { Icon: Glasses, label: 'Remove sunglasses, hats, or masks that hide your face.' },
+          { Icon: Sparkles, label: 'Hold steady — keep the photo sharp, no motion blur.' },
+        ]}
+      />
 
-      <div className="aspect-square rounded-3xl bg-black overflow-hidden mb-4 relative">
+      {issues.length > 0 && <QualityIssueList issues={issues} />}
+
+      <div
+        role="img"
+        aria-label={active ? 'Live camera preview with face alignment oval' : 'Selfie preview'}
+        className="aspect-square rounded-3xl bg-black overflow-hidden mb-4 relative"
+      >
         {currentPreview && !active ? (
-          <img src={currentPreview} alt="Selfie" className="w-full h-full object-cover" />
+          <img src={currentPreview} alt="Your captured selfie" className="w-full h-full object-cover" />
         ) : (
           <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
         )}
+        {/* Always-on face alignment oval (only over live video) */}
         {active && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-56 h-56 rounded-full border-2 border-dashed border-white/70" />
+          <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-[62%] aspect-[3/4] rounded-[50%] border-[3px] border-blue-400 shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
+            <span className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[11px] font-bold uppercase tracking-wider text-white bg-blue-700/90 px-3 py-1 rounded-full">
+              Centre your face
+            </span>
           </div>
         )}
       </div>
@@ -508,21 +523,21 @@ function SelfieCapture({
 
       <div className="flex gap-2">
         {!active && !hasSelfie && (
-          <Button onClick={start} className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button onClick={start} aria-label="Open camera to take selfie" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
             <Camera className="w-4 h-4" /> Open Camera
           </Button>
         )}
         {active && (
-          <Button onClick={capture} className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button onClick={capture} aria-label="Capture selfie now" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
             <Camera className="w-4 h-4" /> Take Photo
           </Button>
         )}
         {!active && hasSelfie && (
           <>
-            <Button onClick={start} variant="outline" className="flex-1 h-12 gap-2">
+            <Button onClick={start} variant="outline" aria-label="Retake selfie" className="flex-1 h-12 gap-2">
               <RotateCcw className="w-4 h-4" /> Retake
             </Button>
-            <Button onClick={onSubmit} className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+            <Button onClick={onSubmit} aria-label="Submit verification" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
               <ShieldCheck className="w-4 h-4" /> Submit
             </Button>
           </>
