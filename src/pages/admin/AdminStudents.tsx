@@ -149,6 +149,11 @@ export default function AdminStudents() {
                   <p className="text-xs text-rose-600 mb-2">Notes: {row.rejection_reason}</p>
                 )}
 
+                <div className="space-y-1 mb-3">
+                  <QualityChips q={row.id_photo_quality} label="ID photo" />
+                  <QualityChips q={row.selfie_photo_quality} label="Selfie" />
+                </div>
+
                 {!signed[row.id] && (
                   <Button size="sm" variant="outline" onClick={() => sign(row)} className="mb-2 text-xs">View photos</Button>
                 )}
