@@ -4,7 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, GraduationCap, Search, Camera, RotateCcw,
   ShieldCheck, Loader2, Upload, AlertTriangle, CheckCircle2, Clock,
+  Sun, Frame, Sparkles, Eye, Smile, Glasses,
 } from 'lucide-react';
+
+const PhotoTips = ({ tips }: { tips: { Icon: typeof Sun; label: string }[] }) => (
+  <ul className="rounded-2xl border border-blue-100 bg-blue-50/60 p-3 mb-4 space-y-2">
+    {tips.map(({ Icon, label }, i) => (
+      <li key={i} className="flex items-start gap-2.5 text-[12.5px] text-blue-900/90">
+        <Icon className="w-4 h-4 mt-0.5 text-blue-600 shrink-0" />
+        <span>{label}</span>
+      </li>
+    ))}
+  </ul>
+);
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -271,6 +283,13 @@ export default function StudentVerificationPage() {
               <h2 className="text-2xl font-bold mb-1">Photo of your ID</h2>
               <p className="text-sm text-muted-foreground mb-4">Take a clear photo of your national ID. Make sure the face is visible.</p>
 
+              <PhotoTips tips={[
+                { Icon: Sun, label: 'Use bright, even lighting — avoid harsh shadows across the card.' },
+                { Icon: Frame, label: 'Fit the entire ID inside the frame, flat on a dark surface.' },
+                { Icon: Sparkles, label: 'No glare or reflections — tilt slightly if you see a shine.' },
+                { Icon: Eye, label: 'Keep the photo and text sharp and readable — no blur.' },
+              ]} />
+
               <label htmlFor="id-upload" className="block aspect-[4/3] rounded-3xl border-2 border-dashed border-blue-300 bg-blue-50/50 cursor-pointer overflow-hidden mb-4">
                 {idPhotoPreview ? (
                   <img src={idPhotoPreview} alt="ID" className="w-full h-full object-cover" />
@@ -389,6 +408,13 @@ function SelfieCapture({
     <motion.div key="self" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
       <h2 className="text-2xl font-bold mb-1">Take a selfie</h2>
       <p className="text-sm text-muted-foreground mb-4">Look directly at the camera. We'll match it with your ID photo.</p>
+
+      <PhotoTips tips={[
+        { Icon: Sun, label: 'Face a window or bright light — avoid backlight from behind you.' },
+        { Icon: Smile, label: 'Centre your face inside the circle, neutral expression.' },
+        { Icon: Glasses, label: 'Remove sunglasses, hats, or masks that hide your face.' },
+        { Icon: Sparkles, label: 'Hold steady — keep the photo sharp, no motion blur.' },
+      ]} />
 
       <div className="aspect-square rounded-3xl bg-black overflow-hidden mb-4 relative">
         {currentPreview && !active ? (
