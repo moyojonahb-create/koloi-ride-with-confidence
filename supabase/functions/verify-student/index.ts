@@ -111,6 +111,8 @@ Deno.serve(async (req) => {
         verification_status: 'locked',
         student_mode_active: false,
         fraud_score: Math.min(100, (existing?.fraud_score ?? 0) + 25),
+        id_photo_quality: body.id_photo_quality ?? null,
+        selfie_photo_quality: body.selfie_photo_quality ?? null,
       }, { onConflict: 'user_id' });
       return json({
         error: 'Verification requires manual review.',
