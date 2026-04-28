@@ -421,12 +421,7 @@ export default function StudentVerificationPage() {
               score={result.score}
               reason={result.reason}
               onClose={() => navigate('/profile')}
-              onRetry={() => {
-                setResult(null);
-                setStep('idphoto');
-                setIdPhoto(null); setIdPhotoPreview(null);
-                setSelfie(null); setSelfiePreview(null);
-              }}
+              onRetry={retakeAll}
             />
           )}
         </AnimatePresence>
