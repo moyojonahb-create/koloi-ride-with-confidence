@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   Banknote,
-  Activity
+  Activity,
+  GraduationCap
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ const navItems = [
   { label: 'Ledger', href: '/admin/ledger', icon: Banknote },
   { label: 'Reports', href: '/admin/reports', icon: FileBarChart },
   { label: 'Town Pricing', href: '/admin/town-pricing', icon: Banknote },
+  { label: 'Students', href: '/admin/students', icon: GraduationCap },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
   { label: 'System Health', href: '/admin/system-health', icon: Activity },
 ];
