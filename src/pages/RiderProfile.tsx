@@ -11,8 +11,9 @@ import {
   ArrowLeft, User, LogOut, Shield, Car, Bell, ShieldCheck, CarFront,
   MapPin, ChevronRight, Edit3, History, Camera, Loader2, Wallet,
   Moon, Sun, Trash2, Gift, Navigation, Banknote, Users, Copy, Check,
-  DollarSign, TrendingUp,
+  DollarSign, TrendingUp, GraduationCap,
 } from 'lucide-react';
+import { useStudentProfile } from '@/hooks/useStudentProfile';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import BottomNavBar from '@/components/BottomNavBar';
