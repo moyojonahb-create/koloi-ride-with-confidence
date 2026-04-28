@@ -329,23 +329,39 @@ export default function StudentVerificationPage() {
               <h2 className="text-2xl font-bold mb-1">Photo of your ID</h2>
               <p className="text-sm text-muted-foreground mb-4">Take a clear photo of your national ID. Make sure the face is visible.</p>
 
-              <PhotoTips tips={[
-                { Icon: Sun, label: 'Use bright, even lighting — avoid harsh shadows across the card.' },
-                { Icon: Frame, label: 'Fit the entire ID inside the frame, flat on a dark surface.' },
-                { Icon: Sparkles, label: 'No glare or reflections — tilt slightly if you see a shine.' },
-                { Icon: Eye, label: 'Keep the photo and text sharp and readable — no blur.' },
-              ]} />
+              <PhotoTips
+                label="Tips for capturing your ID"
+                tips={[
+                  { Icon: Sun, label: 'Use bright, even lighting — avoid harsh shadows across the card.' },
+                  { Icon: Frame, label: 'Fit the entire ID inside the dashed frame, flat on a dark surface.' },
+                  { Icon: Sparkles, label: 'No glare or reflections — tilt slightly if you see a shine.' },
+                  { Icon: Eye, label: 'Keep the photo and text sharp and readable — no blur.' },
+                ]}
+              />
 
-              <label htmlFor="id-upload" className="block aspect-[4/3] rounded-3xl border-2 border-dashed border-blue-300 bg-blue-50/50 cursor-pointer overflow-hidden mb-4">
+              {idIssues.length > 0 && <QualityIssueList issues={idIssues} />}
+
+              <label
+                htmlFor="id-upload"
+                aria-label="Upload a photo of your national ID"
+                className="relative block aspect-[4/3] rounded-3xl border-2 border-dashed border-blue-500 bg-blue-50/50 dark:bg-blue-950/30 cursor-pointer overflow-hidden mb-4"
+              >
                 {idPhotoPreview ? (
-                  <img src={idPhotoPreview} alt="ID" className="w-full h-full object-cover" />
+                  <img src={idPhotoPreview} alt="Your captured ID document" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-blue-700">
-                    <Upload className="w-8 h-8" />
-                    <p className="text-sm font-semibold">Tap to upload</p>
+                  <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-blue-700 dark:text-blue-200">
+                    <Upload aria-hidden="true" className="w-8 h-8" />
+                    <p className="text-sm font-semibold">Tap to capture or upload</p>
                     <p className="text-[11px] text-muted-foreground">Auto-compressed before upload</p>
                   </div>
                 )}
+                {/* ID alignment frame overlay (always visible to teach the boundary) */}
+                <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <div className="w-[88%] h-[72%] rounded-2xl border-2 border-blue-600/80 shadow-[0_0_0_9999px_rgba(15,23,42,0.18)]" />
+                  <span className="absolute top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-wider text-white bg-blue-700/90 px-2 py-0.5 rounded-full">
+                    Align ID inside frame
+                  </span>
+                </div>
               </label>
               <input
                 id="id-upload"
@@ -356,9 +372,22 @@ export default function StudentVerificationPage() {
                 onChange={(e) => e.target.files?.[0] && handleIdUpload(e.target.files[0])}
               />
 
-              <Button onClick={goNext} disabled={!idPhoto} className="w-full h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
-                Continue <ArrowRight className="w-4 h-4" />
-              </Button>
+              <div className="flex gap-2">
+                {idPhoto && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => { setIdPhoto(null); setIdPhotoPreview(null); setIdQuality(null); setIdIssues([]); }}
+                    className="h-12 gap-2 px-4"
+                    aria-label="Retake ID photo"
+                  >
+                    <RotateCcw className="w-4 h-4" /> Retake
+                  </Button>
+                )}
+                <Button onClick={goNext} disabled={!idPhoto} className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+                  Continue <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
             </motion.div>
           )}
 
