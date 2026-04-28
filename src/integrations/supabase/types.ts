@@ -765,6 +765,33 @@ export type Database = {
         }
         Relationships: []
       }
+      institutions: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          type: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          type: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          type?: string
+        }
+        Relationships: []
+      }
       koloi_landmarks: {
         Row: {
           category: string
@@ -1703,6 +1730,101 @@ export type Database = {
         }
         Relationships: []
       }
+      student_discount_usage: {
+        Row: {
+          created_at: string
+          discount_amount: number
+          id: string
+          ride_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discount_amount?: number
+          id?: string
+          ride_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discount_amount?: number
+          id?: string
+          ride_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_profiles: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          attempt_count: number
+          created_at: string
+          device_id: string | null
+          face_match_score: number | null
+          fraud_score: number
+          id: string
+          id_photo_path: string | null
+          institution_id: string
+          national_id_number: string
+          registration_number: string
+          rejection_reason: string | null
+          selfie_photo_path: string | null
+          student_mode_active: boolean
+          updated_at: string
+          user_id: string
+          verification_status: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          attempt_count?: number
+          created_at?: string
+          device_id?: string | null
+          face_match_score?: number | null
+          fraud_score?: number
+          id?: string
+          id_photo_path?: string | null
+          institution_id: string
+          national_id_number: string
+          registration_number: string
+          rejection_reason?: string | null
+          selfie_photo_path?: string | null
+          student_mode_active?: boolean
+          updated_at?: string
+          user_id: string
+          verification_status?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          attempt_count?: number
+          created_at?: string
+          device_id?: string | null
+          face_match_score?: number | null
+          fraud_score?: number
+          id?: string
+          id_photo_path?: string | null
+          institution_id?: string
+          national_id_number?: string
+          registration_number?: string
+          rejection_reason?: string | null
+          selfie_photo_path?: string | null
+          student_mode_active?: boolean
+          updated_at?: string
+          user_id?: string
+          verification_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_profiles_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       system_error_logs: {
         Row: {
           affected_users: number | null
@@ -2190,6 +2312,7 @@ export type Database = {
       admin_set_fx_rate: { Args: { p_zar_per_usd: number }; Returns: Json }
       can_change_gender: { Args: { p_user_id: string }; Returns: boolean }
       can_driver_operate: { Args: { p_driver_id: string }; Returns: boolean }
+      can_use_student_discount: { Args: { _user_id: string }; Returns: boolean }
       check_rate_limit: {
         Args: {
           p_action: string
