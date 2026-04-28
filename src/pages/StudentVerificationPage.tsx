@@ -7,16 +7,6 @@ import {
   Sun, Frame, Sparkles, Eye, Smile, Glasses,
 } from 'lucide-react';
 
-const PhotoTips = ({ tips }: { tips: { Icon: typeof Sun; label: string }[] }) => (
-  <ul className="rounded-2xl border border-blue-100 bg-blue-50/60 p-3 mb-4 space-y-2">
-    {tips.map(({ Icon, label }, i) => (
-      <li key={i} className="flex items-start gap-2.5 text-[12.5px] text-blue-900/90">
-        <Icon className="w-4 h-4 mt-0.5 text-blue-600 shrink-0" />
-        <span>{label}</span>
-      </li>
-    ))}
-  </ul>
-);
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +15,47 @@ import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
 import { useInstitutions, useStudentProfile, type Institution } from '@/hooks/useStudentProfile';
 import { compressImage, getDeviceId } from '@/lib/imageCompression';
+import { measureQuality, evaluateQuality, type PhotoQuality, type QualityIssue } from '@/lib/photoQuality';
 import { cn } from '@/lib/utils';
+
+type TipIcon = typeof Sun;
+
+/** Accessible, high-contrast tip list. Each tip is a labelled list item readable by screen readers. */
+const PhotoTips = ({ tips, label }: { tips: { Icon: TipIcon; label: string }[]; label: string }) => (
+  <ul
+    role="list"
+    aria-label={label}
+    className="rounded-2xl border-2 border-blue-700/30 bg-white dark:bg-blue-950/40 p-3 mb-4 space-y-2 shadow-sm"
+  >
+    {tips.map(({ Icon, label: t }, i) => (
+      <li key={i} className="flex items-start gap-2.5 text-[13px] sm:text-[12.5px] text-blue-950 dark:text-blue-50 font-medium leading-snug">
+        <Icon aria-hidden="true" className="w-4 h-4 mt-0.5 text-blue-700 dark:text-blue-300 shrink-0" />
+        <span>{t}</span>
+      </li>
+    ))}
+  </ul>
+);
+
+/** Inline issue panel shown after a quality check fails. */
+const QualityIssueList = ({ issues }: { issues: QualityIssue[] }) => (
+  <div
+    role="alert"
+    aria-live="polite"
+    className="rounded-2xl border-2 border-amber-500/60 bg-amber-50 dark:bg-amber-950/40 p-3 mb-4"
+  >
+    <p className="text-xs font-bold text-amber-900 dark:text-amber-100 mb-1.5 flex items-center gap-1.5">
+      <AlertTriangle aria-hidden="true" className="w-4 h-4" />
+      Photo could be better
+    </p>
+    <ul role="list" className="space-y-1">
+      {issues.map(i => (
+        <li key={i.code} className="text-[12.5px] text-amber-950 dark:text-amber-50 leading-snug">
+          <span className="font-semibold">{i.label}:</span> {i.tip}
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 
 type Step = 'institution' | 'reg' | 'nid' | 'idphoto' | 'selfie' | 'submitting' | 'result';
 
