@@ -167,6 +167,10 @@ export default function RideView() {
   }, [routeData, townPricing]);
   const fareEstimate = calculateFare();
 
+  // Student discount: $1 off when verified & under daily cap
+  const { available: studentDiscountAvailable, usedToday: studentRidesUsedToday, dailyCap: studentDailyCap } = useStudentDiscountAvailable();
+  const STUDENT_DISCOUNT = 1;
+
   // ── handlers ──
   const handleUseMyLocation = useCallback(() => {
     if (!navigator.geolocation) {
