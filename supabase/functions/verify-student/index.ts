@@ -226,6 +226,8 @@ Deno.serve(async (req) => {
       student_mode_active: approved,
       approved_at: approved ? new Date().toISOString() : null,
       rejection_reason: approved ? null : (args.notes ?? null),
+      id_photo_quality: body.id_photo_quality ?? null,
+      selfie_photo_quality: body.selfie_photo_quality ?? null,
     };
 
     const { error: upErr } = await admin
