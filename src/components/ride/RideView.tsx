@@ -16,6 +16,7 @@ import { searchCachedPlacesPrefix } from '@/lib/placeCache';
 import { useToast } from '@/hooks/use-toast';
 import { useGooglePlacesAutocomplete } from '@/hooks/useGooglePlacesAutocomplete';
 import { useTownPricing, calculateRecommendedFare, formatFare } from '@/hooks/useTownPricing';
+import { useStudentDiscountAvailable } from '@/hooks/useStudentProfile';
 
 import BottomNavBar from '@/components/BottomNavBar';
 import { Button } from '@/components/ui/button';
