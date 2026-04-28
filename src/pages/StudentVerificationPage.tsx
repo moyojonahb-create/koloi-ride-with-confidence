@@ -598,15 +598,30 @@ function ResultScreen({
       <h2 className="text-2xl font-bold mb-2">{config.title}</h2>
       <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">{config.desc}</p>
       {score > 0 && (
-        <Badge variant="secondary" className="mb-6">Match score: {score}/100</Badge>
+        <Badge variant="secondary" className="mb-4">Match score: {score}/100</Badge>
       )}
+
+      {(status === 'rejected' || (status === 'pending' && score > 0 && score < 90)) && (
+        <div className="max-w-sm mx-auto mb-5 text-left">
+          <PhotoTips
+            label="How to pass on the next try"
+            tips={[
+              { Icon: Sun, label: 'Move to a brighter spot — natural daylight works best.' },
+              { Icon: Frame, label: 'Hold the ID inside the frame and your face inside the oval.' },
+              { Icon: Sparkles, label: 'Wipe your camera lens and remove any glare on the ID.' },
+              { Icon: Eye, label: 'Look straight at the camera, no hats or sunglasses.' },
+            ]}
+          />
+        </div>
+      )}
+
       <div className="space-y-2 max-w-xs mx-auto">
         <Button onClick={onClose} className="w-full h-12 font-bold bg-blue-600 hover:bg-blue-700">
           Back to profile
         </Button>
         {(status === 'rejected' || status === 'pending') && (
-          <Button onClick={onRetry} variant="outline" className="w-full h-12">
-            Try again
+          <Button onClick={onRetry} variant="outline" className="w-full h-12 gap-2" aria-label="Retake photos and try again">
+            <RotateCcw className="w-4 h-4" /> Retake photos &amp; try again
           </Button>
         )}
       </div>
