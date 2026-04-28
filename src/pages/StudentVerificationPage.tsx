@@ -283,6 +283,13 @@ export default function StudentVerificationPage() {
               <h2 className="text-2xl font-bold mb-1">Photo of your ID</h2>
               <p className="text-sm text-muted-foreground mb-4">Take a clear photo of your national ID. Make sure the face is visible.</p>
 
+              <PhotoTips tips={[
+                { Icon: Sun, label: 'Use bright, even lighting — avoid harsh shadows across the card.' },
+                { Icon: Frame, label: 'Fit the entire ID inside the frame, flat on a dark surface.' },
+                { Icon: Sparkles, label: 'No glare or reflections — tilt slightly if you see a shine.' },
+                { Icon: Eye, label: 'Keep the photo and text sharp and readable — no blur.' },
+              ]} />
+
               <label htmlFor="id-upload" className="block aspect-[4/3] rounded-3xl border-2 border-dashed border-blue-300 bg-blue-50/50 cursor-pointer overflow-hidden mb-4">
                 {idPhotoPreview ? (
                   <img src={idPhotoPreview} alt="ID" className="w-full h-full object-cover" />
