@@ -394,8 +394,14 @@ export default function StudentVerificationPage() {
           {/* Step 5: selfie */}
           {step === 'selfie' && (
             <SelfieCapture
-              onDone={(blob, preview) => { setSelfie(blob); setSelfiePreview(preview); }}
+              onDone={(blob, preview, q) => {
+                setSelfie(blob);
+                setSelfiePreview(preview);
+                setSelfieQuality(q);
+                setSelfieIssues(evaluateQuality(q, 'selfie'));
+              }}
               currentPreview={selfiePreview}
+              issues={selfieIssues}
               onSubmit={goNext}
               hasSelfie={!!selfie}
             />
