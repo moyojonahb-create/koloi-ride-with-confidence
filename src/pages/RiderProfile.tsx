@@ -218,6 +218,39 @@ export default function RiderProfile() {
           </div>
         )}
 
+        {/* Student Verification Card */}
+        <button
+          onClick={() => navigate('/student-verification')}
+          className="w-full glass-card rounded-2xl p-3.5 bg-gradient-to-r from-blue-500/10 to-blue-400/5 border border-blue-500/20 active:scale-[0.98] transition-all text-left"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-blue-500/15 flex items-center justify-center shrink-0">
+                <GraduationCap className="w-4 h-4 text-blue-600" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {studentProfile?.verification_status === 'approved'
+                    ? '🎓 Verified Student'
+                    : studentProfile?.verification_status === 'pending'
+                    ? 'Verification Pending'
+                    : studentProfile?.verification_status === 'rejected'
+                    ? 'Verification Rejected'
+                    : 'Get $1 off every ride'}
+                </p>
+                <p className="text-[10px] text-muted-foreground truncate">
+                  {studentProfile?.verification_status === 'approved'
+                    ? '$1 off, up to 4 rides per day'
+                    : studentProfile?.verification_status === 'pending'
+                    ? 'Awaiting admin review'
+                    : 'Verify your student status'}
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+          </div>
+        </button>
+
         {/* Preferences — collapsible */}
         <details className="glass-card rounded-2xl overflow-hidden group">
           <summary className="flex items-center justify-between px-4 py-3 cursor-pointer list-none active:scale-[0.98] transition-all">
