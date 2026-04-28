@@ -16,6 +16,7 @@ import { searchCachedPlacesPrefix } from '@/lib/placeCache';
 import { useToast } from '@/hooks/use-toast';
 import { useGooglePlacesAutocomplete } from '@/hooks/useGooglePlacesAutocomplete';
 import { useTownPricing, calculateRecommendedFare, formatFare } from '@/hooks/useTownPricing';
+import { useStudentDiscountAvailable } from '@/hooks/useStudentProfile';
 
 import BottomNavBar from '@/components/BottomNavBar';
 import { Button } from '@/components/ui/button';
@@ -165,6 +166,10 @@ export default function RideView() {
     return { fareR: rec.recommended, distanceKm: routeData.distanceKm, durationMinutes: routeData.durationMinutes, currencySymbol: rec.currencySymbol, currencyCode: rec.currencyCode };
   }, [routeData, townPricing]);
   const fareEstimate = calculateFare();
+
+  // Student discount: $1 off when verified & under daily cap
+  const { available: studentDiscountAvailable, usedToday: studentRidesUsedToday, dailyCap: studentDailyCap } = useStudentDiscountAvailable();
+  const STUDENT_DISCOUNT = 1;
 
   // ── handlers ──
   const handleUseMyLocation = useCallback(() => {
@@ -360,6 +365,17 @@ export default function RideView() {
         ...(scheduledAt ? { scheduled_at: scheduledAt.toISOString() } : {})
       });
       if (!result.ok) throw new Error(result.error);
+
+      // Record student discount usage (best-effort)
+      if (studentDiscountAvailable && result.ride?.id && user?.id) {
+        supabase.from('student_discount_usage').insert([{
+          user_id: user.id,
+          ride_id: result.ride.id,
+          discount_amount: STUDENT_DISCOUNT,
+        }] as never).then(({ error }) => {
+          if (error) console.error('Failed to record student discount:', error.message);
+        });
+      }
 
       // Save multi-stops if any
       if (rideStops.length > 0 && result.ride.id) {
@@ -998,28 +1014,38 @@ export default function RideView() {
             const extraPassengerFee = extraPassengers * 0.5;
             const validStops = rideStops.filter(s => s.address && s.lat && s.lng);
             const stopFee = validStops.length * 0.5;
-            const totalFare = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee + stopFee;
+            const subtotal = townPricing.base_fare + (fareEstimate.fareR - townPricing.base_fare) + extraPassengerFee + stopFee;
+            const discount = studentDiscountAvailable ? Math.min(STUDENT_DISCOUNT, Math.max(subtotal - 0.5, 0)) : 0;
+            const totalFare = Math.max(subtotal - discount, 0.5);
             const sym = fareEstimate.currencySymbol;
             const fmt = (v: number) => `${sym}${v.toFixed(2)}`;
             return (
-              <PrimaryButton
-                onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
-                disabled={isRequesting}
-                className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center active:scale-[0.97] transition-transform">
-                
-                {isRequesting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                    Finding your ride…
-                  </>
-                ) : (
-                  <>
-                    <Car className="w-4 h-4" />
-                    {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
-                  </>
+              <>
+                {studentDiscountAvailable && (
+                  <div className="mb-2 flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20">
+                    <span className="text-[12px] font-semibold text-primary">🎓 Student discount applied −{fmt(discount)}</span>
+                    <span className="text-[10px] text-muted-foreground">{studentRidesUsedToday}/{studentDailyCap} today</span>
+                  </div>
                 )}
-              </PrimaryButton>);
+                <PrimaryButton
+                  onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
+                  disabled={isRequesting}
+                  className="w-full h-[48px] text-[15px] font-semibold rounded-2xl gap-2 inline-flex items-center justify-center active:scale-[0.97] transition-transform">
 
+                  {isRequesting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                      Finding your ride…
+                    </>
+                  ) : (
+                    <>
+                      <Car className="w-4 h-4" />
+                      {sheetExpanded ? `Send Offer • ${fmt(totalFare)}` : `Find Drivers • ${fmt(totalFare)}`}
+                    </>
+                  )}
+                </PrimaryButton>
+              </>
+            );
           })() :
           <SecondaryButton
             disabled

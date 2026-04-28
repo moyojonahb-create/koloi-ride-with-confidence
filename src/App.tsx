@@ -51,6 +51,8 @@ const AdminTownPricing = lazy(() => import("./pages/admin/AdminTownPricing"));
 const ImportOsmPlaces = lazy(() => import("./pages/admin/ImportOsmPlaces"));
 const AdminDisputes = lazy(() => import("./pages/admin/AdminDisputes"));
 const AdminSystemHealth = lazy(() => import("./pages/admin/AdminSystemHealth"));
+const AdminStudents = lazy(() => import("./pages/admin/AdminStudents"));
+const StudentVerificationPage = lazy(() => import("./pages/StudentVerificationPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DriverRequestsScreen = lazy(() => import("./pages/negotiate/DriverRequestsScreen"));
 const RiderOffersScreen = lazy(() => import("./pages/negotiate/RiderOffersScreen"));
@@ -182,6 +184,8 @@ export default function App() {
           <Route path="/admin/import-places" element={<SuspenseWrap><AdminGuard><ImportOsmPlaces /></AdminGuard></SuspenseWrap>} />
           <Route path="/admin/disputes" element={<SuspenseWrap><AdminGuard><AdminDisputes /></AdminGuard></SuspenseWrap>} />
           <Route path="/admin/system-health" element={<SuspenseWrap><AdminGuard><AdminSystemHealth /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/students" element={<SuspenseWrap><AdminGuard><AdminStudents /></AdminGuard></SuspenseWrap>} />
+          <Route path="/student-verification" element={<SuspenseWrap><AuthGuard><StudentVerificationPage /></AuthGuard></SuspenseWrap>} />
 
           <Route path="*" element={<SuspenseWrap><NotFound /></SuspenseWrap>} />
         </Routes>
