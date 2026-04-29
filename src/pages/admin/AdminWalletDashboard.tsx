@@ -18,6 +18,7 @@ import {
 import {
   Wallet, ArrowDownToLine, ArrowUpFromLine, ShieldAlert, RefreshCw,
   CheckCircle, XCircle, Flag, TrendingUp, Eye, Loader2,
+  Lock, Unlock, Undo2, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -29,6 +30,7 @@ interface Tx {
   amount: number;
   transaction_type: string;
   description: string | null;
+  reference_code: string | null;
   created_at: string;
 }
 interface Deposit {
@@ -44,6 +46,16 @@ interface Withdrawal {
 interface FraudFlag {
   id: string; user_id: string; flag_type: string; severity: string;
   details: Record<string, unknown> | null; resolved: boolean; created_at: string;
+}
+interface FailedRide {
+  id: string; user_id: string; fare: number;
+  payment_failure_reason: string | null;
+  pickup_address: string; dropoff_address: string;
+  created_at: string;
+}
+interface LockedWallet {
+  id: string; user_id: string; balance: number;
+  locked_reason: string | null; locked_at: string | null;
 }
 
 function AdminWalletDashboardInner() {
