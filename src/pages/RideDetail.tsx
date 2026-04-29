@@ -18,6 +18,32 @@ import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
 import TripReceiptButton from "@/components/ride/TripReceiptButton";
 import DisputeForm from "@/components/ride/DisputeForm";
 
+/** Avatar with automatic fallback to initial when image fails or is missing. */
+function DriverAvatar({ url, name, size = 56 }: { url: string | null; name: string; size?: number }) {
+  const [errored, setErrored] = useState(false);
+  const showImage = !!url && !errored;
+  const initial = (name?.trim()?.charAt(0) || "?").toUpperCase();
+  return (
+    <div
+      className="relative rounded-full bg-primary/10 border-2 border-primary/20 overflow-hidden flex items-center justify-center shrink-0"
+      style={{ width: size, height: size }}
+    >
+      {showImage ? (
+        <img
+          src={url!}
+          alt={name}
+          className="w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onError={() => setErrored(true)}
+        />
+      ) : (
+        <span className="text-lg font-bold text-primary">{initial}</span>
+      )}
+    </div>
+  );
+}
 function SettlementInfo({ tripId, onSettled }: { tripId: string; onSettled?: () => void }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
   const [loading, setLoading] = useState(true);
