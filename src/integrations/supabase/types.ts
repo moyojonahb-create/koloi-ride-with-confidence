@@ -2448,10 +2448,15 @@ export type Database = {
         Args: { p_id: string; p_note?: string }
         Returns: Json
       }
+      admin_flag_user: {
+        Args: { p_reason: string; p_severity?: string; p_user_id: string }
+        Returns: Json
+      }
       admin_reject_withdrawal: {
         Args: { p_id: string; p_note?: string }
         Returns: Json
       }
+      admin_resolve_fraud_flag: { Args: { p_flag_id: string }; Returns: Json }
       admin_set_fx_rate: { Args: { p_zar_per_usd: number }; Returns: Json }
       can_change_gender: { Args: { p_user_id: string }; Returns: boolean }
       can_driver_operate: { Args: { p_driver_id: string }; Returns: boolean }
