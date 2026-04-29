@@ -391,6 +391,70 @@ function AdminWalletDashboardInner() {
             ))}
           </TabsContent>
 
+          {/* Failed Payments */}
+          <TabsContent value="failed" className="space-y-3">
+            {failed.length === 0 && <div className="text-center py-8 text-muted-foreground">No failed payments</div>}
+            {failed.map(r => (
+              <Card key={r.id}>
+                <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-destructive" />
+                      <span className="text-lg font-black">${Number(r.fare).toFixed(2)}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {r.pickup_address} → {r.dropoff_address}
+                    </div>
+                    <div className="text-[11px] text-destructive mt-1">{r.payment_failure_reason || "Payment failed"}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      User: <span className="font-mono">{r.user_id.slice(0, 8)}…</span> · {format(new Date(r.created_at), "MMM d, HH:mm")}
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => unlockWallet(r.user_id)}>
+                    <Unlock className="h-4 w-4 mr-1" /> Unlock Wallet
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+
+          {/* Locked Wallets */}
+          <TabsContent value="locked" className="space-y-3">
+            {locked.length === 0 && <div className="text-center py-8 text-muted-foreground">No locked wallets</div>}
+            {locked.map(w => (
+              <Card key={w.id}>
+                <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Lock className="h-4 w-4 text-destructive" />
+                      <span className="text-lg font-black">${Number(w.balance).toFixed(2)}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      User: <span className="font-mono">{w.user_id.slice(0, 12)}…</span>
+                    </div>
+                    <div className="text-[11px] text-destructive mt-0.5">{w.locked_reason || "Locked"}</div>
+                    {w.locked_at && (
+                      <div className="text-[11px] text-muted-foreground">
+                        Since {format(new Date(w.locked_at), "MMM d, HH:mm")}
+                      </div>
+                    )}
+                  </div>
+                  <Button size="sm" onClick={() => unlockWallet(w.user_id)}>
+                    <Unlock className="h-4 w-4 mr-1" /> Unlock
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+            <div className="pt-2">
+              <Button variant="outline" className="w-full" onClick={() => {
+                const id = window.prompt("User ID to lock:");
+                if (id?.trim()) lockWallet(id.trim());
+              }}>
+                <Lock className="h-4 w-4 mr-2" /> Lock a Wallet
+              </Button>
+            </div>
+          </TabsContent>
+
           {/* Flags */}
           <TabsContent value="flags" className="space-y-3">
             {flags.length === 0 && <div className="text-center py-8 text-muted-foreground">No active fraud flags</div>}
