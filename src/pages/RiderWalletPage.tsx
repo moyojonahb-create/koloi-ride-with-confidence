@@ -39,31 +39,25 @@ export default function RiderWalletPage() {
   const { user } = useAuth();
   const { balance, transactions, deposit, refresh: refreshWallet, loading: walletLoading } = useWallet();
   const { hasPin, loading: pinLoading, setPin, verifyPin, refresh: refreshPin } = useWalletPin();
+  const { full_name, pickme_account } = usePickmeAccount();
   const [showDeposit, setShowDeposit] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
   const [deposits, setDeposits] = useState<RiderDeposit[]>([]);
   const [loadingDeposits, setLoadingDeposits] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
   const [referralEarnings, setReferralEarnings] = useState(0);
 
-  // PIN gate state
+  // PIN gate state — wallet ALWAYS requires a PIN
   const [pinVerified, setPinVerified] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
 
-  // If no PIN set, skip the gate
+  // Force PIN setup if missing, otherwise require verification
   useEffect(() => {
-    if (!pinLoading && !hasPin) {
-      setPinVerified(true);
-    }
-  }, [pinLoading, hasPin]);
+    if (!pinLoading) setShowPinModal(!pinVerified);
+  }, [pinLoading, pinVerified]);
 
-  // Show PIN modal if PIN is set and not yet verified
-  useEffect(() => {
-    if (!pinLoading && hasPin && !pinVerified) {
-      setShowPinModal(true);
-    }
-  }, [hasPin, pinVerified, pinLoading]);
 
   const handleVerifyPin = async (enteredPin: string): Promise<boolean> => {
     try {
