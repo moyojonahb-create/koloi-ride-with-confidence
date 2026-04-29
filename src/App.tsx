@@ -129,7 +129,7 @@ export default function App() {
           <Route path="/mapp/ride" element={<Navigate to="/ride" replace />} />
           <Route path="/mapp/history" element={<Navigate to="/history" replace />} />
           <Route path="/mapp/ride-history" element={<Navigate to="/history" replace />} />
-          <Route path="/mapp/wallet" element={<Navigate to="/profile" replace />} />
+          <Route path="/mapp/wallet" element={<Navigate to="/wallet" replace />} />
           <Route path="/mapp/profile" element={<Navigate to="/profile" replace />} />
           <Route path="/mapp/edit-profile" element={<Navigate to="/edit-profile" replace />} />
           <Route path="/mapp/driver" element={<Navigate to="/driver" replace />} />
