@@ -596,10 +596,10 @@ export default function RideDetail() {
                 <p className="text-sm font-semibold text-foreground truncate">{ride.dropoff_address ?? "—"}</p>
               </div>
             </div>
-            {ride.distance_km && (
-              <div className="text-right shrink-0">
-                <p className="text-lg font-extrabold text-foreground">{Number(ride.distance_km).toFixed(1)}</p>
-                <p className="text-[10px] text-muted-foreground font-semibold">KM</p>
+            {ride.distance_km != null && (
+              <div className="shrink-0 self-center flex flex-col items-center justify-center px-2.5 py-1.5 rounded-xl bg-primary/10 min-w-[52px]">
+                <p className="text-base font-extrabold text-primary leading-none">{Number(ride.distance_km).toFixed(1)}</p>
+                <p className="text-[9px] text-primary/70 font-bold tracking-wider mt-0.5">KM</p>
               </div>
             )}
           </div>
