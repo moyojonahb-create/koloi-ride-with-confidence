@@ -25,34 +25,49 @@ interface EarningRecord {
   created_at: string;
 }
 
+interface WithdrawalRecord {
+  id: string;
+  amount_usd: number;
+  method: string;
+  destination: string;
+  status: string;
+  admin_note: string | null;
+  created_at: string;
+  approved_at: string | null;
+}
+
 export default function DriverWalletPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [balance, setBalance] = useState(0);
   const [deposits, setDeposits] = useState<DepositRecord[]>([]);
   const [earnings, setEarnings] = useState<EarningRecord[]>([]);
+  const [withdrawals, setWithdrawals] = useState<WithdrawalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
-  const [tab, setTab] = useState<'earnings' | 'deposits'>('earnings');
+  const [tab, setTab] = useState<'earnings' | 'deposits' | 'withdrawals'>('earnings');
 
   const load = useCallback(async () => {
     if (!user) return;
     setMsg("");
     setLoading(true);
     try {
-      const [w, dep, earn] = await Promise.all([
+      const [w, dep, earn, wd] = await Promise.all([
         supabase.from("driver_wallets").select("balance_usd").eq("driver_id", user.id).maybeSingle(),
         supabase.from("deposit_requests").select("id,amount_usd,status,created_at,ecocash_reference")
           .eq("driver_id", user.id).order("created_at", { ascending: false }).limit(20),
         supabase.from("admin_earnings").select("id,ride_id,fare_amount,platform_fee,driver_earnings,created_at")
           .eq("driver_id", user.id).order("created_at", { ascending: false }).limit(50),
+        supabase.from("withdrawals").select("id,amount_usd,method,destination,status,admin_note,created_at,approved_at")
+          .eq("driver_id", user.id).order("created_at", { ascending: false }).limit(30),
       ]);
       if (w.error) throw w.error;
       setBalance(Number(w.data?.balance_usd ?? 0));
       if (!dep.error) setDeposits(dep.data ?? []);
       if (!earn.error) setEarnings((earn.data ?? []) as EarningRecord[]);
+      if (!wd.error) setWithdrawals((wd.data ?? []) as WithdrawalRecord[]);
     } catch (e: unknown) {
       setMsg((e as Error).message || "Failed to load wallet");
     } finally {
@@ -80,9 +95,13 @@ export default function DriverWalletPage() {
           setEarnings((prev) => [payload.new as EarningRecord, ...prev].slice(0, 50));
         }
       )
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'withdrawals', filter: `driver_id=eq.${user.id}` },
+        () => { load(); }
+      )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user, load]);
 
   const statusColor = (s: string) => {
     if (s === 'approved') return 'text-green-500';
@@ -164,6 +183,12 @@ export default function DriverWalletPage() {
           >
             Deposits ({deposits.length})
           </button>
+          <button
+            onClick={() => setTab('withdrawals')}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${tab === 'withdrawals' ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+          >
+            Withdrawals ({withdrawals.length})
+          </button>
         </div>
 
         {/* Earnings History */}
@@ -211,6 +236,36 @@ export default function DriverWalletPage() {
                   <div className="text-xs text-muted-foreground">{d.ecocash_reference}</div>
                 </div>
                 <span className={`text-xs font-bold capitalize ${statusColor(d.status)}`}>{d.status}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Withdrawal History */}
+        {tab === 'withdrawals' && (
+          <div className="space-y-2">
+            {withdrawals.length === 0 && !loading && (
+              <div className="bg-card border rounded-xl p-6 text-center text-sm text-muted-foreground">
+                No withdrawals yet. Tap “Withdraw” to request one.
+              </div>
+            )}
+            {withdrawals.map((w) => (
+              <div key={w.id} className="bg-card rounded-xl p-3 border">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-bold text-sm">−${Number(w.amount_usd).toFixed(2)}</div>
+                    <div className="text-xs text-muted-foreground capitalize">
+                      {w.method} • {w.destination}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      {format(new Date(w.created_at), 'dd MMM yyyy, HH:mm')}
+                    </div>
+                    {w.admin_note && (
+                      <div className="text-[11px] text-muted-foreground mt-1 italic">“{w.admin_note}”</div>
+                    )}
+                  </div>
+                  <span className={`text-xs font-bold capitalize ${statusColor(w.status)}`}>{w.status}</span>
+                </div>
               </div>
             ))}
           </div>
