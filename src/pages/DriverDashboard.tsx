@@ -165,7 +165,10 @@ export default function DriverDashboard() {
   // ── Listen for "rider is on the way" broadcast from rider ──
   useEffect(() => {
     if (!activeTrip?.id) return;
-    const unsub = subscribeRiderComing(activeTrip.id, (payload) => {
+    const tripId = activeTrip.id;
+    const unsub = subscribeRiderComing(tripId, async (payload) => {
+      const { shouldFireOnce } = await import("@/lib/notifyThrottle");
+      if (!shouldFireOnce(`ride:${tripId}`, "rider_coming", 30_000)) return;
       setRiderComingBanner({ open: true, name: payload.riderName });
       // Sound + vibrate
       import("@/lib/notificationSounds")

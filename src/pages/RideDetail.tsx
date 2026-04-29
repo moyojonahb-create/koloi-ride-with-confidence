@@ -342,18 +342,22 @@ export default function RideDetail() {
     const current = ride?.status ?? null;
     const prev = prevStatusRef.current;
     if (prev && prev !== current && (current === "arrived" || current === "driver_arrived")) {
-      setArrivedBannerOpen(true);
-      // Configurable arrived sound
-      import("@/lib/arrivedSoundPrefs")
-        .then(({ playConfiguredArrivedSound }) => playConfiguredArrivedSound())
-        .catch(() => {});
-      // Vibration
-      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-        try { navigator.vibrate?.([220, 90, 220, 90, 220]); } catch { /* noop */ }
-      }
+      // Throttle: don't fire more than once per ride within 30s
+      import("@/lib/notifyThrottle").then(({ shouldFireOnce }) => {
+        if (!shouldFireOnce(`ride:${rideId ?? "?"}`, "arrived", 30_000)) return;
+        setArrivedBannerOpen(true);
+        // Configurable arrived sound
+        import("@/lib/arrivedSoundPrefs")
+          .then(({ playConfiguredArrivedSound }) => playConfiguredArrivedSound())
+          .catch(() => {});
+        // Vibration
+        if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+          try { navigator.vibrate?.([220, 90, 220, 90, 220]); } catch { /* noop */ }
+        }
+      });
     }
     prevStatusRef.current = current;
-  }, [ride?.status]);
+  }, [ride?.status, rideId]);
 
   const handleImComing = useCallback(async () => {
     if (!rideId) return;

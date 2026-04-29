@@ -16,6 +16,7 @@ export interface TopFlashBannerProps {
   actionLabel?: string;
   onAction?: () => void;
   /** Visual tone. */
+  /** Visual tone — both render in brand blue per design spec. */
   tone?: "success" | "info";
   icon?: React.ReactNode;
 }
@@ -52,10 +53,9 @@ export default function TopFlashBanner({
     };
   }, [open, durationMs, onClose]);
 
-  const toneClasses =
-    tone === "success"
-      ? "bg-green-600 text-white"
-      : "bg-primary text-primary-foreground";
+  // Both tones render in brand blue (per spec). Kept as prop for future variants.
+  void tone;
+  const toneClasses = "bg-blue-600 text-white";
 
   return (
     <AnimatePresence>
@@ -66,24 +66,24 @@ export default function TopFlashBanner({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -120, opacity: 0 }}
           transition={{ type: "spring", stiffness: 320, damping: 28 }}
-          className="fixed left-0 right-0 z-[2000] pointer-events-none flex justify-center px-3"
-          style={{ top: "calc(env(safe-area-inset-top) + 8px)" }}
+          className="fixed left-0 right-0 z-[2000] pointer-events-none flex justify-center px-2 sm:px-3"
+          style={{ top: "calc(env(safe-area-inset-top) + 6px)" }}
         >
           <motion.div
             animate={{
               boxShadow: [
                 "0 8px 24px rgba(0,0,0,0.18)",
-                "0 8px 36px rgba(34,197,94,0.55)",
+                "0 8px 36px rgba(37,99,235,0.55)",
                 "0 8px 24px rgba(0,0,0,0.18)",
               ],
             }}
             transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
             className={cn(
-              "pointer-events-auto w-full max-w-md rounded-2xl px-4 py-3 backdrop-blur-md ring-1 ring-white/20",
+              "pointer-events-auto w-full max-w-md rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 backdrop-blur-md ring-1 ring-white/20",
               toneClasses
             )}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 sm:gap-3">
               {icon && (
                 <motion.div
                   animate={{ scale: [1, 1.15, 1] }}
@@ -94,9 +94,9 @@ export default function TopFlashBanner({
                 </motion.div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-base font-extrabold leading-tight truncate">{title}</p>
+                <p className="text-sm sm:text-base font-extrabold leading-tight break-words">{title}</p>
                 {subtitle && (
-                  <p className="text-xs opacity-90 leading-snug mt-0.5 truncate">{subtitle}</p>
+                  <p className="text-[11px] sm:text-xs opacity-90 leading-snug mt-0.5 break-words line-clamp-2">{subtitle}</p>
                 )}
               </div>
               {trailing && <div className="shrink-0">{trailing}</div>}
