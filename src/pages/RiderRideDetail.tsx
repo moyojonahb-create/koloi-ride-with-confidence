@@ -62,6 +62,8 @@ type Ride = {
   passenger_name?: string | null;
   passenger_phone?: string | null;
   payment_method?: string;
+  wallet_paid?: boolean;
+  wallet_paid_at?: string | null;
   updated_at?: string;
 };
 
