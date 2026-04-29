@@ -54,17 +54,20 @@ export default function DriverWalletPage() {
     setMsg("");
     setLoading(true);
     try {
-      const [w, dep, earn] = await Promise.all([
+      const [w, dep, earn, wd] = await Promise.all([
         supabase.from("driver_wallets").select("balance_usd").eq("driver_id", user.id).maybeSingle(),
         supabase.from("deposit_requests").select("id,amount_usd,status,created_at,ecocash_reference")
           .eq("driver_id", user.id).order("created_at", { ascending: false }).limit(20),
         supabase.from("admin_earnings").select("id,ride_id,fare_amount,platform_fee,driver_earnings,created_at")
           .eq("driver_id", user.id).order("created_at", { ascending: false }).limit(50),
+        supabase.from("withdrawals").select("id,amount_usd,method,destination,status,admin_note,created_at,approved_at")
+          .eq("driver_id", user.id).order("created_at", { ascending: false }).limit(30),
       ]);
       if (w.error) throw w.error;
       setBalance(Number(w.data?.balance_usd ?? 0));
       if (!dep.error) setDeposits(dep.data ?? []);
       if (!earn.error) setEarnings((earn.data ?? []) as EarningRecord[]);
+      if (!wd.error) setWithdrawals((wd.data ?? []) as WithdrawalRecord[]);
     } catch (e: unknown) {
       setMsg((e as Error).message || "Failed to load wallet");
     } finally {
