@@ -158,30 +158,33 @@ export default function RiderProfile() {
         {/* Quick actions row with stats */}
         <div className="grid grid-cols-4 gap-2">
           <QuickAction
-            icon={<MapPin className="w-5 h-5" />}
+            icon={<MapPin className="w-4 h-4" />}
             label="Ride"
             sublabel={stats.completedRides > 0 ? `${stats.completedRides} trips` : 'Book now'}
             onClick={() => navigate(`${prefix}/ride`)}
             accent
-            color="primary"
+            color="yellow"
           />
           <QuickAction
-            icon={<History className="w-5 h-5" />}
+            icon={<History className="w-4 h-4" />}
             label="History"
             sublabel={stats.lastRideDate ? format(new Date(stats.lastRideDate), 'MMM d') : 'No rides'}
             onClick={() => navigate(`${prefix}/history`)}
+            color="yellow"
           />
           <QuickAction
-            icon={<Shield className="w-5 h-5" />}
+            icon={<Shield className="w-4 h-4" />}
             label="Safety"
             sublabel="SOS & tips"
             onClick={() => navigate(`${prefix}/safety`)}
+            color="yellow"
           />
           <QuickAction
-            icon={<Car className="w-5 h-5" />}
+            icon={<Car className="w-4 h-4" />}
             label="Drive"
             sublabel={isApprovedDriver ? 'Active' : 'Earn $'}
             onClick={() => navigate(`${prefix}/driver`)}
+            color="yellow"
           />
         </div>
 
