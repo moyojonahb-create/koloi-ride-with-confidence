@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, RefreshCw, Wallet, Clock, CheckCircle, XCircle, Settings, Smartphone, ArrowDownLeft, ArrowUpRight, Gift } from 'lucide-react';
+import { ArrowLeft, Plus, RefreshCw, Wallet, Clock, CheckCircle, XCircle, Settings, Smartphone, ArrowDownLeft, ArrowUpRight, Gift, Send } from 'lucide-react';
 import BottomNavBar from '@/components/BottomNavBar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,6 +11,7 @@ import DepositModal from '@/components/wallet/DepositModal';
 import WalletPinModal from '@/components/wallet/WalletPinModal';
 import WalletSettings from '@/components/wallet/WalletSettings';
 import TransactionsSheet from '@/components/wallet/TransactionsSheet';
+import TransferMoneyModal from '@/components/wallet/TransferMoneyModal';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -35,6 +36,7 @@ export default function RiderWalletPage() {
   const { balance, transactions, deposit, refresh: refreshWallet, loading: walletLoading } = useWallet();
   const { hasPin, loading: pinLoading, setPin, verifyPin, refresh: refreshPin } = useWalletPin();
   const [showDeposit, setShowDeposit] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
   const [deposits, setDeposits] = useState<RiderDeposit[]>([]);
   const [loadingDeposits, setLoadingDeposits] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
@@ -156,12 +158,21 @@ export default function RiderWalletPage() {
           <Wallet className="h-8 w-8 text-primary-foreground mx-auto opacity-80" />
           <p className="text-sm text-primary-foreground/80">Available Balance</p>
           <p className="text-4xl font-black text-primary-foreground">${balance.toFixed(2)}</p>
-          <Button
-            onClick={() => setShowDeposit(true)}
-            className="mt-3 bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-0"
-          >
-            <Plus className="h-4 w-4 mr-2" /> Top Up Wallet
-          </Button>
+          <div className="flex gap-2 justify-center mt-3">
+            <Button
+              onClick={() => setShowDeposit(true)}
+              className="bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-0"
+            >
+              <Plus className="h-4 w-4 mr-2" /> Top Up
+            </Button>
+            <Button
+              onClick={() => setShowTransfer(true)}
+              disabled={balance <= 0}
+              className="bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-0"
+            >
+              <Send className="h-4 w-4 mr-2" /> Send
+            </Button>
+          </div>
         </div>
 
         {/* Quick Actions */}
@@ -291,6 +302,13 @@ export default function RiderWalletPage() {
           transaction_type: t.transaction_type as 'deposit' | 'withdrawal' | 'trip_fee' | 'refund',
         }))}
         title="All Transactions"
+      />
+
+      <TransferMoneyModal
+        isOpen={showTransfer}
+        onClose={() => setShowTransfer(false)}
+        balance={balance}
+        onSuccess={refreshWallet}
       />
 
       <BottomNavBar />
