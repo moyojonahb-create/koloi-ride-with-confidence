@@ -506,6 +506,30 @@ export default function RideDetail() {
       }
       {incomingCall && <IncomingCallModal callerId={incomingCall.callerId} onAnswer={answerCall} onDecline={declineIncomingCall} />}
 
+      {/* ── Driver Arrived — flashing top banner (10s) ── */}
+      <TopFlashBanner
+        open={arrivedBannerOpen}
+        onClose={() => setArrivedBannerOpen(false)}
+        durationMs={10_000}
+        tone="success"
+        icon={<CheckCircle2 className="w-7 h-7" />}
+        title={`${driverProfile?.fullName ?? "Your driver"} is outside`}
+        subtitle={
+          driverProfile?.plateNumber
+            ? `Look for ${driverProfile.vehicleMake ?? ""} ${driverProfile.vehicleModel ?? ""} · ${driverProfile.plateNumber}`.trim()
+            : "Please head to the pickup point now"
+        }
+        trailing={
+          <div className="flex flex-col items-center justify-center px-2.5 py-1.5 rounded-xl bg-white/20 min-w-[58px]">
+            <span className="text-base font-extrabold leading-none">~1</span>
+            <span className="text-[9px] font-bold tracking-wider mt-0.5 opacity-90">MIN</span>
+          </div>
+        }
+        actionLabel="I'm coming"
+        onAction={handleImComing}
+      />
+
+
       {/* Map — takes top portion */}
       <div className="absolute inset-0 bottom-0">
         {ride.pickup_lat != null && ride.pickup_lon != null && ride.dropoff_lat != null && ride.dropoff_lon != null ? (
