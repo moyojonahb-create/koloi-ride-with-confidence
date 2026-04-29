@@ -2,9 +2,16 @@ import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
 import { Switch } from '@/components/ui/switch';
-import { Volume2, Thermometer, Accessibility, Ear, ShieldCheck } from 'lucide-react';
+import { Volume2, Thermometer, Accessibility, Ear, ShieldCheck, Bell, Play } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import {
+  ARRIVED_SOUND_OPTIONS,
+  getArrivedSound,
+  setArrivedSound,
+  previewArrivedSound,
+  type ArrivedSoundChoice,
+} from '@/lib/arrivedSoundPrefs';
 
 export type RiderPreferences = {
   quiet_ride: boolean;
