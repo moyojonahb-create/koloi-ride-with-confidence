@@ -107,6 +107,7 @@ export function resetGoogleMapsLoader() {
 }
 
 function loadGoogleMapsScript(apiKey: string): Promise<void> {
+  installGoogleErrorHooks();
   if (loaded) return Promise.resolve();
   if (loadPromise) return loadPromise;
 
@@ -172,9 +173,23 @@ export function useGoogleMaps(retryKey = 0): GoogleMapsState {
     apiKey: GOOGLE_MAPS_API_KEY || null,
   });
 
+  // Subscribe to async errors (gm_authFailure, console-intercepted billing errors)
+  useEffect(() => {
+    const onErr = (err: Error) => {
+      setState((s) => ({ ...s, isLoaded: false, loadError: err }));
+    };
+    errorListeners.add(onErr);
+    return () => { errorListeners.delete(onErr); };
+  }, []);
+
   const tryLoadWithKey = useCallback(async (key: string) => {
     try {
       await loadGoogleMapsScript(key);
+      // Wait one tick for Google to validate the key (auth failures fire ~immediately after load)
+      await new Promise((r) => setTimeout(r, 400));
+      if (loadError) {
+        return false;
+      }
       console.info('[PickMe Maps] Status:', {
         mapsLoaded: !!window.google?.maps,
         placesLoaded: !!window.google?.maps?.places,
