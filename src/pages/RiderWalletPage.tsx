@@ -55,7 +55,7 @@ export default function RiderWalletPage() {
 
   // Force PIN setup if missing, otherwise require verification
   useEffect(() => {
-    if (!pinLoading) setShowPinModal(!pinVerified);
+    if (!pinLoading && !pinVerified) setShowPinModal(true);
   }, [pinLoading, pinVerified]);
 
 
@@ -123,7 +123,10 @@ export default function RiderWalletPage() {
       <div className="min-h-[100dvh] bg-background flex items-center justify-center p-4">
         <WalletPinModal
           isOpen={showPinModal}
-          onClose={() => navigate(-1)}
+          onClose={() => {
+            // If user dismissed without verifying, navigate back
+            if (!pinVerified) navigate(-1);
+          }}
           onVerified={() => { setPinVerified(true); setShowPinModal(false); }}
           mode={hasPin ? 'verify' : 'setup'}
           onVerifyPin={handleVerifyPin}
