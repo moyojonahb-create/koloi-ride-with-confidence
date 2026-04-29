@@ -1,7 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Minus, X, Upload, Phone, Hash, CheckCircle } from 'lucide-react';
+import { Plus, Minus, X, Upload, Phone, Hash, CheckCircle, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,16 +23,34 @@ const PAYMENT_METHODS = [
   { id: 'bank_transfer', name: 'Bank Transfer', color: 'bg-slate-600', merchant: 'FNB: 62xxxxxxx' },
 ] as const;
 
+// Generate cryptographically-random unique payment code: PM-XXXXXXXX (8 chars, no 0/O/1/I)
+function generatePaymentCode(): string {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  let code = '';
+  for (let i = 0; i < 8; i++) code += alphabet[bytes[i] % alphabet.length];
+  return `PM-${code}`;
+}
+
 export default function DepositModal({ isOpen, onClose, currentBalance }: DepositModalProps) {
   const { user } = useAuth();
   const [step, setStep] = useState<'method' | 'details' | 'done'>('method');
   const [selectedMethod, setSelectedMethod] = useState('');
   const [amount, setAmount] = useState(5);
   const [phone, setPhone] = useState('');
-  const [reference, setReference] = useState('');
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedMerchant, setCopiedMerchant] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // System-generated unique payment code, regenerated each time modal/method changes
+  const paymentCode = useMemo(
+    () => (isOpen && selectedMethod ? generatePaymentCode() : ''),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isOpen, selectedMethod]
+  );
 
   if (!isOpen) return null;
 
@@ -44,8 +62,9 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
     setSelectedMethod('');
     setAmount(5);
     setPhone('');
-    setReference('');
     setProofFile(null);
+    setCopiedCode(false);
+    setCopiedMerchant(false);
   };
 
   const handleClose = () => {
@@ -53,18 +72,29 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
     onClose();
   };
 
+  const copy = async (text: string, which: 'code' | 'merchant') => {
+    try {
+      await navigator.clipboard.writeText(text);
+      if (which === 'code') { setCopiedCode(true); setTimeout(() => setCopiedCode(false), 1500); }
+      else { setCopiedMerchant(true); setTimeout(() => setCopiedMerchant(false), 1500); }
+      toast.success('Copied to clipboard');
+    } catch {
+      toast.error('Could not copy — long-press to select');
+    }
+  };
+
   const handleSubmit = async () => {
     if (!user || !method) return;
-    if (!phone.trim()) { toast.error('Enter your phone number'); return; }
-    if (!reference.trim()) { toast.error('Enter the transaction reference'); return; }
-    if (amount <= 0) { toast.error('Enter a valid amount'); return; }
+    if (!phone.trim() || phone.trim().length < 9) { toast.error('Enter a valid phone number'); return; }
+    if (amount <= 0 || amount > 5000) { toast.error('Amount must be between $1 and $5000'); return; }
+    if (!paymentCode) { toast.error('Payment code not generated, try again'); return; }
 
     setLoading(true);
     try {
       let proofPath: string | null = null;
 
-      // Upload proof if provided
       if (proofFile) {
+        if (proofFile.size > 5 * 1024 * 1024) throw new Error('Screenshot must be under 5MB');
         const ext = proofFile.name.split('.').pop();
         const path = `${user.id}/${Date.now()}.${ext}`;
         const { error: uploadErr } = await supabase.storage
@@ -74,7 +104,6 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
         proofPath = path;
       }
 
-      // Insert deposit request
       const { error: insertErr } = await supabase
         .from('rider_deposit_requests')
         .insert({
@@ -82,11 +111,17 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
           amount_usd: amount,
           payment_method: selectedMethod,
           phone_number: phone.trim(),
-          reference: reference.trim(),
+          reference: paymentCode, // ← system-generated unique code
           proof_path: proofPath,
         });
 
-      if (insertErr) throw insertErr;
+      if (insertErr) {
+        // Extremely unlikely 8-char collision — regenerate and retry once
+        if (insertErr.code === '23505') {
+          throw new Error('Code collision, please tap Submit again');
+        }
+        throw insertErr;
+      }
 
       setStep('done');
     } catch (e: unknown) {
@@ -139,14 +174,7 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
         {/* Step 2: Enter Details */}
         {step === 'details' && method && (
           <div className="space-y-4">
-            {/* Payment Instructions */}
-            <div className="bg-accent/50 rounded-xl p-3 space-y-1">
-              <p className="text-xs font-bold text-accent-foreground">Send payment to:</p>
-              <p className="text-sm font-mono font-bold">{method.merchant}</p>
-              <p className="text-xs text-muted-foreground">Then fill in the details below</p>
-            </div>
-
-            {/* Amount */}
+            {/* Amount FIRST so the code reflects intent */}
             <div className="space-y-2">
               <p className="text-sm font-medium text-muted-foreground">Amount (USD)</p>
               <div className="flex items-center justify-center gap-3">
@@ -167,23 +195,44 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
               </div>
             </div>
 
+            {/* Payment Instructions with merchant + UNIQUE PAYMENT CODE */}
+            <div className="bg-accent/50 rounded-xl p-3 space-y-3 border-2 border-primary/30">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground mb-1">Step 1 — Send ${amount} to</p>
+                <button
+                  onClick={() => copy(method.merchant, 'merchant')}
+                  className="w-full flex items-center justify-between gap-2 bg-background rounded-lg p-2.5 hover:border-primary border-2 border-transparent transition-colors"
+                >
+                  <span className="text-sm font-mono font-bold truncate">{method.merchant}</span>
+                  {copiedMerchant ? <Check className="h-4 w-4 text-green-600 shrink-0" /> : <Copy className="h-4 w-4 text-muted-foreground shrink-0" />}
+                </button>
+              </div>
+
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-primary mb-1">Step 2 — Use this Payment Code as the reference</p>
+                <button
+                  onClick={() => copy(paymentCode, 'code')}
+                  className="w-full flex items-center justify-between gap-2 bg-primary/10 rounded-lg p-3 border-2 border-primary hover:bg-primary/15 transition-colors"
+                  aria-label={`Copy payment code ${paymentCode}`}
+                >
+                  <span className="text-lg font-mono font-black tracking-widest text-primary">{paymentCode}</span>
+                  {copiedCode ? <Check className="h-5 w-5 text-green-600 shrink-0" /> : <Copy className="h-5 w-5 text-primary shrink-0" />}
+                </button>
+                <p className="text-[10px] text-muted-foreground mt-1.5 leading-snug">
+                  Paste this code in the EcoCash/InnBucks message field. Admin uses it to verify and credit your wallet.
+                </p>
+              </div>
+            </div>
+
             {/* Phone */}
             <div className="space-y-1">
               <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                <Phone className="h-3 w-3" /> Phone Number
+                <Phone className="h-3 w-3" /> Phone Number you paid from
               </label>
-              <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. 0771234567" />
+              <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="e.g. 0771234567" maxLength={15} />
             </div>
 
-            {/* Reference */}
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                <Hash className="h-3 w-3" /> Transaction Reference
-              </label>
-              <Input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="e.g. MP230712.1234.A00001" />
-            </div>
-
-            {/* Proof Upload */}
+            {/* Proof Upload (optional) */}
             <div className="space-y-1">
               <label className="text-sm font-medium text-muted-foreground flex items-center gap-1">
                 <Upload className="h-3 w-3" /> Payment Screenshot (optional)
@@ -210,7 +259,7 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
                 Back
               </Button>
               <Button className="flex-1" onClick={handleSubmit} disabled={loading}>
-                {loading ? 'Submitting...' : 'Submit Request'}
+                {loading ? 'Submitting...' : 'I have paid'}
               </Button>
             </div>
           </div>
@@ -223,7 +272,10 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
             <div>
               <p className="text-lg font-bold">Deposit Request Sent!</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Your ${amount} {method?.name} deposit is being reviewed. Your wallet will be credited once approved.
+                Your <span className="font-mono font-bold">{paymentCode}</span> deposit of ${amount} via {method?.name} is pending admin verification.
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Track its status on your Wallet screen.
               </p>
             </div>
             <Button className="w-full" onClick={handleClose}>Done</Button>
