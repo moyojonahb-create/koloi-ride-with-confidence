@@ -36,6 +36,7 @@ export default function RiderWalletPage() {
   const { balance, transactions, deposit, refresh: refreshWallet, loading: walletLoading } = useWallet();
   const { hasPin, loading: pinLoading, setPin, verifyPin, refresh: refreshPin } = useWalletPin();
   const [showDeposit, setShowDeposit] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
   const [deposits, setDeposits] = useState<RiderDeposit[]>([]);
   const [loadingDeposits, setLoadingDeposits] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
