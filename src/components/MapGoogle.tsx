@@ -6,6 +6,7 @@ import { AlertTriangle, RefreshCw, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import PremiumTrackingMap from '@/components/map/PremiumTrackingMap';
+import StaticMapFallback from '@/components/map/StaticMapFallback';
 
 // ── Types ──
 interface Coords {
@@ -339,18 +340,14 @@ function MapGoogle(props: MapGoogleProps) {
 
   if (loadError) {
     return (
-      <div className={`flex items-center justify-center bg-muted ${className}`} style={{ height, minHeight: 260 }}>
-        <div className="text-center p-6 space-y-4 max-w-sm">
-          <AlertTriangle className="w-12 h-12 mx-auto text-destructive" />
-          <div>
-            <p className="font-semibold text-foreground text-lg">Map failed to load</p>
-            <p className="text-sm text-muted-foreground mt-1">{loadError.message}</p>
-          </div>
-          <Button variant="outline" size="sm" onClick={handleRetry}>
-            <RefreshCw className="w-4 h-4 mr-1.5" /> Retry map
-          </Button>
-        </div>
-      </div>
+      <StaticMapFallback
+        lat={props.pickup?.lat ?? props.dropoff?.lat}
+        lng={props.pickup?.lng ?? props.dropoff?.lng}
+        errorMessage={loadError.message}
+        onRetry={handleRetry}
+        className={className}
+        height={height}
+      />
     );
   }
 
