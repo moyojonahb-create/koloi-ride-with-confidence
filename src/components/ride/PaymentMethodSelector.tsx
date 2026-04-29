@@ -19,40 +19,69 @@ export default function PaymentMethodSelector({
   const insufficient = estimatedFare > 0 && walletBalance < estimatedFare;
 
   const METHODS = [
-    { id: "cash" as const, label: "Cash", icon: Banknote, desc: "Pay driver directly", disabled: false },
+    {
+      id: "cash" as const,
+      label: "Cash",
+      icon: Banknote,
+      desc: "Pay driver",
+      disabled: false,
+    },
     {
       id: "wallet" as const,
       label: "Wallet",
       icon: Wallet,
-      desc: insufficient ? `Low: $${walletBalance.toFixed(2)}` : `$${walletBalance.toFixed(2)} available`,
+      desc: insufficient ? "Low balance" : `$${walletBalance.toFixed(2)}`,
       disabled: insufficient,
     },
   ];
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-row gap-2 w-full">
       {METHODS.map((m) => {
         const Icon = m.icon;
         const active = selected === m.id;
         return (
           <button
             key={m.id}
+            type="button"
             disabled={m.disabled}
             onClick={() => !m.disabled && onSelect(m.id)}
             aria-pressed={active}
-            className={active 
-              ? "flex-1 flex flex-col items-center gap-1 p-3 rounded-2xl transition-all border-primary bg-accent text-primary-foreground py-0 px-0 my-0 border-0 opacity-80 text-left font-semibold font-sans text-8xl"
-              : cn(
-                  "flex-1 flex flex-col items-center gap-1 p-3 rounded-2xl border-2 transition-all",
-                  "border-border bg-background hover:border-primary/30"
-                )
-            }
+            className={cn(
+              "flex-1 min-h-[48px] h-12 px-3 rounded-xl border transition-all duration-150",
+              "flex flex-row items-center gap-2 text-left",
+              "active:scale-[0.97]",
+              active
+                ? "bg-primary border-primary text-primary-foreground shadow-sm"
+                : "bg-background border-border text-foreground hover:bg-muted/50",
+              m.disabled && "opacity-50 cursor-not-allowed active:scale-100",
+            )}
           >
-            <Icon className={cn("h-5 w-5", active ? "text-destructive" : "text-muted-foreground")} />
-            <span className={cn("text-xs font-semibold", active ? "text-primary-foreground" : "text-foreground")}>
-              {m.label}
-            </span>
-            <span className={cn("text-[10px]", active ? "text-primary-foreground" : "text-muted-foreground")}>{m.desc}</span>
+            <Icon
+              className={cn(
+                "h-4 w-4 shrink-0",
+                active
+                  ? "text-primary-foreground"
+                  : m.disabled
+                  ? "text-destructive"
+                  : "text-muted-foreground",
+              )}
+            />
+            <div className="flex flex-col leading-tight min-w-0">
+              <span className="text-sm font-semibold truncate">{m.label}</span>
+              <span
+                className={cn(
+                  "text-[10px] truncate",
+                  active
+                    ? "text-primary-foreground/80"
+                    : m.disabled
+                    ? "text-destructive"
+                    : "text-muted-foreground",
+                )}
+              >
+                {m.desc}
+              </span>
+            </div>
           </button>
         );
       })}
