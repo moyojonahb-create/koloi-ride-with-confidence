@@ -2,9 +2,11 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RefreshCw, Wallet, ArrowDownLeft } from "lucide-react";
+import { ArrowLeft, RefreshCw, Wallet, ArrowDownLeft, ArrowUpRight, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import WithdrawalModal from "@/components/wallet/WithdrawalModal";
+import TransferMoneyModal from "@/components/wallet/TransferMoneyModal";
 
 interface DepositRecord {
   id: string;
@@ -21,6 +23,8 @@ export default function DriverWalletPage() {
   const [deposits, setDeposits] = useState<DepositRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -82,16 +86,31 @@ export default function DriverWalletPage() {
             <div className="text-sm text-muted-foreground">15% per completed trip</div>
           </div>
 
-          <div className="flex gap-3 mt-4">
-            <Button onClick={() => navigate("/drivers/deposit")} className="flex-1">
-              <ArrowDownLeft className="h-4 w-4 mr-2" />
-              Deposit (EcoCash)
+          <div className="grid grid-cols-2 gap-2 mt-4">
+            <Button onClick={() => navigate("/drivers/deposit")} variant="outline">
+              <ArrowDownLeft className="h-4 w-4 mr-1" /> Deposit
             </Button>
-            <Button variant="outline" size="icon" onClick={load} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            <Button onClick={() => setShowWithdraw(true)} disabled={balance < 5}>
+              <ArrowUpRight className="h-4 w-4 mr-1" /> Withdraw
+            </Button>
+            <Button onClick={() => setShowTransfer(true)} variant="outline" className="col-span-2" disabled={balance <= 0}>
+              <Send className="h-4 w-4 mr-2" /> Send Money
             </Button>
           </div>
         </div>
+
+        <WithdrawalModal
+          isOpen={showWithdraw}
+          onClose={() => setShowWithdraw(false)}
+          balance={balance}
+          onSuccess={load}
+        />
+        <TransferMoneyModal
+          isOpen={showTransfer}
+          onClose={() => setShowTransfer(false)}
+          balance={balance}
+          onSuccess={load}
+        />
 
         {/* Deposit History */}
         {deposits.length > 0 && (

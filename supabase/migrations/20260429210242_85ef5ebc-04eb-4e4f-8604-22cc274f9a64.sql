@@ -1,0 +1,10 @@
+REVOKE EXECUTE ON FUNCTION public.transfer_funds(uuid, numeric, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.pay_ride_from_wallet(uuid) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.request_withdrawal(numeric, text, text, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.admin_approve_withdrawal(uuid, text) FROM anon;
+REVOKE EXECUTE ON FUNCTION public.admin_reject_withdrawal(uuid, text) FROM anon;
+GRANT EXECUTE ON FUNCTION public.transfer_funds(uuid, numeric, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.pay_ride_from_wallet(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.request_withdrawal(numeric, text, text, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_approve_withdrawal(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_reject_withdrawal(uuid, text) TO authenticated;

@@ -33,6 +33,7 @@ const navItems = [
   { label: 'Promos', href: '/admin/promos', icon: Bell },
   { label: 'Driver Deposits', href: '/admin/deposits', icon: Banknote },
   { label: 'Rider Deposits', href: '/admin/rider-deposits', icon: Banknote },
+  { label: 'Withdrawals', href: '/admin/withdrawals', icon: Banknote },
   { label: 'Ledger', href: '/admin/ledger', icon: Banknote },
   { label: 'Reports', href: '/admin/reports', icon: FileBarChart },
   { label: 'Town Pricing', href: '/admin/town-pricing', icon: Banknote },
