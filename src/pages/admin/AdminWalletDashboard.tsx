@@ -271,17 +271,19 @@ function AdminWalletDashboardInner() {
         </div>
 
         <Tabs defaultValue="transactions">
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-6 w-full">
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
             <TabsTrigger value="deposits">Deposits ({deposits.length})</TabsTrigger>
             <TabsTrigger value="withdrawals">Withdrawals ({withdrawals.length})</TabsTrigger>
+            <TabsTrigger value="failed">Failed ({failed.length})</TabsTrigger>
+            <TabsTrigger value="locked">Locked ({locked.length})</TabsTrigger>
             <TabsTrigger value="flags">Flags ({flags.length})</TabsTrigger>
           </TabsList>
 
           {/* Transactions */}
           <TabsContent value="transactions" className="space-y-3">
             <Input
-              placeholder="Search by user ID or description..."
+              placeholder="Search by user ID, description, or reference..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -290,25 +292,35 @@ function AdminWalletDashboardInner() {
                 <thead className="bg-muted/30">
                   <tr>
                     <th className="text-left p-3">Date</th>
+                    <th className="text-left p-3">Reference</th>
                     <th className="text-left p-3">User</th>
                     <th className="text-left p-3">Type</th>
                     <th className="text-right p-3">Amount</th>
                     <th className="text-left p-3">Description</th>
+                    <th className="text-right p-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredTxs.length === 0 && (
-                    <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">No transactions</td></tr>
+                    <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">No transactions</td></tr>
                   )}
                   {filteredTxs.map(t => (
                     <tr key={t.id} className="border-t">
                       <td className="p-3 text-xs whitespace-nowrap">{format(new Date(t.created_at), "MMM d, HH:mm")}</td>
+                      <td className="p-3 font-mono text-[11px]">{t.reference_code || "—"}</td>
                       <td className="p-3 font-mono text-xs">{t.user_id.slice(0, 8)}…</td>
                       <td className="p-3"><Badge variant="outline" className="capitalize">{t.transaction_type.replace("_", " ")}</Badge></td>
                       <td className={`p-3 text-right font-bold ${Number(t.amount) < 0 ? "text-destructive" : "text-emerald-600"}`}>
                         {Number(t.amount) >= 0 ? "+" : ""}${Number(t.amount).toFixed(2)}
                       </td>
                       <td className="p-3 text-xs text-muted-foreground max-w-xs truncate">{t.description || "—"}</td>
+                      <td className="p-3 text-right">
+                        {t.transaction_type !== "reversal" && (
+                          <Button size="sm" variant="ghost" onClick={() => reverseTx(t.id)} title="Reverse">
+                            <Undo2 className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
