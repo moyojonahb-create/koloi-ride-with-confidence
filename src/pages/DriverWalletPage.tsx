@@ -101,7 +101,7 @@ export default function DriverWalletPage() {
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user, load]);
 
   const statusColor = (s: string) => {
     if (s === 'approved') return 'text-green-500';
