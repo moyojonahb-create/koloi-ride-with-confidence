@@ -31,9 +31,10 @@ export default function RiderProfile() {
   const { user, signOut } = useAuth();
   const { isAdmin } = useUserRole();
   const { isApproved: isApprovedDriver } = useDriverStatus();
-  // Rider wallet removed
   const { stats } = useProfileStats();
+  const { balance: walletBalance, loading: walletLoading } = useWallet();
   const { profile: studentProfile } = useStudentProfile();
+  const [profileLoading, setProfileLoading] = useState(true);
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
