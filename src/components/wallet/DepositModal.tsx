@@ -158,9 +158,42 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
         {/* Step 1: Select Payment Method */}
         {step === 'method' && (
           <div className="space-y-3">
-            <p className="text-sm font-medium text-muted-foreground">Select Payment Method</p>
+            <p className="text-sm font-medium text-muted-foreground">Choose how you want to top up</p>
+
+            {/* Featured: EcoCash, InnBucks, Visa/MC with logos */}
+            <div className="grid grid-cols-3 gap-2">
+              {PAYMENT_METHODS.filter((m) => m.featured).map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => {
+                    if (m.id === 'card') {
+                      toast.info('Card payments coming soon. Pick another method for now.');
+                      return;
+                    }
+                    setSelectedMethod(m.id);
+                    setStep('details');
+                  }}
+                  className="flex flex-col items-center gap-2 p-3 rounded-2xl border-2 hover:border-primary bg-card transition-all active:scale-95 min-h-[110px]"
+                >
+                  {m.logo && (
+                    <img
+                      src={m.logo}
+                      alt={`${m.name} logo`}
+                      width={48}
+                      height={48}
+                      loading="lazy"
+                      className="h-12 w-12 object-contain"
+                    />
+                  )}
+                  <span className="text-[11px] font-bold text-center leading-tight">{m.name}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Other methods */}
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground pt-2">Other options</p>
             <div className="grid grid-cols-2 gap-2">
-              {PAYMENT_METHODS.map((m) => (
+              {PAYMENT_METHODS.filter((m) => !m.featured).map((m) => (
                 <button
                   key={m.id}
                   onClick={() => { setSelectedMethod(m.id); setStep('details'); }}
@@ -175,6 +208,7 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
             </div>
           </div>
         )}
+
 
         {/* Step 2: Enter Details */}
         {step === 'details' && method && (
