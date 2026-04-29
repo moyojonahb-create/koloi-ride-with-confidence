@@ -40,6 +40,7 @@ import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import ShareTripButton from "@/components/ride/ShareTripButton";
 import EcoCashPaymentModal from "@/components/wallet/EcoCashPaymentModal";
+import PayRideButton from "@/components/ride/PayRideButton";
 // Rider wallet removed — riders pay drivers directly
 import RideBottomSheet, { type SheetState } from "@/components/ride/RideBottomSheet";
 
