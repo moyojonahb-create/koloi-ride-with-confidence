@@ -166,6 +166,35 @@ function AdminWalletDashboardInner() {
     load();
   };
 
+  const lockWallet = async (userId: string) => {
+    const reason = window.prompt("Lock reason?") || "Admin lock";
+    const { data, error } = await supabase.rpc("admin_lock_wallet", { p_user_id: userId, p_reason: reason });
+    if (error) return toast.error(error.message);
+    if (!(data as Record<string, unknown>)?.ok) return toast.error("Lock failed");
+    toast.success("Wallet locked");
+    load();
+  };
+
+  const unlockWallet = async (userId: string) => {
+    if (!window.confirm("Unlock this wallet?")) return;
+    const { data, error } = await supabase.rpc("admin_unlock_wallet", { p_user_id: userId });
+    if (error) return toast.error(error.message);
+    if (!(data as Record<string, unknown>)?.ok) return toast.error("Unlock failed");
+    toast.success("Wallet unlocked");
+    load();
+  };
+
+  const reverseTx = async (txId: string) => {
+    const reason = window.prompt("Reason for reversal?");
+    if (!reason) return;
+    const { data, error } = await supabase.rpc("admin_reverse_transaction", { p_tx_id: txId, p_reason: reason });
+    if (error) return toast.error(error.message);
+    const r = data as { ok?: boolean; reason?: string; reference?: string };
+    if (!r?.ok) return toast.error(r?.reason || "Reversal failed");
+    toast.success(`Reversed (${r.reference})`);
+    load();
+  };
+
   const totalPending = deposits.reduce((s, d) => s + Number(d.amount_usd), 0);
   const totalWithdraw = withdrawals.reduce((s, w) => s + Number(w.amount_usd), 0);
   const totalTx24h = txs
