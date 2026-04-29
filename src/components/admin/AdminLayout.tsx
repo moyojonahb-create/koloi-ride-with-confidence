@@ -31,6 +31,7 @@ const navItems = [
   { label: 'Trips', href: '/admin/trips', icon: Navigation },
   { label: 'Landmarks', href: '/admin/landmarks', icon: MapPin },
   { label: 'Promos', href: '/admin/promos', icon: Bell },
+  { label: 'Wallet', href: '/admin/wallet', icon: Banknote },
   { label: 'Driver Deposits', href: '/admin/deposits', icon: Banknote },
   { label: 'Rider Deposits', href: '/admin/rider-deposits', icon: Banknote },
   { label: 'Withdrawals', href: '/admin/withdrawals', icon: Banknote },

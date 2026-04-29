@@ -6,6 +6,8 @@ import { Smartphone, Building2, Banknote, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { requestWithdrawal } from "@/lib/walletPayments";
+import { useWalletPin } from "@/hooks/useWalletPin";
+import WalletPinModal from "./WalletPinModal";
 
 interface WithdrawalModalProps {
   isOpen: boolean;
@@ -26,13 +28,19 @@ export default function WithdrawalModal({ isOpen, onClose, balance, onSuccess }:
   const [destination, setDestination] = useState("");
   const [accountName, setAccountName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [pinOpen, setPinOpen] = useState(false);
+  const { hasPin, verifyPin, setPin } = useWalletPin();
 
   const numAmount = Number(amount) || 0;
 
-  const submit = async () => {
+  const handleSubmit = () => {
     if (numAmount < 5) return toast.error("Minimum withdrawal is $5");
     if (numAmount > balance) return toast.error("Amount exceeds balance");
     if (!destination.trim()) return toast.error("Destination required");
+    setPinOpen(true);
+  };
+
+  const submit = async () => {
     setLoading(true);
     try {
       const res = await requestWithdrawal(numAmount, method, destination.trim(), accountName.trim() || undefined);
@@ -130,12 +138,21 @@ export default function WithdrawalModal({ isOpen, onClose, balance, onSuccess }:
             <Button variant="outline" className="flex-1" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
-            <Button className="flex-1" onClick={submit} disabled={loading || numAmount < 5}>
+            <Button className="flex-1" onClick={handleSubmit} disabled={loading || numAmount < 5}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Request Withdrawal"}
             </Button>
           </div>
         </div>
       </DialogContent>
+
+      <WalletPinModal
+        isOpen={pinOpen}
+        onClose={() => setPinOpen(false)}
+        onVerified={() => { setPinOpen(false); submit(); }}
+        mode={hasPin ? "verify" : "setup"}
+        onVerifyPin={verifyPin}
+        onSetPin={setPin}
+      />
     </Dialog>
   );
 }
