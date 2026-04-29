@@ -18,6 +18,32 @@ import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
 import TripReceiptButton from "@/components/ride/TripReceiptButton";
 import DisputeForm from "@/components/ride/DisputeForm";
 
+/** Avatar with automatic fallback to initial when image fails or is missing. */
+function DriverAvatar({ url, name, size = 56 }: { url: string | null; name: string; size?: number }) {
+  const [errored, setErrored] = useState(false);
+  const showImage = !!url && !errored;
+  const initial = (name?.trim()?.charAt(0) || "?").toUpperCase();
+  return (
+    <div
+      className="relative rounded-full bg-primary/10 border-2 border-primary/20 overflow-hidden flex items-center justify-center shrink-0"
+      style={{ width: size, height: size }}
+    >
+      {showImage ? (
+        <img
+          src={url!}
+          alt={name}
+          className="w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onError={() => setErrored(true)}
+        />
+      ) : (
+        <span className="text-lg font-bold text-primary">{initial}</span>
+      )}
+    </div>
+  );
+}
 function SettlementInfo({ tripId, onSettled }: { tripId: string; onSettled?: () => void }) {
   const [settlement, setSettlement] = useState<{ status: string; created_at: string } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -307,6 +333,26 @@ export default function RideDetail() {
     }
   }, [isCompletedForHook, hasRated, driverProfile]);
 
+  // Notify rider when driver marks 'arrived'
+  const prevStatusRef = useRef<string | null>(null);
+  useEffect(() => {
+    const current = ride?.status ?? null;
+    const prev = prevStatusRef.current;
+    if (prev && prev !== current && (current === "arrived" || current === "driver_arrived")) {
+      const driverName = driverProfile?.fullName ?? "Your driver";
+      setToast(`📍 ${driverName} has arrived at your pickup point`);
+      // Try a notification sound (best effort)
+      import("@/lib/notificationSounds")
+        .then(({ playNotificationSound }) => playNotificationSound("offerReceived"))
+        .catch(() => {});
+      // Vibration
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        try { navigator.vibrate?.([200, 100, 200]); } catch { /* noop */ }
+      }
+    }
+    prevStatusRef.current = current;
+  }, [ride?.status, driverProfile?.fullName]);
+
   if (loading || !ride) {
     return (
       <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
@@ -417,16 +463,18 @@ export default function RideDetail() {
 
   const rideStatus = ride.status ?? "pending";
   const isSearching = rideStatus === "pending" || rideStatus === "searching";
-  const isActive = ["accepted", "driver_arriving", "driver_arrived", "in_progress", "near_destination"].includes(rideStatus);
+  const isActive = ["accepted", "enroute_pickup", "driver_arriving", "driver_arrived", "arrived", "in_progress", "near_destination"].includes(rideStatus);
   const isCompleted = rideStatus === "completed";
   const isCancelled = rideStatus === "cancelled";
-  const isDriverArrived = rideStatus === "driver_arrived";
+  const isDriverArrived = rideStatus === "driver_arrived" || rideStatus === "arrived";
   const statusConfig: Record<string, { label: string; color: string; icon: string }> = {
     pending: { label: "Looking for drivers", color: "bg-yellow-500", icon: "🔍" },
     searching: { label: "Looking for drivers", color: "bg-yellow-500", icon: "🔍" },
     accepted: { label: "Driver accepted", color: "bg-primary", icon: "✓" },
+    enroute_pickup: { label: "Driver on the way", color: "bg-primary", icon: "🚗" },
     driver_arriving: { label: "Driver on the way", color: "bg-primary", icon: "🚗" },
-    driver_arrived: { label: "Driver has arrived", color: "bg-primary", icon: "📍" },
+    driver_arrived: { label: "Driver has arrived", color: "bg-green-500", icon: "📍" },
+    arrived: { label: "Driver has arrived", color: "bg-green-500", icon: "📍" },
     in_progress: { label: "Trip in progress", color: "bg-primary", icon: "🛣️" },
     near_destination: { label: "Almost there", color: "bg-primary", icon: "🏁" },
     completed: { label: "Trip completed", color: "bg-primary", icon: "✅" },
@@ -574,10 +622,10 @@ export default function RideDetail() {
                 <p className="text-sm font-semibold text-foreground truncate">{ride.dropoff_address ?? "—"}</p>
               </div>
             </div>
-            {ride.distance_km && (
-              <div className="text-right shrink-0">
-                <p className="text-lg font-extrabold text-foreground">{Number(ride.distance_km).toFixed(1)}</p>
-                <p className="text-[10px] text-muted-foreground font-semibold">KM</p>
+            {ride.distance_km != null && (
+              <div className="shrink-0 self-center flex flex-col items-center justify-center px-2.5 py-1.5 rounded-xl bg-primary/10 min-w-[52px]">
+                <p className="text-base font-extrabold text-primary leading-none">{Number(ride.distance_km).toFixed(1)}</p>
+                <p className="text-[9px] text-primary/70 font-bold tracking-wider mt-0.5">KM</p>
               </div>
             )}
           </div>
@@ -611,15 +659,9 @@ export default function RideDetail() {
           )}
 
           {/* ── Driver Info Card (when accepted) ── */}
-          {driverProfile && !isDriverArrived && (
+          {driverProfile && (
             <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-muted/40">
-              {driverProfile.avatarUrl ? (
-                <img src={driverProfile.avatarUrl} alt="Driver" className="w-14 h-14 rounded-full object-cover border-2 border-primary/20" loading="eager" decoding="async" />
-              ) : (
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
-                  <span className="text-lg font-bold text-primary">{driverProfile.fullName.charAt(0)}</span>
-                </div>
-              )}
+              <DriverAvatar url={driverProfile.avatarUrl} name={driverProfile.fullName} size={56} />
               <div className="flex-1 min-w-0">
                 <p className="text-base font-bold text-foreground truncate">{driverProfile.fullName}</p>
                 <div className="flex items-center gap-2 mt-0.5">

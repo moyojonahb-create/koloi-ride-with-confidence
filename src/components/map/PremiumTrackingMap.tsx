@@ -88,14 +88,15 @@ function interpolateBearing(prev: number, next: number): number {
 /*  Car SVG for the overlay                                            */
 /* ------------------------------------------------------------------ */
 
+// White mini-car icon — moves on the rider map showing driver approaching
 const CAR_SVG = `
-<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 48 48">
-  <circle cx="24" cy="24" r="22" fill="#0B3C8A" stroke="white" stroke-width="3"/>
-  <path d="M16 28l2-8h12l2 8" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
-  <rect x="14" y="28" width="20" height="6" rx="2" fill="white"/>
-  <circle cx="18" cy="34" r="2" fill="#0B3C8A"/>
-  <circle cx="30" cy="34" r="2" fill="#0B3C8A"/>
-  <rect x="20" y="22" width="8" height="5" rx="1" fill="white" opacity="0.6"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 48 48">
+  <circle cx="24" cy="24" r="22" fill="#ffffff" stroke="#0B3C8A" stroke-width="2.5"/>
+  <path d="M14 28l2.2-7.5a3 3 0 0 1 2.9-2.1h9.8a3 3 0 0 1 2.9 2.1L34 28" fill="none" stroke="#0B3C8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="12.5" y="27.5" width="23" height="7" rx="2.2" fill="#ffffff" stroke="#0B3C8A" stroke-width="2"/>
+  <circle cx="17.5" cy="34.5" r="2.2" fill="#0B3C8A"/>
+  <circle cx="30.5" cy="34.5" r="2.2" fill="#0B3C8A"/>
+  <rect x="19" y="21.5" width="10" height="5" rx="1.2" fill="#cfe0ff"/>
 </svg>`;
 
 /* ------------------------------------------------------------------ */
