@@ -156,7 +156,7 @@ export default function AdminStudents() {
           <h1 className="text-2xl font-bold">Student Verifications</h1>
         </div>
 
-        <div className="flex gap-1.5 mb-4 overflow-x-auto">
+        <div className="flex gap-1.5 mb-3 overflow-x-auto">
           {(['pending', 'approved', 'rejected', 'locked', 'all'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize border ${filter === f ? 'bg-blue-600 text-white border-blue-600' : 'bg-card border-border'}`}>
@@ -165,13 +165,42 @@ export default function AdminStudents() {
           ))}
         </div>
 
+        <div className="relative mb-3">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by reg #, NID, institution or city"
+            className="pl-9 h-10 rounded-2xl text-sm"
+          />
+        </div>
+
+        <div className="flex gap-1.5 mb-4 overflow-x-auto" role="tablist" aria-label="Sort submissions">
+          {([
+            ['newest', 'Newest'],
+            ['lowest_blur', 'Blurriest first'],
+            ['highest_glare', 'Most glare'],
+            ['lowest_brightness', 'Darkest first'],
+          ] as const).map(([key, label]) => (
+            <button
+              key={key}
+              role="tab"
+              aria-selected={sortBy === key}
+              onClick={() => setSortBy(key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold border whitespace-nowrap ${sortBy === key ? 'bg-blue-600 text-white border-blue-600' : 'bg-card border-border'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-10"><Loader2 className="w-5 h-5 animate-spin" /></div>
-        ) : rows.length === 0 ? (
+        ) : visibleRows.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground py-10">No records.</p>
         ) : (
           <div className="space-y-3">
-            {rows.map(row => (
+            {visibleRows.map(row => (
               <div key={row.id} className="bg-card border border-border rounded-2xl p-4">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div>
