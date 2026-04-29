@@ -59,7 +59,6 @@ export default function WalletPinModal({ isOpen, onClose, onVerified, mode, onSe
     setLoading(false);
     if (ok) {
       onVerified();
-      onClose();
     } else {
       setError('Incorrect PIN. Try again.');
       setPin('');
@@ -83,7 +82,6 @@ export default function WalletPinModal({ isOpen, onClose, onVerified, mode, onSe
     setLoading(false);
     if (ok) {
       onVerified();
-      onClose();
     } else {
       setError('Failed to set PIN');
     }
