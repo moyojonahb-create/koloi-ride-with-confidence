@@ -1,6 +1,5 @@
 import { Wallet, Copy, Check } from "lucide-react";
 import { useState } from "react";
-import pickmeLogo from "@/assets/pickme-logo.png";
 import { toast } from "sonner";
 
 interface WalletCardProps {
