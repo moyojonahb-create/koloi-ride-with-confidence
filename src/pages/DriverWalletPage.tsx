@@ -2,11 +2,17 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Wallet, ArrowDownLeft, ArrowUpRight, Send, TrendingUp, Receipt, Percent } from "lucide-react";
+import { ArrowLeft, ArrowDownLeft, ArrowUpRight, Send, TrendingUp, Receipt, Percent, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import WithdrawalModal from "@/components/wallet/WithdrawalModal";
 import TransferMoneyModal from "@/components/wallet/TransferMoneyModal";
+import WalletCard from "@/components/wallet/WalletCard";
+import WalletPinModal from "@/components/wallet/WalletPinModal";
+import { useWalletPin } from "@/hooks/useWalletPin";
+import { usePickmeAccount } from "@/hooks/usePickmeAccount";
+import { toast } from "sonner";
+
 
 interface DepositRecord {
   id: string;
