@@ -147,6 +147,18 @@ export default function StudentVerificationPage() {
     setStep('idphoto');
   };
 
+  /** Reset only the photo type that failed and jump straight to that step. */
+  const retakeStep = (kind: 'id' | 'selfie') => {
+    if (kind === 'id') {
+      setIdPhoto(null); setIdPhotoPreview(null); setIdQuality(null); setIdIssues([]);
+      setStep('idphoto');
+    } else {
+      setSelfie(null); setSelfiePreview(null); setSelfieQuality(null); setSelfieIssues([]);
+      setStep('selfie');
+    }
+    setResult(null);
+  };
+
   const submit = async () => {
     if (!user || !institution || !idPhoto || !selfie) return;
     setStep('submitting');
@@ -182,7 +194,14 @@ export default function StudentVerificationPage() {
       const data = await resp.json();
       if (!resp.ok) {
         toast.error(data.error || 'Verification failed');
-        setResult({ status: 'rejected', score: 0, reason: data.error });
+        setResult({
+          status: 'rejected',
+          score: 0,
+          reason: data.error,
+          rejectedStep: null,
+          idQuality,
+          selfieQuality,
+        });
         setStep('result');
         await refetch();
         return;
@@ -190,6 +209,9 @@ export default function StudentVerificationPage() {
       setResult({
         status: data.verification_status,
         score: data.face_match_score,
+        rejectedStep: data.rejected_step ?? null,
+        idQuality: (data.id_quality as PhotoQuality) ?? idQuality,
+        selfieQuality: (data.selfie_quality as PhotoQuality) ?? selfieQuality,
       });
       setStep('result');
       await refetch();
