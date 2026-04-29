@@ -18,7 +18,6 @@ import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
 import TripReceiptButton from "@/components/ride/TripReceiptButton";
 import DisputeForm from "@/components/ride/DisputeForm";
 import TopFlashBanner from "@/components/ui/top-flash-banner";
-import { CheckCircle2 as CheckCircle2Icon } from "lucide-react";
 
 
 /** Avatar with automatic fallback to initial when image fails or is missing. */
