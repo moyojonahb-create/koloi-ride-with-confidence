@@ -343,28 +343,27 @@ export default function RiderProfile() {
 
 /* ——— Sub-components ——— */
 
-function QuickAction({ icon, label, sublabel, onClick, accent, color = 'yellow' }: {
-  icon: React.ReactNode; label: string; sublabel?: string; onClick: () => void; accent?: boolean; color?: 'yellow' | 'primary';
+function QuickAction({ icon, label, sublabel, sublabelLoading, onClick, accent }: {
+  icon: React.ReactNode; label: string; sublabel?: string; sublabelLoading?: boolean; onClick: () => void; accent?: boolean; color?: 'yellow' | 'primary';
 }) {
-  const colorMap = {
-    yellow: { bg: 'bg-yellow-400/20', text: 'text-yellow-700', accentBg: 'bg-yellow-400', accentText: 'text-yellow-900' },
-    primary: { bg: 'bg-primary/15', text: 'text-primary', accentBg: 'bg-primary', accentText: 'text-primary-foreground' },
-  };
-  const c = colorMap[color];
   return (
     <button
       onClick={() => { haptic('light'); onClick(); }}
-      className={`flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-xl active:scale-95 transition-all ${
-        accent ? `${c.accentBg} ${c.accentText} shadow-sm` : `${c.bg} ${c.text}`
+      className={`flex flex-col items-center justify-center gap-1 py-2.5 px-1.5 rounded-xl active:scale-95 transition-all shadow-sm ${
+        accent
+          ? 'bg-yellow-500 text-white ring-2 ring-yellow-300'
+          : 'bg-yellow-400 text-white hover:bg-yellow-500'
       }`}
     >
-      {icon}
-      <span className="text-[11px] font-semibold leading-tight">{label}</span>
-      {sublabel && (
-        <span className={`text-[9px] leading-tight ${accent ? 'text-yellow-900/70' : 'text-yellow-700/70'}`}>
+      <span className="text-white drop-shadow-sm">{icon}</span>
+      <span className="text-[11px] font-bold leading-tight text-white drop-shadow-sm">{label}</span>
+      {sublabelLoading ? (
+        <Skeleton className="h-2.5 w-10 bg-white/40" />
+      ) : sublabel ? (
+        <span className="text-[9px] leading-tight text-white/90 font-medium">
           {sublabel}
         </span>
-      )}
+      ) : null}
     </button>
   );
 }
