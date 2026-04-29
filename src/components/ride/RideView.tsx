@@ -19,6 +19,8 @@ import { useTownPricing, calculateRecommendedFare, formatFare } from '@/hooks/us
 import { useStudentDiscountAvailable } from '@/hooks/useStudentProfile';
 
 import BottomNavBar from '@/components/BottomNavBar';
+import { useWallet } from '@/hooks/useWallet';
+import PaymentMethodSelector from './PaymentMethodSelector';
 import { Button } from '@/components/ui/button';
 import {
   Loader2, MapPin, Navigation, Crosshair, ArrowLeft, User, X, Search,
@@ -64,7 +66,7 @@ import ContactPickerSheet from './ContactPickerSheet';
 interface SelectedLocation {name: string;lat: number;lng: number;}
 interface GPSState {status: 'idle' | 'loading' | 'success' | 'denied' | 'unavailable';coords: {lat: number;lng: number;} | null;error: string | null;}
 type VehicleTier = 'standard';
-type PaymentMethod = 'cash' | 'ecocash';
+type PaymentMethod = 'cash' | 'wallet';
 
 const SERVICE_TABS: {id: ServiceType;label: string;icon: string;}[] = [
 { id: 'ride', label: 'Ride', icon: '🚗' },
@@ -101,6 +103,7 @@ export default function RideView() {
   const [reverseGeoLoading, setReverseGeoLoading] = useState(false);
   const [selectedTier, setSelectedTier] = useState<VehicleTier>('standard');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const { balance: walletBalance } = useWallet();
   const [passengerCount, setPassengerCount] = useState(1);
   const [bookForSomeoneElse, setBookForSomeoneElse] = useState(false);
   const [passengerName, setPassengerName] = useState('');
