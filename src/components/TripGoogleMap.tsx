@@ -52,8 +52,8 @@ const PICKUP_ICON_URL = "https://maps.google.com/mapfiles/ms/icons/yellow-dot.pn
 const DROPOFF_ICON_URL = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
 
 function getPhase(status: string): TripPhase {
-  if (["accepted", "enroute_pickup"].includes(status)) return "driver_to_pickup";
-  if (["arrived", "in_progress"].includes(status)) return "pickup_to_dropoff";
+  if (["accepted", "enroute_pickup", "driver_arriving"].includes(status)) return "driver_to_pickup";
+  if (["arrived", "driver_arrived", "in_progress", "near_destination"].includes(status)) return "pickup_to_dropoff";
   return "idle";
 }
 
