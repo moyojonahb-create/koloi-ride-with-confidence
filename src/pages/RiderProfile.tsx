@@ -185,10 +185,11 @@ export default function RiderProfile() {
             color="yellow"
           />
           <QuickAction
-            icon={<History className="w-4 h-4" />}
-            label="History"
-            sublabel={stats.lastRideDate ? format(new Date(stats.lastRideDate), 'MMM d') : 'No rides'}
-            onClick={() => navigate(`${prefix}/history`)}
+            icon={<Wallet className="w-4 h-4" />}
+            label="Wallet"
+            sublabel={walletLoading ? '...' : `$${walletBalance.toFixed(2)}`}
+            sublabelLoading={walletLoading}
+            onClick={() => navigate('/wallet')}
             color="yellow"
           />
           <QuickAction
