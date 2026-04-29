@@ -1,19 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, RefreshCw, Wallet, Clock, CheckCircle, XCircle, Settings, Smartphone, ArrowDownLeft, ArrowUpRight, Gift, Send } from 'lucide-react';
+import { ArrowLeft, Plus, RefreshCw, Clock, CheckCircle, XCircle, Settings, Smartphone, ArrowDownLeft, ArrowUpRight, Gift, Send } from 'lucide-react';
 import BottomNavBar from '@/components/BottomNavBar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useWallet } from '@/hooks/useWallet';
 import { useWalletPin } from '@/hooks/useWalletPin';
+import { usePickmeAccount } from '@/hooks/usePickmeAccount';
 import { supabase } from '@/integrations/supabase/client';
 import DepositModal from '@/components/wallet/DepositModal';
 import WalletPinModal from '@/components/wallet/WalletPinModal';
 import WalletSettings from '@/components/wallet/WalletSettings';
 import TransactionsSheet from '@/components/wallet/TransactionsSheet';
 import TransferMoneyModal from '@/components/wallet/TransferMoneyModal';
+import WithdrawalModal from '@/components/wallet/WithdrawalModal';
+import WalletCard from '@/components/wallet/WalletCard';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+
 
 interface RiderDeposit {
   id: string;
@@ -35,31 +39,25 @@ export default function RiderWalletPage() {
   const { user } = useAuth();
   const { balance, transactions, deposit, refresh: refreshWallet, loading: walletLoading } = useWallet();
   const { hasPin, loading: pinLoading, setPin, verifyPin, refresh: refreshPin } = useWalletPin();
+  const { full_name, pickme_account } = usePickmeAccount();
   const [showDeposit, setShowDeposit] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
   const [deposits, setDeposits] = useState<RiderDeposit[]>([]);
   const [loadingDeposits, setLoadingDeposits] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [showTransactions, setShowTransactions] = useState(false);
   const [referralEarnings, setReferralEarnings] = useState(0);
 
-  // PIN gate state
+  // PIN gate state — wallet ALWAYS requires a PIN
   const [pinVerified, setPinVerified] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
 
-  // If no PIN set, skip the gate
+  // Force PIN setup if missing, otherwise require verification
   useEffect(() => {
-    if (!pinLoading && !hasPin) {
-      setPinVerified(true);
-    }
-  }, [pinLoading, hasPin]);
+    if (!pinLoading) setShowPinModal(!pinVerified);
+  }, [pinLoading, pinVerified]);
 
-  // Show PIN modal if PIN is set and not yet verified
-  useEffect(() => {
-    if (!pinLoading && hasPin && !pinVerified) {
-      setShowPinModal(true);
-    }
-  }, [hasPin, pinVerified, pinLoading]);
 
   const handleVerifyPin = async (enteredPin: string): Promise<boolean> => {
     try {
@@ -119,17 +117,22 @@ export default function RiderWalletPage() {
 
   useEffect(() => { if (!user) navigate('/auth'); }, [user, navigate]);
 
-  // PIN gate: show PIN modal overlay
-  if ((pinLoading) || (hasPin && !pinVerified)) {
+  // PIN gate: BLOCK access until PIN is set up (if missing) or verified.
+  if (pinLoading || !pinVerified) {
     return (
-      <div className="min-h-[100dvh] bg-background flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-background flex items-center justify-center p-4">
         <WalletPinModal
           isOpen={showPinModal}
           onClose={() => navigate(-1)}
-          onVerified={() => setPinVerified(true)}
-          mode="verify"
+          onVerified={() => { setPinVerified(true); setShowPinModal(false); }}
+          mode={hasPin ? 'verify' : 'setup'}
           onVerifyPin={handleVerifyPin}
+          onSetPin={handleSetPin}
         />
+        {/* Skeleton placeholder behind PIN */}
+        <div className="opacity-30 max-w-sm w-full">
+          <WalletCard fullName={full_name || 'User'} balance={0} pickmeAccount={pickme_account} hidden />
+        </div>
       </div>
     );
   }
@@ -153,26 +156,27 @@ export default function RiderWalletPage() {
       </div>
 
       <div className="p-4 space-y-5 max-w-lg mx-auto pb-28">
-        {/* Balance Card */}
-        <div className="rounded-2xl p-6 text-center space-y-2" style={{ background: 'var(--gradient-primary)' }}>
-          <Wallet className="h-8 w-8 text-primary-foreground mx-auto opacity-80" />
-          <p className="text-sm text-primary-foreground/80">Available Balance</p>
-          <p className="text-4xl font-black text-primary-foreground">${balance.toFixed(2)}</p>
-          <div className="flex gap-2 justify-center mt-3">
-            <Button
-              onClick={() => setShowDeposit(true)}
-              className="bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-0"
-            >
-              <Plus className="h-4 w-4 mr-2" /> Top Up
-            </Button>
-            <Button
-              onClick={() => setShowTransfer(true)}
-              disabled={balance <= 0}
-              className="bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground border-0"
-            >
-              <Send className="h-4 w-4 mr-2" /> Send
-            </Button>
-          </div>
+        {/* Bank-card style wallet */}
+        <WalletCard
+          fullName={full_name || 'User'}
+          balance={balance}
+          pickmeAccount={pickme_account}
+        />
+
+        {/* Primary actions: Deposit, Send, Withdraw */}
+        <div className="grid grid-cols-3 gap-2">
+          <Button onClick={() => setShowDeposit(true)} className="h-12 flex-col gap-0.5 py-1">
+            <Plus className="h-4 w-4" />
+            <span className="text-[11px] font-bold">Deposit</span>
+          </Button>
+          <Button onClick={() => setShowTransfer(true)} disabled={balance <= 0} variant="secondary" className="h-12 flex-col gap-0.5 py-1">
+            <Send className="h-4 w-4" />
+            <span className="text-[11px] font-bold">Transfer</span>
+          </Button>
+          <Button onClick={() => setShowWithdraw(true)} disabled={balance < 5} variant="outline" className="h-12 flex-col gap-0.5 py-1">
+            <ArrowUpRight className="h-4 w-4" />
+            <span className="text-[11px] font-bold">Withdraw</span>
+          </Button>
         </div>
 
         {/* Quick Actions */}
@@ -307,6 +311,13 @@ export default function RiderWalletPage() {
       <TransferMoneyModal
         isOpen={showTransfer}
         onClose={() => setShowTransfer(false)}
+        balance={balance}
+        onSuccess={refreshWallet}
+      />
+
+      <WithdrawalModal
+        isOpen={showWithdraw}
+        onClose={() => setShowWithdraw(false)}
         balance={balance}
         onSuccess={refreshWallet}
       />

@@ -1175,6 +1175,7 @@ export type Database = {
           hearing_impaired: boolean
           id: string
           phone: string | null
+          pickme_account: string | null
           quiet_ride: boolean
           referral_code: string | null
           updated_at: string
@@ -1191,6 +1192,7 @@ export type Database = {
           hearing_impaired?: boolean
           id?: string
           phone?: string | null
+          pickme_account?: string | null
           quiet_ride?: boolean
           referral_code?: string | null
           updated_at?: string
@@ -1207,6 +1209,7 @@ export type Database = {
           hearing_impaired?: boolean
           id?: string
           phone?: string | null
+          pickme_account?: string | null
           quiet_ride?: boolean
           referral_code?: string | null
           updated_at?: string
@@ -2512,6 +2515,7 @@ export type Database = {
       }
       dispatch_scheduled_rides: { Args: never; Returns: number }
       expire_old_rides: { Args: never; Returns: number }
+      generate_pickme_account: { Args: never; Returns: string }
       get_driver_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -2527,6 +2531,14 @@ export type Database = {
       }
       is_top_driver: { Args: { _user_id: string }; Returns: boolean }
       is_user_driver: { Args: { _user_id: string }; Returns: boolean }
+      lookup_user_by_pickme_account: {
+        Args: { p_account: string }
+        Returns: {
+          full_name: string
+          pickme_account: string
+          user_id: string
+        }[]
+      }
       pay_ride_from_wallet: { Args: { p_ride_id: string }; Returns: Json }
       request_wallet_ride: { Args: { p_payload: Json }; Returns: Json }
       request_withdrawal: {

@@ -1,10 +1,13 @@
 import { useState, useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Minus, X, Upload, Phone, Hash, CheckCircle, Copy, Check } from 'lucide-react';
+import { Plus, Minus, X, Upload, Phone, CheckCircle, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import ecocashLogo from '@/assets/payment-ecocash.png';
+import innbucksLogo from '@/assets/payment-innbucks.png';
+import cardLogo from '@/assets/payment-card.png';
 
 interface DepositModalProps {
   isOpen: boolean;
@@ -14,14 +17,16 @@ interface DepositModalProps {
 }
 
 const PAYMENT_METHODS = [
-  { id: 'ecocash', name: 'EcoCash', color: 'bg-green-500', merchant: '+263 778 553 169' },
-  { id: 'onemoney', name: 'OneMoney', color: 'bg-purple-500', merchant: '+263 712 000 000' },
-  { id: 'telecash', name: 'Telecash', color: 'bg-blue-500', merchant: '+263 733 000 000' },
-  { id: 'innbucks', name: 'InnBucks', color: 'bg-orange-500', merchant: '077 000 0000' },
-  { id: 'zimswitch', name: 'ZimSwitch', color: 'bg-red-500', merchant: 'Acc: 1234567890' },
-  { id: 'mukuru', name: 'Mukuru', color: 'bg-yellow-600', merchant: 'Agent: PickMe Ride' },
-  { id: 'bank_transfer', name: 'Bank Transfer', color: 'bg-slate-600', merchant: 'FNB: 62xxxxxxx' },
+  { id: 'ecocash', name: 'EcoCash', color: 'bg-green-500', merchant: '+263 778 553 169', logo: ecocashLogo, featured: true },
+  { id: 'innbucks', name: 'InnBucks', color: 'bg-orange-500', merchant: '077 000 0000', logo: innbucksLogo, featured: true },
+  { id: 'card', name: 'Visa / Mastercard', color: 'bg-blue-700', merchant: 'Card payment (coming soon)', logo: cardLogo, featured: true },
+  { id: 'onemoney', name: 'OneMoney', color: 'bg-purple-500', merchant: '+263 712 000 000', logo: null, featured: false },
+  { id: 'telecash', name: 'Telecash', color: 'bg-blue-500', merchant: '+263 733 000 000', logo: null, featured: false },
+  { id: 'zimswitch', name: 'ZimSwitch', color: 'bg-red-500', merchant: 'Acc: 1234567890', logo: null, featured: false },
+  { id: 'mukuru', name: 'Mukuru', color: 'bg-yellow-600', merchant: 'Agent: PickMe Ride', logo: null, featured: false },
+  { id: 'bank_transfer', name: 'Bank Transfer', color: 'bg-slate-600', merchant: 'FNB: 62xxxxxxx', logo: null, featured: false },
 ] as const;
+
 
 // Generate cryptographically-random unique payment code: PM-XXXXXXXX (8 chars, no 0/O/1/I)
 function generatePaymentCode(): string {
@@ -153,9 +158,42 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
         {/* Step 1: Select Payment Method */}
         {step === 'method' && (
           <div className="space-y-3">
-            <p className="text-sm font-medium text-muted-foreground">Select Payment Method</p>
+            <p className="text-sm font-medium text-muted-foreground">Choose how you want to top up</p>
+
+            {/* Featured: EcoCash, InnBucks, Visa/MC with logos */}
+            <div className="grid grid-cols-3 gap-2">
+              {PAYMENT_METHODS.filter((m) => m.featured).map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => {
+                    if (m.id === 'card') {
+                      toast.info('Card payments coming soon. Pick another method for now.');
+                      return;
+                    }
+                    setSelectedMethod(m.id);
+                    setStep('details');
+                  }}
+                  className="flex flex-col items-center gap-2 p-3 rounded-2xl border-2 hover:border-primary bg-card transition-all active:scale-95 min-h-[110px]"
+                >
+                  {m.logo && (
+                    <img
+                      src={m.logo}
+                      alt={`${m.name} logo`}
+                      width={48}
+                      height={48}
+                      loading="lazy"
+                      className="h-12 w-12 object-contain"
+                    />
+                  )}
+                  <span className="text-[11px] font-bold text-center leading-tight">{m.name}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Other methods */}
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground pt-2">Other options</p>
             <div className="grid grid-cols-2 gap-2">
-              {PAYMENT_METHODS.map((m) => (
+              {PAYMENT_METHODS.filter((m) => !m.featured).map((m) => (
                 <button
                   key={m.id}
                   onClick={() => { setSelectedMethod(m.id); setStep('details'); }}
@@ -170,6 +208,7 @@ export default function DepositModal({ isOpen, onClose, currentBalance }: Deposi
             </div>
           </div>
         )}
+
 
         {/* Step 2: Enter Details */}
         {step === 'details' && method && (

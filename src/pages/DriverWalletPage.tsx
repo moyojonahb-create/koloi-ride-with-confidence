@@ -2,11 +2,17 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Wallet, ArrowDownLeft, ArrowUpRight, Send, TrendingUp, Receipt, Percent } from "lucide-react";
+import { ArrowLeft, ArrowDownLeft, ArrowUpRight, Send, TrendingUp, Receipt, Percent, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import WithdrawalModal from "@/components/wallet/WithdrawalModal";
 import TransferMoneyModal from "@/components/wallet/TransferMoneyModal";
+import WalletCard from "@/components/wallet/WalletCard";
+import WalletPinModal from "@/components/wallet/WalletPinModal";
+import { useWalletPin } from "@/hooks/useWalletPin";
+import { usePickmeAccount } from "@/hooks/usePickmeAccount";
+import { toast } from "sonner";
+
 
 interface DepositRecord {
   id: string;
@@ -48,6 +54,22 @@ export default function DriverWalletPage() {
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const [tab, setTab] = useState<'earnings' | 'deposits' | 'withdrawals'>('earnings');
+
+  // PIN gate — required to view balance/transactions
+  const { hasPin, loading: pinLoading, setPin, verifyPin, refresh: refreshPin } = useWalletPin();
+  const { full_name, pickme_account } = usePickmeAccount();
+  const [pinVerified, setPinVerified] = useState(false);
+
+  const handleVerifyPin = async (p: string) => {
+    try { return await verifyPin(p); }
+    catch (e) { if (e instanceof Error) toast.error(e.message); return false; }
+  };
+  const handleSetPin = async (p: string) => {
+    const ok = await setPin(p);
+    if (ok) { setPinVerified(true); refreshPin(); }
+    return ok;
+  };
+
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -114,6 +136,25 @@ export default function DriverWalletPage() {
   const totalCommission = earnings.reduce((s, e) => s + Number(e.platform_fee), 0);
   const totalRides = earnings.length;
 
+  // PIN gate: BLOCK access until PIN is set up or verified
+  if (pinLoading || !pinVerified) {
+    return (
+      <div className="min-h-[100dvh] bg-background flex items-center justify-center p-4">
+        <WalletPinModal
+          isOpen={true}
+          onClose={() => navigate(-1)}
+          onVerified={() => setPinVerified(true)}
+          mode={hasPin ? 'verify' : 'setup'}
+          onVerifyPin={handleVerifyPin}
+          onSetPin={handleSetPin}
+        />
+        <div className="opacity-30 max-w-sm w-full">
+          <WalletCard fullName={full_name || 'Driver'} balance={0} pickmeAccount={pickme_account} hidden />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b p-4 flex items-center gap-3">
@@ -123,28 +164,30 @@ export default function DriverWalletPage() {
         <h1 className="text-lg font-bold">Driver Wallet (USD)</h1>
       </div>
 
-      <div className="p-4 space-y-4 max-w-md mx-auto">
+      <div className="p-4 space-y-4 max-w-md mx-auto pb-28">
         {msg && <div className="text-destructive font-bold text-sm">{msg}</div>}
 
-        {/* Balance Card */}
-        <div className="bg-card rounded-2xl p-5 border shadow-sm">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-            <Wallet className="h-4 w-4" />
-            Available Balance
-          </div>
-          <div className="text-4xl font-black">${balance.toFixed(2)}</div>
+        {/* Bank-card style wallet */}
+        <WalletCard
+          fullName={full_name || 'Driver'}
+          balance={balance}
+          pickmeAccount={pickme_account}
+        />
 
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            <Button onClick={() => navigate("/drivers/deposit")} variant="outline">
-              <ArrowDownLeft className="h-4 w-4 mr-1" /> Deposit
-            </Button>
-            <Button onClick={() => setShowWithdraw(true)} disabled={balance < 5}>
-              <ArrowUpRight className="h-4 w-4 mr-1" /> Withdraw
-            </Button>
-            <Button onClick={() => setShowTransfer(true)} variant="outline" className="col-span-2" disabled={balance <= 0}>
-              <Send className="h-4 w-4 mr-2" /> Send Money
-            </Button>
-          </div>
+        {/* Driver actions: Deposit, Transfer, Withdraw */}
+        <div className="grid grid-cols-3 gap-2">
+          <Button onClick={() => navigate("/drivers/deposit")} className="h-12 flex-col gap-0.5 py-1">
+            <Plus className="h-4 w-4" />
+            <span className="text-[11px] font-bold">Deposit</span>
+          </Button>
+          <Button onClick={() => setShowTransfer(true)} disabled={balance <= 0} variant="secondary" className="h-12 flex-col gap-0.5 py-1">
+            <Send className="h-4 w-4" />
+            <span className="text-[11px] font-bold">Transfer</span>
+          </Button>
+          <Button onClick={() => setShowWithdraw(true)} disabled={balance < 5} variant="outline" className="h-12 flex-col gap-0.5 py-1">
+            <ArrowUpRight className="h-4 w-4" />
+            <span className="text-[11px] font-bold">Withdraw</span>
+          </Button>
         </div>
 
         {/* Stats Strip */}
