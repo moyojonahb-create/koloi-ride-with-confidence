@@ -558,21 +558,43 @@ function SelfieCapture({
 
       <div className="flex gap-2">
         {!active && !hasSelfie && (
-          <Button onClick={start} aria-label="Open camera to take selfie" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button
+            onClick={start}
+            autoFocus
+            aria-label="Open camera to take selfie"
+            className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+          >
             <Camera className="w-4 h-4" /> Open Camera
           </Button>
         )}
         {active && (
-          <Button onClick={capture} aria-label="Capture selfie now" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button
+            onClick={capture}
+            autoFocus
+            onKeyDown={(e) => { if (e.key === 'Escape') stop(); }}
+            aria-label="Capture selfie now"
+            aria-keyshortcuts="Enter Space"
+            className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+          >
             <Camera className="w-4 h-4" /> Take Photo
           </Button>
         )}
         {!active && hasSelfie && (
           <>
-            <Button onClick={start} variant="outline" aria-label="Retake selfie" className="flex-1 h-12 gap-2">
+            <Button
+              onClick={start}
+              variant="outline"
+              aria-label="Retake selfie"
+              className="flex-1 h-12 gap-2 focus-visible:ring-4 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+            >
               <RotateCcw className="w-4 h-4" /> Retake
             </Button>
-            <Button onClick={onSubmit} aria-label="Submit verification" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={onSubmit}
+              autoFocus
+              aria-label="Submit verification"
+              className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+            >
               <ShieldCheck className="w-4 h-4" /> Submit
             </Button>
           </>
