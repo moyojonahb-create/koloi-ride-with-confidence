@@ -40,6 +40,7 @@ import ActiveCallOverlay from "@/components/ride/ActiveCallOverlay";
 import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import ShareTripButton from "@/components/ride/ShareTripButton";
 import EcoCashPaymentModal from "@/components/wallet/EcoCashPaymentModal";
+import PayRideButton from "@/components/ride/PayRideButton";
 // Rider wallet removed — riders pay drivers directly
 import RideBottomSheet, { type SheetState } from "@/components/ride/RideBottomSheet";
 
@@ -62,6 +63,8 @@ type Ride = {
   passenger_name?: string | null;
   passenger_phone?: string | null;
   payment_method?: string;
+  wallet_paid?: boolean;
+  wallet_paid_at?: string | null;
   updated_at?: string;
 };
 
@@ -952,8 +955,18 @@ export default function RiderRideDetail() {
                 </div>
               )}
 
+              {/* Wallet Pay Ride (only for wallet payment method) */}
+              {ride.payment_method === 'wallet' && ['accepted','in_progress','arrived','completed'].includes(ride.status) && (
+                <PayRideButton
+                  rideId={ride.id}
+                  fare={Number(ride.fare)}
+                  walletPaid={!!ride.wallet_paid}
+                  onPaid={refreshRide}
+                />
+              )}
+
               {/* EcoCash payment */}
-              {(() => {
+              {ride.payment_method !== 'wallet' && (() => {
                 const ecocashNum = (driverProfile as Record<string, unknown>)?.ecocash_number as string | undefined;
                 const driverName = (driverProfile as Record<string, unknown>)?.vehicle_make
                   ? `${(driverProfile as Record<string, unknown>)?.vehicle_make} Driver`
