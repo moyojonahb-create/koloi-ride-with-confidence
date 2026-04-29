@@ -54,3 +54,17 @@ export async function lookupUserByPhone(phone: string) {
     .maybeSingle();
   return data as { user_id: string; full_name: string | null; phone: string | null } | null;
 }
+
+/** Look up a user by their PickMe Account number (PMR######R) for wallet-to-wallet transfers. */
+export async function lookupUserByPickmeAccount(account: string) {
+  const cleaned = account.trim().toUpperCase();
+  const { data, error } = await supabase.rpc("lookup_user_by_pickme_account", {
+    p_account: cleaned,
+  });
+  if (error) return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  return row
+    ? (row as { user_id: string; full_name: string | null; pickme_account: string })
+    : null;
+}
+
