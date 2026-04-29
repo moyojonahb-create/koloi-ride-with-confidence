@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, RefreshCw, Wallet, Clock, CheckCircle, XCircle, Settings, Smartphone, ArrowDownLeft, ArrowUpRight, Gift } from 'lucide-react';
+import { ArrowLeft, Plus, RefreshCw, Wallet, Clock, CheckCircle, XCircle, Settings, Smartphone, ArrowDownLeft, ArrowUpRight, Gift, Send } from 'lucide-react';
 import BottomNavBar from '@/components/BottomNavBar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
