@@ -334,14 +334,14 @@ function QuickAction({ icon, label, sublabel, onClick, accent, color = 'yellow' 
   return (
     <button
       onClick={() => { haptic('light'); onClick(); }}
-      className={`flex flex-col items-center justify-center gap-1.5 py-3.5 px-2 rounded-2xl active:scale-95 transition-all ${
-        accent ? `${c.accentBg} ${c.accentText} shadow-md` : `${c.bg} ${c.text} shadow-sm`
+      className={`flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-xl active:scale-95 transition-all ${
+        accent ? `${c.accentBg} ${c.accentText} shadow-sm` : `${c.bg} ${c.text}`
       }`}
     >
       {icon}
-      <span className="text-xs font-semibold leading-tight">{label}</span>
+      <span className="text-[11px] font-semibold leading-tight">{label}</span>
       {sublabel && (
-        <span className={`text-[10px] leading-tight ${accent ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+        <span className={`text-[9px] leading-tight ${accent ? 'text-yellow-900/70' : 'text-yellow-700/70'}`}>
           {sublabel}
         </span>
       )}
