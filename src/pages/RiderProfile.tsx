@@ -109,7 +109,7 @@ export default function RiderProfile() {
       <div className="sticky top-0 z-30 relative overflow-hidden" style={{ background: 'var(--gradient-primary)' }}>
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, white 0%, transparent 50%)' }} />
         <div className="relative px-4 pb-5" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
-          {/* Top bar: back + logo */}
+          {/* Top bar: back + logo on white pill for visibility */}
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => navigate(-1)}
@@ -118,38 +118,51 @@ export default function RiderProfile() {
             >
               <ArrowLeft className="w-4 h-4 text-primary-foreground" />
             </button>
-            <PickMeLogo size="sm" />
+            <div className="bg-white rounded-full px-3 py-1.5 shadow-md flex items-center">
+              <PickMeLogo size="sm" />
+            </div>
           </div>
 
           {/* Profile identity */}
           <div className="flex items-center gap-4">
             <label className="relative cursor-pointer group shrink-0">
-              <div className="w-16 h-16 rounded-full bg-primary-foreground/15 backdrop-blur-sm flex items-center justify-center ring-2 ring-primary-foreground/40 overflow-hidden">
-                {avatarUrl ? (
+              <div className="w-16 h-16 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center ring-2 ring-accent shadow-lg overflow-hidden">
+                {profileLoading ? (
+                  <Skeleton className="w-full h-full rounded-full" />
+                ) : avatarUrl ? (
                   <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-xl font-bold text-primary-foreground">{initials}</span>
+                  <span className="text-xl font-bold text-primary">{initials}</span>
                 )}
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-accent flex items-center justify-center border-2 border-primary group-hover:scale-110 transition-transform">
+              <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-accent flex items-center justify-center border-2 border-white group-hover:scale-110 transition-transform shadow-sm">
                 {uploading ? <Loader2 className="w-3 h-3 animate-spin text-accent-foreground" /> : <Camera className="w-3 h-3 text-accent-foreground" />}
               </div>
               <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
             </label>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg font-bold text-primary-foreground truncate leading-tight">{userName}</h1>
-              {userEmail && <p className="text-xs text-primary-foreground/70 truncate mt-0.5">{userEmail}</p>}
+              {profileLoading ? (
+                <>
+                  <Skeleton className="h-5 w-32 mb-1.5 bg-white/30" />
+                  <Skeleton className="h-3 w-40 bg-white/20" />
+                </>
+              ) : (
+                <>
+                  <h1 className="text-lg font-bold text-white truncate leading-tight drop-shadow-sm">{userName}</h1>
+                  {userEmail && <p className="text-xs text-white/80 truncate mt-0.5">{userEmail}</p>}
+                </>
+              )}
               <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                <Badge className="h-5 text-[10px] bg-primary-foreground/20 text-primary-foreground border-0 px-2">
+                <Badge className="h-5 text-[10px] bg-accent text-accent-foreground border-0 px-2 font-bold">
                   Rider
                 </Badge>
                 {isAdmin && user?.email?.toLowerCase() === 'moyojonahb@gmail.com' && (
-                  <Badge className="h-5 text-[10px] bg-primary-foreground/20 text-primary-foreground border-0 px-2 cursor-pointer" onClick={() => navigate(`${prefix}/admin`)}>
+                  <Badge className="h-5 text-[10px] bg-white/25 text-white border-0 px-2 cursor-pointer backdrop-blur-sm" onClick={() => navigate(`${prefix}/admin`)}>
                     <ShieldCheck className="w-3 h-3 mr-1" /> Admin
                   </Badge>
                 )}
                 {isApprovedDriver && (
-                  <Badge className="h-5 text-[10px] bg-primary-foreground/20 text-primary-foreground border-0 px-2 cursor-pointer" onClick={() => navigate(`${prefix}/driver`)}>
+                  <Badge className="h-5 text-[10px] bg-white/25 text-white border-0 px-2 cursor-pointer backdrop-blur-sm" onClick={() => navigate(`${prefix}/driver`)}>
                     <CarFront className="w-3 h-3 mr-1" /> Driver
                   </Badge>
                 )}
