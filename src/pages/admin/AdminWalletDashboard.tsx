@@ -65,6 +65,8 @@ function AdminWalletDashboardInner() {
   const [deposits, setDeposits] = useState<Deposit[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [flags, setFlags] = useState<FraudFlag[]>([]);
+  const [failed, setFailed] = useState<FailedRide[]>([]);
+  const [locked, setLocked] = useState<LockedWallet[]>([]);
   const [search, setSearch] = useState("");
 
   // Flag dialog state
@@ -76,9 +78,9 @@ function AdminWalletDashboardInner() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [txRes, depRes, wdRes, flagRes] = await Promise.all([
+    const [txRes, depRes, wdRes, flagRes, failRes, lockRes] = await Promise.all([
       supabase.from("wallet_transactions")
-        .select("id,user_id,amount,transaction_type,description,created_at")
+        .select("id,user_id,amount,transaction_type,description,reference_code,created_at")
         .order("created_at", { ascending: false }).limit(100),
       supabase.from("deposit_requests")
         .select("id,driver_id,amount_usd,ecocash_phone,ecocash_reference,proof_path,created_at,status")
@@ -89,12 +91,20 @@ function AdminWalletDashboardInner() {
       supabase.from("fraud_flags")
         .select("id,user_id,flag_type,severity,details,resolved,created_at")
         .eq("resolved", false).order("created_at", { ascending: false }).limit(50),
+      supabase.from("rides")
+        .select("id,user_id,fare,payment_failure_reason,pickup_address,dropoff_address,created_at")
+        .eq("payment_failed", true).order("created_at", { ascending: false }).limit(50),
+      supabase.from("wallets")
+        .select("id,user_id,balance,locked_reason,locked_at")
+        .eq("is_locked", true).order("locked_at", { ascending: false }).limit(50),
     ]);
     if (txRes.error) toast.error(txRes.error.message);
     setTxs((txRes.data as Tx[]) ?? []);
     setDeposits((depRes.data as Deposit[]) ?? []);
     setWithdrawals((wdRes.data as Withdrawal[]) ?? []);
     setFlags((flagRes.data as FraudFlag[]) ?? []);
+    setFailed((failRes.data as FailedRide[]) ?? []);
+    setLocked((lockRes.data as LockedWallet[]) ?? []);
     setLoading(false);
   }, []);
 
