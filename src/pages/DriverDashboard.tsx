@@ -82,6 +82,9 @@ import RidePreferenceTags from "@/components/ride/RidePreferenceTags";
 import RideRequestCard from "@/components/driver/RideRequestCard";
 import DriverOfferModal from "@/components/driver/DriverOfferModal";
 import PassengerInfoCard from "@/components/driver/PassengerInfoCard";
+import TopFlashBanner from "@/components/ui/top-flash-banner";
+import { subscribeRiderComing } from "@/lib/rideSignals";
+import { Footprints } from "lucide-react";
 
 // Smart USD format: $4 for whole, $4.50 for halves
 function fmtUSD(n: number): string {
