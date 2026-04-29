@@ -5,6 +5,7 @@ import AuthGuard from "./components/AuthGuard";
 import AdminGuard from "./components/admin/AdminGuard";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AdminEmergencyAlerts from "./components/admin/AdminEmergencyAlerts";
+import RidePaymentNotifier from "./components/notifications/RidePaymentNotifier";
 
 // ─── Only the landing page is eagerly loaded ───
 import Index from "./pages/Index";
@@ -111,6 +112,8 @@ export default function App() {
   return (
     <Router>
       <AdminEmergencyAlerts />
+      <RidePaymentNotifier />
+      
       
       <ErrorBoundary>
         <Routes>
