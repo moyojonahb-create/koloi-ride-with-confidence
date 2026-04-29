@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import PaymentStatusBadge from '@/components/ride/PaymentStatusBadge';
 
 interface Ride {
   id: string;
@@ -23,6 +24,10 @@ interface Ride {
   created_at: string;
   vehicle_type: string;
   passenger_count: number;
+  payment_method?: string | null;
+  wallet_paid?: boolean | null;
+  payment_failed?: boolean | null;
+  payment_failure_reason?: string | null;
 }
 
 interface RideHistorySheetProps {
@@ -152,6 +157,18 @@ const RideHistorySheet = ({ isOpen, onClose }: RideHistorySheetProps) => {
                           {ride.status}
                         </span>
                       </div>
+
+                      {(ride.status === 'completed' || ride.payment_failed) && (
+                        <div className="mt-3">
+                          <PaymentStatusBadge
+                            status={ride.status}
+                            paymentMethod={ride.payment_method}
+                            walletPaid={ride.wallet_paid}
+                            paymentFailed={ride.payment_failed}
+                            paymentFailureReason={ride.payment_failure_reason}
+                          />
+                        </div>
+                      )}
                     </button>
 
                     {/* Expanded receipt */}
