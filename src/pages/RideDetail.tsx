@@ -333,25 +333,37 @@ export default function RideDetail() {
     }
   }, [isCompletedForHook, hasRated, driverProfile]);
 
-  // Notify rider when driver marks 'arrived'
+  // ── Driver-arrived flashing top banner ──
+  const [arrivedBannerOpen, setArrivedBannerOpen] = useState(false);
   const prevStatusRef = useRef<string | null>(null);
   useEffect(() => {
     const current = ride?.status ?? null;
     const prev = prevStatusRef.current;
     if (prev && prev !== current && (current === "arrived" || current === "driver_arrived")) {
-      const driverName = driverProfile?.fullName ?? "Your driver";
-      setToast(`📍 ${driverName} has arrived at your pickup point`);
-      // Try a notification sound (best effort)
-      import("@/lib/notificationSounds")
-        .then(({ playNotificationSound }) => playNotificationSound("offerReceived"))
+      setArrivedBannerOpen(true);
+      // Configurable arrived sound
+      import("@/lib/arrivedSoundPrefs")
+        .then(({ playConfiguredArrivedSound }) => playConfiguredArrivedSound())
         .catch(() => {});
       // Vibration
       if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-        try { navigator.vibrate?.([200, 100, 200]); } catch { /* noop */ }
+        try { navigator.vibrate?.([220, 90, 220, 90, 220]); } catch { /* noop */ }
       }
     }
     prevStatusRef.current = current;
-  }, [ride?.status, driverProfile?.fullName]);
+  }, [ride?.status]);
+
+  const handleImComing = useCallback(async () => {
+    if (!rideId) return;
+    try {
+      const { broadcastRiderComing } = await import("@/lib/rideSignals");
+      await broadcastRiderComing(rideId, { riderName: "Rider", etaSeconds: 60 });
+      setToast("✓ Driver notified — they'll wait for you");
+    } catch (e) {
+      console.warn("[RideDetail] failed to notify driver", e);
+      setToast("Couldn't notify driver. Try again.");
+    }
+  }, [rideId]);
 
   if (loading || !ride) {
     return (
