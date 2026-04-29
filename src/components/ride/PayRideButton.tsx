@@ -3,6 +3,8 @@ import { Wallet, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { payRideFromWallet } from "@/lib/walletPayments";
+import { useWalletPin } from "@/hooks/useWalletPin";
+import WalletPinModal from "@/components/wallet/WalletPinModal";
 
 interface PayRideButtonProps {
   rideId: string;
@@ -14,7 +16,8 @@ interface PayRideButtonProps {
 
 export default function PayRideButton({ rideId, fare, walletPaid, onPaid, className }: PayRideButtonProps) {
   const [loading, setLoading] = useState(false);
-  const [confirm, setConfirm] = useState(false);
+  const [pinOpen, setPinOpen] = useState(false);
+  const { hasPin, verifyPin, setPin } = useWalletPin();
 
   if (walletPaid) {
     return (
@@ -25,8 +28,7 @@ export default function PayRideButton({ rideId, fare, walletPaid, onPaid, classN
     );
   }
 
-  const handlePay = async () => {
-    if (!confirm) { setConfirm(true); return; }
+  const doPay = async () => {
     setLoading(true);
     try {
       const res = await payRideFromWallet(rideId);
@@ -35,30 +37,39 @@ export default function PayRideButton({ rideId, fare, walletPaid, onPaid, classN
         onPaid?.();
       } else {
         toast.error(res?.reason || "Payment failed");
-        setConfirm(false);
       }
     } catch (e) {
       toast.error((e as Error).message);
-      setConfirm(false);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Button
-      onClick={handlePay}
-      disabled={loading}
-      className={`w-full h-12 rounded-2xl font-semibold ${className || ""}`}
-    >
-      {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <>
-          <Wallet className="h-4 w-4 mr-2" />
-          {confirm ? `Confirm pay $${fare.toFixed(2)}` : `Pay Ride · $${fare.toFixed(2)}`}
-        </>
-      )}
-    </Button>
+    <>
+      <Button
+        onClick={() => setPinOpen(true)}
+        disabled={loading}
+        className={`w-full h-12 rounded-2xl font-semibold ${className || ""}`}
+      >
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <>
+            <Wallet className="h-4 w-4 mr-2" />
+            Pay Ride · ${fare.toFixed(2)}
+          </>
+        )}
+      </Button>
+
+      <WalletPinModal
+        isOpen={pinOpen}
+        onClose={() => setPinOpen(false)}
+        onVerified={() => { setPinOpen(false); doPay(); }}
+        mode={hasPin ? "verify" : "setup"}
+        onVerifyPin={verifyPin}
+        onSetPin={setPin}
+      />
+    </>
   );
 }
