@@ -1637,6 +1637,8 @@ export type Database = {
           updated_at: string
           user_id: string
           vehicle_type: string
+          wallet_paid: boolean
+          wallet_paid_at: string | null
         }
         Insert: {
           cancellation_fee?: number | null
@@ -1666,6 +1668,8 @@ export type Database = {
           updated_at?: string
           user_id: string
           vehicle_type?: string
+          wallet_paid?: boolean
+          wallet_paid_at?: string | null
         }
         Update: {
           cancellation_fee?: number | null
@@ -1695,6 +1699,8 @@ export type Database = {
           updated_at?: string
           user_id?: string
           vehicle_type?: string
+          wallet_paid?: boolean
+          wallet_paid_at?: string | null
         }
         Relationships: [
           {
@@ -2223,6 +2229,36 @@ export type Database = {
           },
         ]
       }
+      wallet_transfers: {
+        Row: {
+          amount_usd: number
+          created_at: string
+          id: string
+          note: string | null
+          receiver_id: string
+          sender_id: string
+          status: string
+        }
+        Insert: {
+          amount_usd: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          receiver_id: string
+          sender_id: string
+          status?: string
+        }
+        Update: {
+          amount_usd?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          receiver_id?: string
+          sender_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       wallets: {
         Row: {
           balance: number
@@ -2247,6 +2283,48 @@ export type Database = {
           updated_at?: string
           user_id?: string
           wallet_pin?: string | null
+        }
+        Relationships: []
+      }
+      withdrawals: {
+        Row: {
+          account_name: string | null
+          admin_note: string | null
+          amount_usd: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          destination: string
+          driver_id: string
+          id: string
+          method: string
+          status: string
+        }
+        Insert: {
+          account_name?: string | null
+          admin_note?: string | null
+          amount_usd: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          destination: string
+          driver_id: string
+          id?: string
+          method: string
+          status?: string
+        }
+        Update: {
+          account_name?: string | null
+          admin_note?: string | null
+          amount_usd?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          destination?: string
+          driver_id?: string
+          id?: string
+          method?: string
+          status?: string
         }
         Relationships: []
       }
@@ -2366,6 +2444,14 @@ export type Database = {
         Args: { p_deposit_id: string; p_note?: string }
         Returns: Json
       }
+      admin_approve_withdrawal: {
+        Args: { p_id: string; p_note?: string }
+        Returns: Json
+      }
+      admin_reject_withdrawal: {
+        Args: { p_id: string; p_note?: string }
+        Returns: Json
+      }
       admin_set_fx_rate: { Args: { p_zar_per_usd: number }; Returns: Json }
       can_change_gender: { Args: { p_user_id: string }; Returns: boolean }
       can_driver_operate: { Args: { p_driver_id: string }; Returns: boolean }
@@ -2406,6 +2492,20 @@ export type Database = {
       }
       is_top_driver: { Args: { _user_id: string }; Returns: boolean }
       is_user_driver: { Args: { _user_id: string }; Returns: boolean }
+      pay_ride_from_wallet: { Args: { p_ride_id: string }; Returns: Json }
+      request_withdrawal: {
+        Args: {
+          p_account_name?: string
+          p_amount: number
+          p_destination: string
+          p_method: string
+        }
+        Returns: Json
+      }
+      transfer_funds: {
+        Args: { p_amount: number; p_note?: string; p_receiver_id: string }
+        Returns: Json
+      }
       update_demand_zones: { Args: never; Returns: undefined }
     }
     Enums: {
