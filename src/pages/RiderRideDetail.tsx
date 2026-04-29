@@ -955,8 +955,18 @@ export default function RiderRideDetail() {
                 </div>
               )}
 
+              {/* Wallet Pay Ride (only for wallet payment method) */}
+              {ride.payment_method === 'wallet' && ['accepted','in_progress','arrived','completed'].includes(ride.status) && (
+                <PayRideButton
+                  rideId={ride.id}
+                  fare={Number(ride.fare)}
+                  walletPaid={!!ride.wallet_paid}
+                  onPaid={refreshRide}
+                />
+              )}
+
               {/* EcoCash payment */}
-              {(() => {
+              {ride.payment_method !== 'wallet' && (() => {
                 const ecocashNum = (driverProfile as Record<string, unknown>)?.ecocash_number as string | undefined;
                 const driverName = (driverProfile as Record<string, unknown>)?.vehicle_make
                   ? `${(driverProfile as Record<string, unknown>)?.vehicle_make} Driver`
