@@ -19,11 +19,87 @@ type WindowWithMapsCallback = Window & {
 let loadPromise: Promise<void> | null = null;
 let loaded = false;
 let loadError: Error | null = null;
+let authFailure = false;
+let lastGoogleConsoleError: string | null = null;
+const errorListeners = new Set<(err: Error) => void>();
+
+export interface MapsDiagnostics {
+  isLoaded: boolean;
+  loadError: Error | null;
+  authFailure: boolean;
+  lastGoogleConsoleError: string | null;
+  apiKeyPresent: boolean;
+  apiKeyMasked: string | null;
+  scriptInjected: boolean;
+  origin: string;
+  timestamp: string;
+}
+
+export function getMapsDiagnostics(apiKey?: string | null): MapsDiagnostics {
+  const k = apiKey ?? null;
+  return {
+    isLoaded: loaded,
+    loadError,
+    authFailure,
+    lastGoogleConsoleError,
+    apiKeyPresent: !!k,
+    apiKeyMasked: k ? `${k.slice(0, 6)}…${k.slice(-4)}` : null,
+    scriptInjected: !!document.getElementById(SCRIPT_ID),
+    origin: typeof window !== 'undefined' ? window.location.origin : '',
+    timestamp: new Date().toISOString(),
+  };
+}
+
+// Install one-time global hooks to catch Google's auth failures and console errors.
+function installGoogleErrorHooks() {
+  if (typeof window === 'undefined') return;
+  const w = window as unknown as { __pickmeGmapsHooked?: boolean; gm_authFailure?: () => void };
+  if (w.__pickmeGmapsHooked) return;
+  w.__pickmeGmapsHooked = true;
+
+  // Google calls this when API key auth fails (referrer/restrictions/etc.)
+  w.gm_authFailure = () => {
+    authFailure = true;
+    const err = new Error(
+      'Google Maps authentication failed (gm_authFailure). The API key was rejected — likely caused by HTTP referrer restrictions, an invalid key, or the API not being enabled.',
+    );
+    loadError = err;
+    errorListeners.forEach((cb) => cb(err));
+  };
+
+  // Intercept console.error to capture Google's billing/quota errors which only appear there.
+  const origError = console.error.bind(console);
+  console.error = (...args: unknown[]) => {
+    try {
+      const text = args.map((a) => (typeof a === 'string' ? a : '')).join(' ');
+      if (text.includes('Google Maps') || text.includes('Maps JavaScript API')) {
+        lastGoogleConsoleError = text.slice(0, 500);
+        const known = [
+          'BillingNotEnabledMapError',
+          'ApiNotActivatedMapError',
+          'RefererNotAllowedMapError',
+          'InvalidKeyMapError',
+          'MissingKeyMapError',
+          'ExpiredKeyMapError',
+          'OverQuotaMapError',
+        ].find((k) => text.includes(k));
+        if (known) {
+          const err = new Error(`Google Maps error: ${known}. ${text.split(known)[1]?.split('\n')[0] ?? ''}`.trim());
+          loadError = err;
+          errorListeners.forEach((cb) => cb(err));
+        }
+      }
+    } catch { /* swallow */ }
+    origError(...(args as []));
+  };
+}
 
 export function resetGoogleMapsLoader() {
   loadPromise = null;
   loaded = false;
   loadError = null;
+  authFailure = false;
+  lastGoogleConsoleError = null;
   const existing = document.getElementById(SCRIPT_ID);
   if (existing?.parentNode) {
     existing.parentNode.removeChild(existing);
@@ -31,6 +107,7 @@ export function resetGoogleMapsLoader() {
 }
 
 function loadGoogleMapsScript(apiKey: string): Promise<void> {
+  installGoogleErrorHooks();
   if (loaded) return Promise.resolve();
   if (loadPromise) return loadPromise;
 
@@ -96,9 +173,23 @@ export function useGoogleMaps(retryKey = 0): GoogleMapsState {
     apiKey: GOOGLE_MAPS_API_KEY || null,
   });
 
+  // Subscribe to async errors (gm_authFailure, console-intercepted billing errors)
+  useEffect(() => {
+    const onErr = (err: Error) => {
+      setState((s) => ({ ...s, isLoaded: false, loadError: err }));
+    };
+    errorListeners.add(onErr);
+    return () => { errorListeners.delete(onErr); };
+  }, []);
+
   const tryLoadWithKey = useCallback(async (key: string) => {
     try {
       await loadGoogleMapsScript(key);
+      // Wait one tick for Google to validate the key (auth failures fire ~immediately after load)
+      await new Promise((r) => setTimeout(r, 400));
+      if (loadError) {
+        return false;
+      }
       console.info('[PickMe Maps] Status:', {
         mapsLoaded: !!window.google?.maps,
         placesLoaded: !!window.google?.maps?.places,

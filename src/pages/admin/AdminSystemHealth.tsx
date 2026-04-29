@@ -15,6 +15,7 @@ import { format, subHours, subDays } from 'date-fns';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { toast } from 'sonner';
+import MapsDebugPanel from '@/components/admin/MapsDebugPanel';
 
 interface HealthCheck {
   id: string;
@@ -639,6 +640,9 @@ export default function AdminSystemHealth() {
     <AdminGuard>
       <AdminLayout>
         <div className="space-y-6">
+          {/* Maps integration debug panel */}
+          <MapsDebugPanel />
+
           {/* Ramz One Header */}
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
