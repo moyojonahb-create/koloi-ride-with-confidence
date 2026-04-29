@@ -417,16 +417,18 @@ export default function RideDetail() {
 
   const rideStatus = ride.status ?? "pending";
   const isSearching = rideStatus === "pending" || rideStatus === "searching";
-  const isActive = ["accepted", "driver_arriving", "driver_arrived", "in_progress", "near_destination"].includes(rideStatus);
+  const isActive = ["accepted", "enroute_pickup", "driver_arriving", "driver_arrived", "arrived", "in_progress", "near_destination"].includes(rideStatus);
   const isCompleted = rideStatus === "completed";
   const isCancelled = rideStatus === "cancelled";
-  const isDriverArrived = rideStatus === "driver_arrived";
+  const isDriverArrived = rideStatus === "driver_arrived" || rideStatus === "arrived";
   const statusConfig: Record<string, { label: string; color: string; icon: string }> = {
     pending: { label: "Looking for drivers", color: "bg-yellow-500", icon: "🔍" },
     searching: { label: "Looking for drivers", color: "bg-yellow-500", icon: "🔍" },
     accepted: { label: "Driver accepted", color: "bg-primary", icon: "✓" },
+    enroute_pickup: { label: "Driver on the way", color: "bg-primary", icon: "🚗" },
     driver_arriving: { label: "Driver on the way", color: "bg-primary", icon: "🚗" },
-    driver_arrived: { label: "Driver has arrived", color: "bg-primary", icon: "📍" },
+    driver_arrived: { label: "Driver has arrived", color: "bg-green-500", icon: "📍" },
+    arrived: { label: "Driver has arrived", color: "bg-green-500", icon: "📍" },
     in_progress: { label: "Trip in progress", color: "bg-primary", icon: "🛣️" },
     near_destination: { label: "Almost there", color: "bg-primary", icon: "🏁" },
     completed: { label: "Trip completed", color: "bg-primary", icon: "✅" },
