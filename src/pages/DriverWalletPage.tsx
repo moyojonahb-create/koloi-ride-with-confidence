@@ -55,6 +55,22 @@ export default function DriverWalletPage() {
   const [showTransfer, setShowTransfer] = useState(false);
   const [tab, setTab] = useState<'earnings' | 'deposits' | 'withdrawals'>('earnings');
 
+  // PIN gate — required to view balance/transactions
+  const { hasPin, loading: pinLoading, setPin, verifyPin, refresh: refreshPin } = useWalletPin();
+  const { full_name, pickme_account } = usePickmeAccount();
+  const [pinVerified, setPinVerified] = useState(false);
+
+  const handleVerifyPin = async (p: string) => {
+    try { return await verifyPin(p); }
+    catch (e) { if (e instanceof Error) toast.error(e.message); return false; }
+  };
+  const handleSetPin = async (p: string) => {
+    const ok = await setPin(p);
+    if (ok) { setPinVerified(true); refreshPin(); }
+    return ok;
+  };
+
+
   const load = useCallback(async () => {
     if (!user) return;
     setMsg("");
