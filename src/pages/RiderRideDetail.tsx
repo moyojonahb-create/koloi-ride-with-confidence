@@ -41,6 +41,7 @@ import VoiceCallButton from "@/components/ride/VoiceCallButton";
 import ShareTripButton from "@/components/ride/ShareTripButton";
 import EcoCashPaymentModal from "@/components/wallet/EcoCashPaymentModal";
 import PayRideButton from "@/components/ride/PayRideButton";
+import PaymentStatusBadge from "@/components/ride/PaymentStatusBadge";
 // Rider wallet removed — riders pay drivers directly
 import RideBottomSheet, { type SheetState } from "@/components/ride/RideBottomSheet";
 
@@ -954,6 +955,20 @@ export default function RiderRideDetail() {
                     <span className="text-[11px] font-medium text-muted-foreground">Message</span>
                   </button>
                   <ShareTripButton rideId={ride.id} pickupAddress={ride.pickup_address} dropoffAddress={ride.dropoff_address} />
+                </div>
+              )}
+
+              {/* Payment status indicator */}
+              {(ride.status === 'completed' || ride.payment_failed) && (
+                <div className="flex justify-center">
+                  <PaymentStatusBadge
+                    status={ride.status}
+                    paymentMethod={ride.payment_method}
+                    walletPaid={ride.wallet_paid}
+                    paymentFailed={ride.payment_failed}
+                    paymentFailureReason={ride.payment_failure_reason}
+                    size="md"
+                  />
                 </div>
               )}
 
