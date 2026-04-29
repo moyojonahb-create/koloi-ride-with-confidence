@@ -241,10 +241,6 @@ export default function DriverWalletPage() {
           </div>
         )}
 
-        {loading && <div className="text-center text-muted-foreground text-sm py-4">Loading…</div>}
-      </div>
-    </div>
-  );
         {/* Withdrawal History */}
         {tab === 'withdrawals' && (
           <div className="space-y-2">
@@ -279,4 +275,5 @@ export default function DriverWalletPage() {
       </div>
     </div>
   );
+}
 }
