@@ -25,17 +25,29 @@ interface EarningRecord {
   created_at: string;
 }
 
+interface WithdrawalRecord {
+  id: string;
+  amount_usd: number;
+  method: string;
+  destination: string;
+  status: string;
+  admin_note: string | null;
+  created_at: string;
+  approved_at: string | null;
+}
+
 export default function DriverWalletPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [balance, setBalance] = useState(0);
   const [deposits, setDeposits] = useState<DepositRecord[]>([]);
   const [earnings, setEarnings] = useState<EarningRecord[]>([]);
+  const [withdrawals, setWithdrawals] = useState<WithdrawalRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
-  const [tab, setTab] = useState<'earnings' | 'deposits'>('earnings');
+  const [tab, setTab] = useState<'earnings' | 'deposits' | 'withdrawals'>('earnings');
 
   const load = useCallback(async () => {
     if (!user) return;
