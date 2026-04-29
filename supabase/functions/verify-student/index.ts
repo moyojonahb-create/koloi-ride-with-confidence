@@ -329,6 +329,17 @@ async function fetchImageAsBase64(admin: ReturnType<typeof createClient>, path: 
   }
 }
 
+function qualityScore(q?: PhotoQualityIn): number {
+  if (!q) return 0;
+  let s = 100;
+  const b = q.brightness ?? 50;
+  if (b < 30) s -= 30;
+  else if (b > 85) s -= 20;
+  if (q.glare) s -= 25;
+  if ((q.blur ?? 0) > 60) s -= 30;
+  return s;
+}
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
