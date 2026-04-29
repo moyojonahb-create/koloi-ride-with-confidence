@@ -1626,6 +1626,8 @@ export type Database = {
           passenger_count: number
           passenger_name: string | null
           passenger_phone: string | null
+          payment_failed: boolean
+          payment_failure_reason: string | null
           payment_method: string
           pickup_address: string
           pickup_lat: number
@@ -1657,6 +1659,8 @@ export type Database = {
           passenger_count?: number
           passenger_name?: string | null
           passenger_phone?: string | null
+          payment_failed?: boolean
+          payment_failure_reason?: string | null
           payment_method?: string
           pickup_address: string
           pickup_lat: number
@@ -1688,6 +1692,8 @@ export type Database = {
           passenger_count?: number
           passenger_name?: string | null
           passenger_phone?: string | null
+          payment_failed?: boolean
+          payment_failure_reason?: string | null
           payment_method?: string
           pickup_address?: string
           pickup_lat?: number
@@ -2173,6 +2179,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          reference_code: string | null
           ride_id: string | null
           transaction_type: string
           user_id: string
@@ -2183,6 +2190,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          reference_code?: string | null
           ride_id?: string | null
           transaction_type: string
           user_id: string
@@ -2193,6 +2201,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          reference_code?: string | null
           ride_id?: string | null
           transaction_type?: string
           user_id?: string
@@ -2264,6 +2273,10 @@ export type Database = {
           balance: number
           created_at: string
           id: string
+          is_locked: boolean
+          locked_at: string | null
+          locked_by: string | null
+          locked_reason: string | null
           updated_at: string
           user_id: string
           wallet_pin: string | null
@@ -2272,6 +2285,10 @@ export type Database = {
           balance?: number
           created_at?: string
           id?: string
+          is_locked?: boolean
+          locked_at?: string | null
+          locked_by?: string | null
+          locked_reason?: string | null
           updated_at?: string
           user_id: string
           wallet_pin?: string | null
@@ -2280,6 +2297,10 @@ export type Database = {
           balance?: number
           created_at?: string
           id?: string
+          is_locked?: boolean
+          locked_at?: string | null
+          locked_by?: string | null
+          locked_reason?: string | null
           updated_at?: string
           user_id?: string
           wallet_pin?: string | null
@@ -2452,12 +2473,21 @@ export type Database = {
         Args: { p_reason: string; p_severity?: string; p_user_id: string }
         Returns: Json
       }
+      admin_lock_wallet: {
+        Args: { p_reason: string; p_user_id: string }
+        Returns: Json
+      }
       admin_reject_withdrawal: {
         Args: { p_id: string; p_note?: string }
         Returns: Json
       }
       admin_resolve_fraud_flag: { Args: { p_flag_id: string }; Returns: Json }
+      admin_reverse_transaction: {
+        Args: { p_reason: string; p_tx_id: string }
+        Returns: Json
+      }
       admin_set_fx_rate: { Args: { p_zar_per_usd: number }; Returns: Json }
+      admin_unlock_wallet: { Args: { p_user_id: string }; Returns: Json }
       can_change_gender: { Args: { p_user_id: string }; Returns: boolean }
       can_driver_operate: { Args: { p_driver_id: string }; Returns: boolean }
       can_use_student_discount: { Args: { _user_id: string }; Returns: boolean }
@@ -2498,6 +2528,7 @@ export type Database = {
       is_top_driver: { Args: { _user_id: string }; Returns: boolean }
       is_user_driver: { Args: { _user_id: string }; Returns: boolean }
       pay_ride_from_wallet: { Args: { p_ride_id: string }; Returns: Json }
+      request_wallet_ride: { Args: { p_payload: Json }; Returns: Json }
       request_withdrawal: {
         Args: {
           p_account_name?: string

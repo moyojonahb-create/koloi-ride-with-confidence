@@ -18,6 +18,7 @@ import {
 import {
   Wallet, ArrowDownToLine, ArrowUpFromLine, ShieldAlert, RefreshCw,
   CheckCircle, XCircle, Flag, TrendingUp, Eye, Loader2,
+  Lock, Unlock, Undo2, AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -29,6 +30,7 @@ interface Tx {
   amount: number;
   transaction_type: string;
   description: string | null;
+  reference_code: string | null;
   created_at: string;
 }
 interface Deposit {
@@ -45,6 +47,16 @@ interface FraudFlag {
   id: string; user_id: string; flag_type: string; severity: string;
   details: Record<string, unknown> | null; resolved: boolean; created_at: string;
 }
+interface FailedRide {
+  id: string; user_id: string; fare: number;
+  payment_failure_reason: string | null;
+  pickup_address: string; dropoff_address: string;
+  created_at: string;
+}
+interface LockedWallet {
+  id: string; user_id: string; balance: number;
+  locked_reason: string | null; locked_at: string | null;
+}
 
 function AdminWalletDashboardInner() {
   const nav = useNavigate();
@@ -53,6 +65,8 @@ function AdminWalletDashboardInner() {
   const [deposits, setDeposits] = useState<Deposit[]>([]);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [flags, setFlags] = useState<FraudFlag[]>([]);
+  const [failed, setFailed] = useState<FailedRide[]>([]);
+  const [locked, setLocked] = useState<LockedWallet[]>([]);
   const [search, setSearch] = useState("");
 
   // Flag dialog state
@@ -64,9 +78,9 @@ function AdminWalletDashboardInner() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [txRes, depRes, wdRes, flagRes] = await Promise.all([
+    const [txRes, depRes, wdRes, flagRes, failRes, lockRes] = await Promise.all([
       supabase.from("wallet_transactions")
-        .select("id,user_id,amount,transaction_type,description,created_at")
+        .select("id,user_id,amount,transaction_type,description,reference_code,created_at")
         .order("created_at", { ascending: false }).limit(100),
       supabase.from("deposit_requests")
         .select("id,driver_id,amount_usd,ecocash_phone,ecocash_reference,proof_path,created_at,status")
@@ -77,12 +91,20 @@ function AdminWalletDashboardInner() {
       supabase.from("fraud_flags")
         .select("id,user_id,flag_type,severity,details,resolved,created_at")
         .eq("resolved", false).order("created_at", { ascending: false }).limit(50),
+      supabase.from("rides")
+        .select("id,user_id,fare,payment_failure_reason,pickup_address,dropoff_address,created_at")
+        .eq("payment_failed", true).order("created_at", { ascending: false }).limit(50),
+      supabase.from("wallets")
+        .select("id,user_id,balance,locked_reason,locked_at")
+        .eq("is_locked", true).order("locked_at", { ascending: false }).limit(50),
     ]);
     if (txRes.error) toast.error(txRes.error.message);
     setTxs((txRes.data as Tx[]) ?? []);
     setDeposits((depRes.data as Deposit[]) ?? []);
     setWithdrawals((wdRes.data as Withdrawal[]) ?? []);
     setFlags((flagRes.data as FraudFlag[]) ?? []);
+    setFailed((failRes.data as FailedRide[]) ?? []);
+    setLocked((lockRes.data as LockedWallet[]) ?? []);
     setLoading(false);
   }, []);
 
@@ -141,6 +163,35 @@ function AdminWalletDashboardInner() {
     const { error } = await supabase.rpc("admin_resolve_fraud_flag", { p_flag_id: id });
     if (error) return toast.error(error.message);
     toast.success("Flag resolved");
+    load();
+  };
+
+  const lockWallet = async (userId: string) => {
+    const reason = window.prompt("Lock reason?") || "Admin lock";
+    const { data, error } = await supabase.rpc("admin_lock_wallet", { p_user_id: userId, p_reason: reason });
+    if (error) return toast.error(error.message);
+    if (!(data as Record<string, unknown>)?.ok) return toast.error("Lock failed");
+    toast.success("Wallet locked");
+    load();
+  };
+
+  const unlockWallet = async (userId: string) => {
+    if (!window.confirm("Unlock this wallet?")) return;
+    const { data, error } = await supabase.rpc("admin_unlock_wallet", { p_user_id: userId });
+    if (error) return toast.error(error.message);
+    if (!(data as Record<string, unknown>)?.ok) return toast.error("Unlock failed");
+    toast.success("Wallet unlocked");
+    load();
+  };
+
+  const reverseTx = async (txId: string) => {
+    const reason = window.prompt("Reason for reversal?");
+    if (!reason) return;
+    const { data, error } = await supabase.rpc("admin_reverse_transaction", { p_tx_id: txId, p_reason: reason });
+    if (error) return toast.error(error.message);
+    const r = data as { ok?: boolean; reason?: string; reference?: string };
+    if (!r?.ok) return toast.error(r?.reason || "Reversal failed");
+    toast.success(`Reversed (${r.reference})`);
     load();
   };
 
@@ -220,17 +271,19 @@ function AdminWalletDashboardInner() {
         </div>
 
         <Tabs defaultValue="transactions">
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-6 w-full">
             <TabsTrigger value="transactions">Transactions</TabsTrigger>
             <TabsTrigger value="deposits">Deposits ({deposits.length})</TabsTrigger>
             <TabsTrigger value="withdrawals">Withdrawals ({withdrawals.length})</TabsTrigger>
+            <TabsTrigger value="failed">Failed ({failed.length})</TabsTrigger>
+            <TabsTrigger value="locked">Locked ({locked.length})</TabsTrigger>
             <TabsTrigger value="flags">Flags ({flags.length})</TabsTrigger>
           </TabsList>
 
           {/* Transactions */}
           <TabsContent value="transactions" className="space-y-3">
             <Input
-              placeholder="Search by user ID or description..."
+              placeholder="Search by user ID, description, or reference..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -239,25 +292,35 @@ function AdminWalletDashboardInner() {
                 <thead className="bg-muted/30">
                   <tr>
                     <th className="text-left p-3">Date</th>
+                    <th className="text-left p-3">Reference</th>
                     <th className="text-left p-3">User</th>
                     <th className="text-left p-3">Type</th>
                     <th className="text-right p-3">Amount</th>
                     <th className="text-left p-3">Description</th>
+                    <th className="text-right p-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredTxs.length === 0 && (
-                    <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">No transactions</td></tr>
+                    <tr><td colSpan={7} className="p-6 text-center text-muted-foreground">No transactions</td></tr>
                   )}
                   {filteredTxs.map(t => (
                     <tr key={t.id} className="border-t">
                       <td className="p-3 text-xs whitespace-nowrap">{format(new Date(t.created_at), "MMM d, HH:mm")}</td>
+                      <td className="p-3 font-mono text-[11px]">{t.reference_code || "—"}</td>
                       <td className="p-3 font-mono text-xs">{t.user_id.slice(0, 8)}…</td>
                       <td className="p-3"><Badge variant="outline" className="capitalize">{t.transaction_type.replace("_", " ")}</Badge></td>
                       <td className={`p-3 text-right font-bold ${Number(t.amount) < 0 ? "text-destructive" : "text-emerald-600"}`}>
                         {Number(t.amount) >= 0 ? "+" : ""}${Number(t.amount).toFixed(2)}
                       </td>
                       <td className="p-3 text-xs text-muted-foreground max-w-xs truncate">{t.description || "—"}</td>
+                      <td className="p-3 text-right">
+                        {t.transaction_type !== "reversal" && (
+                          <Button size="sm" variant="ghost" onClick={() => reverseTx(t.id)} title="Reverse">
+                            <Undo2 className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -326,6 +389,70 @@ function AdminWalletDashboardInner() {
                 </CardContent>
               </Card>
             ))}
+          </TabsContent>
+
+          {/* Failed Payments */}
+          <TabsContent value="failed" className="space-y-3">
+            {failed.length === 0 && <div className="text-center py-8 text-muted-foreground">No failed payments</div>}
+            {failed.map(r => (
+              <Card key={r.id}>
+                <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-destructive" />
+                      <span className="text-lg font-black">${Number(r.fare).toFixed(2)}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {r.pickup_address} → {r.dropoff_address}
+                    </div>
+                    <div className="text-[11px] text-destructive mt-1">{r.payment_failure_reason || "Payment failed"}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      User: <span className="font-mono">{r.user_id.slice(0, 8)}…</span> · {format(new Date(r.created_at), "MMM d, HH:mm")}
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => unlockWallet(r.user_id)}>
+                    <Unlock className="h-4 w-4 mr-1" /> Unlock Wallet
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+
+          {/* Locked Wallets */}
+          <TabsContent value="locked" className="space-y-3">
+            {locked.length === 0 && <div className="text-center py-8 text-muted-foreground">No locked wallets</div>}
+            {locked.map(w => (
+              <Card key={w.id}>
+                <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Lock className="h-4 w-4 text-destructive" />
+                      <span className="text-lg font-black">${Number(w.balance).toFixed(2)}</span>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      User: <span className="font-mono">{w.user_id.slice(0, 12)}…</span>
+                    </div>
+                    <div className="text-[11px] text-destructive mt-0.5">{w.locked_reason || "Locked"}</div>
+                    {w.locked_at && (
+                      <div className="text-[11px] text-muted-foreground">
+                        Since {format(new Date(w.locked_at), "MMM d, HH:mm")}
+                      </div>
+                    )}
+                  </div>
+                  <Button size="sm" onClick={() => unlockWallet(w.user_id)}>
+                    <Unlock className="h-4 w-4 mr-1" /> Unlock
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+            <div className="pt-2">
+              <Button variant="outline" className="w-full" onClick={() => {
+                const id = window.prompt("User ID to lock:");
+                if (id?.trim()) lockWallet(id.trim());
+              }}>
+                <Lock className="h-4 w-4 mr-2" /> Lock a Wallet
+              </Button>
+            </div>
           </TabsContent>
 
           {/* Flags */}

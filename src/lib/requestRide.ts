@@ -106,6 +106,23 @@ export async function requestRide(input: RequestRideInput) {
   let data: RideRow | null = null;
   let error: { message: string; details?: string; hint?: string } | null = null;
 
+  // Wallet rides go through atomic RPC that re-validates balance + lock server-side
+  if (insertPayload.payment_method === 'wallet') {
+    const { data: rpcData, error: rpcErr } = await supabase.rpc('request_wallet_ride', {
+      p_payload: insertPayload as never,
+    });
+    if (rpcErr) {
+      return { ok: false as const, error: `Ride request failed: ${rpcErr.message}` };
+    }
+    const result = rpcData as { ok?: boolean; reason?: string; ride_id?: string; balance?: number; fare?: number } | null;
+    if (!result?.ok) {
+      return { ok: false as const, error: result?.reason || 'Wallet ride could not be created' };
+    }
+    // Fetch the inserted ride row
+    const fetched = await supabase.from('rides').select('*').eq('id', result.ride_id).maybeSingle();
+    return { ok: true as const, ride: (fetched.data ?? { id: result.ride_id }) as RideRow };
+  }
+
   const firstInsert = await supabase
     .from("rides")
     .insert(insertPayload as never)

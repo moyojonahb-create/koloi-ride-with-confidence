@@ -348,7 +348,27 @@ export default function RideView() {
     if (!user) {setAuthMode('login');setAuthModalOpen(true);return;}
     if (!pickupLocation || !dropoffLocation || !fareEstimate) {toast({ title: 'Select pickup and destination', variant: 'destructive' });return;}
     if (paymentMethod === 'wallet' && walletBalance < customFare) {
-      toast({ title: 'Insufficient wallet balance', description: `You need $${customFare.toFixed(2)} but only have $${walletBalance.toFixed(2)}. Top up or switch to Cash.`, variant: 'destructive' });
+      toast({
+        title: 'Insufficient wallet balance',
+        description: `You need $${customFare.toFixed(2)} but only have $${walletBalance.toFixed(2)}. Please top up or select Cash Payment.`,
+        variant: 'destructive',
+        action: (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPaymentMethod('cash')}
+              className="px-3 py-1.5 rounded-lg bg-foreground text-background text-xs font-semibold"
+            >
+              Switch to Cash
+            </button>
+            <button
+              onClick={() => navigate(location.pathname.startsWith('/mapp') ? '/mapp/wallet' : '/wallet')}
+              className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold"
+            >
+              Top Up
+            </button>
+          </div>
+        ),
+      });
       return;
     }
     
