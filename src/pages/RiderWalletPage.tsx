@@ -1,19 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, RefreshCw, Wallet, Clock, CheckCircle, XCircle, Settings, Smartphone, ArrowDownLeft, ArrowUpRight, Gift, Send } from 'lucide-react';
+import { ArrowLeft, Plus, RefreshCw, Clock, CheckCircle, XCircle, Settings, Smartphone, ArrowDownLeft, ArrowUpRight, Gift, Send } from 'lucide-react';
 import BottomNavBar from '@/components/BottomNavBar';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useWallet } from '@/hooks/useWallet';
 import { useWalletPin } from '@/hooks/useWalletPin';
+import { usePickmeAccount } from '@/hooks/usePickmeAccount';
 import { supabase } from '@/integrations/supabase/client';
 import DepositModal from '@/components/wallet/DepositModal';
 import WalletPinModal from '@/components/wallet/WalletPinModal';
 import WalletSettings from '@/components/wallet/WalletSettings';
 import TransactionsSheet from '@/components/wallet/TransactionsSheet';
 import TransferMoneyModal from '@/components/wallet/TransferMoneyModal';
+import WithdrawalModal from '@/components/wallet/WithdrawalModal';
+import WalletCard from '@/components/wallet/WalletCard';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+
 
 interface RiderDeposit {
   id: string;
