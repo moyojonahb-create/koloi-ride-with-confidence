@@ -162,6 +162,22 @@ export default function DriverDashboard() {
   useEffect(() => { fetchDriverBalance(); }, [fetchDriverBalance]);
   useEffect(() => { preloadAllTownPricing().then(setTownPricingMap); }, []);
 
+  // ── Listen for "rider is on the way" broadcast from rider ──
+  useEffect(() => {
+    if (!activeTrip?.id) return;
+    const unsub = subscribeRiderComing(activeTrip.id, (payload) => {
+      setRiderComingBanner({ open: true, name: payload.riderName });
+      // Sound + vibrate
+      import("@/lib/notificationSounds")
+        .then(({ playNotificationSound }) => playNotificationSound("accepted"))
+        .catch(() => {});
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        try { navigator.vibrate?.([180, 80, 180]); } catch { /* noop */ }
+      }
+    });
+    return unsub;
+  }, [activeTrip?.id]);
+
   // Fatigue monitor
   const fatigueState = useFatigueMonitor(user?.id, isOnline);
 
