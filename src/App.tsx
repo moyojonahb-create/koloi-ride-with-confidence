@@ -22,7 +22,7 @@ const AppDashboard = lazy(() => import("./pages/AppDashboard"));
 const RideHistory = lazy(() => import("./pages/RideHistory"));
 const RiderProfile = lazy(() => import("./pages/RiderProfile"));
 const EditProfile = lazy(() => import("./pages/EditProfile"));
-// Rider wallet removed — riders pay drivers directly
+const RiderWalletPage = lazy(() => import("./pages/RiderWalletPage"));
 const SafetyPage = lazy(() => import("./pages/SafetyPage"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
