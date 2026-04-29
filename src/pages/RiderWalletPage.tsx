@@ -304,6 +304,13 @@ export default function RiderWalletPage() {
         title="All Transactions"
       />
 
+      <TransferMoneyModal
+        isOpen={showTransfer}
+        onClose={() => setShowTransfer(false)}
+        balance={balance}
+        onSuccess={refreshWallet}
+      />
+
       <BottomNavBar />
     </div>
   );
