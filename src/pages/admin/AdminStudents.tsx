@@ -55,6 +55,10 @@ export default function AdminStudents() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'locked'>('pending');
   const [signed, setSigned] = useState<Record<string, { id?: string; selfie?: string }>>({});
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'lowest_blur' | 'highest_glare' | 'lowest_brightness'>('newest');
+  const [historyOpen, setHistoryOpen] = useState<string | null>(null);
+  const [history, setHistory] = useState<Record<string, AttemptRow[]>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -68,6 +72,33 @@ export default function AdminStudents() {
 
   useEffect(() => { load(); }, [load]);
 
+  /** Client-side search + quality-aware sort. Sorting prefers worst quality first to surface trouble. */
+  const visibleRows = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    let list = rows;
+    if (q) {
+      list = list.filter(r =>
+        r.registration_number?.toLowerCase().includes(q) ||
+        r.national_id_number?.toLowerCase().includes(q) ||
+        r.institutions?.name?.toLowerCase().includes(q) ||
+        r.institutions?.city?.toLowerCase().includes(q),
+      );
+    }
+    const worstBlur = (r: Row) => Math.max(r.id_photo_quality?.blur ?? -1, r.selfie_photo_quality?.blur ?? -1);
+    const anyGlare = (r: Row) => (r.id_photo_quality?.glare ? 1 : 0) + (r.selfie_photo_quality?.glare ? 1 : 0);
+    const worstBright = (r: Row) => {
+      const a = r.id_photo_quality?.brightness;
+      const b = r.selfie_photo_quality?.brightness;
+      const arr = [a, b].filter((v): v is number => typeof v === 'number');
+      return arr.length ? Math.min(...arr) : 999;
+    };
+    const sorted = [...list];
+    if (sortBy === 'lowest_blur') sorted.sort((a, b) => worstBlur(b) - worstBlur(a)); // higher blur score = blurrier
+    else if (sortBy === 'highest_glare') sorted.sort((a, b) => anyGlare(b) - anyGlare(a));
+    else if (sortBy === 'lowest_brightness') sorted.sort((a, b) => worstBright(a) - worstBright(b));
+    return sorted;
+  }, [rows, search, sortBy]);
+
   const sign = async (row: Row) => {
     if (signed[row.id]) return;
     const out: { id?: string; selfie?: string } = {};
@@ -80,6 +111,20 @@ export default function AdminStudents() {
       out.selfie = data?.signedUrl;
     }
     setSigned(prev => ({ ...prev, [row.id]: out }));
+  };
+
+  const loadHistory = async (row: Row) => {
+    if (historyOpen === row.id) { setHistoryOpen(null); return; }
+    setHistoryOpen(row.id);
+    if (history[row.id]) return;
+    const { data, error } = await supabase
+      .from('student_verification_attempts')
+      .select('*')
+      .eq('user_id', row.user_id)
+      .order('created_at', { ascending: false })
+      .limit(40);
+    if (error) { toast.error(error.message); return; }
+    setHistory(prev => ({ ...prev, [row.id]: (data as AttemptRow[]) ?? [] }));
   };
 
   const update = async (row: Row, patch: Partial<Row> & Record<string, unknown>) => {
