@@ -142,7 +142,7 @@ export default function DriverWalletPage() {
       <div className="min-h-[100dvh] bg-background flex items-center justify-center p-4">
         <WalletPinModal
           isOpen={true}
-          onClose={() => navigate(-1)}
+          onClose={() => { if (!pinVerified) navigate(-1); }}
           onVerified={() => setPinVerified(true)}
           mode={hasPin ? 'verify' : 'setup'}
           onVerifyPin={handleVerifyPin}
