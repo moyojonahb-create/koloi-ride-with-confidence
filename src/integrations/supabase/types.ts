@@ -1831,6 +1831,57 @@ export type Database = {
           },
         ]
       }
+      student_verification_attempts: {
+        Row: {
+          blur: number | null
+          brightness: number | null
+          created_at: string
+          face_match_score: number | null
+          glare: boolean | null
+          height: number | null
+          id: string
+          notes: string | null
+          photo_kind: string
+          rejected_step: string | null
+          student_profile_id: string | null
+          user_id: string
+          verification_status: string | null
+          width: number | null
+        }
+        Insert: {
+          blur?: number | null
+          brightness?: number | null
+          created_at?: string
+          face_match_score?: number | null
+          glare?: boolean | null
+          height?: number | null
+          id?: string
+          notes?: string | null
+          photo_kind: string
+          rejected_step?: string | null
+          student_profile_id?: string | null
+          user_id: string
+          verification_status?: string | null
+          width?: number | null
+        }
+        Update: {
+          blur?: number | null
+          brightness?: number | null
+          created_at?: string
+          face_match_score?: number | null
+          glare?: boolean | null
+          height?: number | null
+          id?: string
+          notes?: string | null
+          photo_kind?: string
+          rejected_step?: string | null
+          student_profile_id?: string | null
+          user_id?: string
+          verification_status?: string | null
+          width?: number | null
+        }
+        Relationships: []
+      }
       system_error_logs: {
         Row: {
           affected_users: number | null

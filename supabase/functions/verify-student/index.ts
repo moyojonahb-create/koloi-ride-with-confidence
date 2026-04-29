@@ -230,12 +230,69 @@ Deno.serve(async (req) => {
       selfie_photo_quality: body.selfie_photo_quality ?? null,
     };
 
-    const { error: upErr } = await admin
+    const { data: upRow, error: upErr } = await admin
       .from('student_profiles')
-      .upsert(upsertPayload, { onConflict: 'user_id' });
+      .upsert(upsertPayload, { onConflict: 'user_id' })
+      .select('id')
+      .maybeSingle();
     if (upErr) {
       console.error('upsert error', upErr);
       return json({ error: upErr.message }, 500);
+    }
+
+    // Determine which step (if any) was the weak link
+    let rejectedStep: 'id' | 'selfie' | null = null;
+    if (!approved) {
+      if (!args.id_face_clear) rejectedStep = 'id';
+      else if (!args.selfie_face_clear) rejectedStep = 'selfie';
+      else {
+        // Pick the photo with worse quality as the suggested retake target
+        const idQ = body.id_photo_quality;
+        const selQ = body.selfie_photo_quality;
+        const idScore = qualityScore(idQ);
+        const selScore = qualityScore(selQ);
+        rejectedStep = selScore < idScore ? 'selfie' : 'id';
+      }
+    }
+
+    // Record retake history (one row per photo for trend analysis)
+    const profileId = upRow?.id ?? null;
+    const attemptRows: Record<string, unknown>[] = [];
+    if (body.id_photo_quality) {
+      attemptRows.push({
+        user_id: userId,
+        student_profile_id: profileId,
+        photo_kind: 'id',
+        brightness: body.id_photo_quality.brightness ?? null,
+        glare: body.id_photo_quality.glare ?? null,
+        blur: body.id_photo_quality.blur ?? null,
+        width: body.id_photo_quality.width ?? null,
+        height: body.id_photo_quality.height ?? null,
+        face_match_score: score,
+        verification_status: upsertPayload.verification_status,
+        rejected_step: rejectedStep,
+        notes: args.notes ?? null,
+      });
+    }
+    if (body.selfie_photo_quality) {
+      attemptRows.push({
+        user_id: userId,
+        student_profile_id: profileId,
+        photo_kind: 'selfie',
+        brightness: body.selfie_photo_quality.brightness ?? null,
+        glare: body.selfie_photo_quality.glare ?? null,
+        blur: body.selfie_photo_quality.blur ?? null,
+        width: body.selfie_photo_quality.width ?? null,
+        height: body.selfie_photo_quality.height ?? null,
+        face_match_score: score,
+        verification_status: upsertPayload.verification_status,
+        rejected_step: rejectedStep,
+        notes: args.notes ?? null,
+      });
+    }
+    if (attemptRows.length) {
+      const { error: attErr } = await admin.from('student_verification_attempts').insert(attemptRows);
+      if (attErr) console.error('attempt insert err', attErr);
     }
 
     return json({
@@ -243,6 +300,9 @@ Deno.serve(async (req) => {
       face_match_score: score,
       verification_status: upsertPayload.verification_status,
       student_mode_active: upsertPayload.student_mode_active,
+      rejected_step: rejectedStep,
+      id_quality: body.id_photo_quality ?? null,
+      selfie_quality: body.selfie_photo_quality ?? null,
       attempts_remaining: Math.max(0, ATTEMPT_LOCK - attempts),
     });
   } catch (e) {
@@ -267,6 +327,17 @@ async function fetchImageAsBase64(admin: ReturnType<typeof createClient>, path: 
     console.error('image fetch failed', e);
     return null;
   }
+}
+
+function qualityScore(q?: PhotoQualityIn): number {
+  if (!q) return 0;
+  let s = 100;
+  const b = q.brightness ?? 50;
+  if (b < 30) s -= 30;
+  else if (b > 85) s -= 20;
+  if (q.glare) s -= 25;
+  if ((q.blur ?? 0) > 60) s -= 30;
+  return s;
 }
 
 function json(body: unknown, status = 200) {

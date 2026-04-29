@@ -2,6 +2,14 @@ import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
 
+export interface StudentPhotoQuality {
+  brightness?: number;
+  glare?: boolean;
+  blur?: number;
+  width?: number;
+  height?: number;
+}
+
 export interface StudentProfile {
   id: string;
   user_id: string;
@@ -10,6 +18,8 @@ export interface StudentProfile {
   national_id_number: string;
   id_photo_path: string | null;
   selfie_photo_path: string | null;
+  id_photo_quality: StudentPhotoQuality | null;
+  selfie_photo_quality: StudentPhotoQuality | null;
   face_match_score: number;
   verification_status: 'pending' | 'approved' | 'rejected' | 'locked';
   student_mode_active: boolean;

@@ -79,7 +79,14 @@ export default function StudentVerificationPage() {
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
   const [selfieQuality, setSelfieQuality] = useState<PhotoQuality | null>(null);
   const [selfieIssues, setSelfieIssues] = useState<QualityIssue[]>([]);
-  const [result, setResult] = useState<{ status: string; score: number; reason?: string } | null>(null);
+  const [result, setResult] = useState<{
+    status: string;
+    score: number;
+    reason?: string;
+    rejectedStep?: 'id' | 'selfie' | null;
+    idQuality?: PhotoQuality | null;
+    selfieQuality?: PhotoQuality | null;
+  } | null>(null);
 
   // If already verified or pending, show result screen by default
   useEffect(() => {
@@ -88,6 +95,8 @@ export default function StudentVerificationPage() {
         status: profile.verification_status,
         score: profile.face_match_score ?? 0,
         reason: profile.rejection_reason ?? undefined,
+        idQuality: (profile.id_photo_quality as PhotoQuality | null) ?? null,
+        selfieQuality: (profile.selfie_photo_quality as PhotoQuality | null) ?? null,
       });
       setStep('result');
     }
@@ -138,6 +147,18 @@ export default function StudentVerificationPage() {
     setStep('idphoto');
   };
 
+  /** Reset only the photo type that failed and jump straight to that step. */
+  const retakeStep = (kind: 'id' | 'selfie') => {
+    if (kind === 'id') {
+      setIdPhoto(null); setIdPhotoPreview(null); setIdQuality(null); setIdIssues([]);
+      setStep('idphoto');
+    } else {
+      setSelfie(null); setSelfiePreview(null); setSelfieQuality(null); setSelfieIssues([]);
+      setStep('selfie');
+    }
+    setResult(null);
+  };
+
   const submit = async () => {
     if (!user || !institution || !idPhoto || !selfie) return;
     setStep('submitting');
@@ -173,7 +194,14 @@ export default function StudentVerificationPage() {
       const data = await resp.json();
       if (!resp.ok) {
         toast.error(data.error || 'Verification failed');
-        setResult({ status: 'rejected', score: 0, reason: data.error });
+        setResult({
+          status: 'rejected',
+          score: 0,
+          reason: data.error,
+          rejectedStep: null,
+          idQuality,
+          selfieQuality,
+        });
         setStep('result');
         await refetch();
         return;
@@ -181,6 +209,9 @@ export default function StudentVerificationPage() {
       setResult({
         status: data.verification_status,
         score: data.face_match_score,
+        rejectedStep: data.rejected_step ?? null,
+        idQuality: (data.id_quality as PhotoQuality) ?? idQuality,
+        selfieQuality: (data.selfie_quality as PhotoQuality) ?? selfieQuality,
       });
       setStep('result');
       await refetch();
@@ -420,8 +451,12 @@ export default function StudentVerificationPage() {
               status={result.status}
               score={result.score}
               reason={result.reason}
+              rejectedStep={result.rejectedStep ?? null}
+              idQuality={result.idQuality ?? null}
+              selfieQuality={result.selfieQuality ?? null}
               onClose={() => navigate('/profile')}
               onRetry={retakeAll}
+              onRetryStep={retakeStep}
             />
           )}
         </AnimatePresence>
@@ -523,21 +558,43 @@ function SelfieCapture({
 
       <div className="flex gap-2">
         {!active && !hasSelfie && (
-          <Button onClick={start} aria-label="Open camera to take selfie" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button
+            onClick={start}
+            autoFocus
+            aria-label="Open camera to take selfie"
+            className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+          >
             <Camera className="w-4 h-4" /> Open Camera
           </Button>
         )}
         {active && (
-          <Button onClick={capture} aria-label="Capture selfie now" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+          <Button
+            onClick={capture}
+            autoFocus
+            onKeyDown={(e) => { if (e.key === 'Escape') stop(); }}
+            aria-label="Capture selfie now"
+            aria-keyshortcuts="Enter Space"
+            className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+          >
             <Camera className="w-4 h-4" /> Take Photo
           </Button>
         )}
         {!active && hasSelfie && (
           <>
-            <Button onClick={start} variant="outline" aria-label="Retake selfie" className="flex-1 h-12 gap-2">
+            <Button
+              onClick={start}
+              variant="outline"
+              aria-label="Retake selfie"
+              className="flex-1 h-12 gap-2 focus-visible:ring-4 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+            >
               <RotateCcw className="w-4 h-4" /> Retake
             </Button>
-            <Button onClick={onSubmit} aria-label="Submit verification" className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={onSubmit}
+              autoFocus
+              aria-label="Submit verification"
+              className="flex-1 h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-300 focus-visible:ring-offset-2"
+            >
               <ShieldCheck className="w-4 h-4" /> Submit
             </Button>
           </>
@@ -547,14 +604,43 @@ function SelfieCapture({
   );
 }
 
+/** Small chip showing brightness/glare/blur for one photo. */
+function QualityChips({ q, label }: { q: PhotoQuality | null; label: string }) {
+  if (!q) return null;
+  const tone = (ok: boolean) => ok ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-rose-100 text-rose-800 border-rose-300';
+  const brightOk = q.brightness >= 30 && q.brightness <= 85;
+  const blurOk = q.blur <= 60;
+  const glareOk = !q.glare;
+  return (
+    <div className="text-left mb-3">
+      <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">{label}</p>
+      <div className="flex flex-wrap gap-1.5">
+        <span className={cn('text-[11px] font-semibold px-2 py-1 rounded-full border', tone(brightOk))} aria-label={`Brightness ${q.brightness} percent`}>
+          ☀ Brightness {q.brightness}%
+        </span>
+        <span className={cn('text-[11px] font-semibold px-2 py-1 rounded-full border', tone(glareOk))} aria-label={q.glare ? 'Glare detected' : 'No glare'}>
+          ✨ {q.glare ? 'Glare detected' : 'No glare'}
+        </span>
+        <span className={cn('text-[11px] font-semibold px-2 py-1 rounded-full border', tone(blurOk))} aria-label={`Blur level ${q.blur}`}>
+          🎯 Blur {q.blur}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function ResultScreen({
-  status, score, reason, onClose, onRetry,
+  status, score, reason, rejectedStep, idQuality, selfieQuality, onClose, onRetry, onRetryStep,
 }: {
   status: string;
   score: number;
   reason?: string;
+  rejectedStep: 'id' | 'selfie' | null;
+  idQuality: PhotoQuality | null;
+  selfieQuality: PhotoQuality | null;
   onClose: () => void;
   onRetry: () => void;
+  onRetryStep: (kind: 'id' | 'selfie') => void;
 }) {
   const config = {
     approved: {
@@ -586,6 +672,8 @@ function ResultScreen({
   };
 
   const { Icon } = config;
+  const showRetake = status === 'rejected' || (status === 'pending' && score > 0 && score < 90);
+
   return (
     <motion.div key="res" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center py-8">
       <motion.div
@@ -601,7 +689,19 @@ function ResultScreen({
         <Badge variant="secondary" className="mb-4">Match score: {score}/100</Badge>
       )}
 
-      {(status === 'rejected' || (status === 'pending' && score > 0 && score < 90)) && (
+      {/* Quality chips for the photo type that needs attention */}
+      {showRetake && (
+        <div className="max-w-sm mx-auto mb-4">
+          {(rejectedStep === 'id' || !rejectedStep) && (
+            <QualityChips q={idQuality} label="ID photo quality" />
+          )}
+          {(rejectedStep === 'selfie' || !rejectedStep) && (
+            <QualityChips q={selfieQuality} label="Selfie quality" />
+          )}
+        </div>
+      )}
+
+      {showRetake && (
         <div className="max-w-sm mx-auto mb-5 text-left">
           <PhotoTips
             label="How to pass on the next try"
@@ -616,14 +716,33 @@ function ResultScreen({
       )}
 
       <div className="space-y-2 max-w-xs mx-auto">
-        <Button onClick={onClose} className="w-full h-12 font-bold bg-blue-600 hover:bg-blue-700">
-          Back to profile
-        </Button>
-        {(status === 'rejected' || status === 'pending') && (
-          <Button onClick={onRetry} variant="outline" className="w-full h-12 gap-2" aria-label="Retake photos and try again">
-            <RotateCcw className="w-4 h-4" /> Retake photos &amp; try again
+        {/* Step-specific retake — only resets the rejected photo */}
+        {showRetake && rejectedStep === 'id' && (
+          <Button
+            onClick={() => onRetryStep('id')}
+            className="w-full h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-300"
+            aria-label="Retake only the ID photo"
+          >
+            <RotateCcw className="w-4 h-4" /> Retake ID photo only
           </Button>
         )}
+        {showRetake && rejectedStep === 'selfie' && (
+          <Button
+            onClick={() => onRetryStep('selfie')}
+            className="w-full h-12 font-bold gap-2 bg-blue-600 hover:bg-blue-700 focus-visible:ring-4 focus-visible:ring-blue-300"
+            aria-label="Retake only the selfie"
+          >
+            <RotateCcw className="w-4 h-4" /> Retake selfie only
+          </Button>
+        )}
+        {showRetake && (
+          <Button onClick={onRetry} variant="outline" className="w-full h-12 gap-2 focus-visible:ring-4 focus-visible:ring-blue-300" aria-label="Retake both photos and try again">
+            <RotateCcw className="w-4 h-4" /> Retake both photos
+          </Button>
+        )}
+        <Button onClick={onClose} variant={showRetake ? 'ghost' : 'default'} className={cn('w-full h-12 font-bold', !showRetake && 'bg-blue-600 hover:bg-blue-700')}>
+          Back to profile
+        </Button>
       </div>
     </motion.div>
   );

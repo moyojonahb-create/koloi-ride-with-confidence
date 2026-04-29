@@ -1,8 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, CheckCircle2, XCircle, RotateCcw, ShieldAlert, GraduationCap } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, RotateCcw, ShieldAlert, GraduationCap, History, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminLayout from '@/components/admin/AdminLayout';
 
@@ -33,6 +34,20 @@ interface Row {
   institutions: { name: string; city: string } | null;
 }
 
+interface AttemptRow {
+  id: string;
+  user_id: string;
+  photo_kind: 'id' | 'selfie';
+  brightness: number | null;
+  glare: boolean | null;
+  blur: number | null;
+  face_match_score: number | null;
+  verification_status: string | null;
+  rejected_step: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
 function QualityChips({ q, label }: { q: Quality | null; label: string }) {
   if (!q) return <p className="text-[10px] text-muted-foreground">{label}: no quality data</p>;
   const tone = (ok: boolean) => ok ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
@@ -54,6 +69,10 @@ export default function AdminStudents() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected' | 'locked'>('pending');
   const [signed, setSigned] = useState<Record<string, { id?: string; selfie?: string }>>({});
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'lowest_blur' | 'highest_glare' | 'lowest_brightness'>('newest');
+  const [historyOpen, setHistoryOpen] = useState<string | null>(null);
+  const [history, setHistory] = useState<Record<string, AttemptRow[]>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -67,6 +86,33 @@ export default function AdminStudents() {
 
   useEffect(() => { load(); }, [load]);
 
+  /** Client-side search + quality-aware sort. Sorting prefers worst quality first to surface trouble. */
+  const visibleRows = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    let list = rows;
+    if (q) {
+      list = list.filter(r =>
+        r.registration_number?.toLowerCase().includes(q) ||
+        r.national_id_number?.toLowerCase().includes(q) ||
+        r.institutions?.name?.toLowerCase().includes(q) ||
+        r.institutions?.city?.toLowerCase().includes(q),
+      );
+    }
+    const worstBlur = (r: Row) => Math.max(r.id_photo_quality?.blur ?? -1, r.selfie_photo_quality?.blur ?? -1);
+    const anyGlare = (r: Row) => (r.id_photo_quality?.glare ? 1 : 0) + (r.selfie_photo_quality?.glare ? 1 : 0);
+    const worstBright = (r: Row) => {
+      const a = r.id_photo_quality?.brightness;
+      const b = r.selfie_photo_quality?.brightness;
+      const arr = [a, b].filter((v): v is number => typeof v === 'number');
+      return arr.length ? Math.min(...arr) : 999;
+    };
+    const sorted = [...list];
+    if (sortBy === 'lowest_blur') sorted.sort((a, b) => worstBlur(b) - worstBlur(a)); // higher blur score = blurrier
+    else if (sortBy === 'highest_glare') sorted.sort((a, b) => anyGlare(b) - anyGlare(a));
+    else if (sortBy === 'lowest_brightness') sorted.sort((a, b) => worstBright(a) - worstBright(b));
+    return sorted;
+  }, [rows, search, sortBy]);
+
   const sign = async (row: Row) => {
     if (signed[row.id]) return;
     const out: { id?: string; selfie?: string } = {};
@@ -79,6 +125,20 @@ export default function AdminStudents() {
       out.selfie = data?.signedUrl;
     }
     setSigned(prev => ({ ...prev, [row.id]: out }));
+  };
+
+  const loadHistory = async (row: Row) => {
+    if (historyOpen === row.id) { setHistoryOpen(null); return; }
+    setHistoryOpen(row.id);
+    if (history[row.id]) return;
+    const { data, error } = await supabase
+      .from('student_verification_attempts')
+      .select('*')
+      .eq('user_id', row.user_id)
+      .order('created_at', { ascending: false })
+      .limit(40);
+    if (error) { toast.error(error.message); return; }
+    setHistory(prev => ({ ...prev, [row.id]: (data as AttemptRow[]) ?? [] }));
   };
 
   const update = async (row: Row, patch: Partial<Row> & Record<string, unknown>) => {
@@ -96,7 +156,7 @@ export default function AdminStudents() {
           <h1 className="text-2xl font-bold">Student Verifications</h1>
         </div>
 
-        <div className="flex gap-1.5 mb-4 overflow-x-auto">
+        <div className="flex gap-1.5 mb-3 overflow-x-auto">
           {(['pending', 'approved', 'rejected', 'locked', 'all'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)}
               className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize border ${filter === f ? 'bg-blue-600 text-white border-blue-600' : 'bg-card border-border'}`}>
@@ -105,13 +165,42 @@ export default function AdminStudents() {
           ))}
         </div>
 
+        <div className="relative mb-3">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by reg #, NID, institution or city"
+            className="pl-9 h-10 rounded-2xl text-sm"
+          />
+        </div>
+
+        <div className="flex gap-1.5 mb-4 overflow-x-auto" role="tablist" aria-label="Sort submissions">
+          {([
+            ['newest', 'Newest'],
+            ['lowest_blur', 'Blurriest first'],
+            ['highest_glare', 'Most glare'],
+            ['lowest_brightness', 'Darkest first'],
+          ] as const).map(([key, label]) => (
+            <button
+              key={key}
+              role="tab"
+              aria-selected={sortBy === key}
+              onClick={() => setSortBy(key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold border whitespace-nowrap ${sortBy === key ? 'bg-blue-600 text-white border-blue-600' : 'bg-card border-border'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-10"><Loader2 className="w-5 h-5 animate-spin" /></div>
-        ) : rows.length === 0 ? (
+        ) : visibleRows.length === 0 ? (
           <p className="text-center text-sm text-muted-foreground py-10">No records.</p>
         ) : (
           <div className="space-y-3">
-            {rows.map(row => (
+            {visibleRows.map(row => (
               <div key={row.id} className="bg-card border border-border rounded-2xl p-4">
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div>
@@ -181,7 +270,47 @@ export default function AdminStudents() {
                   <Button size="sm" variant="outline" onClick={() => update(row, { fraud_score: 0 })} className="text-xs gap-1">
                     <ShieldAlert className="w-3 h-3" /> Clear fraud
                   </Button>
+                  <Button size="sm" variant="outline" onClick={() => loadHistory(row)} className="text-xs gap-1">
+                    <History className="w-3 h-3" /> {historyOpen === row.id ? 'Hide' : 'History'}
+                  </Button>
                 </div>
+
+                {historyOpen === row.id && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                      Retake history ({history[row.id]?.length ?? 0})
+                    </p>
+                    {!history[row.id] ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : history[row.id].length === 0 ? (
+                      <p className="text-xs text-muted-foreground">No quality history yet.</p>
+                    ) : (
+                      <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                        {history[row.id].map(a => {
+                          const brightOk = (a.brightness ?? 50) >= 30 && (a.brightness ?? 50) <= 85;
+                          const blurOk = (a.blur ?? 0) <= 60;
+                          const glareOk = !a.glare;
+                          const tone = (ok: boolean) => ok ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
+                          return (
+                            <div key={a.id} className="flex flex-wrap items-center gap-1.5 text-[10px] p-2 rounded-lg bg-muted/50">
+                              <Badge variant="outline" className="capitalize text-[10px]">{a.photo_kind}</Badge>
+                              <span className="text-muted-foreground">{new Date(a.created_at).toLocaleString()}</span>
+                              <Badge className={`text-[10px] ${tone(brightOk)}`}>☀ {a.brightness ?? '?'}%</Badge>
+                              <Badge className={`text-[10px] ${tone(glareOk)}`}>{a.glare ? 'Glare' : 'No glare'}</Badge>
+                              <Badge className={`text-[10px] ${tone(blurOk)}`}>Blur {a.blur ?? '?'}</Badge>
+                              {a.face_match_score !== null && (
+                                <Badge variant="secondary" className="text-[10px]">Match {a.face_match_score}</Badge>
+                              )}
+                              {a.rejected_step && (
+                                <Badge className="text-[10px] bg-amber-100 text-amber-800">Failed: {a.rejected_step}</Badge>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
