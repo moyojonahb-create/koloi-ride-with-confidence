@@ -347,6 +347,10 @@ export default function RideView() {
   const handleSendOffer = async (customFare: number) => {
     if (!user) {setAuthMode('login');setAuthModalOpen(true);return;}
     if (!pickupLocation || !dropoffLocation || !fareEstimate) {toast({ title: 'Select pickup and destination', variant: 'destructive' });return;}
+    if (paymentMethod === 'wallet' && walletBalance < customFare) {
+      toast({ title: 'Insufficient wallet balance', description: `You need $${customFare.toFixed(2)} but only have $${walletBalance.toFixed(2)}. Top up or switch to Cash.`, variant: 'destructive' });
+      return;
+    }
     
     // ⚡ INSTANT UI RESPONSE — update state before network call
     haptic('medium');
