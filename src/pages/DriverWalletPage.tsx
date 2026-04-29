@@ -276,4 +276,3 @@ export default function DriverWalletPage() {
     </div>
   );
 }
-}
