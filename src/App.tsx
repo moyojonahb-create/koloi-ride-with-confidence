@@ -52,6 +52,7 @@ const ImportOsmPlaces = lazy(() => import("./pages/admin/ImportOsmPlaces"));
 const AdminDisputes = lazy(() => import("./pages/admin/AdminDisputes"));
 const AdminSystemHealth = lazy(() => import("./pages/admin/AdminSystemHealth"));
 const AdminStudents = lazy(() => import("./pages/admin/AdminStudents"));
+const AdminWithdrawalsPage = lazy(() => import("./pages/admin/AdminWithdrawalsPage"));
 const StudentVerificationPage = lazy(() => import("./pages/StudentVerificationPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const DriverRequestsScreen = lazy(() => import("./pages/negotiate/DriverRequestsScreen"));
@@ -185,6 +186,7 @@ export default function App() {
           <Route path="/admin/disputes" element={<SuspenseWrap><AdminGuard><AdminDisputes /></AdminGuard></SuspenseWrap>} />
           <Route path="/admin/system-health" element={<SuspenseWrap><AdminGuard><AdminSystemHealth /></AdminGuard></SuspenseWrap>} />
           <Route path="/admin/students" element={<SuspenseWrap><AdminGuard><AdminStudents /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/withdrawals" element={<SuspenseWrap><AdminGuard><AdminWithdrawalsPage /></AdminGuard></SuspenseWrap>} />
           <Route path="/student-verification" element={<SuspenseWrap><AuthGuard><StudentVerificationPage /></AuthGuard></SuspenseWrap>} />
 
           <Route path="*" element={<SuspenseWrap><NotFound /></SuspenseWrap>} />
