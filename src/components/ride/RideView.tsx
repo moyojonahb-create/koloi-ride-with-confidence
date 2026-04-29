@@ -1029,7 +1029,14 @@ export default function RideView() {
                     <span className="text-[12px] font-semibold text-primary">🎓 Student discount applied −{fmt(discount)}</span>
                     <span className="text-[10px] text-muted-foreground">{studentRidesUsedToday}/{studentDailyCap} today</span>
                   </div>
-                )}
+                <div className="mb-2">
+                  <PaymentMethodSelector
+                    selected={paymentMethod}
+                    onSelect={setPaymentMethod}
+                    walletBalance={walletBalance}
+                    estimatedFare={totalFare}
+                  />
+                </div>
                 <PrimaryButton
                   onClick={() => sheetExpanded ? handleSendOffer(totalFare) : setSheetExpanded(true)}
                   disabled={isRequesting}
