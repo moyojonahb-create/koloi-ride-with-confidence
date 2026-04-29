@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
 import { resolveAvatarUrl } from "@/lib/avatarUrl";
@@ -17,6 +17,8 @@ import DriverRatingModal from "@/components/ride/DriverRatingModal";
 import RideCompleteSummary from "@/components/ride/RideCompleteSummary";
 import TripReceiptButton from "@/components/ride/TripReceiptButton";
 import DisputeForm from "@/components/ride/DisputeForm";
+import TopFlashBanner from "@/components/ui/top-flash-banner";
+
 
 /** Avatar with automatic fallback to initial when image fails or is missing. */
 function DriverAvatar({ url, name, size = 56 }: { url: string | null; name: string; size?: number }) {
@@ -333,25 +335,37 @@ export default function RideDetail() {
     }
   }, [isCompletedForHook, hasRated, driverProfile]);
 
-  // Notify rider when driver marks 'arrived'
+  // ── Driver-arrived flashing top banner ──
+  const [arrivedBannerOpen, setArrivedBannerOpen] = useState(false);
   const prevStatusRef = useRef<string | null>(null);
   useEffect(() => {
     const current = ride?.status ?? null;
     const prev = prevStatusRef.current;
     if (prev && prev !== current && (current === "arrived" || current === "driver_arrived")) {
-      const driverName = driverProfile?.fullName ?? "Your driver";
-      setToast(`📍 ${driverName} has arrived at your pickup point`);
-      // Try a notification sound (best effort)
-      import("@/lib/notificationSounds")
-        .then(({ playNotificationSound }) => playNotificationSound("offerReceived"))
+      setArrivedBannerOpen(true);
+      // Configurable arrived sound
+      import("@/lib/arrivedSoundPrefs")
+        .then(({ playConfiguredArrivedSound }) => playConfiguredArrivedSound())
         .catch(() => {});
       // Vibration
       if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-        try { navigator.vibrate?.([200, 100, 200]); } catch { /* noop */ }
+        try { navigator.vibrate?.([220, 90, 220, 90, 220]); } catch { /* noop */ }
       }
     }
     prevStatusRef.current = current;
-  }, [ride?.status, driverProfile?.fullName]);
+  }, [ride?.status]);
+
+  const handleImComing = useCallback(async () => {
+    if (!rideId) return;
+    try {
+      const { broadcastRiderComing } = await import("@/lib/rideSignals");
+      await broadcastRiderComing(rideId, { riderName: "Rider", etaSeconds: 60 });
+      setToast("✓ Driver notified — they'll wait for you");
+    } catch (e) {
+      console.warn("[RideDetail] failed to notify driver", e);
+      setToast("Couldn't notify driver. Try again.");
+    }
+  }, [rideId]);
 
   if (loading || !ride) {
     return (
@@ -491,6 +505,30 @@ export default function RideDetail() {
           onToggleMute={toggleMute} onToggleSpeaker={toggleSpeaker} onEndCall={endCall} otherUserName="Rider" />
       }
       {incomingCall && <IncomingCallModal callerId={incomingCall.callerId} onAnswer={answerCall} onDecline={declineIncomingCall} />}
+
+      {/* ── Driver Arrived — flashing top banner (10s) ── */}
+      <TopFlashBanner
+        open={arrivedBannerOpen}
+        onClose={() => setArrivedBannerOpen(false)}
+        durationMs={10_000}
+        tone="success"
+        icon={<CheckCircle2 className="w-7 h-7" />}
+        title={`${driverProfile?.fullName ?? "Your driver"} is outside`}
+        subtitle={
+          driverProfile?.plateNumber
+            ? `Look for ${driverProfile.vehicleMake ?? ""} ${driverProfile.vehicleModel ?? ""} · ${driverProfile.plateNumber}`.trim()
+            : "Please head to the pickup point now"
+        }
+        trailing={
+          <div className="flex flex-col items-center justify-center px-2.5 py-1.5 rounded-xl bg-white/20 min-w-[58px]">
+            <span className="text-base font-extrabold leading-none">~1</span>
+            <span className="text-[9px] font-bold tracking-wider mt-0.5 opacity-90">MIN</span>
+          </div>
+        }
+        actionLabel="I'm coming"
+        onAction={handleImComing}
+      />
+
 
       {/* Map — takes top portion */}
       <div className="absolute inset-0 bottom-0">

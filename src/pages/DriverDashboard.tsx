@@ -82,6 +82,9 @@ import RidePreferenceTags from "@/components/ride/RidePreferenceTags";
 import RideRequestCard from "@/components/driver/RideRequestCard";
 import DriverOfferModal from "@/components/driver/DriverOfferModal";
 import PassengerInfoCard from "@/components/driver/PassengerInfoCard";
+import TopFlashBanner from "@/components/ui/top-flash-banner";
+import { subscribeRiderComing } from "@/lib/rideSignals";
+import { Footprints } from "lucide-react";
 
 // Smart USD format: $4 for whole, $4.50 for halves
 function fmtUSD(n: number): string {
@@ -141,6 +144,7 @@ export default function DriverDashboard() {
   const [townPricingMap, setTownPricingMap] = useState<Record<string, TownPricingConfig>>({});
   const [ridePreferences, setRidePreferences] = useState<Record<string, { quiet_ride: boolean; cool_temperature: boolean; wav_required?: boolean; hearing_impaired?: boolean; gender_preference?: string }>>({});
   const [fullNavMode, setFullNavMode] = useState(false);
+  const [riderComingBanner, setRiderComingBanner] = useState<{ open: boolean; name?: string }>({ open: false });
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -157,6 +161,22 @@ export default function DriverDashboard() {
   }, [user]);
   useEffect(() => { fetchDriverBalance(); }, [fetchDriverBalance]);
   useEffect(() => { preloadAllTownPricing().then(setTownPricingMap); }, []);
+
+  // ── Listen for "rider is on the way" broadcast from rider ──
+  useEffect(() => {
+    if (!activeTrip?.id) return;
+    const unsub = subscribeRiderComing(activeTrip.id, (payload) => {
+      setRiderComingBanner({ open: true, name: payload.riderName });
+      // Sound + vibrate
+      import("@/lib/notificationSounds")
+        .then(({ playNotificationSound }) => playNotificationSound("accepted"))
+        .catch(() => {});
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        try { navigator.vibrate?.([180, 80, 180]); } catch { /* noop */ }
+      }
+    });
+    return unsub;
+  }, [activeTrip?.id]);
 
   // Fatigue monitor
   const fatigueState = useFatigueMonitor(user?.id, isOnline);
@@ -716,7 +736,17 @@ export default function DriverDashboard() {
         />
       )}
 
-      {/* Header with Wallet + Settings */}
+      {/* ── Rider on the way — flashing top banner (10s) ── */}
+      <TopFlashBanner
+        open={riderComingBanner.open}
+        onClose={() => setRiderComingBanner({ open: false })}
+        durationMs={10_000}
+        tone="info"
+        icon={<Footprints className="w-7 h-7" />}
+        title={`${riderComingBanner.name || "Your rider"} is on the way`}
+        subtitle="They've left and are heading to your location now"
+      />
+
       <div className="shrink-0 bg-background/95 backdrop-blur-lg border-b border-border/60 px-5 py-3.5 z-10">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <Button variant="ghost" size="icon" onClick={() => nav(-1)} className="w-11 h-11 rounded-2xl active:scale-90 transition-all">
