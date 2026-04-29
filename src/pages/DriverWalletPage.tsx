@@ -95,6 +95,10 @@ export default function DriverWalletPage() {
           setEarnings((prev) => [payload.new as EarningRecord, ...prev].slice(0, 50));
         }
       )
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'withdrawals', filter: `driver_id=eq.${user.id}` },
+        () => { load(); }
+      )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user]);
