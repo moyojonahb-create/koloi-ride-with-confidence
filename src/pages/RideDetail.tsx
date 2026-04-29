@@ -659,15 +659,9 @@ export default function RideDetail() {
           )}
 
           {/* ── Driver Info Card (when accepted) ── */}
-          {driverProfile && !isDriverArrived && (
+          {driverProfile && (
             <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-muted/40">
-              {driverProfile.avatarUrl ? (
-                <img src={driverProfile.avatarUrl} alt="Driver" className="w-14 h-14 rounded-full object-cover border-2 border-primary/20" loading="eager" decoding="async" />
-              ) : (
-                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20">
-                  <span className="text-lg font-bold text-primary">{driverProfile.fullName.charAt(0)}</span>
-                </div>
-              )}
+              <DriverAvatar url={driverProfile.avatarUrl} name={driverProfile.fullName} size={56} />
               <div className="flex-1 min-w-0">
                 <p className="text-base font-bold text-foreground truncate">{driverProfile.fullName}</p>
                 <div className="flex items-center gap-2 mt-0.5">
