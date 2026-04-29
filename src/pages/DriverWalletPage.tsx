@@ -245,4 +245,38 @@ export default function DriverWalletPage() {
       </div>
     </div>
   );
+        {/* Withdrawal History */}
+        {tab === 'withdrawals' && (
+          <div className="space-y-2">
+            {withdrawals.length === 0 && !loading && (
+              <div className="bg-card border rounded-xl p-6 text-center text-sm text-muted-foreground">
+                No withdrawals yet. Tap “Withdraw” to request one.
+              </div>
+            )}
+            {withdrawals.map((w) => (
+              <div key={w.id} className="bg-card rounded-xl p-3 border">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-bold text-sm">−${Number(w.amount_usd).toFixed(2)}</div>
+                    <div className="text-xs text-muted-foreground capitalize">
+                      {w.method} • {w.destination}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground mt-0.5">
+                      {format(new Date(w.created_at), 'dd MMM yyyy, HH:mm')}
+                    </div>
+                    {w.admin_note && (
+                      <div className="text-[11px] text-muted-foreground mt-1 italic">“{w.admin_note}”</div>
+                    )}
+                  </div>
+                  <span className={`text-xs font-bold capitalize ${statusColor(w.status)}`}>{w.status}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {loading && <div className="text-center text-muted-foreground text-sm py-4">Loading…</div>}
+      </div>
+    </div>
+  );
 }
