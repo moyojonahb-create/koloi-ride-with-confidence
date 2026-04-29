@@ -11,6 +11,7 @@ import DepositModal from '@/components/wallet/DepositModal';
 import WalletPinModal from '@/components/wallet/WalletPinModal';
 import WalletSettings from '@/components/wallet/WalletSettings';
 import TransactionsSheet from '@/components/wallet/TransactionsSheet';
+import TransferMoneyModal from '@/components/wallet/TransferMoneyModal';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
