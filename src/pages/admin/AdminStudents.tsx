@@ -270,7 +270,47 @@ export default function AdminStudents() {
                   <Button size="sm" variant="outline" onClick={() => update(row, { fraud_score: 0 })} className="text-xs gap-1">
                     <ShieldAlert className="w-3 h-3" /> Clear fraud
                   </Button>
+                  <Button size="sm" variant="outline" onClick={() => loadHistory(row)} className="text-xs gap-1">
+                    <History className="w-3 h-3" /> {historyOpen === row.id ? 'Hide' : 'History'}
+                  </Button>
                 </div>
+
+                {historyOpen === row.id && (
+                  <div className="mt-3 pt-3 border-t border-border">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                      Retake history ({history[row.id]?.length ?? 0})
+                    </p>
+                    {!history[row.id] ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : history[row.id].length === 0 ? (
+                      <p className="text-xs text-muted-foreground">No quality history yet.</p>
+                    ) : (
+                      <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                        {history[row.id].map(a => {
+                          const brightOk = (a.brightness ?? 50) >= 30 && (a.brightness ?? 50) <= 85;
+                          const blurOk = (a.blur ?? 0) <= 60;
+                          const glareOk = !a.glare;
+                          const tone = (ok: boolean) => ok ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
+                          return (
+                            <div key={a.id} className="flex flex-wrap items-center gap-1.5 text-[10px] p-2 rounded-lg bg-muted/50">
+                              <Badge variant="outline" className="capitalize text-[10px]">{a.photo_kind}</Badge>
+                              <span className="text-muted-foreground">{new Date(a.created_at).toLocaleString()}</span>
+                              <Badge className={`text-[10px] ${tone(brightOk)}`}>☀ {a.brightness ?? '?'}%</Badge>
+                              <Badge className={`text-[10px] ${tone(glareOk)}`}>{a.glare ? 'Glare' : 'No glare'}</Badge>
+                              <Badge className={`text-[10px] ${tone(blurOk)}`}>Blur {a.blur ?? '?'}</Badge>
+                              {a.face_match_score !== null && (
+                                <Badge variant="secondary" className="text-[10px]">Match {a.face_match_score}</Badge>
+                              )}
+                              {a.rejected_step && (
+                                <Badge className="text-[10px] bg-amber-100 text-amber-800">Failed: {a.rejected_step}</Badge>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
