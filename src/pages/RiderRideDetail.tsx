@@ -65,6 +65,8 @@ type Ride = {
   payment_method?: string;
   wallet_paid?: boolean;
   wallet_paid_at?: string | null;
+  payment_failed?: boolean | null;
+  payment_failure_reason?: string | null;
   updated_at?: string;
 };
 
