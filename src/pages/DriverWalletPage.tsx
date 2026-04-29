@@ -183,6 +183,12 @@ export default function DriverWalletPage() {
           >
             Deposits ({deposits.length})
           </button>
+          <button
+            onClick={() => setTab('withdrawals')}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-colors ${tab === 'withdrawals' ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+          >
+            Withdrawals ({withdrawals.length})
+          </button>
         </div>
 
         {/* Earnings History */}
