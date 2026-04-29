@@ -79,7 +79,14 @@ export default function StudentVerificationPage() {
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
   const [selfieQuality, setSelfieQuality] = useState<PhotoQuality | null>(null);
   const [selfieIssues, setSelfieIssues] = useState<QualityIssue[]>([]);
-  const [result, setResult] = useState<{ status: string; score: number; reason?: string } | null>(null);
+  const [result, setResult] = useState<{
+    status: string;
+    score: number;
+    reason?: string;
+    rejectedStep?: 'id' | 'selfie' | null;
+    idQuality?: PhotoQuality | null;
+    selfieQuality?: PhotoQuality | null;
+  } | null>(null);
 
   // If already verified or pending, show result screen by default
   useEffect(() => {
