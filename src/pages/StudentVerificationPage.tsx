@@ -95,6 +95,8 @@ export default function StudentVerificationPage() {
         status: profile.verification_status,
         score: profile.face_match_score ?? 0,
         reason: profile.rejection_reason ?? undefined,
+        idQuality: (profile.id_photo_quality as PhotoQuality | null) ?? null,
+        selfieQuality: (profile.selfie_photo_quality as PhotoQuality | null) ?? null,
       });
       setStep('result');
     }
