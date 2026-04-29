@@ -34,6 +34,20 @@ interface Row {
   institutions: { name: string; city: string } | null;
 }
 
+interface AttemptRow {
+  id: string;
+  user_id: string;
+  photo_kind: 'id' | 'selfie';
+  brightness: number | null;
+  glare: boolean | null;
+  blur: number | null;
+  face_match_score: number | null;
+  verification_status: string | null;
+  rejected_step: string | null;
+  notes: string | null;
+  created_at: string;
+}
+
 function QualityChips({ q, label }: { q: Quality | null; label: string }) {
   if (!q) return <p className="text-[10px] text-muted-foreground">{label}: no quality data</p>;
   const tone = (ok: boolean) => ok ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
