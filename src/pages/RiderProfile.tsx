@@ -5,6 +5,8 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useDriverStatus } from '@/hooks/useDriverStatus';
 // Rider wallet removed — riders pay drivers directly
 import { useProfileStats } from '@/hooks/useProfileStats';
+import { useWallet } from '@/hooks/useWallet';
+import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/lib/supabaseClient';
 import { resolveAvatarUrl } from '@/lib/avatarUrl';
 import {
