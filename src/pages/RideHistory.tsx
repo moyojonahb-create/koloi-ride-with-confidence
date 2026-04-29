@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import PickMeLogo from '@/components/PickMeLogo';
 import BottomNavBar from '@/components/BottomNavBar';
 import RiderSpendingAnalytics from '@/components/ride/RiderSpendingAnalytics';
+import PaymentStatusBadge from '@/components/ride/PaymentStatusBadge';
 
 
 interface RideRecord {
@@ -20,6 +21,9 @@ interface RideRecord {
   created_at: string;
   payment_method: string;
   vehicle_type: string;
+  wallet_paid?: boolean | null;
+  payment_failed?: boolean | null;
+  payment_failure_reason?: string | null;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -51,7 +55,7 @@ export default function RideHistory() {
     setLoading(true);
     const { data, error } = await supabase
       .from('rides')
-      .select('id, pickup_address, dropoff_address, fare, distance_km, duration_minutes, status, created_at, payment_method, vehicle_type')
+      .select('id, pickup_address, dropoff_address, fare, distance_km, duration_minutes, status, created_at, payment_method, vehicle_type, wallet_paid, payment_failed, payment_failure_reason')
       .eq('user_id', user!.id)
       .order('created_at', { ascending: false })
       .limit(50);
@@ -150,6 +154,18 @@ export default function RideHistory() {
                 </span>
                 <span className="ml-auto capitalize">{ride.payment_method}</span>
               </div>
+
+              {(ride.status === 'completed' || ride.payment_failed) && (
+                <div className="mt-2.5">
+                  <PaymentStatusBadge
+                    status={ride.status}
+                    paymentMethod={ride.payment_method}
+                    walletPaid={ride.wallet_paid}
+                    paymentFailed={ride.payment_failed}
+                    paymentFailureReason={ride.payment_failure_reason}
+                  />
+                </div>
+              )}
             </button>
           ))
         )}
