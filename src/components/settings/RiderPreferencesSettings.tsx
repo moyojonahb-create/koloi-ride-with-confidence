@@ -161,37 +161,38 @@ function ArrivedSoundPicker() {
               type="button"
               onClick={() => handleChange(opt.value)}
               className={cn(
-                'flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border text-left transition-all active:scale-[0.97]',
+                'flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border text-left transition-all active:scale-[0.97] min-h-[52px]',
                 active
                   ? 'bg-primary text-primary-foreground border-primary shadow-sm'
                   : 'bg-background border-border text-foreground'
               )}
             >
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-xs font-bold truncate">{opt.label}</p>
                 <p className={cn('text-[10px] truncate', active ? 'opacity-80' : 'text-muted-foreground')}>
                   {opt.description}
                 </p>
               </div>
-              {opt.value !== 'off' && (
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => { e.stopPropagation(); previewArrivedSound(opt.value); }}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); previewArrivedSound(opt.value); } }}
-                  className={cn(
-                    'shrink-0 w-7 h-7 inline-flex items-center justify-center rounded-full',
-                    active ? 'bg-white/20' : 'bg-muted'
-                  )}
-                  aria-label={`Preview ${opt.label}`}
-                >
-                  <Play className="w-3.5 h-3.5" />
-                </span>
-              )}
             </button>
           );
         })}
       </div>
+      {/* Test currently selected sound */}
+      <button
+        type="button"
+        onClick={() => {
+          if (choice === 'off') {
+            toast.info('Sound is off — pick a sound to test');
+            return;
+          }
+          previewArrivedSound(choice);
+          toast.success(`Playing: ${ARRIVED_SOUND_OPTIONS.find((o) => o.value === choice)?.label}`);
+        }}
+        className="w-full inline-flex items-center justify-center gap-2 h-11 rounded-xl bg-blue-600 text-white text-sm font-bold active:scale-[0.98] transition shadow-sm"
+      >
+        <Play className="w-4 h-4" />
+        Test sound
+      </button>
     </div>
   );
 }
