@@ -60,7 +60,10 @@ export default function RiderProfile() {
             const resolved = await resolveAvatarUrl(data.avatar_url);
             if (resolved) setAvatarUrl(resolved);
           }
+          setProfileLoading(false);
         });
+    } else {
+      setProfileLoading(false);
     }
   }, [user]);
 
