@@ -736,7 +736,17 @@ export default function DriverDashboard() {
         />
       )}
 
-      {/* Header with Wallet + Settings */}
+      {/* ── Rider on the way — flashing top banner (10s) ── */}
+      <TopFlashBanner
+        open={riderComingBanner.open}
+        onClose={() => setRiderComingBanner({ open: false })}
+        durationMs={10_000}
+        tone="info"
+        icon={<Footprints className="w-7 h-7" />}
+        title={`${riderComingBanner.name || "Your rider"} is on the way`}
+        subtitle="They've left and are heading to your location now"
+      />
+
       <div className="shrink-0 bg-background/95 backdrop-blur-lg border-b border-border/60 px-5 py-3.5 z-10">
         <div className="flex items-center justify-between max-w-lg mx-auto">
           <Button variant="ghost" size="icon" onClick={() => nav(-1)} className="w-11 h-11 rounded-2xl active:scale-90 transition-all">
