@@ -451,8 +451,12 @@ export default function StudentVerificationPage() {
               status={result.status}
               score={result.score}
               reason={result.reason}
+              rejectedStep={result.rejectedStep ?? null}
+              idQuality={result.idQuality ?? null}
+              selfieQuality={result.selfieQuality ?? null}
               onClose={() => navigate('/profile')}
               onRetry={retakeAll}
+              onRetryStep={retakeStep}
             />
           )}
         </AnimatePresence>
