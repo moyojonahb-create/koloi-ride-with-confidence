@@ -315,6 +315,13 @@ export default function RiderWalletPage() {
         onSuccess={refreshWallet}
       />
 
+      <WithdrawalModal
+        isOpen={showWithdraw}
+        onClose={() => setShowWithdraw(false)}
+        balance={balance}
+        onSuccess={refreshWallet}
+      />
+
       <BottomNavBar />
     </div>
   );
