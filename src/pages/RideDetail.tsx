@@ -307,6 +307,26 @@ export default function RideDetail() {
     }
   }, [isCompletedForHook, hasRated, driverProfile]);
 
+  // Notify rider when driver marks 'arrived'
+  const prevStatusRef = useRef<string | null>(null);
+  useEffect(() => {
+    const current = ride?.status ?? null;
+    const prev = prevStatusRef.current;
+    if (prev && prev !== current && (current === "arrived" || current === "driver_arrived")) {
+      const driverName = driverProfile?.fullName ?? "Your driver";
+      setToast(`📍 ${driverName} has arrived at your pickup point`);
+      // Try a notification sound (best effort)
+      import("@/lib/notificationSounds")
+        .then(({ playNotificationSound }) => playNotificationSound("offerReceived"))
+        .catch(() => {});
+      // Vibration
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        try { navigator.vibrate?.([200, 100, 200]); } catch { /* noop */ }
+      }
+    }
+    prevStatusRef.current = current;
+  }, [ride?.status, driverProfile?.fullName]);
+
   if (loading || !ride) {
     return (
       <div className="relative h-[100dvh] w-full overflow-hidden bg-background">
