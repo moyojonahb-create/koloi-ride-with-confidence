@@ -1,10 +1,13 @@
 import { useState, useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Minus, X, Upload, Phone, Hash, CheckCircle, Copy, Check } from 'lucide-react';
+import { Plus, Minus, X, Upload, Phone, CheckCircle, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import ecocashLogo from '@/assets/payment-ecocash.png';
+import innbucksLogo from '@/assets/payment-innbucks.png';
+import cardLogo from '@/assets/payment-card.png';
 
 interface DepositModalProps {
   isOpen: boolean;
@@ -14,14 +17,16 @@ interface DepositModalProps {
 }
 
 const PAYMENT_METHODS = [
-  { id: 'ecocash', name: 'EcoCash', color: 'bg-green-500', merchant: '+263 778 553 169' },
-  { id: 'onemoney', name: 'OneMoney', color: 'bg-purple-500', merchant: '+263 712 000 000' },
-  { id: 'telecash', name: 'Telecash', color: 'bg-blue-500', merchant: '+263 733 000 000' },
-  { id: 'innbucks', name: 'InnBucks', color: 'bg-orange-500', merchant: '077 000 0000' },
-  { id: 'zimswitch', name: 'ZimSwitch', color: 'bg-red-500', merchant: 'Acc: 1234567890' },
-  { id: 'mukuru', name: 'Mukuru', color: 'bg-yellow-600', merchant: 'Agent: PickMe Ride' },
-  { id: 'bank_transfer', name: 'Bank Transfer', color: 'bg-slate-600', merchant: 'FNB: 62xxxxxxx' },
+  { id: 'ecocash', name: 'EcoCash', color: 'bg-green-500', merchant: '+263 778 553 169', logo: ecocashLogo, featured: true },
+  { id: 'innbucks', name: 'InnBucks', color: 'bg-orange-500', merchant: '077 000 0000', logo: innbucksLogo, featured: true },
+  { id: 'card', name: 'Visa / Mastercard', color: 'bg-blue-700', merchant: 'Card payment (coming soon)', logo: cardLogo, featured: true },
+  { id: 'onemoney', name: 'OneMoney', color: 'bg-purple-500', merchant: '+263 712 000 000', logo: null, featured: false },
+  { id: 'telecash', name: 'Telecash', color: 'bg-blue-500', merchant: '+263 733 000 000', logo: null, featured: false },
+  { id: 'zimswitch', name: 'ZimSwitch', color: 'bg-red-500', merchant: 'Acc: 1234567890', logo: null, featured: false },
+  { id: 'mukuru', name: 'Mukuru', color: 'bg-yellow-600', merchant: 'Agent: PickMe Ride', logo: null, featured: false },
+  { id: 'bank_transfer', name: 'Bank Transfer', color: 'bg-slate-600', merchant: 'FNB: 62xxxxxxx', logo: null, featured: false },
 ] as const;
+
 
 // Generate cryptographically-random unique payment code: PM-XXXXXXXX (8 chars, no 0/O/1/I)
 function generatePaymentCode(): string {
