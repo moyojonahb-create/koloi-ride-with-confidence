@@ -1,8 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, CheckCircle2, XCircle, RotateCcw, ShieldAlert, GraduationCap } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, RotateCcw, ShieldAlert, GraduationCap, History, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import AdminLayout from '@/components/admin/AdminLayout';
 
