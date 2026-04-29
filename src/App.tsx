@@ -144,7 +144,7 @@ export default function App() {
           <Route path="/ride-history" element={<Navigate to="/history" replace />} />
           <Route path="/profile" element={<SuspenseWrap><AuthGuard><RiderProfile /></AuthGuard></SuspenseWrap>} />
           <Route path="/edit-profile" element={<SuspenseWrap><AuthGuard><EditProfile /></AuthGuard></SuspenseWrap>} />
-          <Route path="/wallet" element={<Navigate to="/profile" replace />} />
+          <Route path="/wallet" element={<SuspenseWrap><AuthGuard><RiderWalletPage /></AuthGuard></SuspenseWrap>} />
 
           <Route path="/driver" element={<SuspenseWrap><DriverModeLanding /></SuspenseWrap>} />
           <Route path="/driver-mode" element={<Navigate to="/driver" replace />} />
