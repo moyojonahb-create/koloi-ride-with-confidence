@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import SurgePricingBadge from './SurgePricingBadge';
+import PaymentStatusBadge from './PaymentStatusBadge';
 
 interface TripReceiptProps {
   ride: {
@@ -17,6 +18,10 @@ interface TripReceiptProps {
     vehicle_type: string;
     created_at: string;
     locked_price?: number | null;
+    status?: string;
+    wallet_paid?: boolean | null;
+    payment_failed?: boolean | null;
+    payment_failure_reason?: string | null;
   };
   driverName?: string;
   driverRating?: number;
@@ -169,6 +174,17 @@ export default function TripReceipt({ ride, driverName, onRateDriver, hasRated, 
             Payment
           </span>
           <span className="font-medium text-foreground capitalize">{ride.payment_method}</span>
+        </div>
+
+        <div className="pt-1">
+          <PaymentStatusBadge
+            status={ride.status ?? 'completed'}
+            paymentMethod={ride.payment_method}
+            walletPaid={ride.wallet_paid}
+            paymentFailed={ride.payment_failed}
+            paymentFailureReason={ride.payment_failure_reason}
+            size="md"
+          />
         </div>
 
         {driverName && (
