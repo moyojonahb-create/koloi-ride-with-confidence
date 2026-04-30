@@ -25,7 +25,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick,
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const isTransparent = transparent && !scrolled && !isMobileMenuOpen;
+  const isTransparent = false; // Header is always solid white
 
   const navItems = [
     { label: "Ride", href: "#ride" },
@@ -36,16 +36,12 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick,
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isTransparent
-          ? 'bg-transparent border-transparent'
-          : 'bg-card/95 backdrop-blur-xl border-b border-border/20 shadow-sm'
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border/20 shadow-sm transition-all duration-300"
     >
       <div className="pickme-container">
-        <nav className="flex items-center justify-between h-[60px] lg:h-[64px]">
-          <a href="/" className="shrink-0 -ml-2">
-            <PickMeLogo size="lg" variant={isTransparent ? 'light' : 'default'} />
+        <nav className="flex items-center justify-between h-[140px] lg:h-[150px]">
+          <a href="/" className="shrink-0 -ml-2 flex items-center">
+            <PickMeLogo size="lg" variant="default" />
           </a>
 
           <div className="hidden lg:flex items-center gap-0.5 ml-8">
