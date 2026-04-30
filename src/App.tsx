@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, lazy, Suspense, useState } from "react";
 import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import AuthGuard from "./components/AuthGuard";
@@ -6,6 +6,9 @@ import AdminGuard from "./components/admin/AdminGuard";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AdminEmergencyAlerts from "./components/admin/AdminEmergencyAlerts";
 import RidePaymentNotifier from "./components/notifications/RidePaymentNotifier";
+import AppHeader from "./components/AppHeader";
+import { prefetchPages } from "./lib/prefetchPages";
+import { supabase } from "./integrations/supabase/client";
 
 // ─── Only the landing page is eagerly loaded ───
 import Index from "./pages/Index";
@@ -74,56 +77,19 @@ function SuspenseWrap({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Eagerly prefetch every lazy page right after mount so subsequent navigations
-// never show a Suspense fallback. We stagger by a few ms to avoid blocking the
-// main thread while the landing page paints.
-function prefetchPages() {
-  const pages = [
-    () => import("./pages/Auth"),
-    () => import("./pages/Signup"),
-    () => import("./pages/Ride"),
-    () => import("./pages/RideDetail"),
-    () => import("./pages/RiderRideDetail"),
-    () => import("./pages/DriverDashboard"),
-    () => import("./pages/AppDashboard"),
-    () => import("./pages/RideHistory"),
-    () => import("./pages/RiderProfile"),
-    () => import("./pages/EditProfile"),
-    () => import("./pages/RiderWalletPage"),
-    () => import("./pages/SafetyPage"),
-    () => import("./pages/TermsOfService"),
-    () => import("./pages/PrivacyPolicy"),
-    () => import("./pages/Offline"),
-    () => import("./pages/Install"),
-    () => import("./pages/DeleteAccount"),
-    () => import("./pages/DriverApplication"),
-    () => import("./pages/DriverDepositPage"),
-    () => import("./pages/DriverLeaderboard"),
-    () => import("./pages/DriverModeLanding"),
-    () => import("./pages/DriverRegistrationPage"),
-    () => import("./pages/DriverWalletPage"),
-    () => import("./pages/StudentVerificationPage"),
-    () => import("./pages/NotFound"),
-    () => import("./pages/negotiate/DriverRequestsScreen"),
-    () => import("./pages/negotiate/RiderOffersScreen"),
-    () => import("./pages/negotiate/RiderRequestScreen"),
-    () => import("./pages/LiveTrackingPage"),
-  ];
+// (prefetch is provided by ./lib/prefetchPages — it picks only the bundles
+//  the current user can actually reach.)
 
-  const run = () => {
-    pages.forEach((load, i) => {
-      // Batch in micro-tasks; they're loaded in parallel by the browser anyway.
-      setTimeout(() => { load().catch(() => {}); }, i * 30);
-    });
-  };
+const ADMIN_EMAIL = "moyojonahb@gmail.com";
 
-  // Prefer requestIdleCallback so the landing page renders first.
-  const w = window as Window & { requestIdleCallback?: (cb: () => void) => void };
-  if (typeof w.requestIdleCallback === 'function') {
-    w.requestIdleCallback(run);
-  } else {
-    setTimeout(run, 200);
-  }
+/** Tiny wrapper: shared white header above a Suspense'd page. */
+function MarketingShell({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <AppHeader />
+      <SuspenseWrap>{children}</SuspenseWrap>
+    </>
+  );
 }
 
 export default function App() {
