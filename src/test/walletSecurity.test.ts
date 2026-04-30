@@ -32,7 +32,10 @@ const clientFiles = allFiles.filter(
     !f.endsWith(".test.ts") &&
     !f.endsWith(".test.tsx") &&
     !f.endsWith(".spec.ts") &&
-    !f.endsWith(".spec.tsx")
+    !f.endsWith(".spec.tsx") &&
+    // Auto-generated DB types mirror the schema (including pin_hash column),
+    // but the client never reads them at runtime — exclude from this scan.
+    !f.endsWith("integrations/supabase/types.ts")
 );
 
 describe("wallet PIN hash exposure", () => {
