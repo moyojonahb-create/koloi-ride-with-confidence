@@ -91,10 +91,9 @@ export function selectPagesForUser(ctx: PrefetchContext): Loader[] {
   return list;
 }
 
+// Use the lib.dom IdleRequestCallback signature directly to stay compatible
+// across TS lib versions (some include it as required, some as optional).
 type IdleCb = (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void;
-interface IdleCallbackWindow extends Window {
-  requestIdleCallback?: (cb: IdleCb, opts?: { timeout: number }) => number;
-}
 
 /**
  * Kick off prefetching after the landing page has painted.
@@ -113,10 +112,9 @@ export function prefetchPages(ctx: PrefetchContext): void {
     });
   };
 
-  const w = window as IdleCallbackWindow;
-  if (typeof w.requestIdleCallback === "function") {
-    // timeout ensures it eventually runs even on a busy page
-    w.requestIdleCallback(run, { timeout: 2000 });
+  const ric = (window as unknown as { requestIdleCallback?: (cb: IdleCb, o?: { timeout: number }) => number }).requestIdleCallback;
+  if (typeof ric === "function") {
+    ric(run, { timeout: 2000 });
   } else {
     // Safari / old browsers — wait until after first paint
     setTimeout(run, 500);
