@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense, useState } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 import AuthGuard from "./components/AuthGuard";
@@ -113,7 +113,7 @@ export default function App() {
         isDriver = !!drv;
       }
       const ctx = { isAuthenticated: !!user, isDriver, isAdmin };
-      setPrefetchCtx(ctx);
+      // ctx is fire-and-forget — pass directly to prefetch
       prefetchPages(ctx);
     })();
     return () => { cancelled = true; };
