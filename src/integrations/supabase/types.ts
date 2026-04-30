@@ -2176,6 +2176,27 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_pins: {
+        Row: {
+          created_at: string
+          pin_hash: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          pin_hash: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          pin_hash?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallet_transactions: {
         Row: {
           amount: number
@@ -2282,7 +2303,6 @@ export type Database = {
           locked_reason: string | null
           updated_at: string
           user_id: string
-          wallet_pin: string | null
         }
         Insert: {
           balance?: number
@@ -2294,7 +2314,6 @@ export type Database = {
           locked_reason?: string | null
           updated_at?: string
           user_id: string
-          wallet_pin?: string | null
         }
         Update: {
           balance?: number
@@ -2306,7 +2325,6 @@ export type Database = {
           locked_reason?: string | null
           updated_at?: string
           user_id?: string
-          wallet_pin?: string | null
         }
         Relationships: []
       }
