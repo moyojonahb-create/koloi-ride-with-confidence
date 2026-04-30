@@ -91,8 +91,9 @@ export function selectPagesForUser(ctx: PrefetchContext): Loader[] {
   return list;
 }
 
+type IdleCb = (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void;
 interface IdleCallbackWindow extends Window {
-  requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+  requestIdleCallback?: (cb: IdleCb, opts?: { timeout: number }) => number;
 }
 
 /**
