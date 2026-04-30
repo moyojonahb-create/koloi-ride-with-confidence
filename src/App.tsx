@@ -204,7 +204,7 @@ export default function App() {
           <Route path="/admin/wallet" element={<SuspenseWrap><AdminGuard><AdminWalletDashboard /></AdminGuard></SuspenseWrap>} />
           <Route path="/student-verification" element={<SuspenseWrap><AuthGuard><StudentVerificationPage /></AuthGuard></SuspenseWrap>} />
 
-          <Route path="*" element={<SuspenseWrap><NotFound /></SuspenseWrap>} />
+          <Route path="*" element={<MarketingShell><NotFound /></MarketingShell>} />
         </Routes>
       </ErrorBoundary>
     </Router>
