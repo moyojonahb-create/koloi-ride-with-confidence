@@ -175,12 +175,12 @@ export default function App() {
 
           <Route path="/app" element={<SuspenseWrap><AuthGuard><AppDashboard /></AuthGuard></SuspenseWrap>} />
 
-          <Route path="/safety" element={<SuspenseWrap><SafetyPage /></SuspenseWrap>} />
-          <Route path="/terms" element={<SuspenseWrap><TermsOfService /></SuspenseWrap>} />
-          <Route path="/privacy" element={<SuspenseWrap><PrivacyPolicy /></SuspenseWrap>} />
-          <Route path="/offline" element={<SuspenseWrap><Offline /></SuspenseWrap>} />
-          <Route path="/install" element={<SuspenseWrap><Install /></SuspenseWrap>} />
-          <Route path="/delete-account" element={<SuspenseWrap><DeleteAccount /></SuspenseWrap>} />
+          <Route path="/safety" element={<MarketingShell><SafetyPage /></MarketingShell>} />
+          <Route path="/terms" element={<MarketingShell><TermsOfService /></MarketingShell>} />
+          <Route path="/privacy" element={<MarketingShell><PrivacyPolicy /></MarketingShell>} />
+          <Route path="/offline" element={<MarketingShell><Offline /></MarketingShell>} />
+          <Route path="/install" element={<MarketingShell><Install /></MarketingShell>} />
+          <Route path="/delete-account" element={<MarketingShell><DeleteAccount /></MarketingShell>} />
 
           <Route path="/admin" element={<SuspenseWrap><AdminGuard><AdminDashboard /></AdminGuard></SuspenseWrap>} />
           <Route path="/admin/drivers" element={<SuspenseWrap><AdminGuard><AdminDrivers /></AdminGuard></SuspenseWrap>} />
