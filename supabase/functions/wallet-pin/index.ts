@@ -121,13 +121,13 @@ serve(async (req) => {
       case "check": {
         // Check if user has a PIN set (don't return the PIN itself!)
         const { data } = await serviceClient
-          .from("wallets")
-          .select("wallet_pin")
+          .from("wallet_pins")
+          .select("user_id")
           .eq("user_id", userId)
           .maybeSingle();
 
         return new Response(
-          JSON.stringify({ hasPin: !!data?.wallet_pin }),
+          JSON.stringify({ hasPin: !!data }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
@@ -142,18 +142,20 @@ serve(async (req) => {
 
         const { hash } = await hashPin(pin);
 
-        // Upsert wallet with hashed PIN
-        const { data: existing } = await serviceClient
+        // Ensure wallet row exists for the user (without storing PIN there)
+        const { data: existingWallet } = await serviceClient
           .from("wallets")
           .select("id")
           .eq("user_id", userId)
           .maybeSingle();
-
-        if (!existing) {
-          await serviceClient.from("wallets").insert({ user_id: userId, balance: 0, wallet_pin: hash });
-        } else {
-          await serviceClient.from("wallets").update({ wallet_pin: hash }).eq("user_id", userId);
+        if (!existingWallet) {
+          await serviceClient.from("wallets").insert({ user_id: userId, balance: 0 });
         }
+
+        // Upsert PIN hash into the secure wallet_pins table
+        await serviceClient
+          .from("wallet_pins")
+          .upsert({ user_id: userId, pin_hash: hash }, { onConflict: "user_id" });
 
         clearAttempts(userId);
 
@@ -182,20 +184,20 @@ serve(async (req) => {
         }
 
         const { data } = await serviceClient
-          .from("wallets")
-          .select("wallet_pin")
+          .from("wallet_pins")
+          .select("pin_hash")
           .eq("user_id", userId)
           .maybeSingle();
 
-        if (!data?.wallet_pin) {
+        if (!data?.pin_hash) {
           return new Response(
             JSON.stringify({ error: "No PIN set" }),
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
 
-        const valid = await verifyPin(pin, data.wallet_pin);
-        
+        const valid = await verifyPin(pin, data.pin_hash);
+
         if (!valid) {
           recordFailedAttempt(userId);
           const remaining = MAX_ATTEMPTS - (attempts.get(userId)?.count || 0);
@@ -206,9 +208,12 @@ serve(async (req) => {
         }
 
         // If PIN was legacy plaintext, upgrade to hashed
-        if (/^\d{5}$/.test(data.wallet_pin)) {
+        if (/^\d{5}$/.test(data.pin_hash)) {
           const { hash } = await hashPin(pin);
-          await serviceClient.from("wallets").update({ wallet_pin: hash }).eq("user_id", userId);
+          await serviceClient
+            .from("wallet_pins")
+            .update({ pin_hash: hash })
+            .eq("user_id", userId);
         }
 
         clearAttempts(userId);
