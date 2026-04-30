@@ -94,7 +94,7 @@ function MarketingShell({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
-  const [prefetchCtx, setPrefetchCtx] = useState({ isAuthenticated: false, isDriver: false, isAdmin: false });
+  // (no need to keep ctx in state — prefetch is fire-and-forget)
 
   // Resolve auth/role context once, then kick off staggered idle-time prefetch.
   // Anonymous landing visitors only get public + auth bundles — no driver/admin code.
