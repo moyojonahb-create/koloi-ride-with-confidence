@@ -94,26 +94,44 @@ function MarketingShell({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
+  const [prefetchCtx, setPrefetchCtx] = useState({ isAuthenticated: false, isDriver: false, isAdmin: false });
 
+  // Resolve auth/role context once, then kick off staggered idle-time prefetch.
+  // Anonymous landing visitors only get public + auth bundles — no driver/admin code.
   useEffect(() => {
     (window as any).__dismissSplash?.();
-    // Prefetch secondary pages after app mounts
-    prefetchPages();
+    let cancelled = false;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      const user = session?.user ?? null;
+      const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL;
+      let isDriver = false;
+      if (user && !isAdmin) {
+        const { data: drv } = await supabase
+          .from("drivers").select("id").eq("user_id", user.id).maybeSingle();
+        isDriver = !!drv;
+      }
+      const ctx = { isAuthenticated: !!user, isDriver, isAdmin };
+      setPrefetchCtx(ctx);
+      prefetchPages(ctx);
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   return (
     <Router>
       <AdminEmergencyAlerts />
       <RidePaymentNotifier />
-      
-      
+
+
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Index />} />
-          <Route path="/auth" element={<SuspenseWrap><Auth /></SuspenseWrap>} />
+          <Route path="/auth" element={<MarketingShell><Auth /></MarketingShell>} />
           <Route path="/login" element={<Navigate to="/auth" replace />} />
-          <Route path="/signup" element={<SuspenseWrap><Signup /></SuspenseWrap>} />
+          <Route path="/signup" element={<MarketingShell><Signup /></MarketingShell>} />
 
           {/* Legacy / mapp compatibility redirects */}
           <Route path="/mapp" element={<Navigate to="/ride" replace />} />
