@@ -1,6 +1,7 @@
 // PickMe realtime presence utilities
 import { supabase } from "@/lib/supabaseClient";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import { uuid } from '@/lib/uuid';
 
 type PresenceState = Record<string, unknown[]>;
 
@@ -9,7 +10,7 @@ export async function joinRidePresence(
   meta: { role: "driver" | "rider"; name?: string }
 ): Promise<RealtimeChannel> {
   const channel = supabase.channel(`ride:${rideId}`, {
-    config: { presence: { key: crypto.randomUUID() } },
+    config: { presence: { key: uuid() } },
   });
 
   await channel.subscribe(async (status) => {

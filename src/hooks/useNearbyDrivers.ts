@@ -35,6 +35,10 @@ export function useNearbyDrivers(active: boolean): NearbyDriver[] {
     if (!active) {
       setDrivers([]);
       driversMapRef.current.clear();
+      if (syncTimerRef.current) {
+        clearTimeout(syncTimerRef.current);
+        syncTimerRef.current = null;
+      }
       return;
     }
 
@@ -76,17 +80,24 @@ export function useNearbyDrivers(active: boolean): NearbyDriver[] {
           filter: "user_type=eq.driver",
         },
         (payload) => {
-          const row = payload.new as Record<string, unknown>;
           if (payload.eventType === "DELETE") {
             const old = payload.old as Record<string, unknown>;
             if (old?.user_id) driversMapRef.current.delete(old.user_id as string);
-          } else if (row?.user_id) {
-            driversMapRef.current.set(row.user_id as string, {
-              id: row.user_id as string,
-              lat: row.latitude as number,
-              lng: row.longitude as number,
-              isOnline: (row.is_online as boolean) ?? true,
-            });
+          } else {
+            const row = payload.new as Record<string, unknown>;
+            if (row?.user_id && row.user_type === "driver") {
+              const isOnline = (row.is_online as boolean) ?? true;
+              if (!isOnline) {
+                driversMapRef.current.delete(row.user_id as string);
+              } else {
+                driversMapRef.current.set(row.user_id as string, {
+                  id: row.user_id as string,
+                  lat: row.latitude as number,
+                  lng: row.longitude as number,
+                  isOnline,
+                });
+              }
+            }
           }
           syncToState();
         }

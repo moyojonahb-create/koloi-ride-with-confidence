@@ -199,7 +199,7 @@ export default function RideDetail() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  const load = async (silent = false) => {
+  const load = useCallback(async (silent = false) => {
     if (!rideId) return;
     if (!silent) setLoading(true);
     try {
@@ -251,9 +251,9 @@ export default function RideDetail() {
       const { data: m } = await supabase.from("messages").select("*").eq("ride_id", rideId).order("created_at", { ascending: true });
       setMessages(m as MessageRow[] || []);
     } catch (e: unknown) { setToast((e as Error)?.message || "Failed to load ride."); } finally { setLoading(false); }
-  };
+  }, [rideId]);
 
-  useEffect(() => { load(false); }, [rideId]);
+  useEffect(() => { load(false); }, [load]);
 
   useEffect(() => {
     if (!rideId) return;
@@ -264,7 +264,7 @@ export default function RideDetail() {
       .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `ride_id=eq.${rideId}` }, () => load(true))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [rideId]);
+  }, [rideId, load]);
 
   useEffect(() => {
     if (!rideId) return;

@@ -1,3 +1,4 @@
+import { memo, useCallback, useMemo } from "react";
 import { Banknote, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +11,7 @@ interface PaymentMethodSelectorProps {
   estimatedFare?: number;
 }
 
-export default function PaymentMethodSelector({
+function PaymentMethodSelectorImpl({
   selected,
   onSelect,
   walletBalance = 0,
@@ -18,73 +19,109 @@ export default function PaymentMethodSelector({
 }: PaymentMethodSelectorProps) {
   const insufficient = estimatedFare > 0 && walletBalance < estimatedFare;
 
-  const METHODS = [
-    {
-      id: "cash" as const,
-      label: "Cash",
-      icon: Banknote,
-      desc: "Pay driver",
-      disabled: false,
+  const walletCaption = useMemo(() => {
+    if (estimatedFare <= 0) return `$${walletBalance.toFixed(2)}`;
+    if (insufficient) return "Low balance";
+    return `$${walletBalance.toFixed(2)}`;
+  }, [estimatedFare, insufficient, walletBalance]);
+
+  const handleSelect = useCallback(
+    (m: PaymentMethod, disabled?: boolean) => {
+      if (disabled) return;
+      if (m === selected) return;
+      onSelect(m);
     },
-    {
-      id: "wallet" as const,
-      label: "Wallet",
-      icon: Wallet,
-      desc: insufficient ? "Low balance" : `$${walletBalance.toFixed(2)}`,
-      disabled: insufficient,
-    },
-  ];
+    [onSelect, selected]
+  );
 
   return (
-    <div className="flex flex-row gap-2 w-full">
-      {METHODS.map((m) => {
-        const Icon = m.icon;
-        const active = selected === m.id;
-        return (
-          <button
-            key={m.id}
-            type="button"
-            disabled={m.disabled}
-            onClick={() => !m.disabled && onSelect(m.id)}
-            aria-pressed={active}
-            className={cn(
-              "flex-1 min-h-[48px] h-12 px-3 rounded-xl border transition-all duration-150",
-              "flex flex-row items-center gap-2 text-left",
-              "active:scale-[0.97]",
-              active
-                ? "bg-primary border-primary text-primary-foreground shadow-sm"
-                : "bg-background border-border text-foreground hover:bg-muted/50",
-              m.disabled && "opacity-50 cursor-not-allowed active:scale-100",
-            )}
-          >
-            <Icon
-              className={cn(
-                "h-4 w-4 shrink-0",
-                active
-                  ? "text-primary-foreground"
-                  : m.disabled
-                  ? "text-destructive"
-                  : "text-muted-foreground",
-              )}
-            />
-            <div className="flex flex-col leading-tight min-w-0">
-              <span className="text-sm font-semibold truncate">{m.label}</span>
-              <span
-                className={cn(
-                  "text-[10px] truncate",
-                  active
-                    ? "text-primary-foreground/80"
-                    : m.disabled
-                    ? "text-destructive"
-                    : "text-muted-foreground",
-                )}
-              >
-                {m.desc}
-              </span>
-            </div>
-          </button>
-        );
-      })}
+    <div
+      role="radiogroup"
+      aria-label="Payment method"
+      className={cn(
+        "box-border h-14 max-h-14 w-full",
+        "rounded-full border border-border/60 bg-card/80 backdrop-blur-sm",
+        "p-1 flex items-center gap-1"
+      )}
+    >
+      <button
+        type="button"
+        role="radio"
+        aria-checked={selected === "cash"}
+        onClick={() => handleSelect("cash")}
+        className={cn(
+          "h-full flex-1 rounded-full px-3",
+          "inline-flex items-center justify-center gap-2",
+          "transition-colors duration-150",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+          "active:scale-[0.99]",
+          selected === "cash"
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "bg-transparent text-foreground hover:bg-muted/50"
+        )}
+      >
+        <Banknote
+          className={cn(
+            "h-4 w-4",
+            selected === "cash" ? "text-primary-foreground" : "text-muted-foreground"
+          )}
+        />
+        <span className="text-sm font-semibold">Cash</span>
+        <span
+          className={cn(
+            "ml-1 text-[11px] font-medium tabular-nums",
+            selected === "cash" ? "text-primary-foreground/80" : "text-muted-foreground"
+          )}
+        >
+          Pay driver
+        </span>
+      </button>
+
+      <button
+        type="button"
+        role="radio"
+        aria-checked={selected === "wallet"}
+        disabled={insufficient}
+        onClick={() => handleSelect("wallet", insufficient)}
+        className={cn(
+          "h-full flex-1 rounded-full px-3",
+          "inline-flex items-center justify-center gap-2",
+          "transition-colors duration-150",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+          "active:scale-[0.99]",
+          selected === "wallet"
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "bg-transparent text-foreground hover:bg-muted/50",
+          insufficient && "opacity-60 cursor-not-allowed hover:bg-transparent active:scale-100"
+        )}
+      >
+        <Wallet
+          className={cn(
+            "h-4 w-4",
+            selected === "wallet"
+              ? "text-primary-foreground"
+              : insufficient
+              ? "text-destructive"
+              : "text-muted-foreground"
+          )}
+        />
+        <span className="text-sm font-semibold">Wallet</span>
+        <span
+          className={cn(
+            "ml-1 text-[11px] font-medium tabular-nums",
+            selected === "wallet"
+              ? "text-primary-foreground/80"
+              : insufficient
+              ? "text-destructive"
+              : "text-muted-foreground"
+          )}
+        >
+          {walletCaption}
+        </span>
+      </button>
     </div>
   );
 }
+
+const PaymentMethodSelector = memo(PaymentMethodSelectorImpl);
+export default PaymentMethodSelector;

@@ -145,6 +145,7 @@ export default function DriverDashboard() {
   const [ridePreferences, setRidePreferences] = useState<Record<string, { quiet_ride: boolean; cool_temperature: boolean; wav_required?: boolean; hearing_impaired?: boolean; gender_preference?: string }>>({});
   const [fullNavMode, setFullNavMode] = useState(false);
   const [riderComingBanner, setRiderComingBanner] = useState<{ open: boolean; name?: string }>({ open: false });
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   const lastRideIds = useRef<Set<string>>(new Set());
   const locationIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -567,8 +568,63 @@ export default function DriverDashboard() {
     }
   };
 
+  const updateTripStatus = async (
+    nextStatus: "enroute" | "arrived" | "in_progress",
+    expectedStatus: string,
+    successMessage: string,
+    options?: { openNavigation?: boolean; notifyArrived?: boolean }
+  ) => {
+    if (!activeTrip || statusUpdating) return;
+    if (!navigator.onLine) {
+      toast.error("You're offline", { description: "Reconnect before updating trip status." });
+      return;
+    }
+    if (activeTrip.status !== expectedStatus) {
+      toast.error("Trip status changed", { description: "Refreshing latest trip details…" });
+      refresh();
+      return;
+    }
+
+    setStatusUpdating(true);
+    try {
+      const { error } = await supabase
+        .from("rides")
+        .update({ status: nextStatus })
+        .eq("id", activeTrip.id)
+        .eq("status", expectedStatus);
+
+      if (error) throw new Error(error.message);
+
+      setActiveTrip((prev) => prev?.id === activeTrip.id ? { ...prev, status: nextStatus } : prev);
+      toast.info(successMessage);
+      if (options?.openNavigation) setFullNavMode(true);
+
+      if (options?.notifyArrived) {
+        supabase.from("notifications").insert({
+          user_id: activeTrip.user_id,
+          title: "🚗 Your driver has arrived!",
+          body: "Your driver is at the pickup point. Please meet them now.",
+          notification_type: "driver_arrived",
+        }).then(() => {});
+      }
+    } catch (e: unknown) {
+      toast.error("Failed to update trip", { description: (e as Error).message });
+      refresh();
+    } finally {
+      setStatusUpdating(false);
+    }
+  };
+
   const handleCompleteTrip = async () => {
     if (!activeTrip || completing) return;
+    if (!navigator.onLine) {
+      toast.error("You're offline", { description: "Reconnect before completing the trip." });
+      return;
+    }
+    if (activeTrip.status !== "in_progress") {
+      toast.error("Trip not started", { description: "Start the ride before completing it." });
+      return;
+    }
     setCompleting(true);
     try {
       const result = await completeTrip(activeTrip.id);
@@ -1038,12 +1094,8 @@ export default function DriverDashboard() {
                 <Button
                   className="w-full bg-primary text-primary-foreground hover:brightness-110 mb-2"
                   size="lg"
-                  onClick={async () => {
-                    await supabase.from("rides").update({ status: "enroute" }).eq("id", activeTrip.id);
-                    setActiveTrip({ ...activeTrip, status: "enroute" });
-                    toast.info("Status: Enroute — heading to pickup");
-                    setFullNavMode(true);
-                  }}
+                  disabled={statusUpdating}
+                  onClick={() => updateTripStatus("enroute", "accepted", "Status: Enroute — heading to pickup", { openNavigation: true })}
                 >
                   <Navigation className="h-4 w-4 mr-2" />
                   Enroute to Pickup
@@ -1064,18 +1116,8 @@ export default function DriverDashboard() {
                 <Button
                   className="w-full bg-primary text-primary-foreground hover:brightness-105 mb-2"
                   size="lg"
-                  onClick={async () => {
-                    await supabase.from("rides").update({ status: "arrived" }).eq("id", activeTrip.id);
-                    setActiveTrip({ ...activeTrip, status: "arrived" });
-                    toast.info("Status: Arrived — waiting for rider");
-                    // Notify rider that driver has arrived
-                    supabase.from("notifications").insert({
-                      user_id: activeTrip.user_id,
-                      title: "🚗 Your driver has arrived!",
-                      body: `Your driver is at the pickup point. Please meet them now.`,
-                      notification_type: "driver_arrived",
-                    }).then(() => {});
-                  }}
+                  disabled={statusUpdating}
+                  onClick={() => updateTripStatus("arrived", "enroute", "Status: Arrived — waiting for rider", { notifyArrived: true })}
                 >
                   <MapPin className="h-4 w-4 mr-2" />
                   I've Arrived
@@ -1085,12 +1127,8 @@ export default function DriverDashboard() {
                 <Button
                   className="w-full bg-primary text-primary-foreground hover:brightness-105 mb-2"
                   size="lg"
-                  onClick={async () => {
-                    await supabase.from("rides").update({ status: "in_progress" }).eq("id", activeTrip.id);
-                    setActiveTrip({ ...activeTrip, status: "in_progress" });
-                    toast.info("Rider picked up — navigating to dropoff");
-                    setFullNavMode(true);
-                  }}
+                  disabled={statusUpdating}
+                  onClick={() => updateTripStatus("in_progress", "arrived", "Rider picked up — navigating to dropoff", { openNavigation: true })}
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   Start Ride
@@ -1100,7 +1138,7 @@ export default function DriverDashboard() {
                 className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold"
                 size="lg"
                 onClick={handleCompleteTrip}
-                disabled={completing}
+                disabled={completing || statusUpdating || activeTrip.status !== "in_progress"}
               >
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 {completing ? "Completing..." : "Complete Trip (15%)"}

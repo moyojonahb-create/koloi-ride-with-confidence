@@ -72,7 +72,7 @@ export default defineConfig(({ mode }) => {
           'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-tabs', '@radix-ui/react-toast', '@radix-ui/react-popover'],
           'vendor-motion': ['framer-motion'],
           'vendor-query': ['@tanstack/react-query'],
-          'vendor-maps': ['leaflet', 'react-leaflet'],
+          'vendor-maps': ['leaflet'],
           'vendor-charts': ['recharts'],
         },
       },

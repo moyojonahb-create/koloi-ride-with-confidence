@@ -51,6 +51,7 @@ export async function requestRide(input: RequestRideInput) {
   const fare = Number(input.fare);
   const distance_km = Number(input.distance_km);
   const duration_minutes = Number(input.duration_minutes);
+  const paymentMethod = input.payment_method ?? "cash";
 
   if (!pickup_address) return { ok: false as const, error: "Pickup address is required." };
   if (!dropoff_address) return { ok: false as const, error: "Drop-off address is required." };
@@ -59,6 +60,7 @@ export async function requestRide(input: RequestRideInput) {
   if (!Number.isFinite(duration_minutes) || duration_minutes <= 0) return { ok: false as const, error: "Duration must be a valid number above 0." };
   if (!Number.isFinite(input.pickup_lat) || !Number.isFinite(input.pickup_lng)) return { ok: false as const, error: "Pickup coordinates are required." };
   if (!Number.isFinite(input.dropoff_lat) || !Number.isFinite(input.dropoff_lng)) return { ok: false as const, error: "Drop-off coordinates are required." };
+  if (!["cash", "wallet"].includes(paymentMethod)) return { ok: false as const, error: "Select a valid payment method." };
 
   // Run fraud checks in background (don't block ride request)
   detectSuspiciousPatterns(user.id).then(flags => {
@@ -80,7 +82,7 @@ export async function requestRide(input: RequestRideInput) {
     vehicle_type: input.vehicle_type ?? "economy",
     route_polyline: input.route_polyline ?? null,
     passenger_count: input.passenger_count ?? 1,
-    payment_method: input.payment_method ?? "cash",
+    payment_method: paymentMethod,
     town_id: input.town_id ?? null,
     gender_preference: input.gender_preference ?? "any",
     ...(input.passenger_name?.trim() ? { passenger_name: input.passenger_name.trim() } : {}),

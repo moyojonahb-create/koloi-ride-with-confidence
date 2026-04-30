@@ -15,6 +15,7 @@ import { format, subHours, subDays } from 'date-fns';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { toast } from 'sonner';
+import { uuid } from '@/lib/uuid';
 import MapsDebugPanel from '@/components/admin/MapsDebugPanel';
 
 interface HealthCheck {
@@ -106,7 +107,7 @@ export default function AdminSystemHealth() {
 
   // Persist findings to DB
   const persistFindings = useCallback(async (findings: HealthCheck[]) => {
-    const scanId = crypto.randomUUID();
+    const scanId = uuid();
     const now = new Date();
     const todayStart = new Date(now);
     todayStart.setHours(0, 0, 0, 0);

@@ -4,6 +4,8 @@
  * and automatically synced when connectivity returns.
  */
 
+import { uuid } from '@/lib/uuid';
+
 const DB_NAME = 'pickme-offline';
 const STORE_NAME = 'pending-rides';
 const DB_VERSION = 1;
@@ -30,7 +32,7 @@ function openDB(): Promise<IDBDatabase> {
 
 export async function queueOfflineRide(payload: Record<string, unknown>): Promise<string> {
   const db = await openDB();
-  const id = crypto.randomUUID();
+  const id = uuid();
   const ride: PendingRide = { id, payload, createdAt: Date.now() };
 
   return new Promise((resolve, reject) => {

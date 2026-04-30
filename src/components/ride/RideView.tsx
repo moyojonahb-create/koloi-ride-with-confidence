@@ -16,6 +16,7 @@ import { searchCachedPlacesPrefix } from '@/lib/placeCache';
 import { useToast } from '@/hooks/use-toast';
 import { useGooglePlacesAutocomplete } from '@/hooks/useGooglePlacesAutocomplete';
 import { useTownPricing, calculateRecommendedFare, formatFare } from '@/hooks/useTownPricing';
+import { uuid } from '@/lib/uuid';
 import { useStudentDiscountAvailable } from '@/hooks/useStudentProfile';
 
 import BottomNavBar from '@/components/BottomNavBar';
@@ -500,7 +501,7 @@ export default function RideView() {
 
   const handleAddStop = () => {
     if (rideStops.length >= 3) return;
-    setRideStops((prev) => [...prev, { id: crypto.randomUUID(), address: '', lat: 0, lng: 0 }]);
+    setRideStops((prev) => [...prev, { id: uuid(), address: '', lat: 0, lng: 0 }]);
   };
 
   const handleRemoveStop = (id: string) => {
