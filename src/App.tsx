@@ -74,30 +74,56 @@ function SuspenseWrap({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Prefetch critical user-facing pages during idle time
+// Eagerly prefetch every lazy page right after mount so subsequent navigations
+// never show a Suspense fallback. We stagger by a few ms to avoid blocking the
+// main thread while the landing page paints.
 function prefetchPages() {
-  const critical = [
+  const pages = [
     () => import("./pages/Auth"),
+    () => import("./pages/Signup"),
     () => import("./pages/Ride"),
     () => import("./pages/RideDetail"),
+    () => import("./pages/RiderRideDetail"),
     () => import("./pages/DriverDashboard"),
     () => import("./pages/AppDashboard"),
-  ];
-  const secondary = [
     () => import("./pages/RideHistory"),
     () => import("./pages/RiderProfile"),
+    () => import("./pages/EditProfile"),
+    () => import("./pages/RiderWalletPage"),
+    () => import("./pages/SafetyPage"),
+    () => import("./pages/TermsOfService"),
+    () => import("./pages/PrivacyPolicy"),
+    () => import("./pages/Offline"),
+    () => import("./pages/Install"),
+    () => import("./pages/DeleteAccount"),
+    () => import("./pages/DriverApplication"),
+    () => import("./pages/DriverDepositPage"),
+    () => import("./pages/DriverLeaderboard"),
     () => import("./pages/DriverModeLanding"),
-    () => import("./pages/DriverModeLanding"),
+    () => import("./pages/DriverRegistrationPage"),
+    () => import("./pages/DriverWalletPage"),
+    () => import("./pages/StudentVerificationPage"),
+    () => import("./pages/NotFound"),
+    () => import("./pages/negotiate/DriverRequestsScreen"),
+    () => import("./pages/negotiate/RiderOffersScreen"),
+    () => import("./pages/negotiate/RiderRequestScreen"),
+    () => import("./pages/LiveTrackingPage"),
   ];
 
-  // Critical pages: start immediately after mount
-  critical.forEach((load, i) => {
-    setTimeout(() => { load().catch(() => {}); }, 500 + i * 200);
-  });
-  // Secondary pages: after critical are done
-  secondary.forEach((load, i) => {
-    setTimeout(() => { load().catch(() => {}); }, 2000 + i * 400);
-  });
+  const run = () => {
+    pages.forEach((load, i) => {
+      // Batch in micro-tasks; they're loaded in parallel by the browser anyway.
+      setTimeout(() => { load().catch(() => {}); }, i * 30);
+    });
+  };
+
+  // Prefer requestIdleCallback so the landing page renders first.
+  const w = window as Window & { requestIdleCallback?: (cb: () => void) => void };
+  if (typeof w.requestIdleCallback === 'function') {
+    w.requestIdleCallback(run);
+  } else {
+    setTimeout(run, 200);
+  }
 }
 
 export default function App() {
