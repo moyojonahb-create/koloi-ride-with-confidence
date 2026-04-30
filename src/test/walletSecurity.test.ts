@@ -1,19 +1,28 @@
 /**
- * Wallet security guarantees:
- *  1. PIN hashes (the `wallet_pins` table or any `pin_hash`/`wallet_pin` field)
- *     must NEVER be returned to the client by any code path.
- *  2. Wallet pages must enforce the PIN gate before exposing balance or
- *     transactions.
+ * Static-analysis tests around wallet/PIN security guarantees.
  *
- * These tests are static-analysis style (no live DB) so they run fast in CI
- * and catch regressions if a future change tries to `select('*')` from a
- * wallet table or bypasses the WalletPinModal.
+ * These run in CI without a live database. Live RLS / function-grant
+ * verification lives in `walletRlsLive.test.ts` and is opt-in via env vars.
+ *
+ * Guarantees enforced here:
+ *  1. PIN hashes (`pin_hash`/`wallet_pin`) are never referenced by client code.
+ *  2. The `wallet_pins` table is never queried from the client.
+ *  3. PIN operations only flow through the `wallet-pin` edge function.
+ *  4. Wallet pages mount the `WalletPinModal` and gate balance/tx behind
+ *     a `pinVerified` flag.
+ *  5. The `wallet-pin` edge function never echoes `pin_hash` in any
+ *     response body or error payload.
+ *  6. The shared white `AppHeader` is mounted on every marketing/static
+ *     route in `App.tsx`.
+ *  7. The smart prefetch strategy excludes admin/driver bundles for
+ *     anonymous visitors (so the landing page first-load stays light).
  */
 import { describe, it, expect } from "vitest";
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
 const SRC = join(process.cwd(), "src");
+const ROOT = process.cwd();
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
@@ -38,13 +47,11 @@ const clientFiles = allFiles.filter(
     !f.endsWith("integrations/supabase/types.ts")
 );
 
-describe("wallet PIN hash exposure", () => {
+describe("wallet PIN hash exposure (client)", () => {
   it("no client code selects pin_hash or wallet_pin column", () => {
     const offenders: string[] = [];
     for (const f of clientFiles) {
       const text = readFileSync(f, "utf8");
-      // Any explicit reference to pin_hash / wallet_pin column on the client
-      // is a regression — those values must stay server-side only.
       if (/\bpin_hash\b/.test(text) || /\bwallet_pin\b/.test(text)) {
         offenders.push(f);
       }
@@ -56,7 +63,6 @@ describe("wallet PIN hash exposure", () => {
     const offenders: string[] = [];
     for (const f of clientFiles) {
       const text = readFileSync(f, "utf8");
-      // .from('wallet_pins') / .from("wallet_pins")
       if (/\.from\(\s*['"`]wallet_pins['"`]\s*\)/.test(text)) {
         offenders.push(f);
       }
@@ -65,21 +71,52 @@ describe("wallet PIN hash exposure", () => {
   });
 
   it("PIN operations only go through the wallet-pin edge function", () => {
-    // The hook that performs PIN operations must call /functions/v1/wallet-pin
     const hook = readFileSync(join(SRC, "hooks/useWalletPin.ts"), "utf8");
     expect(hook).toMatch(/functions\/v1\/wallet-pin/);
-    // and must never read pin_hash directly
     expect(hook).not.toMatch(/pin_hash/);
   });
 });
 
-describe("wallet PIN gate enforcement", () => {
+describe("wallet-pin edge function never returns pin_hash", () => {
+  const fn = readFileSync(
+    join(ROOT, "supabase/functions/wallet-pin/index.ts"),
+    "utf8",
+  );
+
+  it("does not include pin_hash in any response body", () => {
+    // Simple but effective: the function must never put the column value
+    // (or its variable shape `.pin_hash`) into a Response body.
+    // Look for any string payload pattern that could leak it.
+    const lines = fn.split("\n");
+    const offenders: string[] = [];
+    lines.forEach((line, i) => {
+      if (/JSON\.stringify\([^)]*pin_hash/i.test(line)) offenders.push(`${i + 1}: ${line.trim()}`);
+      if (/new Response\([^)]*pin_hash/i.test(line)) offenders.push(`${i + 1}: ${line.trim()}`);
+    });
+    expect(offenders, `pin_hash leaked in response: ${offenders.join(" | ")}`).toEqual([]);
+  });
+
+  it("never spreads a wallet_pins row into an outbound payload", () => {
+    // Guard against `return new Response(JSON.stringify({ ...row }))` style leaks.
+    expect(fn).not.toMatch(/\.\.\.\s*\w*[Pp]in\w*\b\s*[,}]/);
+  });
+
+  it("error payloads stay generic — no pin column name leakage", () => {
+    // Acceptable: messages like "PIN not set" / "Invalid PIN".
+    // Forbidden: any error object that includes the literal column name.
+    const errorShapes = fn.match(/error[^{}]*\{[^}]*\}/g) ?? [];
+    for (const shape of errorShapes) {
+      expect(shape).not.toMatch(/pin_hash/i);
+    }
+  });
+});
+
+describe("wallet PIN gate enforcement (UI)", () => {
   const riderPage = readFileSync(join(SRC, "pages/RiderWalletPage.tsx"), "utf8");
   const driverPage = readFileSync(join(SRC, "pages/DriverWalletPage.tsx"), "utf8");
 
   it("rider wallet page mounts the PIN modal and blocks balance until verified", () => {
     expect(riderPage).toMatch(/WalletPinModal/);
-    // Balance/transactions must be gated behind a `pinVerified` flag.
     expect(riderPage).toMatch(/pinVerified/);
     expect(riderPage).toMatch(/!\s*pinVerified/);
   });
@@ -88,5 +125,68 @@ describe("wallet PIN gate enforcement", () => {
     expect(driverPage).toMatch(/WalletPinModal/);
     expect(driverPage).toMatch(/pinVerified/);
     expect(driverPage).toMatch(/!\s*pinVerified/);
+  });
+});
+
+describe("consistent white header across marketing/static routes", () => {
+  const app = readFileSync(join(SRC, "App.tsx"), "utf8");
+  const required = [
+    "/auth", "/signup", "/safety", "/terms", "/privacy",
+    "/offline", "/install", "/delete-account",
+  ];
+
+  it("AppHeader component exists and uses the lg-sized PickMe logo", () => {
+    const headerPath = join(SRC, "components/AppHeader.tsx");
+    expect(existsSync(headerPath)).toBe(true);
+    const header = readFileSync(headerPath, "utf8");
+    expect(header).toMatch(/PickMeLogo/);
+    expect(header).toMatch(/size=["']lg["']/);
+    expect(header).toMatch(/bg-white/);
+  });
+
+  it("each marketing/static route is wrapped in MarketingShell", () => {
+    for (const route of required) {
+      const re = new RegExp(`path="${route}"[^>]*element=\\{<MarketingShell>`);
+      expect(app, `route ${route} should use <MarketingShell>`).toMatch(re);
+    }
+  });
+
+  it("PickMeLogo lg size scales down on mobile", () => {
+    const logo = readFileSync(join(SRC, "components/PickMeLogo.tsx"), "utf8");
+    // Should include responsive height utilities on the lg variant
+    expect(logo).toMatch(/lg:\s*['"][^'"]*sm:h-/);
+  });
+});
+
+describe("smart prefetch strategy", () => {
+  // Import the module's pure helper directly — no runtime needed.
+  it("anonymous visitors do not prefetch admin or driver bundles", async () => {
+    const mod = await import("@/lib/prefetchPages");
+    const list = mod.selectPagesForUser({
+      isAuthenticated: false, isDriver: false, isAdmin: false,
+    });
+    const text = list.map((l) => l.toString()).join("\n");
+    expect(text).not.toMatch(/pages\/admin\//);
+    expect(text).not.toMatch(/pages\/Driver/);
+    expect(text).not.toMatch(/DriverDashboard/);
+  });
+
+  it("authenticated riders prefetch rider but not admin/driver", async () => {
+    const mod = await import("@/lib/prefetchPages");
+    const list = mod.selectPagesForUser({
+      isAuthenticated: true, isDriver: false, isAdmin: false,
+    });
+    const text = list.map((l) => l.toString()).join("\n");
+    expect(text).toMatch(/RiderWalletPage|RideHistory/);
+    expect(text).not.toMatch(/pages\/admin\//);
+  });
+
+  it("admin context prefetches admin bundles", async () => {
+    const mod = await import("@/lib/prefetchPages");
+    const list = mod.selectPagesForUser({
+      isAuthenticated: true, isDriver: false, isAdmin: true,
+    });
+    const text = list.map((l) => l.toString()).join("\n");
+    expect(text).toMatch(/AdminDashboard/);
   });
 });
