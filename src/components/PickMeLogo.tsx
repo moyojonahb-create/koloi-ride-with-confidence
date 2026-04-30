@@ -11,8 +11,9 @@ interface PickMeLogoProps {
 const sizeClasses = {
   sm: 'h-8',
   md: 'h-10',
-  lg: 'h-32',     // 3x — header logo
-  xl: 'h-40',
+  // 3x header logo — scales down on small screens so it never crowds out nav
+  lg: 'h-20 sm:h-24 md:h-28 lg:h-32',
+  xl: 'h-28 sm:h-32 md:h-36 lg:h-40',
 };
 
 const PickMeLogo = ({ 
