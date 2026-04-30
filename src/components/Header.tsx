@@ -25,7 +25,7 @@ const Header = ({ onLoginClick, onSignupClick, onFavoritesClick, onHistoryClick,
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const isTransparent = transparent && !scrolled && !isMobileMenuOpen;
+  const isTransparent = false; // Header is always solid white
 
   const navItems = [
     { label: "Ride", href: "#ride" },
