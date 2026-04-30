@@ -6,6 +6,9 @@ import AdminGuard from "./components/admin/AdminGuard";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AdminEmergencyAlerts from "./components/admin/AdminEmergencyAlerts";
 import RidePaymentNotifier from "./components/notifications/RidePaymentNotifier";
+import AppHeader from "./components/AppHeader";
+import { prefetchPages } from "./lib/prefetchPages";
+import { supabase } from "./integrations/supabase/client";
 
 // ─── Only the landing page is eagerly loaded ───
 import Index from "./pages/Index";
@@ -74,80 +77,61 @@ function SuspenseWrap({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Eagerly prefetch every lazy page right after mount so subsequent navigations
-// never show a Suspense fallback. We stagger by a few ms to avoid blocking the
-// main thread while the landing page paints.
-function prefetchPages() {
-  const pages = [
-    () => import("./pages/Auth"),
-    () => import("./pages/Signup"),
-    () => import("./pages/Ride"),
-    () => import("./pages/RideDetail"),
-    () => import("./pages/RiderRideDetail"),
-    () => import("./pages/DriverDashboard"),
-    () => import("./pages/AppDashboard"),
-    () => import("./pages/RideHistory"),
-    () => import("./pages/RiderProfile"),
-    () => import("./pages/EditProfile"),
-    () => import("./pages/RiderWalletPage"),
-    () => import("./pages/SafetyPage"),
-    () => import("./pages/TermsOfService"),
-    () => import("./pages/PrivacyPolicy"),
-    () => import("./pages/Offline"),
-    () => import("./pages/Install"),
-    () => import("./pages/DeleteAccount"),
-    () => import("./pages/DriverApplication"),
-    () => import("./pages/DriverDepositPage"),
-    () => import("./pages/DriverLeaderboard"),
-    () => import("./pages/DriverModeLanding"),
-    () => import("./pages/DriverRegistrationPage"),
-    () => import("./pages/DriverWalletPage"),
-    () => import("./pages/StudentVerificationPage"),
-    () => import("./pages/NotFound"),
-    () => import("./pages/negotiate/DriverRequestsScreen"),
-    () => import("./pages/negotiate/RiderOffersScreen"),
-    () => import("./pages/negotiate/RiderRequestScreen"),
-    () => import("./pages/LiveTrackingPage"),
-  ];
+// (prefetch is provided by ./lib/prefetchPages — it picks only the bundles
+//  the current user can actually reach.)
 
-  const run = () => {
-    pages.forEach((load, i) => {
-      // Batch in micro-tasks; they're loaded in parallel by the browser anyway.
-      setTimeout(() => { load().catch(() => {}); }, i * 30);
-    });
-  };
+const ADMIN_EMAIL = "moyojonahb@gmail.com";
 
-  // Prefer requestIdleCallback so the landing page renders first.
-  const w = window as Window & { requestIdleCallback?: (cb: () => void) => void };
-  if (typeof w.requestIdleCallback === 'function') {
-    w.requestIdleCallback(run);
-  } else {
-    setTimeout(run, 200);
-  }
+/** Tiny wrapper: shared white header above a Suspense'd page. */
+function MarketingShell({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <AppHeader />
+      <SuspenseWrap>{children}</SuspenseWrap>
+    </>
+  );
 }
 
 export default function App() {
   const Router = Capacitor.isNativePlatform() ? HashRouter : BrowserRouter;
+  // (no need to keep ctx in state — prefetch is fire-and-forget)
 
+  // Resolve auth/role context once, then kick off staggered idle-time prefetch.
+  // Anonymous landing visitors only get public + auth bundles — no driver/admin code.
   useEffect(() => {
     (window as any).__dismissSplash?.();
-    // Prefetch secondary pages after app mounts
-    prefetchPages();
+    let cancelled = false;
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      const user = session?.user ?? null;
+      const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL;
+      let isDriver = false;
+      if (user && !isAdmin) {
+        const { data: drv } = await supabase
+          .from("drivers").select("id").eq("user_id", user.id).maybeSingle();
+        isDriver = !!drv;
+      }
+      const ctx = { isAuthenticated: !!user, isDriver, isAdmin };
+      // ctx is fire-and-forget — pass directly to prefetch
+      prefetchPages(ctx);
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   return (
     <Router>
       <AdminEmergencyAlerts />
       <RidePaymentNotifier />
-      
-      
+
+
       <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/home" element={<Index />} />
-          <Route path="/auth" element={<SuspenseWrap><Auth /></SuspenseWrap>} />
+          <Route path="/auth" element={<MarketingShell><Auth /></MarketingShell>} />
           <Route path="/login" element={<Navigate to="/auth" replace />} />
-          <Route path="/signup" element={<SuspenseWrap><Signup /></SuspenseWrap>} />
+          <Route path="/signup" element={<MarketingShell><Signup /></MarketingShell>} />
 
           {/* Legacy / mapp compatibility redirects */}
           <Route path="/mapp" element={<Navigate to="/ride" replace />} />
@@ -191,12 +175,12 @@ export default function App() {
 
           <Route path="/app" element={<SuspenseWrap><AuthGuard><AppDashboard /></AuthGuard></SuspenseWrap>} />
 
-          <Route path="/safety" element={<SuspenseWrap><SafetyPage /></SuspenseWrap>} />
-          <Route path="/terms" element={<SuspenseWrap><TermsOfService /></SuspenseWrap>} />
-          <Route path="/privacy" element={<SuspenseWrap><PrivacyPolicy /></SuspenseWrap>} />
-          <Route path="/offline" element={<SuspenseWrap><Offline /></SuspenseWrap>} />
-          <Route path="/install" element={<SuspenseWrap><Install /></SuspenseWrap>} />
-          <Route path="/delete-account" element={<SuspenseWrap><DeleteAccount /></SuspenseWrap>} />
+          <Route path="/safety" element={<MarketingShell><SafetyPage /></MarketingShell>} />
+          <Route path="/terms" element={<MarketingShell><TermsOfService /></MarketingShell>} />
+          <Route path="/privacy" element={<MarketingShell><PrivacyPolicy /></MarketingShell>} />
+          <Route path="/offline" element={<MarketingShell><Offline /></MarketingShell>} />
+          <Route path="/install" element={<MarketingShell><Install /></MarketingShell>} />
+          <Route path="/delete-account" element={<MarketingShell><DeleteAccount /></MarketingShell>} />
 
           <Route path="/admin" element={<SuspenseWrap><AdminGuard><AdminDashboard /></AdminGuard></SuspenseWrap>} />
           <Route path="/admin/drivers" element={<SuspenseWrap><AdminGuard><AdminDrivers /></AdminGuard></SuspenseWrap>} />
@@ -220,7 +204,7 @@ export default function App() {
           <Route path="/admin/wallet" element={<SuspenseWrap><AdminGuard><AdminWalletDashboard /></AdminGuard></SuspenseWrap>} />
           <Route path="/student-verification" element={<SuspenseWrap><AuthGuard><StudentVerificationPage /></AuthGuard></SuspenseWrap>} />
 
-          <Route path="*" element={<SuspenseWrap><NotFound /></SuspenseWrap>} />
+          <Route path="*" element={<MarketingShell><NotFound /></MarketingShell>} />
         </Routes>
       </ErrorBoundary>
     </Router>
