@@ -80,7 +80,6 @@ describe("wallet-pin response JSON shape", () => {
       [
         "error",
         "hasPin",
-        "locked",
         "ok",
         "remaining",
       ]
