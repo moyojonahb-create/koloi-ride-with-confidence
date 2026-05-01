@@ -14,7 +14,7 @@ const AppHeader = () => {
   return (
     <header className="sticky top-0 z-40 w-full bg-white border-b border-border/20 shadow-sm">
       <div className="pickme-container">
-        <div className="flex items-center h-20 sm:h-24 md:h-28 lg:h-32">
+        <div className="flex items-center h-14 sm:h-16 md:h-20 lg:h-[88px]">
           <Link to="/" aria-label="PickMe home" className="flex items-center -ml-2">
             <PickMeLogo size="lg" variant="default" />
           </Link>
