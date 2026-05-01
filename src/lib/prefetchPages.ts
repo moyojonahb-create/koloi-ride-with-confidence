@@ -75,6 +75,7 @@ const adminPages: Loader[] = [
   () => import("@/pages/admin/AdminStudents"),
   () => import("@/pages/admin/AdminWithdrawalsPage"),
   () => import("@/pages/admin/AdminWalletDashboard"),
+  () => import("@/pages/admin/AdminRlsViewer"),
 ];
 
 export interface PrefetchContext {
