@@ -85,11 +85,22 @@ export interface PrefetchContext {
 }
 
 export function selectPagesForUser(ctx: PrefetchContext): Loader[] {
-  const list: Loader[] = [...publicPages];
+  // Authenticated users: rider Ride/Wallet/Profile go FIRST so navigation
+  // from the landing page feels instant (no chunk download wait).
+  const list: Loader[] = [];
+  if (ctx.isAuthenticated) {
+    list.push(
+      () => import("@/pages/Ride"),
+      () => import("@/pages/RiderWalletPage"),
+      () => import("@/pages/RiderProfile"),
+    );
+  }
+  list.push(...publicPages);
   if (ctx.isAuthenticated) list.push(...riderPages);
   if (ctx.isDriver) list.push(...driverPages);
   if (ctx.isAdmin) list.push(...adminPages);
-  return list;
+  // de-dupe loaders by reference (the high-priority ones above are also in riderPages)
+  return Array.from(new Set(list));
 }
 
 // Use the lib.dom IdleRequestCallback signature directly to stay compatible
