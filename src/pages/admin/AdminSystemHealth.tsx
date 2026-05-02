@@ -9,7 +9,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   RefreshCw, AlertTriangle, CheckCircle2, Clock, Zap, Activity,
   Database, Shield, Bug, Server, Users, Gauge, Eye, Bot,
-  MapPin, Phone, Navigation, CreditCard, Smartphone, Volume2, Archive
+  MapPin, Phone, Navigation, CreditCard, Smartphone, Volume2, Archive,
+  Copy, Check
 } from 'lucide-react';
 import { format, subHours, subDays } from 'date-fns';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -17,6 +18,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { toast } from 'sonner';
 import { uuid } from '@/lib/uuid';
 import MapsDebugPanel from '@/components/admin/MapsDebugPanel';
+import { generateLovablePrompt } from '@/lib/ramzPrompt';
 
 interface HealthCheck {
   id: string;
