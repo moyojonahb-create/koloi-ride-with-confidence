@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
-import { Loader2, ShieldX } from 'lucide-react';
+import { ShieldX } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import PageSkeleton from '@/components/PageSkeleton';
 
 const ADMIN_EMAIL = 'moyojonahb@gmail.com';
 
@@ -19,11 +20,8 @@ const AdminGuard = ({ children }: AdminGuardProps) => {
   const emailAllowed = user?.email?.toLowerCase() === ADMIN_EMAIL;
 
   if (authLoading || isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    // Skeleton-first instead of full-screen spinner.
+    return <PageSkeleton variant="admin" />;
   }
 
   if (!emailAllowed || !isAdmin || error) {
