@@ -12,8 +12,8 @@ const sizeClasses = {
   sm: 'h-8',
   md: 'h-10',
   // Header logo — compact on mobile, scales up moderately on larger screens
-  lg: 'h-14 sm:h-16 md:h-20 lg:h-[88px]',
-  xl: 'h-20 sm:h-24 md:h-28 lg:h-32',
+  lg: 'h-10 sm:h-11 md:h-12 lg:h-[52px]',
+  xl: 'h-16 sm:h-20 md:h-24 lg:h-28',
 };
 
 const PickMeLogo = ({ 
