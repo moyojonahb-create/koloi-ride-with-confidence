@@ -149,23 +149,23 @@ export default function App() {
           <Route path="/mapp/safety" element={<Navigate to="/safety" replace />} />
           <Route path="/mapp/*" element={<Navigate to="/ride" replace />} />
 
-          <Route path="/ride" element={<SuspenseWrap><AuthGuard><Ride /></AuthGuard></SuspenseWrap>} />
+          <Route path="/ride" element={<SuspenseWrap variant="ride"><AuthGuard><Ride /></AuthGuard></SuspenseWrap>} />
           <Route path="/ride/:rideId" element={<SuspenseWrap><AuthGuard><RideDetail /></AuthGuard></SuspenseWrap>} />
           <Route path="/rider/ride/:rideId" element={<SuspenseWrap><AuthGuard><RiderRideDetail /></AuthGuard></SuspenseWrap>} />
           <Route path="/history" element={<SuspenseWrap><AuthGuard><RideHistory /></AuthGuard></SuspenseWrap>} />
           <Route path="/ride-history" element={<Navigate to="/history" replace />} />
-          <Route path="/profile" element={<SuspenseWrap><AuthGuard><RiderProfile /></AuthGuard></SuspenseWrap>} />
+          <Route path="/profile" element={<SuspenseWrap variant="profile"><AuthGuard><RiderProfile /></AuthGuard></SuspenseWrap>} />
           <Route path="/edit-profile" element={<SuspenseWrap><AuthGuard><EditProfile /></AuthGuard></SuspenseWrap>} />
-          <Route path="/wallet" element={<SuspenseWrap><AuthGuard><RiderWalletPage /></AuthGuard></SuspenseWrap>} />
+          <Route path="/wallet" element={<SuspenseWrap variant="wallet"><AuthGuard><RiderWalletPage /></AuthGuard></SuspenseWrap>} />
 
           <Route path="/driver" element={<SuspenseWrap><DriverModeLanding /></SuspenseWrap>} />
           <Route path="/driver-mode" element={<Navigate to="/driver" replace />} />
           <Route path="/driver/register" element={<SuspenseWrap><AuthGuard><DriverRegistrationPage /></AuthGuard></SuspenseWrap>} />
           <Route path="/driver/application" element={<SuspenseWrap><DriverApplication /></SuspenseWrap>} />
-          <Route path="/driver/dashboard" element={<SuspenseWrap><AuthGuard><DriverDashboard /></AuthGuard></SuspenseWrap>} />
+          <Route path="/driver/dashboard" element={<SuspenseWrap variant="ride"><AuthGuard><DriverDashboard /></AuthGuard></SuspenseWrap>} />
           <Route path="/driver/deposit" element={<SuspenseWrap><AuthGuard><DriverDepositPage /></AuthGuard></SuspenseWrap>} />
           <Route path="/driver/leaderboard" element={<SuspenseWrap><AuthGuard><DriverLeaderboard /></AuthGuard></SuspenseWrap>} />
-          <Route path="/driver/wallet" element={<SuspenseWrap><AuthGuard><DriverWalletPage /></AuthGuard></SuspenseWrap>} />
+          <Route path="/driver/wallet" element={<SuspenseWrap variant="wallet"><AuthGuard><DriverWalletPage /></AuthGuard></SuspenseWrap>} />
 
           {/* Negotiation screens */}
           <Route path="/negotiate/request" element={<SuspenseWrap><AuthGuard><RiderRequestScreen /></AuthGuard></SuspenseWrap>} />
@@ -184,27 +184,27 @@ export default function App() {
           <Route path="/install" element={<MarketingShell><Install /></MarketingShell>} />
           <Route path="/delete-account" element={<MarketingShell><DeleteAccount /></MarketingShell>} />
 
-          <Route path="/admin" element={<SuspenseWrap><AdminGuard><AdminDashboard /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/drivers" element={<SuspenseWrap><AdminGuard><AdminDrivers /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/drivers/:driverId" element={<SuspenseWrap><AdminGuard><AdminDriverDetail /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/drivers-map" element={<SuspenseWrap><AdminGuard><AdminDriversMap /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/landmarks" element={<SuspenseWrap><AdminGuard><AdminLandmarks /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/ledger" element={<SuspenseWrap><AdminGuard><AdminLedger /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/promos" element={<SuspenseWrap><AdminGuard><AdminPromos /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/rates" element={<SuspenseWrap><AdminGuard><AdminRatePage /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/reports" element={<SuspenseWrap><AdminGuard><AdminReports /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/trips" element={<SuspenseWrap><AdminGuard><AdminTrips /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/deposits" element={<SuspenseWrap><AdminGuard><AdminDepositsPage /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/rider-deposits" element={<SuspenseWrap><AdminGuard><AdminRiderDepositsPage /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/settings" element={<SuspenseWrap><AdminGuard><AdminSettings /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/town-pricing" element={<SuspenseWrap><AdminGuard><AdminTownPricing /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/import-places" element={<SuspenseWrap><AdminGuard><ImportOsmPlaces /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/disputes" element={<SuspenseWrap><AdminGuard><AdminDisputes /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/system-health" element={<SuspenseWrap><AdminGuard><AdminSystemHealth /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/students" element={<SuspenseWrap><AdminGuard><AdminStudents /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/withdrawals" element={<SuspenseWrap><AdminGuard><AdminWithdrawalsPage /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/wallet" element={<SuspenseWrap><AdminGuard><AdminWalletDashboard /></AdminGuard></SuspenseWrap>} />
-          <Route path="/admin/rls" element={<SuspenseWrap><AdminGuard><AdminRlsViewer /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin" element={<SuspenseWrap variant="admin"><AdminGuard><AdminDashboard /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/drivers" element={<SuspenseWrap variant="admin"><AdminGuard><AdminDrivers /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/drivers/:driverId" element={<SuspenseWrap variant="admin"><AdminGuard><AdminDriverDetail /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/drivers-map" element={<SuspenseWrap variant="admin"><AdminGuard><AdminDriversMap /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/landmarks" element={<SuspenseWrap variant="admin"><AdminGuard><AdminLandmarks /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/ledger" element={<SuspenseWrap variant="admin"><AdminGuard><AdminLedger /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/promos" element={<SuspenseWrap variant="admin"><AdminGuard><AdminPromos /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/rates" element={<SuspenseWrap variant="admin"><AdminGuard><AdminRatePage /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/reports" element={<SuspenseWrap variant="admin"><AdminGuard><AdminReports /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/trips" element={<SuspenseWrap variant="admin"><AdminGuard><AdminTrips /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/deposits" element={<SuspenseWrap variant="admin"><AdminGuard><AdminDepositsPage /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/rider-deposits" element={<SuspenseWrap variant="admin"><AdminGuard><AdminRiderDepositsPage /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/settings" element={<SuspenseWrap variant="admin"><AdminGuard><AdminSettings /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/town-pricing" element={<SuspenseWrap variant="admin"><AdminGuard><AdminTownPricing /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/import-places" element={<SuspenseWrap variant="admin"><AdminGuard><ImportOsmPlaces /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/disputes" element={<SuspenseWrap variant="admin"><AdminGuard><AdminDisputes /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/system-health" element={<SuspenseWrap variant="admin"><AdminGuard><AdminSystemHealth /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/students" element={<SuspenseWrap variant="admin"><AdminGuard><AdminStudents /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/withdrawals" element={<SuspenseWrap variant="admin"><AdminGuard><AdminWithdrawalsPage /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/wallet" element={<SuspenseWrap variant="admin"><AdminGuard><AdminWalletDashboard /></AdminGuard></SuspenseWrap>} />
+          <Route path="/admin/rls" element={<SuspenseWrap variant="admin"><AdminGuard><AdminRlsViewer /></AdminGuard></SuspenseWrap>} />
           <Route path="/student-verification" element={<SuspenseWrap><AuthGuard><StudentVerificationPage /></AuthGuard></SuspenseWrap>} />
 
           <Route path="*" element={<MarketingShell><NotFound /></MarketingShell>} />
