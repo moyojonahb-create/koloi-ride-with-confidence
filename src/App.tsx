@@ -66,16 +66,17 @@ const RiderOffersScreen = lazy(() => import("./pages/negotiate/RiderOffersScreen
 const RiderRequestScreen = lazy(() => import("./pages/negotiate/RiderRequestScreen"));
 const LiveTrackingPage = lazy(() => import("./pages/LiveTrackingPage"));
 
-function SuspenseWrap({ children }: { children: React.ReactNode }) {
-  return (
-    <Suspense fallback={
-      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    }>
-      {children}
-    </Suspense>
-  );
+import PageSkeleton from "./components/PageSkeleton";
+
+function SuspenseWrap({
+  children,
+  variant = "generic",
+}: {
+  children: React.ReactNode;
+  variant?: "ride" | "wallet" | "profile" | "admin" | "generic";
+}) {
+  // Skeleton-first: never show a blank page or a centred spinner.
+  return <Suspense fallback={<PageSkeleton variant={variant} />}>{children}</Suspense>;
 }
 
 // (prefetch is provided by ./lib/prefetchPages — it picks only the bundles
