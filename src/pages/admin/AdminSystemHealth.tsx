@@ -9,7 +9,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   RefreshCw, AlertTriangle, CheckCircle2, Clock, Zap, Activity,
   Database, Shield, Bug, Server, Users, Gauge, Eye, Bot,
-  MapPin, Phone, Navigation, CreditCard, Smartphone, Volume2, Archive
+  MapPin, Phone, Navigation, CreditCard, Smartphone, Volume2, Archive,
+  Copy, Check
 } from 'lucide-react';
 import { format, subHours, subDays } from 'date-fns';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -17,6 +18,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { toast } from 'sonner';
 import { uuid } from '@/lib/uuid';
 import MapsDebugPanel from '@/components/admin/MapsDebugPanel';
+import { generateLovablePrompt } from '@/lib/ramzPrompt';
 
 interface HealthCheck {
   id: string;
@@ -830,6 +832,7 @@ export default function AdminSystemHealth() {
                               </p>
                               <p className="text-xs text-foreground/80">{check.suggestion}</p>
                             </div>
+                            <RamzPromptBlock check={check} />
                             <p className="text-[10px] text-muted-foreground mt-1.5">
                               Detected at {format(new Date(check.timestamp), 'HH:mm:ss · MMM d')}
                             </p>
@@ -906,5 +909,50 @@ export default function AdminSystemHealth() {
         </div>
       </AdminLayout>
     </AdminGuard>
+  );
+}
+
+/**
+ * Ramz One — collapsible block that renders a structured, copy-paste-ready
+ * Lovable.dev prompt for fixing the finding. Each finding gets its own
+ * PROBLEM / ROOT CAUSE / FIX TYPE / LOVABLE PROMPT bundle.
+ */
+function RamzPromptBlock({ check }: { check: HealthCheck }) {
+  const [copied, setCopied] = useState(false);
+  const prompt = useMemo(() => generateLovablePrompt(check), [check]);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setCopied(true);
+      toast.success('Lovable prompt copied — paste it into chat to apply the fix.');
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      toast.error('Could not copy — select the text manually.');
+    }
+  };
+
+  return (
+    <details className="mt-2 group rounded-lg border border-border bg-muted/20 overflow-hidden">
+      <summary className="flex items-center justify-between px-2.5 py-1.5 cursor-pointer list-none text-[11px] font-semibold text-foreground hover:bg-muted/40">
+        <span className="flex items-center gap-1.5">
+          <Bot className="w-3 h-3 text-primary" />
+          Lovable-ready fix prompt
+        </span>
+        <span className="text-[10px] text-muted-foreground group-open:hidden">Show</span>
+        <span className="text-[10px] text-muted-foreground hidden group-open:inline">Hide</span>
+      </summary>
+      <div className="border-t border-border bg-background/60">
+        <div className="flex items-center justify-end px-2 py-1.5 border-b border-border/60 bg-muted/30">
+          <Button size="sm" variant="ghost" onClick={copy} className="h-6 gap-1 text-[10px] font-semibold">
+            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            {copied ? 'Copied' : 'Copy prompt'}
+          </Button>
+        </div>
+        <pre className="px-2.5 py-2 text-[10.5px] leading-relaxed font-mono text-foreground/85 whitespace-pre-wrap break-words max-h-72 overflow-auto">
+{prompt}
+        </pre>
+      </div>
+    </details>
   );
 }
