@@ -20,8 +20,8 @@
  * runtime loses caller cancellation but keeps the timeout.
  */
 
-import type { CoreConfig } from '../config.js';
-import type { AuthTokenProvider } from '../auth.js';
+import type { CoreConfig } from '../config';
+import type { AuthTokenProvider } from '../auth';
 
 export type GoBackendErrorCode =
   | 'UNAUTHENTICATED'

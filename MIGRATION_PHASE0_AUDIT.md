@@ -373,6 +373,314 @@ Design notes for whoever picks it up:
   separately after "While Using"; Android 11+ likewise splits background
   location into its own Settings-only step.
 
+## Profile phone write — a latent defect, and a corrected inference
+
+**Corrected.** An earlier pass concluded the null `phone` columns were caused by
+web's signup write silently skipping. That conclusion was wrong, and the
+correction matters more than the original finding.
+
+### What is actually true
+
+`PATCH /api/profiles/me` accepts `phone` — `only(payload, "full_name", "phone",
+…)` in `backend/internal/business/handler.go:571`. The endpoint is fine.
+`handle_new_user()` copies only `full_name`, and no trigger populates `phone`,
+so the client write is the only path that sets it.
+
+Web writes it in `src/pages/Auth.tsx`:
+
+```ts
+const { data: authData } = await supabase.auth.getUser();
+if (authData?.user) { await updateMyProfile({ phone: formattedPhone }); }
+```
+
+**The guard is a real latent defect.** When `signUp()` returns no session — what
+email confirmation does — `getUser()` resolves null, the guard is false, and the
+write is skipped with no error, no log and no retry. Signup still shows its
+success toast and navigates, so the failure would be completely invisible.
+
+### Why it is not the cause of the observed nulls
+
+Queried directly against the database:
+
+| Evidence | Reading |
+|---|---|
+| March account: 193s between signup and confirmation | Email confirmation was **ON** |
+| June account: 0.033s, auto-confirmed | Confirmation was **OFF** by then |
+| Neither user has `phone` in `raw_user_meta_data` | Neither used the phone-signup path |
+| June account has no `full_name` either | Not created through the normal signup form |
+
+Confirmation is **off today**, so the guard passes and web's write should be
+firing. The two null phones belong to accounts that never went through phone
+signup, so they say nothing about whether the write works. **The defect is real
+and worth fixing; the nulls are not its evidence.**
+
+### Why `pendingProfile.ts` is still justified
+
+Not by "signup-then-confirm-later" — that was the weaker argument resting on the
+same mistaken inference. The real justification is **robustness to the
+confirmation setting changing underneath the code**, and on this project it
+demonstrably does: it has already been flipped once between March and June.
+
+A fire-and-forget write is correct only while confirmation stays off. Nothing in
+the codebase records that dependency, nothing fails when it is flipped, and the
+symptom — phone numbers quietly stopping — would surface as a data-quality
+puzzle weeks later. Queueing is correct under either setting, which is why
+mobile queues to AsyncStorage and flushes on the auth event that delivers a
+session, retrying on the next sign-in if it fails.
+
+**Open item for web:** the guard should either write unconditionally through a
+queue, or fail loudly when it cannot write. It currently does neither. Low
+urgency while confirmation is off; it becomes a live bug the moment it is not.
+
+## Fare calculation audited against live `town_pricing` — one shared bug found
+
+Audited the ported `calculateRecommendedFare` field-by-field against the real
+table (13 towns, queried directly). **The port is faithful. The calculation it
+faithfully reproduces has a defect.**
+
+That distinction is the point of this section: "byte-for-byte the web
+calculation" was an accurate description of the port and a useless statement
+about correctness.
+
+### Field-by-field
+
+| Field | Consumed by the fare calc? | Notes |
+|---|---|---|
+| `base_fare` | ✅ | |
+| `per_km_rate` | ✅ | |
+| `minimum_fare` | ✅ | Clamped **before** rounding — see the rounding note |
+| `night_multiplier` | ✅ | Per-town, read from the row. All 13 towns are 1.2 |
+| `demand_multiplier` | ✅ | All 13 towns are 1.0, so currently inert but wired |
+| `offer_floor` | ✅ | `tripFloor = max(offer_floor, minimum_fare)` |
+| `offer_ceiling` | ✅ | `tripCeiling = min(offer_ceiling, 2 × fare)` |
+| `currency_code` / `currency_symbol` | ✅ | Passed through |
+| **`short_trip_fare`** | ❌ **never read** | **Bug — see below** |
+| **`short_trip_km`** | ❌ **never read** | **Bug — see below** |
+| `is_negotiation_enabled` | ❌ not read | Not a fare input; admin-editable only. Noted, not a fare defect |
+
+### BUG-001 — `short_trip_fare` / `short_trip_km` are configured but dead
+
+**Present in both `src/hooks/useTownPricing.ts` and
+`packages/core/src/pricing/fare.ts`. Not a port defect — a shared bug.**
+
+Grepped across the whole web app: `short_trip_fare` and `short_trip_km` appear
+only in the type definition, the default object, generated Supabase types, test
+fixtures, and **the admin editor** (`src/pages/admin/AdminTownPricing.tsx:164`,
+which renders both as editable number fields). **No calculation anywhere reads
+them.**
+
+All 13 towns have both populated. `short_trip_km` is 2 in every row, and
+`short_trip_fare` equals that town's `minimum_fare` exactly in every row.
+
+**Why this is worse than an unused column.** Operations staff can open the admin
+UI, set a town's short-trip fare, save it, and see it persist — and it changes
+nothing. Config that is editable, persisted, and inert is worse than config that
+is absent, because absent config prompts a question and inert config produces
+false confidence.
+
+**Worked example, Victoria Falls** (`base_fare` 3.00, `per_km_rate` 1.20,
+`short_trip_fare` 2.50, `short_trip_km` 2):
+
+| Trip | Configured intent | What is actually charged |
+|---|---|---|
+| 1 km, daytime | 2.50 flat | 3.00 + 1.20 = 4.20 → rounds to **4.00** |
+
+A 60% overcharge on the shortest trips, in every town, if the intended semantics
+are a flat short-trip fare. **The intended semantics are a product question and
+this audit does not assume them** — but the fields are unreadable by any code
+path, which is a defect under every reading.
+
+**Do not "fix" this in core alone.** Fare arithmetic diverging between the two
+clients would mean the same trip quotes differently on web and mobile, which is
+materially worse than both being consistently wrong. This needs a product
+decision on the intended semantics, then a change landed in both.
+
+#### BUG-001 is BLOCKED — and the blocker is a product decision, not engineering
+
+**Nobody should write the fix until this is answered:**
+
+> Does `short_trip_fare` mean **a flat fare** for trips under `short_trip_km`,
+> or **a floor** applied to them?
+
+The two readings produce different prices for the same trip. A 1 km Victoria
+Falls ride is **$2.50** under the flat reading and **$4.00** under the floor
+reading (since the distance-based fare already exceeds the floor). Nothing in
+the schema, the admin UI, or the code distinguishes them, because no code
+consumes the fields at all. **This is an owner decision.** Engineering can
+implement either in under an hour; guessing which is what produces a pricing
+incident.
+
+**Commercial weight, and it is not small.** Short trips are plausibly the modal
+trip in the pilot towns — Gwanda, Beitbridge and Plumtree are small enough that a
+sub-2 km ride is the ordinary case, not an edge case. If the flat reading is
+correct, the app is currently quoting roughly **60% over configured intent on
+the most common trip**, in a market where the alternative is informal transport
+competing directly on price. That is the kind of gap that shows up as
+unexplained low conversion rather than as a bug report, because riders who think
+a fare is too high simply do not book.
+
+**Landing rule when it is settled:** the change goes into
+`src/hooks/useTownPricing.ts` and `packages/core/src/pricing/fare.ts` **in the
+same commit**, with a shared test asserting the agreed semantics on both sides.
+A staged rollout where one platform gets the fix first is explicitly not
+acceptable here — two clients quoting different prices for the same trip is a
+trust problem, and a rider comparing with a friend will find it immediately.
+
+### The $0.50 hard floor is vestigial, not a floor
+
+`fare = Math.max(fare, 0.5)` runs *after* the `minimum_fare` clamp. The lowest
+`minimum_fare` across all 13 towns is $1.00, so **the $0.50 floor can never
+bind.** It is dead code. The 3c report described it as if it were the operative
+floor; `minimum_fare` is.
+
+### Latent: rounding can drop below `minimum_fare`
+
+The clamp is applied *before* rounding to the nearest $0.50:
+
+```
+fare = Math.max(fare, pricing.minimum_fare);   // clamp
+fare = Math.round(fare * 2) / 2;               // then round — can go down
+```
+
+Every current `minimum_fare` is an exact multiple of $0.50 (1.00, 1.50, 2.00,
+2.50), verified for all 13 rows, so rounding cannot currently move a clamped
+fare below the minimum. **It is reachable, though:** the admin UI accepts
+arbitrary values, and a `minimum_fare` of $1.60 would round to $1.50 — a fare
+below the configured minimum, with nothing to catch it.
+
+**Code fix when the shared change is made:** clamp after rounding, or round up
+rather than to-nearest. Same both-or-neither rule as BUG-001 — it lands in
+`src/hooks/useTownPricing.ts` and `packages/core/src/pricing/fare.ts` together,
+because it changes quoted prices and divergence here has the same trust cost.
+
+**Cheaper mitigation, and it should happen regardless:** constrain the
+`minimum_fare` input in `src/pages/admin/AdminTownPricing.tsx` to $0.50
+increments (`step="0.5"` plus validation on save). That makes the bug
+**unreachable by construction** rather than unreachable by luck.
+
+Today it is luck. All 13 rows happen to be exact multiples of $0.50, so nothing
+misbehaves — but that is a property of the current data, not of the system, and
+the admin UI accepts any value. One ops user typing `1.60` into a field that
+offers no resistance reintroduces it, and the symptom would be a fare $0.10
+below the configured minimum: far too small to notice, and wrong in the
+direction that costs the business money on every short trip in that town.
+
+Note the input constraint is a **web-only admin change** and therefore does not
+carry the both-or-neither obligation — there is no mobile admin screen, and
+mobile never writes `minimum_fare`.
+
+## The increment gate is `node scripts/verify.mjs` — do NOT make it an npm script
+
+`scripts/verify.mjs` runs every gate in one command: core typecheck, mobile
+typecheck, the core suite, both platform bundles, and the web zero-diff check.
+Every gate runs even when an earlier one fails, so one run reports every problem
+rather than the first, and the exit code is non-zero if any failed.
+
+**It exists because a green test run twice masked a broken build.** Vitest does
+not typecheck, so `packages/core` carried a real `TS2493` while 89 tests passed;
+before that, the `.js`-extension bug bundled-failed while `tsc` was clean.
+Different resolvers fail differently, and reporting "gates green" after checking
+whichever one was edited last is how both got through. The fix is a choke point,
+not a resolution to remember.
+
+### Why it is deliberately not `npm run verify`
+
+The obvious convenience is a `"verify"` entry in the **root** `package.json`.
+**Do not add one.**
+
+Root `package.json` is the web app's manifest. It is covered by the byte-identical
+rule, and it is **Lovable-regenerated** — Lovable's tooling owns and rewrites it.
+An entry added there would eventually be clobbered by a regeneration, and the
+failure mode is the bad one: `npm run verify` starts reporting "missing script"
+or, worse, someone quietly stops running it and the gate silently stops being
+mechanical. **A gate that people believe is running and is not is worse than
+never having claimed one.**
+
+`node scripts/verify.mjs` is equally mechanical, lives in a file Lovable does not
+touch, and keeps the zero-diff invariant intact. That invariant is what lets the
+web app keep shipping from Lovable while the migration proceeds underneath it;
+trading it for four saved keystrokes is a bad trade.
+
+**If you are reading this because you were about to add the npm script: that is
+the thing this section exists to stop.**
+
+---
+
+## Native config batch — apply together, rebuild once
+
+Changes in this section alter native project config, so each one costs a full
+EAS build and a redistributed dev client. They are therefore **batched
+deliberately and applied in a single rebuild**, not merged as they are
+discovered. Nothing here is urgent enough on its own to justify a build; all of
+it is blocking before a real track.
+
+**Trigger for the batch:** whenever FCM push is added — that is a native change
+that must happen anyway, and it is the natural carrier for the rest. Apply every
+open row below in the same commit, then rebuild once.
+
+### Scheduled: the 3c → 3d boundary
+
+**The build happens between increment 3c (fare and configuration) and 3d
+(request and realtime). Not earlier, not later.** This is a decision, not a
+convenience, and it should not drift.
+
+The reasoning is about *what each increment's gates can actually prove*:
+
+| Increment | Needs a rebuild? | Why |
+|---|---|---|
+| 3a — shell and location | No | Bundles and typechecks prove the code; the GPS fix is the one gate deferred, accepted at the time |
+| 3b — destination search | **No** | `useLandmarks`, `useStreets`, `placeCache`, `streetSearchRank` and the Nominatim proxy are pure JS over `fetch` and Supabase. Verifiable through the bundle with no native module |
+| 3c — fare and configuration | **No** | Pricing, tiers, wallet reads and route estimates are pure JS |
+| 3d — request and realtime | **Yes** | First increment whose gates genuinely need a device: socket behaviour across backgrounding, and the `AppState` foreground-resume path from DIVERGENCE-002 which by definition cannot be tested in a bundler |
+
+Rebuilding before 3d would buy verification nothing 3b and 3c need, at the cost
+of a ~15-minute EAS build and a 169 MB redistribution per test device on a link
+that has already wedged once mid-download. Rebuilding after 3d would mean 3d's
+gates are unverifiable at the moment they matter most.
+
+**The build carries:** N-1 (`scheme`), N-2 (password-reset `redirectTo`), N-4
+(`expo-location` autolink), plus whatever 3d itself turns out to require — which
+is why it is scheduled at that boundary rather than fixed to a date. N-3 (FCM)
+joins it if ready; it is not a blocker for the slice.
+
+**Do not pull the build earlier for convenience.** The temptation will be to
+rebuild as soon as N-4 blocks a visible gate on 3a. It already does, and that
+was accepted deliberately: one gate deferred is cheaper than three rebuilds.
+
+Until the batch lands, the features these enable simply do not work on device,
+on either platform. That is accepted and recorded, not forgotten.
+
+| # | Change | File | Blocks | Both platforms? |
+|---|---|---|---|---|
+| N-1 | `"scheme": "cruixe"` | `apps/mobile/app.json` | All deep links. `/track/:tripId` is the one route genuinely linked from outside — riders share tracking. Also required by React Navigation's `linking` config. | Yes — iOS URL types and Android intent filters both derive from it |
+| N-2 | Password-reset `redirectTo` | `apps/mobile/app.json` + Supabase dashboard redirect allow-list | `/reset-password`. Web uses `${window.location.origin}/reset-password`, which has no device equivalent; mobile needs `cruixe://reset-password`, so it depends on N-1 | Yes |
+| N-3 | FCM push (the carrier change) | `app.json` plugins, `google-services.json`, APNs key | All notifications. Web Push (`src/lib/push.ts` + `public/sw.js`) is service-worker based and deleted rather than ported | Yes — APNs for iOS, FCM for Android |
+| N-4 | `expo-location` native module | already in `package.json`; needs autolinking into a build | The rider location path in increment 3a. Installed after build `b2146450`, so its native module is **not in the current dev client** — `requestForegroundPermissionsAsync()` fails with "Cannot find native module 'ExpoLocation'" until a rebuild | Yes |
+
+**On N-4 specifically.** The obvious shortcut is to use
+`react-native-background-geolocation` instead, since it *is* in the current
+binary and already permissioned. **Do not.** The spike harness registers a
+global `BackgroundGeolocation.onLocation` listener that appends every fix to the
+spike log (`apps/mobile/App.tsx` → `appendFix`). A rider screen requesting a
+position through that library would write phantom fixes into an S0–S6
+measurement and silently corrupt it — the results would look like the platform
+delivering extra fixes rather than the app asking for them.
+
+The separation is also correct independently of the spike: background-geolocation
+is a driver-side always-on foreground-service concern, while a rider wanting one
+fix to centre a map is a foreground one-shot. They should not share a source
+even after the spike ends.
+
+**Note on N-2:** the Supabase redirect allow-list is a dashboard setting, not a
+repo change, and is easy to forget because nothing in the codebase references
+it. A `redirectTo` that is not on the allow-list is silently ignored and the
+user lands on the site URL instead — which on mobile means the link appears to
+do nothing at all.
+
+**Do not apply these one at a time.** Each costs ~15 minutes of EAS build plus a
+169 MB redistribution to every test device, on a link that has already proven
+unreliable. Three separate rebuilds buy nothing over one.
+
 ## Build toolchain: EAS cloud only — no local Gradle stack
 
 **Decision: the local Android toolchain is out of scope and will not be set up.**

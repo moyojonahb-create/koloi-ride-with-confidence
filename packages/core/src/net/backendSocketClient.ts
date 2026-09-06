@@ -27,7 +27,7 @@
  * unchanged.
  */
 
-import type { AuthTokenProvider } from '../auth.js';
+import type { AuthTokenProvider } from '../auth';
 
 const HEARTBEAT_MS = 25_000;
 const PONG_TIMEOUT_MS = 10_000;

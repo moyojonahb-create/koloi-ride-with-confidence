@@ -99,6 +99,16 @@ silently receives nothing, with no visible error.**
 does not happen on its own. There is no web equivalent of a suspended process,
 which is exactly why web never surfaced this.
 
+**Scheduled: inside the socket increment, not after it.** This is not a
+follow-up task to be picked up once the socket works — it is part of what
+"the socket works" means on mobile. A socket increment that reconnects on
+foreground with a stale cached token will *pass* a desk test, because a session
+that has not been suspended long enough still holds a valid token. It fails only
+after a real backgrounding, which is the exact condition drivers spend their day
+in. Deferring it produces a green increment that is wrong in production, so the
+`AppState` listener ships in the same increment as the socket client and the
+foreground-resume path is part of that increment's acceptance, not a later fix.
+
 ---
 
 ## DIVERGENCE-003 — exact brand hex instead of rounded HSL
@@ -126,3 +136,45 @@ is accepted rather than outstanding.
 
 **Do not "fix" mobile down to match web** — that reintroduces the drift. If web
 ever moves off Lovable, align it upward to `#B81104`.
+
+---
+
+## DIVERGENCE-004 — auth identifier resolution duplicated in `apps/mobile`
+
+| | |
+|---|---|
+| **Files** | `apps/mobile/src/auth/identity.ts` vs `src/pages/Auth.tsx` |
+| **Status** | **Open duplication. Guarded by test, promotion deferred.** |
+| **Promotion window** | When the web app is next touched for another reason — not before |
+| **Tests** | `DIVERGENCE-004: auth identity rules match web` in `src/divergence/identity.divergence.test.ts` |
+
+Unlike 001–003, this is not a behavioural difference. It is **the same rules
+implemented twice**, which is the condition the top of this file calls
+accidental drift. It is recorded here because these are **auth semantics**, and
+drift produces inconsistent *login behaviour* between platforms — a user who can
+sign in on web and not on mobile, with no error that explains why.
+
+The rules that must not diverge:
+
+| Rule | Value | Consequence if it drifts |
+|---|---|---|
+| Local-number prefix | `0…` → `+263…` | A Zimbabwean local number resolves to a different account, or none |
+| Synthetic email domain | `<digits>@pickme.phone` | Phone-registered accounts become unreachable — the address is what Supabase authenticates against |
+| Nickname resolution | `email_for_nickname` RPC | Nickname login silently falls through to using the nickname as an email |
+| Retry policy | Retry transient network errors only, never a rejected credential | Retrying a wrong password risks rate-limiting or locking the account |
+
+**Why it is not in `packages/core` yet.** Core is scoped as a port of
+`src/lib/`. This logic lives in a *page component* on web, so promoting it is a
+refactor of `src/pages/Auth.tsx` — and that file is inside the byte-identical
+web app the migration is deliberately not touching. Promoting now would mean
+either editing web mid-flight or moving the code to core while web keeps its own
+copy, which is the same duplication with a longer import path.
+
+**So it is guarded instead of promoted.** The test asserts mobile's behaviour
+against the four rules above *and* reads `src/pages/Auth.tsx` to confirm the web
+literals (`+263`, `@pickme.phone`, `email_for_nickname`) are still present. If
+either side moves, the suite fails loudly rather than the two quietly disagreeing.
+
+**On promotion:** move the module into `packages/core/src/auth/identity.ts`,
+have both apps import it, and delete this entry along with the file-reading half
+of the test.

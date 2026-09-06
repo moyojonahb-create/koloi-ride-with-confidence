@@ -100,6 +100,48 @@ Known-hostile OEM layers to note if they appear: Xiaomi/Redmi (MIUI), Oppo/Realm
 
 ---
 
+## Build sequencing: never straddle two binaries
+
+**A scenario runs entirely on one build, or it restarts cleanly on the next.**
+Never carry a partial run across a rebuild.
+
+The migration adds native modules on a schedule (see "Native config batch" in
+`MIGRATION_PHASE0_AUDIT.md` — the next build lands at the 3c→3d boundary and
+carries `expo-location`, the `scheme`, and the password-reset redirect). That
+build changes what is in the binary, which changes what the OS is scheduling.
+
+**Why this needs saying.** The log has no idea which binary produced it.
+`fixLog` records timestamps, coordinates, battery and app state — nothing that
+identifies the build. So a run that spans a reinstall produces a file that looks
+completely normal, scores cleanly, and is quietly meaningless: the first half
+measured one set of background work and the second half measured another. A
+delivery-rate figure averaged across that boundary is not a measurement of
+either binary.
+
+That is worse than a failed run. A failed run tells you something is wrong; this
+one hands you a plausible number.
+
+**Rules:**
+
+- Finish the scenario in progress **before** installing a new build, or discard
+  its log and start over afterwards. Do not resume.
+- After any reinstall, re-run **S0** before anything else. A new binary is a new
+  instrument, and S0 exists to verify the instrument.
+- Record the build id alongside the results table. `b2146450-4cf0-4bd8-971d-18300602489a`
+  is the current one; the post-N-4 binary will have its own.
+- **Do not compare S1–S6 across builds** unless you are deliberately measuring
+  the effect of the change — in which case say so, and re-run the full set on
+  both rather than reusing old numbers for the baseline.
+
+**Specific to the next build:** it adds `expo-location`. That is a second
+location consumer in the same process, and the rider screen requests a
+foreground fix on mount. It should not affect background delivery, but "should
+not" is exactly the kind of assumption this spike exists to test — so treat
+pre-N-4 and post-N-4 numbers as separate data sets until a clean S1 on the new
+binary says otherwise.
+
+---
+
 ## Platform scope: S1–S6 validate ANDROID ONLY
 
 The app ships to both platforms and the scaffold is configured for both — the

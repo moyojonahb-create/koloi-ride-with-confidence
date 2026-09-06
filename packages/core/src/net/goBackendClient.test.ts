@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createGoBackendClient, GoBackendError } from './goBackendClient.js';
-import type { AuthEvent, AuthTokenProvider } from '../auth.js';
+import { createGoBackendClient, GoBackendError } from './goBackendClient';
+import type { AuthEvent, AuthTokenProvider } from '../auth';
 
 /**
  * These tests lock the behavioural contract of the Go API client before anyone

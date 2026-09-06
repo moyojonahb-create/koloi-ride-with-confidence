@@ -13,4 +13,4 @@ export {
   type BrandTokens,
   type SemanticTokens,
   type Hsl,
-} from './themes.js';
+} from './themes';

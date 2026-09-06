@@ -328,3 +328,58 @@ Mapbox is then attempted against data already known to be correct.
 
 *Produced by reading `src/App.tsx` (229 lines, 74 routes) and measuring all 54
 page files plus their component subtrees. No packages installed, no network used.*
+
+---
+
+## 8. Parity backlog — deferred from the slice, NOT dropped
+
+The vertical slice (§5) deliberately carries only what proves the architecture.
+Everything below is **live on web today** and is therefore outstanding work, not
+descoped work. It is listed here per-feature with its source path so it is
+tracked rather than absorbed into a sentence.
+
+**Capacitor cannot be retired until every row is either built or consciously
+dropped, with the drop recorded.** A row silently missing from the RN app is a
+regression for users who use it now.
+
+| # | Feature | Web source | LOC | Notes |
+|---|---|---|---|---|
+| P-1 | **Emergency button** | `src/components/ride/EmergencyButton.tsx` | 297 | **Safety feature. Highest priority in this table.** See below. |
+| P-2 | Parcel booking | `src/components/ride/ParcelBookingSheet.tsx` | 427 | Backs the `parcel` ride tier; the tier selector offers it |
+| P-3 | Schedule a ride | `src/components/ride/ScheduleRide.tsx` | 361 | Future-dated bookings |
+| P-4 | Book for someone else | `src/components/ride/BookingForSomeoneElse.tsx` | 306 | Third-party payer + passenger notify; needs the contact picker |
+| P-5 | Note to driver | `src/components/ride/NoteToDriverSheet.tsx` | 230 | Includes the "reuse every trip" persisted preference |
+| P-6 | Share ride | `src/components/ride/ShareRideSheet.tsx` | 164 | Share a ride with another rider |
+| P-7 | Share trip | `src/components/ride/ShareTripButton.tsx` | 151 | Sends the live-tracking link — pairs with `/track/:tripId` |
+| P-8 | Intercity | `src/components/ride/IntercitySelector.tsx` + `src/lib/intercityRoutes.ts` | 198 | One of four service types |
+| P-9 | Multi-stop | `src/components/ride/MultiStopInput.tsx` | 103 | Adds waypoints to a ride |
+| P-10 | Gender preference | `src/components/ride/GenderPreferenceToggle.tsx` | 61 | Ties into the women-only theme already in `packages/core` |
+| P-11 | Luggage | `src/components/luggage/` (4 files) | 645 | Sheet, preview, button, fare adjustment |
+| P-12 | Service types: courier / freight | `src/components/VehicleTypeSelector.tsx` | 121 | `SERVICE_TABS` in `RideView.tsx` declares ride/intercity/courier/freight |
+| | **Total** | | **~3,064** | |
+
+> The earlier "~2,300 LOC" estimate undercounted. Measured directly, the
+> deferred set is **~3,064 LOC** across 12 features — larger than the entire
+> `components/ui/` rebuild (4,355 LOC across 59 files) is likely to feel, because
+> these are twelve independent features rather than one systematic pass.
+
+### P-1 deserves separate treatment
+
+`EmergencyButton` is a rider-safety control, wired to `SafetySheet`
+(`src/components/ride/SafetySheet.tsx`, 402 LOC) and the admin emergency-alert
+path (`src/components/admin/AdminEmergencyAlerts.tsx`). Shipping a ride-hailing
+app whose predecessor had a panic control and whose replacement does not is a
+safety regression, not a feature gap — and it is the kind that gets noticed at
+the worst possible moment.
+
+**It should not wait for the end of the parity backlog.** Either schedule it
+into the slice's tail, or make dropping it an explicit, recorded decision by a
+person who owns that risk. What it must not do is quietly fail to arrive.
+
+### How to close this section
+
+Each row ends in one of two states, and neither is "we forgot":
+
+- **Built** — ported, with the web path removed from this table.
+- **Consciously dropped** — recorded here with who decided and why, so its
+  absence is a decision rather than an accident.

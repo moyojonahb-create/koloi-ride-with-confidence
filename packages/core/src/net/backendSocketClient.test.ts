@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createBackendSocketClient, type SocketFactory } from './backendSocketClient.js';
-import { eventRideId, eventDriverId, eventOfferId, eventNumber, eventString } from './socketEvents.js';
-import type { AuthEvent, AuthTokenProvider } from '../auth.js';
+import { createBackendSocketClient, type SocketFactory } from './backendSocketClient';
+import { eventRideId, eventDriverId, eventOfferId, eventNumber, eventString } from './socketEvents';
+import type { AuthEvent, AuthTokenProvider } from '../auth';
 
 /**
  * The socket carries ride offers. Every failure mode here is invisible until a

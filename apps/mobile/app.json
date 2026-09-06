@@ -4,6 +4,8 @@
     "slug": "cruixe-mobile",
     "version": "0.1.0",
     "orientation": "portrait",
+    "//scheme": "N-1. Deep links (cruixe://) and the Supabase password-reset redirect both derive from this. iOS URL types and Android intent filters are generated from it at prebuild, so it only takes effect in a native build.",
+    "scheme": "cruixe",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {

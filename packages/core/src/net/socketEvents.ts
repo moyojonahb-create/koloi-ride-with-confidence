@@ -8,7 +8,7 @@
  * and must not be re-derived by hand in the mobile app.
  */
 
-import type { BackendSocketEvent } from './backendSocketClient.js';
+import type { BackendSocketEvent } from './backendSocketClient';
 
 function normalizeId(value: unknown): string | null {
   return typeof value === 'string' && value.trim() ? value : null;

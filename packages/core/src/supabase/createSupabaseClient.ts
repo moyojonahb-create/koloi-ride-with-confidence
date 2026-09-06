@@ -15,7 +15,7 @@
  * failure however it renders failures.
  */
 
-import type { CoreConfig } from '../config.js';
+import type { CoreConfig } from '../config';
 
 /**
  * The subset of supabase-js's storage contract both platforms satisfy.

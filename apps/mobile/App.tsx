@@ -8,6 +8,7 @@ import * as Device from 'expo-device';
 import { appendFix, readFixes, readMeta, resetLog, logFileUri, type FixRecord } from './src/fixLog';
 import { analyze, formatDuration, type Analysis, type Verdict } from './src/analyze';
 import CoreCheck from './src/CoreCheck';
+import AppRoot from './src/AppRoot';
 
 /**
  * Throwaway harness for the background-location platform spike. See RUNBOOK.md.
@@ -23,7 +24,19 @@ const RED = '#B81104';
 export default function App() {
   // Both spikes ship in one dev-client build: rebuilding a dev client to switch
   // between them would cost more than the tab does.
-  const [tab, setTab] = useState<'spike' | 'core'>('spike');
+  //
+  // TEMPORARY — REMOVE THIS TAB BAR AND MAKE AppRoot THE ENTRY POINT WHEN:
+  //   (a) the vertical slice is complete (Ride, RideMatching, LiveTracking,
+  //       RideHistory all built), AND
+  //   (b) the background-location spike is finished and S1-S6 recorded.
+  //
+  // The 'app' tab exists only so the migration and the spike can share one
+  // dev-client build while both are in flight. It is not a product surface: it
+  // has no auth gate of its own and sits above the real navigator, so shipping
+  // it to a real track would expose the spike harness to users. When both
+  // conditions hold, `index.ts` should render `AppRoot` directly and this whole
+  // component — tabs, spike UI and all — goes away with the spike folder.
+  const [tab, setTab] = useState<'spike' | 'core' | 'app'>('spike');
   const [tracking, setTracking] = useState(false);
   const [fixes, setFixes] = useState<FixRecord[]>([]);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
@@ -189,10 +202,18 @@ export default function App() {
         >
           <Text style={[styles.tabText, tab === 'core' && styles.tabTextActive]}>Core check</Text>
         </Pressable>
+        <Pressable
+          style={[styles.tab, tab === 'app' && styles.tabActive]}
+          onPress={() => setTab('app')}
+        >
+          <Text style={[styles.tabText, tab === 'app' && styles.tabTextActive]}>App</Text>
+        </Pressable>
       </View>
 
       {tab === 'core' ? (
         <CoreCheck />
+      ) : tab === 'app' ? (
+        <AppRoot />
       ) : (
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.h1}>Background location spike</Text>
